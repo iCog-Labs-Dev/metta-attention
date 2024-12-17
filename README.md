@@ -1,5 +1,6 @@
 # Economic Attention Networks (ECAN)
-- This repository is contains Metta code for [attention](https://github.com/singnet/attention) codebase port/ re implementation.
+
+- This repository contains MeTTa code for the attention codebase port/re-implementation.
 
 ## Introduction
 
