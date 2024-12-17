@@ -1,125 +1,82 @@
 ! (register-module! ../metta-attention)
 ! (import! &self types)
 
- ;Utility functions for checking if expression is tuple or not
- ;Need to be refactored
- ;################################################
-(= (is_tuple $pattern)
-    (if (== (tuple_count $pattern) 2)
-        True
-        False
-    )
-)
+ ;############################ General Overview  #####################
 
-(= (tuple_count $atom)
-    (if (== $atom ())
-        0
-        (+ 1 (tuple_count (cdr-atom $atom))))
-)
- ;#################################################
+ ; set_av function accepts a pattern/node with the attention values
+ ; and set the attention value to the pattern/node.
+ ;
+ ; i.e !(set_av (link a b) (400 400 1))
+ ;
+ ; set_stv function accepts a pattern/node with the truthvalues
+ ; and set the simple truth value to the pattern/node.
+ ;
+ ; i.e !(set_stv (link a b) (0.1 0.9))
+ ;
+ ; get_av function accepts a pattern/node and returns the attention
+ ; value attached to the pattern/node.
+ ;
+ ; i.e !(get_av (link a b))  output: (AV 400 400 1)
+ ;
+ ; get_stv function accepts a pattern/node and returns the simple truth
+ ; value attaced to the pattern/node
+ ;
+ ; i.e !(get_stv (link a b))  output: (STV 0.1 0.9)
+
+ ;############################# End ###################################
+
 (= (set_av $pattern ($sti $lti $vlti))
     (if (== (get-type $pattern) %Undefined%)
         (add-atom &self (: $pattern (AV $sti $lti $vlti)))
         (let* (
-                ($type (get-type $pattern))
-                ( ($stv $av)
-                    (if (is_tuple $type)
-                        $type
-                        (if (unify $type (STV $r1 $r2) True False)
-                            ( $type (AV 0 0 0))
-                            ( (STV 0 0) $type)))))
-            (let $_
-                (if (is_tuple $type)
-                    (let $x (collapse (match &self (: $pattern ( (STV $a $b) (AV $x $y $z))) (: $pattern ( (STV $a $b) (AV $x $y $z)))))
+                ( $stv (get_stv $pattern))
+                ( $_ (let $x (collapse (match &self (: $pattern $_) (: $pattern $_)))
                         (let $y (car-atom $x)
-                            (remove-atom &self $y)))
-                    (if (== $stv (STV 0 0))
-                        (let $x (collapse (match &self (: $pattern (AV $x $y $z)) (: $pattern (AV $x $y $z))))
-                            (let $y (car-atom $x)
-                                (remove-atom &self $y)))
-                        (let $x (collapse (match &self (: $pattern (STV $x $y)) (: $pattern (STV $x $y))))
-                            (let $y (car-atom $x)
-                                (remove-atom &self $y)))))
-                (if (== $stv (STV 0 0))
-                    (add-atom &self (: $pattern (AV $sti $lti $vlti)))
-                    (add-atom &self (: $pattern ($stv (AV $sti $lti $vlti)))))))
-    )
+                            (remove-atom &self $y)))))
+            (if (== $stv (STV 0 0))
+                (add-atom &self (: $pattern (AV $sti $lti $vlti)))
+                (add-atom &self (: $pattern ($stv (AV $sti $lti $vlti)))))))
 )
 
 (= (get_av $pattern)
-    (if (== (get-type $pattern) %Undefined%)
-        (AV 0 0 0)
-        (let* (
-                ($type (get-type $pattern))
-                ( ($stv $av)
-                    (if (is_tuple $type)
-                        $type
-                        (if (unify (STV $x $y) $type True False)
-                            ( $type (AV 0 0 0))
-                            ( (STV 0 0) $type)))))
-            $av)
+    (case (get-type $pattern)
+        (
+            ( (AV $a $b $c) (get-type $pattern) )
+            ( ( (STV $a $b) (AV $x $y $z)) (AV $x $y $z))
+            ($else (AV 0 0 0)))
     )
 )
 
- ;  ;########################### Test for seting and getting AV ###########################
- ; (: A (STV 10 20) ) ;You can comment this out.
- ; ! (set_av A (1 2 1))
- ; ! (set_av A (2 2 1))
- ; ! (set_av A (23 23 23))
- ; ! (get_av A)
- ; ! (match &self (: A $x ) (: A $x ))
- ;######################## End for av manipulation #####################################
-
- ; Assuming we represent pattern as (Node (AtomValues))
 (= (set_stv $pattern ($mean $conf))
     (if (== (get-type $pattern) %Undefined%)
         (add-atom &self (: $pattern (STV $mean $conf)))
-        (let* ( ($type (get-type $pattern))
-                ( ($stv $av)
-                    (if (is_tuple $type)
-                        $type
-                        (if (let $x $type (unify $x (STV $r1 $r2) True False))
-                            ( $type (AV 0 0 0))
-                            ( (STV 0 0) $type)))))
-
-            (let $_
-                (if (is_tuple $type)
-                    (let $x (collapse (match &self (: $pattern ( (STV $a $b) (AV $x $y $z))) (: $pattern ( (STV $a $b) (AV $x $y $z)))))
+        (let* ( ( $av (get_av $pattern))
+                ($_ (let $x (collapse (match &self (: $pattern $_) (: $pattern $_)))
                         (let $y (car-atom $x)
-                            (remove-atom &self $y)))
-                    (if (== $stv (STV 0 0))
-                        (let $x (collapse (match &self (: $pattern (AV $x $y $z)) (: $pattern (AV $x $y $z))))
-                            (let $y (car-atom $x)
-                                (remove-atom &self $y)))
-                        (let $x (collapse (match &self (: $pattern (STV $x $y)) (: $pattern (STV $x $y))))
-                            (let $y (car-atom $x)
-                                (remove-atom &self $y)))))
-                (if (== $av (AV 0 0 0))
-                    (add-atom &self (: $pattern (STV $mean $conf)))
-                    (add-atom &self (: $pattern ( (STV $mean $conf) $av))))))
+                            (remove-atom &self $y)))))
+            (if (== $av (AV 0 0 0))
+                (add-atom &self (: $pattern (STV $mean $conf)))
+                (add-atom &self (: $pattern ( (STV $mean $conf) $av)))))
     )
 )
 
 (= (get_stv $pattern)
-    (if (== (get-type $pattern) %Undefined%)
-        (STV 0 0 0)
-        (let* ( ($type (get-type $pattern))
-                ( ($stv $av)
-                    (if (is_tuple $type)
-                        $type
-                        (if (unify (STV $x $y) $type True False )
-                            ( $type (AV 0 0 0))
-                            ( (STV 0 0) $type )))))
-            $stv)
+    (case (get-type $pattern)
+        (
+            ( (STV $x $y) (get-type $pattern) )
+            ( ( (STV $x $y) (AV $a $b $c)) (STV $x $y))
+            ($else (STV 1 0)))
     )
 )
+ ;########################### Test for setting and getting STV ##########################
+ ; ! (set_av A (200 200 0))
+ ; ! (set_av A (400 400 1))
 
- ;########################### Test for seting and getting STV ##########################
- ; (: A (STV 10 20) ) ;You can comment this out.
- ; ! (set_stv A (1 1))
- ; ! (set_stv A (2 1))
- ; ! (set_stv A (23 23))
+ ; ! (set_stv A (0.1 0.9))
+ ; ! (set_stv A (1 0.9))
+
  ; ! (get_stv A)
  ; ! (get_av A)
- ; ! (match &self (: A $x ) (: A $x ))
- ;######################## End for av manipulation #####################################
+
+ ; ! (get-type A)
+ ;######################## End for setter and getters #####################################
