@@ -1,10 +1,10 @@
 # Economic Attention Networks (ECAN)
 
-- This repository contains MeTTa code for the attention codebase port/re-implementation.
+- This repository contains MeTTa code for [attention](https://github.com/singnet/attention) codebase port/re-implementation.
 
 ## Introduction
 
-- ECAN(Economic Attention Network) is ECAN is a general term for the way that Attentional dynamics (centrally, the Competition for Attention) is carried out within OpenCogPrime.
+- ECAN(Economic Attention Network) is a general term for the way that Attentional dynamics (centrally, the Competition for Attention) is carried out within OpenCogPrime.
 
 - Each Atom has an Attention Value attached to it. The process of updating these values is carried out according to nonlinear dynamical equations that are derived based on "artificial economics," utilizing two separate "currencies," one for `Short Term Importance (STI)` and one for `Long Term Importance (LTI)`.
 
