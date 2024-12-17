@@ -1,4 +1,4 @@
-## Proposed Data Structure for Atom Representation in Attention System
+## Proposed Data Structure for Atom Representation in Attention Allocation System
 
 Current Scheme Representation
 
@@ -78,11 +78,11 @@ Example with Nested Patterns
 
 In &AV and TV space:
 
-
+```
 (rand1 ((stv 0.1 0.9) (av 0 0 0)))
 (rand2 ((stv 0.1 0.9) (av 0 0 0)))
 (rand3 ((stv 0.1 0.9) (av 0 0 0)))
-
+```
 For the first one -------------------- For the second one
 
 Ugly pattern------------------- Clean pattern
@@ -96,8 +96,6 @@ Need to reconstruct the etire pattern after updating the values tv or av -------
 
 ```
 (: TruthValue Type)
-
-(: ($event $type) Type)
 
 (: STV (-> Number Number TruthValue))
 
@@ -152,7 +150,7 @@ So the same can be done for the AV
 
 ### Final decision
 
-The data structure to represent atoms in attention syste will be like the following
+The data structure to represent atoms in attention allocation system will be like the following
 
 ```
 (:AttentionValue Type)
