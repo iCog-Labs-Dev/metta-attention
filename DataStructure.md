@@ -159,9 +159,8 @@ The data structure to represent atoms in attention syste will be like the follow
 
 (: AV (-> Number Number Number AttentionValue))
 
-(: At (-> TruthValue AttentionValue Type))
+(: TruthValue Type)
 
-(sami (At (STV 0.2 0.3) (AV 0.2 0.3) ) )
-(dog ((STV 0.2 0.3) (AV 0.2 0.3)))
-(cat ((STV 0.2 0.3) (AV 0.2 0.3)))
+(: STV (-> Number Number TruthValue))
+
 ```
