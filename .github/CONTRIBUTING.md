@@ -82,7 +82,13 @@ For more information on writing commit message, see “[Conventional Commits](ht
 - When you finish working on an issue, mention the issue number in your pull request (PR) to maintain traceability.
 	- Example: `Fixes #123` or `Addresses #456`. This ensures that the issue is automatically linked to the work being done in the PR.
 
-
+## File Structure
+### Organization of files and directories
+- The project is organized into different folders based on functionality and reusability:
+	- `attention-bank`: This folder contains functions and test files related to attention bank
+		- one can add his/her function into `attention-value` folder.
+		- unit test in `test` folder and 
+		- utility or helper function into `utilities` folder.
 ## Code conventions
 
 ### Naming Conventions
