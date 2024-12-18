@@ -1,29 +1,11 @@
-! (register-module! ../metta-attention)
-! (import! &self types)
+! (register-module! ../../../metta-attention)
 
- ;############################ General Overview  #####################
 
- ; set_av function accepts a pattern/node with the attention values
- ; and set the attention value to the pattern/node.
- ;
- ; i.e !(set_av (link a b) (400 400 1))
- ;
- ; set_stv function accepts a pattern/node with the truthvalues
- ; and set the simple truth value to the pattern/node.
- ;
- ; i.e !(set_stv (link a b) (0.1 0.9))
- ;
- ; get_av function accepts a pattern/node and returns the attention
- ; value attached to the pattern/node.
- ;
- ; i.e !(get_av (link a b))  output: (AV 400 400 1)
- ;
- ; get_stv function accepts a pattern/node and returns the simple truth
- ; value attaced to the pattern/node
- ;
- ; i.e !(get_stv (link a b))  output: (STV 0.1 0.9)
 
- ;############################# End ###################################
+; set_av function accepts a pattern/node with the attention values
+; and set the attention value to the pattern/node.
+;
+; i.e !(set_av A (399 400 1))
 
 (= (set_av $pattern ($sti $lti $vlti))
     (if (== (get-type $pattern) %Undefined%)
@@ -38,6 +20,12 @@
                 (add-atom &self (: $pattern ($stv (AV $sti $lti $vlti)))))))
 )
 
+ 
+ ; get_av function accepts a pattern/node and returns the attention
+ ; value attached to the pattern/node.
+ ;
+ ; i.e !(get_av A)  output: (AV 400 400 1)
+ 
 (= (get_av $pattern)
     (case (get-type $pattern)
         (
@@ -47,6 +35,12 @@
     )
 )
 
+
+; set_stv function accepts a pattern/node with the truthvalues
+ ; and set the simple truth value to the pattern/node.
+ ;
+ ; i.e !(set_stv A (0.1 0.9))
+ ;
 (= (set_stv $pattern ($mean $conf))
     (if (== (get-type $pattern) %Undefined%)
         (add-atom &self (: $pattern (STV $mean $conf)))
@@ -60,6 +54,12 @@
     )
 )
 
+
+; get_stv function accepts a pattern/node and returns the simple truth
+ ; value attaced to the pattern/node
+ ;
+ ; i.e !(get_stv A)  output: (STV 0.1 0.9)
+
 (= (get_stv $pattern)
     (case (get-type $pattern)
         (
@@ -68,15 +68,13 @@
             ($else (STV 1 0)))
     )
 )
- ;########################### Test for setting and getting STV ##########################
- ; ! (set_av A (200 200 0))
- ; ! (set_av A (400 400 1))
+ ! (set_av A (200 200 0))
+ ! (set_av A (400 400 1))
 
- ; ! (set_stv A (0.1 0.9))
- ; ! (set_stv A (1 0.9))
+ ! (set_stv A (0.1 0.9))
+ ! (set_stv A (1 0.9))
 
- ; ! (get_stv A)
- ; ! (get_av A)
+ ! (get_stv A)
+ ! (get_av A)
 
- ; ! (get-type A)
- ;######################## End for setter and getters #####################################
+ ! (get-type A)
