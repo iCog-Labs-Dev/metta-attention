@@ -66,7 +66,7 @@
    (+ $atom-wage (* $atom-wage $ndiff))))
 
 ;example usage to compute STI and LTI wages
-!(calculate_STI_wage)
-!(calculate_LTI_wage)
+!(assertEqual (calculate_STI_wage) 20.0)
+!(assertEqual (calculate_LTI_wage) 20.0)
 
 
