@@ -77,4 +77,6 @@
  ! (get_stv A)
  ! (get_av A)
 
+
  ! (get-type A)
+
