@@ -1,4 +1,4 @@
-! (register-module! ../../../metta-attention)
+;! (register-module! ../../../metta-attention)
 
 
 
@@ -35,6 +35,38 @@
     )
 )
 
+; Helper function to extract STI from AttentionValue
+(= (get-sti $pattern)
+    (let* (
+        ($old-av (get_av $pattern))
+        ($rest1 (cdr-atom $old-av))
+        ($sti (car-atom $rest1))
+    )
+    $sti)
+)
+
+; Helper function to extract LTI from AttentionValue
+(= (get-lti $pattern)
+    (let* (
+        ($old-av (get_av $pattern))
+        ($rest1 (cdr-atom $old-av))
+        ($rest2 (cdr-atom $rest1))
+        ($lti (car-atom $rest2))
+    )
+    $lti)
+)
+
+; Helper function to extract VLTI from AttentionValue
+(= (get-vlti $pattern)
+    (let* (
+        ($old-av (get_av $pattern))
+        ($rest1 (cdr-atom $old-av))
+        ($rest2 (cdr-atom $rest1))
+        ($rest3 (cdr-atom $rest2))
+        ($vlti (car-atom $rest3))
+    )
+    $vlti)
+)
 
 ; set_stv function accepts a pattern/node with the truthvalues
  ; and set the simple truth value to the pattern/node.
