@@ -6,7 +6,7 @@
 
 ; Type for the calculateSTIWage function
 (: calculateSTIWage (-> Number))
-
+ 
 ; Type for the calculateLTIWage function
 (: calculateLTIWage (-> Number))
 
