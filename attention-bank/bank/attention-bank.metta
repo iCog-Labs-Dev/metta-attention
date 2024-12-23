@@ -1,19 +1,3 @@
-; Type for the min function
-(: min (-> Number Number Number))
-
-; Type for the max function
-(: max (-> Number Number Number))
-
-; Type for the calculateSTIWage function
-(: calculateSTIWage (-> Number))
- 
-; Type for the calculateLTIWage function
-(: calculateLTIWage (-> Number))
-
-; Type for the stimulate function
-(: stimulate (-> Symbol Number AttentionValue))
-
-
 ; Define initial variables
 (= (startingFundsSTI) 100000)
 (= (fundsSTI) 100000)
@@ -26,11 +10,16 @@
 (= (STIAtomWage) 10)
 (= (LTIAtomWage) 10)
 
+; Type for the min function
+(: min (-> Number Number Number))
+
 ; Function to compute the minimum of two values
 (= (min $a $b)
     (if (< $a $b) $a $b)
 )
 
+; Type for the max function
+(: max (-> Number Number Number))
 ; Function to compute the maximum of two values
 (= (max $a $b)
     (if (> $a $b) $a $b)
@@ -47,6 +36,9 @@
 ;       magnitude of adjustment required.
 ;    3. Constrain the adjustment factor (ndiff) to lie between -1.0 and 1.0 to avoid extreme changes.
 ;    4. Return the adjusted STI wage by applying ndiff to the base wage (STIAtomWage).
+
+; Type for the calculateSTIWage function
+(: calculateSTIWage (-> Number))
 
 (= (calculateSTIWage)
     (let* (
@@ -72,6 +64,8 @@
 ;    3. Constrain the adjustment factor (ndiff) to lie between -1.0 and 1.0 to avoid extreme changes.
 ;    4. Return the adjusted LTI wage by applying ndiff to the base wage (LTIAtomWage).
 
+; Type for the calculateLTIWage function
+(: calculateLTIWage (-> Number))
 (= (calculateLTIWage)
     (let* (
         ($funds (fundsLTI))
@@ -96,6 +90,8 @@
 ;    4. Create a new AttentionValue combining the adjusted STI, LTI, and unchanged VLTI.
 ;    5. Set the updated AttentionValue for the atom.
 
+; Type for the stimulate function
+(: stimulate (-> Symbol Number AttentionValue))
 (= (stimulate $pattern $stimulus)
     (let* (
         ($sti (getSTI $pattern))
