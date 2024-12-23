@@ -1,7 +1,3 @@
-;! (register-module! ../../../metta-attention)
-
-
-
 ; set_av function accepts a pattern/node with the attention values
 ; and set the attention value to the pattern/node.
 ;
@@ -20,7 +16,6 @@
                 (add-atom &self (: $pattern ($stv (AV $sti $lti $vlti)))))))
 )
 
- 
  ; get_av function accepts a pattern/node and returns the attention
  ; value attached to the pattern/node.
  ;
@@ -35,40 +30,8 @@
     )
 )
 
-; Helper function to extract STI from AttentionValue
-(= (get-sti $pattern)
-    (let* (
-        ($old-av (get_av $pattern))
-        ($rest1 (cdr-atom $old-av))
-        ($sti (car-atom $rest1))
-    )
-    $sti)
-)
 
-; Helper function to extract LTI from AttentionValue
-(= (get-lti $pattern)
-    (let* (
-        ($old-av (get_av $pattern))
-        ($rest1 (cdr-atom $old-av))
-        ($rest2 (cdr-atom $rest1))
-        ($lti (car-atom $rest2))
-    )
-    $lti)
-)
-
-; Helper function to extract VLTI from AttentionValue
-(= (get-vlti $pattern)
-    (let* (
-        ($old-av (get_av $pattern))
-        ($rest1 (cdr-atom $old-av))
-        ($rest2 (cdr-atom $rest1))
-        ($rest3 (cdr-atom $rest2))
-        ($vlti (car-atom $rest3))
-    )
-    $vlti)
-)
-
-; set_stv function accepts a pattern/node with the truthvalues
+ ; set_stv function accepts a pattern/node with the truthvalues
  ; and set the simple truth value to the pattern/node.
  ;
  ; i.e !(set_stv A (0.1 0.9))
@@ -86,8 +49,7 @@
     )
 )
 
-
-; get_stv function accepts a pattern/node and returns the simple truth
+ ; get_stv function accepts a pattern/node and returns the simple truth
  ; value attaced to the pattern/node
  ;
  ; i.e !(get_stv A)  output: (STV 0.1 0.9)
@@ -100,15 +62,38 @@
             ($else (STV 1 0)))
     )
 )
- ! (set_av A (200 200 0))
- ! (set_av A (400 400 1))
 
- ! (set_stv A (0.1 0.9))
- ! (set_stv A (1 0.9))
+; getMean retrieves mean from a pattern
+; i.e !(getMean A)  output: 1 
 
- ! (get_stv A)
- ! (get_av A)
+(= (getMean $pattern)
+    (let ($link $mean $conf) (get_stv $pattern) $mean)
+)
 
+; getConfidence retrieves Confidence from a pattern
+; i.e !(getConfidence A)  output: 0.9 
 
- ! (get-type A)
+(= (getConfidence $pattern)
+    (let ($link $mean $conf) (get_stv $pattern) $conf)
+)
 
+; getSTI retrieves STI from a pattern
+; i.e !(getSTI A)  output: 400 
+
+(= (getSTI $pattern)
+    (let ($link $sti $lti $vlti) (get_av $pattern) $sti)
+)
+
+; getLTI retrieves LT from a pattern
+; i.e !(getLTI A)  output: 400 
+
+(= (getLTI $pattern)
+    (let ($link $sti $lti $vlti) (get_av $pattern) $lti)
+)
+
+; getVLTI retrieves VLTI from a pattern
+; i.e !(getLTI A)  output: 1
+
+(= (getVLTI $pattern)
+    (let ($link $sti $lti $vlti) (get_av $pattern) $vlti)
+)
