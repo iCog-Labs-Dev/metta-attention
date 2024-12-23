@@ -22,7 +22,7 @@
 ; Retrieve the updated AttentionValue
 !(assertEqual (get_av C) (AV 230.0 230.0 0))
 
-; Stimulate the atom with a stimulus of 1.5
+; Stimulate the atom with a stimulus of 2 
 !(stimulate C 2)
 
 ; Retrieve the updated AttentionValue
