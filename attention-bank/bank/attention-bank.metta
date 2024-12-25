@@ -1,108 +1,138 @@
-; Define initial variables
-(= (startingFundsSTI) 100000)
-(= (fundsSTI) 100000)
-(= (startingFundsLTI) 100000)
-(= (fundsLTI) 100000)
-(= (stiFundsBuffer) 10000)
-(= (ltiFundsBuffer) 10000)
-(= (targetSTI) 10000)
-(= (targetLTI) 10000)
-(= (STIAtomWage) 10)
-(= (LTIAtomWage) 10)
+; Define initial variables and insert them in newspace called space
+!(bind! &space (new-space))
+!(add-atom &space (startingFundsSTI 100000))
+!(add-atom &space (fundsSTI 100000))
+!(add-atom &space (startingFundsLTI 100000))
+!(add-atom &space (fundsLTI 100000))
+!(add-atom &space (stiFundsBuffer 10000))
+!(add-atom &space (ltiFundsBuffer 10000))
+!(add-atom &space (targetSTI 10000))
+!(add-atom &space (targetLTI 10000))
+!(add-atom &space (STIAtomWage 10))
+!(add-atom &space (LTIAtomWage 10))
 
-; Type for the min function
-(: min (-> Number Number Number))
 
 ; Function to compute the minimum of two values
+(: min (-> Number Number Number))
 (= (min $a $b)
     (if (< $a $b) $a $b)
 )
 
-; Type for the max function
-(: max (-> Number Number Number))
 ; Function to compute the maximum of two values
+(: max (-> Number Number Number))
 (= (max $a $b)
     (if (> $a $b) $a $b)
 )
 
 ; Function to calculate STI wage
 ; Purpose:
-;    This function calculates the wage (adjustment factor) for the STI (Short-Term Importance)
-;    of an atom based on the current funds available and the target STI funds.
-;
+;    Calculates the adjustment factor for Short-Term Importance (STI) based on:
+;    - Current STI funds
+;    - Target STI funds
+;    - The buffer for STI adjustments
 ; Logic:
-;    1. Compute the difference between current STI funds and the target STI funds.
-;    2. Normalize this difference using the buffer size (stiFundsBuffer) to determine the
-;       magnitude of adjustment required.
-;    3. Constrain the adjustment factor (ndiff) to lie between -1.0 and 1.0 to avoid extreme changes.
-;    4. Return the adjusted STI wage by applying ndiff to the base wage (STIAtomWage).
-
-; Type for the calculateSTIWage function
+;    - Compute the normalized difference between current funds and the target.
+;    - Limit the adjustment factor between -1.0 and 1.0.
+;    - Return the adjusted STI wage.
 (: calculateSTIWage (-> Number))
-
 (= (calculateSTIWage)
-    (let* (
-        ($funds (fundsSTI))
-        ($diff (- $funds (targetSTI)))
-        ($ndiff-raw (/ $diff (stiFundsBuffer)))
-        ($ndiff-clamped-min (min $ndiff-raw 1.0))
-        ($ndiff (max $ndiff-clamped-min -1.0))
-        ($atom-wage (STIAtomWage))
-    )
-    (+ $atom-wage (* $atom-wage $ndiff)))
+   (let* (
+           ($funds (match  &space  (fundsSTI $x) $x))
+           ($targetSTI (match  &space  (targetSTI $y) $y))
+           ($stiFundsBuffer (match  &space  (stiFundsBuffer $z) $z))
+           ($STIAtomWage (match  &space  (STIAtomWage $z) $z))
+           ($diff (- $funds $targetSTI))
+           ($ndiff-raw (/ $diff $stiFundsBuffer))
+           ($ndiff-clamped-min (min $ndiff-raw 1.0))
+           ($ndiff (max $ndiff-clamped-min -1.0))
+           ($atom-wage $STIAtomWage)
+         )
+         (+ $atom-wage (* $atom-wage $ndiff))
+   )
 )
 
 ; Function to calculate LTI wage
 ; Purpose:
-;    This function calculates the wage (adjustment factor) for the LTI (Long-Term Importance)
-;    of an atom based on the current funds available and the target LTI funds.
-;
+;    Calculates the adjustment factor for Long-Term Importance (LTI) based on:
+;    - Current LTI funds
+;    - Target LTI funds
+;    - The buffer for LTI adjustments
 ; Logic:
-;    1. Compute the difference between current LTI funds and the target LTI funds.
-;    2. Normalize this difference using the buffer size (ltiFundsBuffer) to determine the
-;       magnitude of adjustment required.
-;    3. Constrain the adjustment factor (ndiff) to lie between -1.0 and 1.0 to avoid extreme changes.
-;    4. Return the adjusted LTI wage by applying ndiff to the base wage (LTIAtomWage).
-
-; Type for the calculateLTIWage function
+;    - Compute the normalized difference between current funds and the target.
+;    - Limit the adjustment factor between -1.0 and 1.0.
+;    - Return the adjusted LTI wage.
 (: calculateLTIWage (-> Number))
 (= (calculateLTIWage)
-    (let* (
-        ($funds (fundsLTI))
-        ($diff (- $funds (targetLTI)))
-        ($ndiff-raw (/ $diff (ltiFundsBuffer)))
-        ($ndiff-clamped-min (min $ndiff-raw 1.0))
-        ($ndiff (max $ndiff-clamped-min -1.0))
-        ($atom-wage (LTIAtomWage))
-    )
-    (+ $atom-wage (* $atom-wage $ndiff)))
+   (let* (
+           ($funds (match  &space  (fundsLTI $x) $x))
+           ($targetLTI (match  &space  (targetLTI $y) $y))
+           ($ltiFundsBuffer (match  &space  (ltiFundsBuffer $z) $z))
+           ($LTIAtomWage (match  &space (LTIAtomWage $z) $z))
+           ($diff (- $funds $targetLTI))
+           ($ndiff-raw (/ $diff $ltiFundsBuffer))
+           ($ndiff-clamped-min (min $ndiff-raw 1.0))
+           ($ndiff (max $ndiff-clamped-min -1.0))
+           ($atom-wage $LTIAtomWage)
+         )
+         (+ $atom-wage (* $atom-wage $ndiff))
+   )
 )
 
 ; Function to stimulate an atom with a given stimulus
-; Purpose
-;    This function adjusts the AttentionValue (STI, LTI, VLTI) of a given atom
-;    based on the calculated STI and LTI wages and a provided stimulus.
-;
+; Purpose:
+;    Adjusts the AttentionValue (STI, LTI, VLTI) of an atom based on:
+;    - Calculated STI and LTI wages
+;    - A stimulus factor
 ; Logic:
-;    1. Retrieve the current STI, LTI, and VLTI values for the atom.
-;    2. Compute adjusted wages for STI and LTI using calculate_STI_wage  and calculate_LTI_wage
-;    3. Apply the stimulus to scale the wages and update the STI and LTI values.
-;    4. Create a new AttentionValue combining the adjusted STI, LTI, and unchanged VLTI.
-;    5. Set the updated AttentionValue for the atom.
-
-; Type for the stimulate function
-(: stimulate (-> Symbol Number AttentionValue))
+;    - Calculate the new STI and LTI values using the wages and stimulus.
+;    - Calculate the changes in STI and LTI funds.
+;    - Call attentionValueChanged to apply the updates.
+(: stimulate (-> Symbol Number empty))
 (= (stimulate $pattern $stimulus)
-    (let* (
-        ($sti (getSTI $pattern))
-        ($lti (getLTI $pattern))
-        ($vlti (getVLTI $pattern))
-        ($sti-wage (* (calculateSTIWage) $stimulus))
-        ($lti-wage (* (calculateLTIWage) $stimulus))
-        ($new-sti (+ $sti $sti-wage))
-        ($new-lti (+ $lti $lti-wage))
-        ($new-av ($new-sti $new-lti $vlti))
-    )
-    (set_av $pattern $new-av)
-    )
+   (let* (
+           ($sti (getSTI $pattern))
+           ($lti (getLTI $pattern))
+           ($vlti (getVLTI $pattern))
+           ($sti-wage (* (calculateSTIWage) $stimulus))
+           ($lti-wage (* (calculateLTIWage) $stimulus))
+           ($new-sti (+ $sti $sti-wage))
+           ($new-lti (+ $lti $lti-wage))
+           ($new-av ($new-sti $new-lti $vlti))
+           ($stiDiff (- $sti $new-sti))
+           ($ltiDiff (- $lti $new-lti))
+           ($fundsSTI (match &space  (fundsSTI $x) $x))
+           ($fundsLTI (match  &space  (fundsLTI $x) $x))
+           ($newstifund (+ $fundsSTI $stiDiff))
+           ($newltifund (+ $fundsLTI $ltiDiff))
+         )
+         (attentionValueChanged $pattern $newstifund $newltifund $new-av)
+   )
 )
+
+; Function to handle attention value changes and update global funds
+; Purpose:
+;    Updates the AttentionValue of an atom and adjusts the global STI and LTI funds.
+; Logic:
+;    -set the new attention value of the atom 
+;    - Remove the current fundsSTI and fundsLTI values from the AtomSpace.
+;    - Add the updated fundsSTI and fundsLTI values to the AtomSpace.
+
+(: attentionValueChanged (-> Symbol Number Number AttentionValue empty))
+(= (attentionValueChanged $pattern  $newstifund $newltifund $new-av)
+   ((set_av $pattern $new-av)
+    (match  &space  (fundsSTI $fundsSTI)
+      (let ()
+           (remove-atom &space (fundsSTI $fundsSTI))
+           (add-atom  &space  (fundsSTI $newstifund))
+      )
+    )
+    (match  &space  (fundsLTI $fundsLTI)
+      (let ()
+           (remove-atom  &space  (fundsLTI $fundsLTI))
+           (add-atom  &space  (fundsLTI $newltifund))
+      )
+    )
+   )
+)
+
+
