@@ -1,3 +1,7 @@
+!(register-module! ../../../metta-attention)
+!(import! &self metta-attention:attention-bank:utilities:helper-functions)
+!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
+
 (: GROUP_SIZE Number)
 (= (GROUP_SIZE) 8)
 
@@ -21,3 +25,25 @@
                            (if (> $bin (IMPORTANCE_INDEX_SIZE))
                                (IMPORTANCE_INDEX_SIZE)
                                $bin))))))))
+
+; Function to insert an atom into the correct bin
+!(bind! &atom-bin (new-space))
+(: importanceBin (-> Symbol empty))
+(= (insert_atom $pattern)
+   (let $sti (getSTI $pattern)
+      (let $bin_index (importanceBin $sti)
+      (if (== (collapse(match &atom-bin  ($bin_index $x) $x)) ())
+      (add-atom &atom-bin ($bin_index $pattern))
+      (match  &atom-bin  ($bin_index $x)
+          (let ()
+           (remove-atom  &atom-bin  ($bin_index $x))
+           (add-atom  &atom-bin ($bin_index ($pattern $x)))
+          ))))))
+
+!(set_av E (200 200 0))
+!(insert_atom E)
+!(match &atom-bin  (45 $x) $x)
+!(set_av G (200 200 0))
+!(insert_atom G)
+!(match &atom-bin  (45 $x) $x)
+
