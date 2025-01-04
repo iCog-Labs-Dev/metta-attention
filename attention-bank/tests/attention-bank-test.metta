@@ -14,7 +14,7 @@
 
 ; Retrieve the updated AttentionValue
 !(assertEqual (get_av E) (AV 230.0 230.0 0))
-
+ 
 ; Check updated funds
 !(assertEqual (match &space (fundsSTI $x) $x) 99970.0)
 !(assertEqual (match &space (fundsLTI $x) $x) 99970.0)

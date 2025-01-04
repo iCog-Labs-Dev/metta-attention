@@ -1,49 +1,52 @@
-!(register-module! ../../../metta-attention)
-!(import! &self metta-attention:attention-bank:utilities:helper-functions)
-!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
+; importance management functions can be implemented here in this file.
 
-(: GROUP_SIZE Number)
-(= (GROUP_SIZE) 8)
+; functions like the following
 
-(: GROUP_NUM Number)
-(= (GROUP_NUM) 12)
 
-(: IMPORTANCE_INDEX_SIZE Number)
-(= (IMPORTANCE_INDEX_SIZE) 104)
+; - importanceBin - it recives importance value(sti value) and return bin value
+; - updateImportance - it recives atom, old and new sti value and updates its bin location or update its position
+; - update - update the global variables max sti and min sti value
+; - getmaxsti - return the max sti value
+; - getminsti - return the min sti value
+; - getHandleSet - recive lower and uper bound of sti and return atoms in that bound
+; - getMaxBinContents - return atoms found in max bin index
+; - getMinBinContents - return atoms found in min bin index
+; - bin_size - return the total bin size
+; - size - it recives atom bin index and return the size or total number of atoms found inside that bin index
 
-; Define importanceBin function
+(: GroupSize Number)
+(= (GroupSize) 8)
+
+(: GroupNum Number)
+(= (GroupNum) 12)
+
+(: ImportanceIndexSize Number)
+(= (ImportanceIndexSize) 104)
+
+;it recives importance value(sti value) and return bin value
 (: importanceBin (-> Number Number))
 (= (importanceBin $impo)
    (if (< $impo 0)
        0 ; Importance is less than 0
-       (if (< $impo (* 2 (GROUP_SIZE)))
+       (if (< $impo (* 2 (GroupSize)))
            $impo ; Importance is within the first 2 groups
-           (let $imp (ceil (/ (- $impo (GROUP_SIZE)) (GROUP_SIZE)))
-               (let $i (find_group $imp 0 0) ; Find the group index
-                   (let $ad (- (GROUP_SIZE) (ceil (/ $impo (pow 2 (- $i 1)))))
-                       (let $bin (- (* $i (GROUP_SIZE)) $ad)
-                           (if (> $bin (IMPORTANCE_INDEX_SIZE))
-                               (IMPORTANCE_INDEX_SIZE)
-                               $bin))))))))
+           (let $imp (ceil (/ (- $impo (GroupSize)) (GroupSize)))
+               (let $i (findGroup $imp 0 0) ; Find the group index
+                   (let $ad (- (GroupSize) (ceil (/ $impo (pow 2 (- $i 1)))))
+                       (let $bin (- (* $i (GroupSize)) $ad)
+                           (if (> $bin (ImportanceIndexSize))
+                               (ImportanceIndexSize)
+                               $bin
+                            )
+                        )
+                    )
+                )
+            )
+        )
+                               
+                               
+    )
+)
 
-; Function to insert an atom into the correct bin
-!(bind! &atom-bin (new-space))
-(: importanceBin (-> Symbol empty))
-(= (insert_atom $pattern)
-   (let $sti (getSTI $pattern)
-      (let $bin_index (importanceBin $sti)
-      (if (== (collapse(match &atom-bin  ($bin_index $x) $x)) ())
-      (add-atom &atom-bin ($bin_index $pattern))
-      (match  &atom-bin  ($bin_index $x)
-          (let ()
-           (remove-atom  &atom-bin  ($bin_index $x))
-           (add-atom  &atom-bin ($bin_index ($pattern $x)))
-          ))))))
 
-!(set_av E (200 200 0))
-!(insert_atom E)
-!(match &atom-bin  (45 $x) $x)
-!(set_av G (200 200 0))
-!(insert_atom G)
-!(match &atom-bin  (45 $x) $x)
 

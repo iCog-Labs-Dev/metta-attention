@@ -1,4 +1,3 @@
-!(testing workflow)
 !(register-module! ../../../metta-attention)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 
@@ -16,3 +15,4 @@
 ! (assertEqual (getSTI A) 400)
 ! (assertEqual (getLTI A) 400)
 ! (assertEqual (getVLTI A) 1)
+
