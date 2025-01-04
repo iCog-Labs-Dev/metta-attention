@@ -1,14 +1,14 @@
 !(register-module! ../../../metta-attention)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 
-! (set_av A (200 200 0))
-! (set_av A (400 400 1))
+! (setAv A (200 200 0))
+! (setAv A (400 400 1))
 
-! (set_stv A (0.1 0.9))
-! (set_stv A (1 0.9))
+! (setStv A (0.1 0.9))
+! (setStv A (1 0.9))
 
-! (assertEqual (get_stv A) (STV 1 0.9))
-! (assertEqual (get_av A) (AV 400 400 1))
+! (assertEqual (getStv A) (STV 1 0.9))
+! (assertEqual (getAv A) (AV 400 400 1))
 
 ! (assertEqual (getMean A) 1)
 ! (assertEqual (getConfidence A) 0.9)
