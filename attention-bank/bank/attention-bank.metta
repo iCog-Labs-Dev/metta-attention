@@ -119,7 +119,7 @@
 
 (: attentionValueChanged (-> Symbol Number Number AttentionValue empty))
 (= (attentionValueChanged $pattern  $newstifund $newltifund $new-av)
-   ((set_av $pattern $new-av)
+   ((setAv $pattern $new-av)
     (match  &space  (fundsSTI $fundsSTI)
       (let ()
            (remove-atom &space (fundsSTI $fundsSTI))

@@ -7,13 +7,13 @@
 !(assertEqual (calculateLTIWage) 20.0)
 
 ; Initial AttentionValues
-!(set_av E (200 200 0))
+!(setAv E (200 200 0))
 
 ; Stimulate the atom with a stimulus of 1.5
 !(stimulate E 1.5)
 
 ; Retrieve the updated AttentionValue
-!(assertEqual (get_av E) (AV 230.0 230.0 0))
+!(assertEqual (getAv E) (AV 230.0 230.0 0))
 
 ; Check updated funds
 !(assertEqual (match &space (fundsSTI $x) $x) 99970.0)
@@ -23,7 +23,7 @@
 !(stimulate E 2)
 
 ; Retrieve the updated AttentionValue
-!(assertEqual (get_av E) (AV 270.0 270.0 0))
+!(assertEqual (getAv E) (AV 270.0 270.0 0))
 
 ; Check updated funds
 !(assertEqual (match &space (fundsSTI $x) $x) 99930.0)
