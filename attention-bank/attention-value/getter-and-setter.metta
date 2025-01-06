@@ -3,11 +3,12 @@
 ;
 ; i.e !(set_av A (399 400 1))
 
-(= (set_av $pattern ($sti $lti $vlti))
+(: setAv (-> Atom (Number Number Number) Atom))
+(= (setAv $pattern ($sti $lti $vlti))
     (if (== (get-type $pattern) %Undefined%)
         (add-atom &self (: $pattern (AV $sti $lti $vlti)))
         (let* (
-                ( $stv (get_stv $pattern))
+                ( $stv (getStv $pattern))
                 ( $_ (let $x (collapse (match &self (: $pattern $_) (: $pattern $_)))
                         (let $y (car-atom $x)
                             (remove-atom &self $y)))))
@@ -16,12 +17,13 @@
                 (add-atom &self (: $pattern ($stv (AV $sti $lti $vlti)))))))
 )
 
- ; get_av function accepts a pattern/node and returns the attention
+ ; getAv function accepts a pattern/node and returns the attention
  ; value attached to the pattern/node.
  ;
- ; i.e !(get_av A)  output: (AV 400 400 1)
+ ; i.e !(getAv A)  output: (AV 400 400 1)
  
-(= (get_av $pattern)
+(: getAv (-> Atom AV))
+(= (getAv $pattern)
     (case (get-type $pattern)
         (
             ( (AV $a $b $c) (get-type $pattern) )
@@ -36,10 +38,12 @@
  ;
  ; i.e !(set_stv A (0.1 0.9))
  ;
-(= (set_stv $pattern ($mean $conf))
+
+ (: setStv (-> Atom (Number Number) Atom))
+(= (setStv $pattern ($mean $conf))
     (if (== (get-type $pattern) %Undefined%)
         (add-atom &self (: $pattern (STV $mean $conf)))
-        (let* ( ( $av (get_av $pattern))
+        (let* ( ( $av (getAv $pattern))
                 ($_ (let $x (collapse (match &self (: $pattern $_) (: $pattern $_)))
                         (let $y (car-atom $x)
                             (remove-atom &self $y)))))
@@ -49,12 +53,13 @@
     )
 )
 
- ; get_stv function accepts a pattern/node and returns the simple truth
+ ; getStv function accepts a pattern/node and returns the simple truth
  ; value attaced to the pattern/node
  ;
- ; i.e !(get_stv A)  output: (STV 0.1 0.9)
+ ; i.e !(getStv A)  output: (STV 0.1 0.9)
 
-(= (get_stv $pattern)
+(: getStv (-> Atom STV))
+(= (getStv $pattern)
     (case (get-type $pattern)
         (
             ( (STV $x $y) (get-type $pattern) )
@@ -66,34 +71,38 @@
 ; getMean retrieves mean from a pattern
 ; i.e !(getMean A)  output: 1 
 
+(: getMean (-> Atom Number))
 (= (getMean $pattern)
-    (let ($link $mean $conf) (get_stv $pattern) $mean)
+    (let ($link $mean $conf) (getStv $pattern) $mean)
 )
 
 ; getConfidence retrieves Confidence from a pattern
 ; i.e !(getConfidence A)  output: 0.9 
-
+(: getConfidence (-> Atom Number))
 (= (getConfidence $pattern)
-    (let ($link $mean $conf) (get_stv $pattern) $conf)
+    (let ($link $mean $conf) (getStv $pattern) $conf)
 )
 
 ; getSTI retrieves STI from a pattern
 ; i.e !(getSTI A)  output: 400 
 
+(: getSTI (-> Atom Number))
 (= (getSTI $pattern)
-    (let ($link $sti $lti $vlti) (get_av $pattern) $sti)
+    (let ($link $sti $lti $vlti) (getAv $pattern) $sti)
 )
 
 ; getLTI retrieves LT from a pattern
 ; i.e !(getLTI A)  output: 400 
 
+(: getLTI (-> Atom Number))
 (= (getLTI $pattern)
-    (let ($link $sti $lti $vlti) (get_av $pattern) $lti)
+    (let ($link $sti $lti $vlti) (getAv $pattern) $lti)
 )
 
 ; getVLTI retrieves VLTI from a pattern
 ; i.e !(getLTI A)  output: 1
 
+(: getVLTI (-> Atom Number))
 (= (getVLTI $pattern)
-    (let ($link $sti $lti $vlti) (get_av $pattern) $vlti)
+    (let ($link $sti $lti $vlti) (getAv $pattern) $vlti)
 )

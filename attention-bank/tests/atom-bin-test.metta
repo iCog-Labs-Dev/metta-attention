@@ -6,9 +6,9 @@
 
 
 ; Test insertAtom function
-!(set_av E (200 200 0))
+!(setAv E (200 200 0))
 !(insertAtom E)
 !(assertEqual (match &atom-bin  (45 $x) $x) E) 
-!(set_av G (200 200 0))
+!(setAv G (200 200 0))
 !(insertAtom G)
 !(assertEqual (match &atom-bin  (45 $x) $x) (G E))
