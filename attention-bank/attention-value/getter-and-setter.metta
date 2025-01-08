@@ -106,3 +106,7 @@
 (= (getVLTI $pattern)
     (let ($link $sti $lti $vlti) (getAv $pattern) $vlti)
 )
+!(setAv  E (200 200 5))
+!(setStv E  (1 0.9))
+!(setStv E  (0 0))
+!(get-type E)

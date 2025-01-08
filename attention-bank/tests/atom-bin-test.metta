@@ -6,11 +6,12 @@
 
 
 ; Test insertAtom function
-!(setAv E (200 200 0))
-!(setStv E (0.1 0))
-!(get-type E)
+!(setAv  h (20 200 5))
+!(setAv  h (90 200 5))
+!(setStv h  (0 0))
+!(get-type h)
 
-;!(insertAtom E)
+!(insertAtom h)
 ;!(assertEqual (match &atom-bin  (45 $x) $x) (E)) 
 ;!(setAv G (200 200 0))
 ;!(insertAtom G)

@@ -21,22 +21,7 @@
 !(bind! &atom-bin (new-space))
 (: insertAtom (-> Symbol empty))
 (= (insertAtom $pattern)
-   (let $sti (getSTI $pattern)
-      (let $bin_index (importanceBin $sti)
-         (if(== (collapse (match &atom-bin ($bin_index $x) $x)) ())
-            (add-atom &atom-bin ($bin_index ($pattern)))
-            (match &atom-bin ($bin_index $x)
-               (let ()
-                  (remove-atom &atom-bin ($bin_index $x))
-                  (let $updated (cons-atom $pattern $x) 
-                     (add-atom &atom-bin ($bin_index $updated))
-                  )
-               )
-            )
-         )
-                     
-      )
-   )
+   (get-type  $pattern)
 )
 
 
