@@ -1,7 +1,6 @@
 ; Recursive helper to calculate the group index
-(: findGroup (-> Number Number Number Number)) 
 (= (findGroup $imp $sum $i)
-   (if(>= $sum $imp)
+   (if (or (>= $sum $imp) (>= $i (GroupNum)))
       $i ; Return the group index
       (findGroup $imp (+ $sum (pow 2 $i)) (+ $i 1))
    )
@@ -25,7 +24,7 @@
    (truncateHelper $x 0)
 )
 
-; Recursive helper to decrement $x until it is less than the next integer
+; Recursive helper to find the integer part of $x
 (: truncateHelper (-> Number Number Number)) 
 (= (truncateHelper $x $acc)
    (if (< $x (+ $acc 1))
