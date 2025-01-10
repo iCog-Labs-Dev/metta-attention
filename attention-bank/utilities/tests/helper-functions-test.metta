@@ -1,5 +1,7 @@
 !(register-module! ../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
+!(import! &self metta-attention:attention-bank:bank:importance-index)
+
 
 ;Test helper functions
 !(assertEqual (findGroup 5 0 0) 3) ; Should return 3
