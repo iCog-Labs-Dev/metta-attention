@@ -28,3 +28,13 @@
         )
     )
 )
+
+(= (length ()) 0)
+(= (length $atoms) 
+    (
+        let* (
+            ($rest (cdr-atom $atoms))
+        )
+        (+ 1 (length $rest))
+        )
+)

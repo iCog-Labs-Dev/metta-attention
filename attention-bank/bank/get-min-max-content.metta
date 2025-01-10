@@ -31,3 +31,13 @@
         $content
     )
 )
+
+; this function takes a bin number and return the number of atoms found in that bin
+; it used length helper function to count the number of atoms found in the bin
+(= (getSize $binNumber)
+    (let* (
+        ($atoms (match &atombin ($binNumber $x) $x))
+    )
+        (length $atoms)
+    )
+)
