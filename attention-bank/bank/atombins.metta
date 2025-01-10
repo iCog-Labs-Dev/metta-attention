@@ -18,19 +18,19 @@
 
 ; implement insert, remove, size, getRandomatom, 
 ; Function to insert an atom into the specifc bin
-!(bind! &atom-bin (new-space))
+!(bind! &atombin (new-space))
 
 (: insertAtom (-> Number Atom empty))
 (= (insertAtom $bin_index $pattern)
    (if(== (getType $pattern) %Undefined%)
       (Atom is not valid) ; Validate type
-      (if (== (collapse (match &atom-bin ($bin_index $x) $x)) ())
-         (add-atom &atom-bin ($bin_index ($pattern))) ; Insert new bin
-         (match &atom-bin ($bin_index $x)
+      (if (== (collapse (match &atombin ($bin_index $x) $x)) ())
+         (add-atom &atombin ($bin_index ($pattern))) ; Insert new bin
+         (match &atombin ($bin_index $x)
             (let ()
-               (remove-atom &atom-bin ($bin_index $x)) ; Update bin
+               (remove-atom &atombin ($bin_index $x)) ; Update bin
                (let $updated (cons-atom $pattern $x)
-                  (add-atom &atom-bin ($bin_index $updated))
+                  (add-atom &atombin ($bin_index $updated))
                )
             )
          )
@@ -46,16 +46,16 @@
 (= (removeAtom $bin_index $atom)
    (if (== (getType $atom) %Undefined%)
       (Atom is not valid) ; Validate type
-      (let $bin_contents (collapse (match &atom-bin ($bin_index $contents) $contents))
+      (let $bin_contents (collapse (match &atombin ($bin_index $contents) $contents))
          (if(== $bin_contents ())
             (Bin is empty) ; Bin is empty, nothing to remove
             (let $updated_contents (remove_atom_helper $atom (car-atom $bin_contents))
                (if (== $updated_contents ())
-                  (remove-atom &atom-bin ($bin_index $bin_contents)) ; Remove empty bin
-                  (match &atom-bin ($bin_index $x)
+                  (remove-atom &atombin ($bin_index $bin_contents)) ; Remove empty bin
+                  (match &atombin ($bin_index $x)
                      (let ()
-                        (remove-atom &atom-bin ($bin_index $x))
-                        (add-atom &atom-bin ($bin_index $updated_contents))
+                        (remove-atom &atombin($bin_index $x))
+                        (add-atom &atombin ($bin_index $updated_contents))
                      )
                   )
                )

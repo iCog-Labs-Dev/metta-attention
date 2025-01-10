@@ -9,7 +9,6 @@
 
 ! (assertEqual (getStv A) (STV 1 0.9))
 ! (assertEqual (getAv A) (AV 400 400 1))
-
 ! (assertEqual (getMean A) 1)
 ! (assertEqual (getConfidence A) 0.9)
 ! (assertEqual (getSTI A) 400)
