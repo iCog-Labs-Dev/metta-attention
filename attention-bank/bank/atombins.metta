@@ -37,3 +37,36 @@
     (remove-atom &atombin ($key $atom))
 )
 
+;An abstraction that simplifies quering an atomspace.
+;Usage: simply pass the identifier of the atomspace you want.
+(: collapseAtomBin (-> Grounded Expression))
+(= (collapseAtomBin $space) (collapse (get-atoms $space)))
+
+;predicate function to check if a list is empty
+(: notEmpty (-> Expression Bool))
+(= (notEmpty ($x $y)) (> (size $y 0) 0 ))
+
+;this function randomly selects a bin from atombins and proceeds to randomly choose a single element from selected random bin.
+(: getRandomAtom (-> Symbol))
+(= (getRandomAtom)
+   (
+    let*(
+         ($handleSetSeq (collapseAtomBin &atombin))
+         ($filteredOutput (filter $handleSetSeq notEmpty))
+        )
+    (if(== $filteredOutput ()) ;check if all bins in atom bins are empty
+      empty
+      (
+       let*(
+            ($res (py-list $filteredOutput))
+            ($kvPair ((py-atom random.choice) $res)) ;randomly choose a bin
+            ($collapsed ($kvPair))
+            ($vals ((py-dot $kvPair __getitem__) 1)) ; Access the second element
+            ($randomAtom ((py-atom random.choice) $vals)) ;randomly choose a single atom
+          )
+          $randomAtom
+      )
+    )
+  )
+)
+
