@@ -15,25 +15,71 @@
 ; - getcontent - it recives bin number and returns atom found in that bin index
 ; - getcontentif - it recives bin number, predicate and returns the atoms based on that predicat
 
-!(bind! &atombin (new-space))
-
-!(add-atom &atombin (1 (a)))
-!(add-atom &atombin (2 (d)))
-!(add-atom &atombin (3 (c)))
-!(add-atom &atombin (17 (s c)))
-!(add-atom &atombin (18 (g j)))
-!(add-atom &atombin (37 (f h j k)))
 
 ; implement insert, remove, size, getRandomatom, 
+; Function to insert an atom into the specifc bin
+!(bind! &atombin (new-space))
 
-; Function to insert atom into the space
-(: insert-atom (-> Number Atom))
-(= (insert-atom $sti $atom)
-    (add-atom &atombin ($key $atom))
+(: insertAtom (-> Number Atom empty))
+(= (insertAtom $bin_index $pattern)
+   (if(== (getType $pattern) %Undefined%)
+      (Atom is not valid) ; Validate type
+      (if (== (collapse (match &atombin ($bin_index $x) $x)) ())
+         (add-atom &atombin ($bin_index ($pattern))) ; Insert new bin
+         (match &atombin ($bin_index $x)
+            (let ()
+               (remove-atom &atombin ($bin_index $x)) ; Update bin
+               (let $updated (cons-atom $pattern $x)
+                  (add-atom &atombin ($bin_index $updated))
+               )
+            )
+         )
+      )
+   )
 )
-; Function to remove atom from the space
-(: remove-atom (-> Number Atom))
-(= (remove-atom $sti $atom)
-    (remove-atom &atombin ($key $atom))
+
+
+
+
+; Function to remove an atom from a specific bin
+(: removeAtom (-> Number Atom empty))
+(= (removeAtom $bin_index $atom)
+   (if (== (getType $atom) %Undefined%)
+      (Atom is not valid) ; Validate type
+      (let $bin_contents (collapse (match &atombin ($bin_index $contents) $contents))
+         (if(== $bin_contents ())
+            (Bin is empty) ; Bin is empty, nothing to remove
+            (let $updated_contents (remove_atom_helper $atom (car-atom $bin_contents))
+               (if (== $updated_contents ())
+                  (remove-atom &atombin ($bin_index $bin_contents)) ; Remove empty bin
+                  (match &atombin ($bin_index $x)
+                     (let ()
+                        (remove-atom &atombin($bin_index $x))
+                        (add-atom &atombin ($bin_index $updated_contents))
+                     )
+                  )
+               )
+            )
+         )
+      )
+   )
+)
+
+
+; Helper function to remove an atom from a list of contents
+(: remove_atom_helper (-> Atom List List))
+(= (remove_atom_helper $atom $contents)
+   (if(== $contents ())
+      () ; End of list
+      (let $head (car-atom $contents)
+         (let $tail (cdr-atom $contents)
+            (if(== $head $atom)
+               $tail ; Skip the matching atom
+               (let $rest (remove_atom_helper $atom $tail)
+               (cons-atom $head $rest))
+            )
+         )
+      )
+   )
 )
 
