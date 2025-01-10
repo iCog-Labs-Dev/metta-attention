@@ -37,7 +37,15 @@
                        (let $bin (- (* $i (GroupSize)) $ad)
                           (if (> $bin (ImportanceIndexSize))
                               (ImportanceIndexSize)
-                              $bin))))))))
+                              $bin
+                           )
+                        )
+                     )
+                  )
+               )
+         )
+      )
+   )
 )
 
 

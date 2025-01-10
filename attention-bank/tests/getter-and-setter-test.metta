@@ -6,7 +6,6 @@
 
 ! (setStv A (0.1 0.9))
 ! (setStv A (1 0.9))
-!(get-type A)
 
 ! (assertEqual (getStv A) (STV 1 0.9))
 ! (assertEqual (getAv A) (AV 400 400 1))
@@ -16,4 +15,4 @@
 ! (assertEqual (getSTI A) 400)
 ! (assertEqual (getLTI A) 400)
 ! (assertEqual (getVLTI A) 1)
-
+ 
