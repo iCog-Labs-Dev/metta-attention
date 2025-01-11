@@ -89,7 +89,7 @@ jobs:
         source .env/bin/activate
 
     - name: Run Tests
-      working-directory: ./metta-attention
       run: |
-          python scripts/run-tests.py
+        cd ../metta-attention
+        python scripts/run-tests.py
 
