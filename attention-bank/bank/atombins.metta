@@ -27,11 +27,6 @@
 ;!(add-atom &atombin (18 (g j)))
 ;!(add-atom &atombin (37 (f h j k)))
 
-; this file contain metta code for AtomBins class. here atom bin is a space where atoms are stored in a key value pair.
-; key is the index of the atom and value is the collections of atom itself.
-; this class contain functions to insert, remove, size, getRandomatom, etc and can be implemented here in this file.
-; Function to insert an atom into the specifc bin
-!(bind! &atombin (new-space))
 (: insertAtom (-> Number Atom empty))
 (= (insertAtom $bin_index $pattern)
    (if(== (getType $pattern) %Undefined%)
