@@ -3,7 +3,6 @@
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 
 
-
 !(add-atom &atombin (1 (a)))
 !(add-atom &atombin (2 (d)))
 !(add-atom &atombin (3 (c)))
