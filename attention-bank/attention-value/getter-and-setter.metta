@@ -91,6 +91,7 @@
     (let ($link $sti $lti $vlti) (getAv $pattern) $sti)
 )
 
+
 ; getLTI retrieves LT from a pattern
 ; i.e !(getLTI A)  output: 400 
 
@@ -105,4 +106,7 @@
 (: getVLTI (-> Atom Number))
 (= (getVLTI $pattern)
     (let ($link $sti $lti $vlti) (getAv $pattern) $vlti)
+)
+(= (getType $pattern)
+    (get-type $pattern)
 )
