@@ -87,7 +87,7 @@
 ;    - Calculate the new STI and LTI values using the wages and stimulus.
 ;    - Calculate the changes in STI and LTI funds.
 ;    - Call attentionValueChanged to apply the updates.
-(: stimulate (-> Symbol Number empty))
+(: stimulate (-> Atom Number empty))
 (= (stimulate $pattern $stimulus)
    (let* (
            ($sti (getSTI $pattern))
@@ -117,7 +117,7 @@
 ;    - Remove the current fundsSTI and fundsLTI values from the AtomSpace.
 ;    - Add the updated fundsSTI and fundsLTI values to the AtomSpace.
 
-(: attentionValueChanged (-> Symbol Number Number AttentionValue empty))
+(: attentionValueChanged (->Atom Number Number AttentionValue empty))
 (= (attentionValueChanged $pattern  $newstifund $newltifund $new-av)
    ((setAv $pattern $new-av)
     (match  &space  (fundsSTI $fundsSTI)
