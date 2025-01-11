@@ -51,11 +51,12 @@
 ;####################### update ##################################
 ;Temporary need to be refactored!!
 
-! (register-module! ../../../metta-attention)
-! (import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
-! (import! &self metta-attention:attention-bank:bank:atombins)
-! (import! &self metta-attention:attention-bank:utilities:helper-functions)
-! (bind! &globalVars (new-space))
+;Uncomment for testing
+; ! (register-module! ../../../metta-attention)
+; ! (import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
+; ! (import! &self metta-attention:attention-bank:bank:atombins)
+; ! (import! &self metta-attention:attention-bank:utilities:helper-functions)
+; ! (bind! &globalVars (new-space))
 
 
 
