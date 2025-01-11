@@ -57,13 +57,7 @@
 ! (import! &self metta-attention:attention-bank:utilities:helper-functions)
 ! (bind! &globalVars (new-space))
 
-; This is only for test purpose
-!(add-atom &atombin (1 (a)))
-!(add-atom &atombin (2 (d)))
-!(add-atom &atombin (3 (c)))
-!(add-atom &atombin (17 (s c)))
-!(add-atom &atombin (18 (g j)))
-!(add-atom &atombin (37 (f h j k)))
+
 
 ;Retrieves all the contents in atombin space
 (= (getAllBinContents)
@@ -71,6 +65,7 @@
 )
 
 ;Extracts the index from binContent
+;This can be removed and use pattern matching instead
 (= (idxExractor $idx )
     (if (== $idx ())
         ()
@@ -181,7 +176,7 @@
             (let*  (
                     ( ($elementOld) (collapse (match &atombin ($oldbin $atoms) $atoms)))
                     ( ($elementNew) (collapse (match &atombin ($newbin $atoms) $atoms)))
-                    ($a (removeAtom $oldbin $atom))
+                    ($a (remove-Atom $oldbin $atom))
                     ($b (addAtom $newbin $atom))
                     ($rem1 (remove-atom &atombin ($oldbin $elementOld)))
                     ($rem2 (remove-atom &atombin ($newbin $elementNew)))
@@ -193,8 +188,9 @@
     )
 )
 
+
 ; Removes the atom from the tuple and return new tuple
-(= (removeAtom $oldbin $atom)
+(= (remove-Atom $oldbin $atom)
     (let ($atomHolder) (collapse (match &atombin ($oldbin $atoms) $atoms))
         (removeHelper $atomHolder $atom )
     )
@@ -228,10 +224,10 @@
     )
 )
 
-
-! (updateImportance g 20 1)
-! (match &atombin ($x $y) ($x $y))
-! (update)
-! (getMaxSTI)
-! (getMinSTI)
-! (getHandleSet 1 3)
+;Test cases that need to be refactored
+; ! (updateImportance g 20 1)
+; ! (match &atombin ($x $y) ($x $y))
+; ! (update)
+; ! (getMaxSTI)
+; ! (getMinSTI)
+; ! (getHandleSet 1 3)
