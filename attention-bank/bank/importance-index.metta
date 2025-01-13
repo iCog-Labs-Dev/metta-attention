@@ -1,5 +1,3 @@
-
-
 ; importance management functions can be implemented here in this file.
 
 ; functions like the following
@@ -15,3 +13,41 @@
 ; - getMinBinContents - return atoms found in min bin index
 ; - bin_size - return the total bin size
 ; - size - it recives atom bin index and return the size or total number of atoms found inside that bin index
+
+(: GroupSize Number)
+(= (GroupSize) 8)
+
+(: GroupNum Number)
+(= (GroupNum) 12)
+
+(: ImportanceIndexSize Number)
+(= (ImportanceIndexSize) 104)
+
+(: importanceBin (-> Number Number))
+; Function to calculate the bin for a given importance value
+(= (importanceBin $impo)
+   (let $impo_int (truncate $impo) ; Ensure $impo is treated as an integer
+      (if (< $impo_int 0)
+          0 ; Importance is less than 0
+          (if (< $impo_int (* 2 (GroupSize)))
+              $impo_int ; Importance is within the first 2 groups
+              (let $imp (ceil (/ (- $impo_int (GroupSize)) (GroupSize)))
+                 (let $i (findGroup $imp 0 0) ; Find the group index
+                    (let $ad (- (GroupSize) (ceil (/ $impo_int (pow 2 (- $i 1)))))
+                       (let $bin (- (* $i (GroupSize)) $ad)
+                          (if (> $bin (ImportanceIndexSize))
+                              (ImportanceIndexSize)
+                              $bin
+                           )
+                        )
+                     )
+                  )
+               )
+         )
+      )
+   )
+)
+
+
+
+

@@ -37,7 +37,7 @@ jobs:
       with:
         toolchain: stable
         override: true
-
+        
     - name: Verify Rust Installation
       run: rustc --version
 
@@ -55,4 +55,3 @@ jobs:
       run: |
         cd ../metta-attention
         python scripts/run-tests.py
-     
