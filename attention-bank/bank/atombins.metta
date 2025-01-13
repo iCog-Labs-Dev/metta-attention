@@ -36,7 +36,7 @@
       )
    )
 )
-; Function to remove an atom from a specific bin
+ Function to remove an atom from a specific bin
 (: removeAtom (-> Number Atom empty))
 (= (removeAtom $bin_index $atom)
    (if (== (getType $atom) %Undefined%)
@@ -83,6 +83,33 @@
 (: collapseAtomBin (-> Grounded Expression))
 (= (collapseAtomBin $space) (collapse (get-atoms $space)))
 
+;predicate function to check if a list is empty
+(: notEmpty (-> Expression Bool))
+(= (notEmpty ($x $y)) (> (size $y 0) 0 ))
+
+;this function randomly selects a bin from atombins and proceeds to randomly choose a single element from selected random bin.
+(: getRandomAtom (-> Symbol))
+(= (getRandomAtom)
+   (
+    let*(
+         ($handleSetSeq (collapseAtomBin &atombin))
+         ($filteredOutput (filter $handleSetSeq notEmpty))
+        )
+    (if(== $filteredOutput ()) ;check if all bins in atom bins are empty
+      empty
+      (
+       let*(
+            ($res (py-list $filteredOutput))
+            ($kvPair ((py-atom random.choice) $res)) ;randomly choose a bin
+            ($collapsed ($kvPair))
+            ($vals ((py-dot $kvPair __getitem__) 1)) ; Access the second element
+            ($randomAtom ((py-atom random.choice) $vals)) ;randomly choose a single atom
+          )
+          $randomAtom
+      )
+    )
+  )
+)
 ;This function fetches all the values stored in &atombin atomspace, which are located at the specified index.
 (: getContent (-> Number Expression Expression))
 (= (getContent $index $out)
