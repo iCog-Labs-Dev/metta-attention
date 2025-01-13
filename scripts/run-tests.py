@@ -45,6 +45,7 @@ def print_ascii_art(text):
 metta_run_command = "metta"
 
 root = pathlib.Path(".")
+
 testMettaFiles = root.rglob("*-test.metta")
 total_files = 0
 results = []
@@ -56,7 +57,6 @@ print_ascii_art("Test Runner")
 for testFile in testMettaFiles:
     total_files += 1
     try:
-        print(testFile)
         result = subprocess.run(
             [metta_run_command, str(testFile)],  # Convert testFile to string
             capture_output=True,
