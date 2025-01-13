@@ -1,5 +1,4 @@
 
-
 ; this file contain metta code for AtomBins class. here atom bin is a space where atoms are stored in a key value pair.
 ; key is the index of the atom and value is the collections of atom itself.
 ; this class contain functions to insert, remove, size, getRandomatom, etc and can be implemented here in this file.
@@ -37,11 +36,7 @@
       )
    )
 )
-
-
-
-
-; Function to remove an atom from a specific bin
+ Function to remove an atom from a specific bin
 (: removeAtom (-> Number Atom empty))
 (= (removeAtom $bin_index $atom)
    (if (== (getType $atom) %Undefined%)
@@ -81,5 +76,60 @@
          )
       )
    )
+)
+
+;An abstraction that simplifies quering an atomspace.
+;Usage: simply pass the identifier of the atomspace you want.
+(: collapseAtomBin (-> Grounded Expression))
+(= (collapseAtomBin $space) (collapse (get-atoms $space)))
+
+;predicate function to check if a list is empty
+(: notEmpty (-> Expression Bool))
+(= (notEmpty ($x $y)) (> (size $y 0) 0 ))
+
+;this function randomly selects a bin from atombins and proceeds to randomly choose a single element from selected random bin.
+(: getRandomAtom (-> Symbol))
+(= (getRandomAtom)
+   (
+    let*(
+         ($handleSetSeq (collapseAtomBin &atombin))
+         ($filteredOutput (filter $handleSetSeq notEmpty))
+        )
+    (if(== $filteredOutput ()) ;check if all bins in atom bins are empty
+      empty
+      (
+       let*(
+            ($res (py-list $filteredOutput))
+            ($kvPair ((py-atom random.choice) $res)) ;randomly choose a bin
+            ($collapsed ($kvPair))
+            ($vals ((py-dot $kvPair __getitem__) 1)) ; Access the second element
+            ($randomAtom ((py-atom random.choice) $vals)) ;randomly choose a single atom
+          )
+          $randomAtom
+      )
+    )
+  )
+)
+;This function fetches all the values stored in &atombin atomspace, which are located at the specified index.
+(: getContent (-> Number Expression Expression))
+(= (getContent $index $out)
+   (let $content (collapseAtomBin &atombin)
+    (valuesAtIndex $index $content)
+   )
+)
+
+;A function to get the values stored in the &atombin atomspace, at the specified index.
+;it accepts a predicate function as it's second argument.
+;the type of the function should take a generic value and return a Boolean 
+(: getContentIf (-> Number (-> $x Boolean)) Expression)
+(= (getContentIf $index $predicate $out)
+  (
+   let*(
+        ($handleSetSeq (collapseAtomBin &atombin))
+        ($handleSet (valuesAtIndex $index $handleSetSeq))
+        ($filteredOutput (filter $handleSet $predicate))
+      )
+      $filteredOutput
+  )
 )
 
