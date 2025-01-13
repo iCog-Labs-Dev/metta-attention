@@ -14,4 +14,5 @@
 !(setAv d (7 4 0))
 !(setAv c (0 0 0))
 
-!(getRandomAtom)
+
+!(let $res (collapse (getRandomAtom)) (assertEqual (size $res 0) 1))
