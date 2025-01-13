@@ -36,7 +36,7 @@
       )
    )
 )
-; Function to remove an atom from a specific bin
+ Function to remove an atom from a specific bin
 (: removeAtom (-> Number Atom empty))
 (= (removeAtom $bin_index $atom)
    (if (== (getType $atom) %Undefined%)
@@ -108,7 +108,8 @@
           $randomAtom
       )
     )
-
+  )
+)
 ;This function fetches all the values stored in &atombin atomspace, which are located at the specified index.
 (: getContent (-> Number Expression Expression))
 (= (getContent $index $out)
