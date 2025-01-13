@@ -19,14 +19,6 @@
 ; Function to insert an atom into the specifc bin
 !(bind! &atombin (new-space))
 
-
-;!(add-atom &atombin (1 (a)))
-;!(add-atom &atombin (2 (d)))
-;!(add-atom &atombin (3 (c)))
-;!(add-atom &atombin (17 (s c)))
-;!(add-atom &atombin (18 (g j)))
-;!(add-atom &atombin (37 (f h j k)))
-
 (: insertAtom (-> Number Atom empty))
 (= (insertAtom $bin_index $pattern)
    (if(== (getType $pattern) %Undefined%)
@@ -91,7 +83,7 @@
 (: collapseAtomBin (-> Grounded Expression))
 (= (collapseAtomBin $space) (collapse (get-atoms $space)))
 
-;This function fetches all the values stored in the &atombin atomspace.
+;This function fetches all the values stored in &atombin atomspace, which are located at the specified index.
 (: getContent (-> Number Expression Expression))
 (= (getContent $index $out)
    (let $content (collapseAtomBin &atombin)
@@ -99,7 +91,7 @@
    )
 )
 
-;A function to get the values stored in the &atombin atomspace.
+;A function to get the values stored in the &atombin atomspace, at the specified index.
 ;it accepts a predicate function as it's second argument.
 ;the type of the function should take a generic value and return a Boolean 
 (: getContentIf (-> Number (-> $x Boolean)) Expression)
