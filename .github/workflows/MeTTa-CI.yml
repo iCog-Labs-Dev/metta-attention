@@ -55,5 +55,3 @@ jobs:
       run: |
         cd ../metta-attention
         python scripts/run-tests.py
-
-
