@@ -60,7 +60,7 @@ the above structure can be loaded into atomspace into two ways
 
 - so even if both methods seems applicabel we choose to represent atom bins using the first approach
 
-### Functions that shoud be implemented using 
+### Functions that shoud be implemented using decided approach.
 
 - insert atom - it recives bin numebr and the atom
 - remove atom - it recive bin number and the atom

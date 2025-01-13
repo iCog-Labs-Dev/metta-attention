@@ -15,6 +15,23 @@
     )
 )
 
+(: valuesAtIndex (-> Number Expression Expression))
+(= (valuesAtIndex $i ()) ())
+(= (valuesAtIndex $i $handleSetSeq)
+   (
+    let*(
+         (($index $val) (car-atom $handleSetSeq))
+         ($tail (cdr-atom $handleSetSeq))
+         ($newTail (valuesAtIndex $i $tail))
+        )
+    (
+     if(== $i $index)
+      $val
+      $newTail
+    )
+  )
+)
+
 (: size (-> Expression Number Number))
 (= (size () $s) $s)
 (= (size $list $s)
