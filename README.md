@@ -10,6 +10,7 @@
 
 - One aspect of these equations is a form of `Hebbian Learning:` Atoms called `HebbianLinks` record which Atoms were habitually used together in the past, and when it occurred that Atom A's utilization appeared to play a role in causing Atom B's utilization. Then, these HebbianLinks are used to guide the flow of currency between Atoms: `B` gives `A` some money if `B` thinks that this money will help `A` to get used, and that this utilization will help `B` to get used.
 
+
 - Very roughly speaking, these dynamical equations play a similar role to that played by `activation-spreading` in Neural Network AI systems.
 
 ## Running the Code
