@@ -1,4 +1,3 @@
-
 !(bind! &atombin (new-space))
 
 ; this function take atoms from atombin space and return atoms found inside the largest bin index

@@ -28,6 +28,12 @@
       )
   )
 )
+!(assertEqual (getContentIf 2 pred ()) (d))
+!(assertEqual (getContentIf 1 pred ()) (a))
+!(assertEqual (getContent 2 ()) (d))
+!(assertEqual (getContent 1 ()) (a))
+!(assertEqual (valuesAtIndex 37 ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)))) (f h j k))
+!(assertEqual (valuesAtIndex 17 ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)))) (s c))
 !(setAv  E (200 200 0))
 !(insertAtom  45 E)
 !(assertEqual (match &atombin (45 $x) $x) (E)) 
@@ -44,12 +50,3 @@
 !(assertEqual (match &atombin  (45 $x) $x) (G E))
 !(assertEqual  (removeAtom  20 H) (Bin is empty))
 !(assertEqual (removeAtom  45 L) (Atom is not valid))
-!(assertEqual (getContentIf 2 pred ()) (d))
-!(assertEqual (getContentIf 1 pred ()) (a))
-
-!(assertEqual (getContent 2 ()) (d))
-!(assertEqual (getContent 1 ()) (a))
-
-!(assertEqual (valuesAtIndex 37 ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)))) (f h j k))
-!(assertEqual (valuesAtIndex 17 ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)))) (s c))
-
