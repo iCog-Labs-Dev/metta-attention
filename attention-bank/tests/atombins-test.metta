@@ -13,6 +13,8 @@
 !(setAv a (0 0 0))
 !(setAv d (7 4 0))
 !(setAv c (0 0 0))
+
+!(let $res (collapse (getRandomAtom)) (assertEqual (size $res 0) 1))
 ;
 ;;; Example Predicate function
 (= (pred $x) (

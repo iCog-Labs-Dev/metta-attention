@@ -1,4 +1,3 @@
-
 (: filter (-> Expression (-> $t Bool) Expression))
 (= (filter () $predicate) ())
 (= (filter $list $predicate)

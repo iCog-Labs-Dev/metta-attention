@@ -44,6 +44,7 @@ def print_ascii_art(text):
 # Define the command to run with the test files
 metta_run_command = "metta"
 
+
 root = pathlib.Path(".")
 
 testMettaFiles = root.rglob("*-test.metta")
