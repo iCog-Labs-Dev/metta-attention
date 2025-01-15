@@ -93,7 +93,7 @@
    (
     let*(
          ($handleSetSeq (collapseAtomBin &atombin))
-         ($filteredOutput (filter $handleSetSeq notEmpty))
+         ($filteredOutput (filter $handleSetSeq notEmpty ()))
         )
     (if(== $filteredOutput ()) ;check if all bins in atom bins are empty
       empty
@@ -127,7 +127,7 @@
    let*(
         ($handleSetSeq (collapseAtomBin &atombin))
         ($handleSet (valuesAtIndex $index $handleSetSeq))
-        ($filteredOutput (filter $handleSet $predicate))
+        ($filteredOutput (filter $handleSet $predicate ()))
       )
       $filteredOutput
   )
