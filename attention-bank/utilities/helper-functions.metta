@@ -1,20 +1,20 @@
-(: filter (-> Expression (-> $t Bool) Expression))
-(= (filter $list $predicate)
-    (if (== $list ())
-        ()
-        (let*
-            (
-                ($head (car-atom $list))
-                ($tail (cdr-atom $list))
-                ($res ($predicate $head))
-                ($filteredTail (filter $tail $predicate))
-            )
-            (if $res
-                (cons-atom $head $filteredTail)
-                $filteredTail
-            )
-            )
+(: filter (-> Expression (-> $t Bool) Expression Expression))
+(= (filter $list $predicate $acc)
+   (if (== $list ())
+    $acc
+    (let*
+      (
+          ($head (car-atom $list))
+          ($tail (cdr-atom $list))
+          ($res ($predicate $head))
+          ($filteredTail (filter $tail $predicate $acc))
+      )
+      (if $res
+          (cons-atom $head $filteredTail)
+          $filteredTail
         )
+      )
+   )
 )
 
 (: valuesAtIndex (-> Number Expression Expression))
@@ -34,14 +34,11 @@
   )
 )
 
-(: size (-> Expression Number Number))
-(= (size () $s) $s)
-(= (size $list $s)
-   (let*(
-         ($head (car-atom $list))
-         ($tail (cdr-atom $list))
-        )
-     (size $tail (+ 1 $s))
+(: size (-> Expression Number))
+(= (size $list)
+   (if (== $list ())
+      0
+      (let $tail (cdr-atom $list) (+ 1 (size $tail)))
     )
 )
 
@@ -74,17 +71,7 @@
         )
     )
 )
-
-(= (length ()) 0)
-(= (length $atoms) 
-    (
-        let* (
-            ($rest (cdr-atom $atoms))
-        )
-        (+ 1 (length $rest))
-        )
-)
-
+ 
 ; Recursive helper to calculate the group index
 (= (findGroup $imp $sum $i)
    (if (or (>= $sum $imp) (>= $i (GroupNum)))

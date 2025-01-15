@@ -1,3 +1,4 @@
+!(bind! &atombin (new-space))
 
 ; this function take atoms from atombin space and return atoms found inside the largest bin index
 ; it uses Max helper function to get the largest bin index then it returns the atom found in that bin index
@@ -28,6 +29,31 @@
     (let* (
         ($atoms (match &atombin ($binNumber $x) $x))
     )
-        (length $atoms)
+        (size $atoms)
+    )
+)
+; Calculates the total number of atoms across all bins in &atombin
+(: binSize (-> Number))
+(= (binSize)
+   (let $bins (collapse (match &atombin ($index $contents) $index))
+        (if (== $bins ()) 
+          0
+          (sumSizes $bins)
+        )
+    )
+) 
+; Recursively sums the sizes of all bins in a list of bins
+(: sumSizes (-> Expression Number))
+(= (sumSizes $bins)
+   (if(== $bins ())
+        0 
+        (let $bin (car-atom $bins)
+            (let $rest (cdr-atom $bins)
+                (if (== $rest ()) 
+                    (getSize $bin) 
+                    (+ (getSize $bin) (sumSizes $rest))
+                )
+            )
+        )
     )
 )
