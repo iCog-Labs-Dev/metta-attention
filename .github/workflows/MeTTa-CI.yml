@@ -1,4 +1,4 @@
-name: CI/CD Workflow
+name: metta-run CI
 
 on:
   push:
@@ -9,49 +9,34 @@ on:
       - main
 
 jobs:
-  build:
+  setup-and-test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
-
-    - name: Clone Hyperon Experimental Repository
-      run: |
-        git clone https://github.com/trueagi-io/hyperon-experimental.git
+    - uses: actions/checkout@v2
 
     - name: Setup Python Environment
       uses: actions/setup-python@v4
       with:
         python-version: '3.11.6'
 
-    - name: Install Python Dependencies
+    - name: Run Metta setup script
       run: |
-        python -m pip install --upgrade pip==23.1.2
-        python -m pip install hyperon
-        python -m pip install conan==2.5.0
-        conan profile detect --force
+        curl -fsSL https://raw.githubusercontent.com/iCog-Labs-Dev/metta-prebuilt-binary/main/install.sh | bash
 
-    - name: Setup Rust Environment
+    - name: Set up Rust
       uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
-        override: true
-        
-    - name: Verify Rust Installation
-      run: rustc --version
 
-    - name: Install cbindgen
-      run: cargo install --force cbindgen
-
-    - name: Build Project
+    - name: Navigate to the metta-run directory
+      working-directory: ./metta-run
       run: |
-        cd hyperon-experimental
-        python -m venv .env
-        cargo build
-        source .env/bin/activate
+        echo "Moved to metta-run directory"
 
-    - name: Run Tests
-      run: |
-        cd ../metta-attention
-        python scripts/run-tests.py
+    - name: Run tests
+      working-directory: ./metta-run
+      run: cargo test --verbose
+
+    - name: Ensure metta-run is executable
+      run: chmod +x $HOME/metta-bin/metta-run
