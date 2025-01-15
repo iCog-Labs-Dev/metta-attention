@@ -15,10 +15,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Setup Python Environment
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11.6'
 
     - name: Run Metta setup script
       run: |
@@ -34,6 +30,11 @@ jobs:
       run: |
         echo "Moved to metta-run directory"
 
+    - name: Setup Python Environment
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11.6'
+          
     - name: Run tests
       working-directory: ./metta-run
       run: cargo test --verbose
