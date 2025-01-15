@@ -14,6 +14,8 @@
 ; - bin_size - return the total bin size
 ; - size - it recives atom bin index and return the size or total number of atoms found inside that bin index
 
+! (bind! &globalVars (new-space))
+
 (: GroupSize Number)
 (= (GroupSize) 8)
 
@@ -49,186 +51,105 @@
 )
 
 ;####################### update ##################################
-;Temporary need to be refactored!!
 
-;Uncomment for testing
-; ! (register-module! ../../../metta-attention)
-; ! (import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
-; ! (import! &self metta-attention:attention-bank:bank:atombins)
-; ! (import! &self metta-attention:attention-bank:utilities:helper-functions)
-; ! (bind! &globalVars (new-space))
+; Retrieves all the indices from the $space in this case is
+; the &atombin space and return them to the caller
+;
+; i.e (idxExractor &atombin) will return all the indices in &atombin
 
-
-
-;Retrieves all the contents in atombin space
-(= (getAllBinContents)
-    (collapse (match &atombin ($x $y) ($x $y)))
+(: idxExractor (-> hyperon::space::DynSpace Tuple))
+(= (idxExractor $space)
+    (collapse (match $space ($x $y) $x))
 )
 
-;Extracts the index from binContent
-;This can be removed and use pattern matching instead
-(= (idxExractor $idx )
-    (if (== $idx ())
-        ()
-        ( (let $temp (car-atom $idx) (car-atom $temp)) (idxExractor (cdr-atom $idx)))
-    )
-)
 
- ;simulation getContent
-(= (getContent $max)
-    (A B C)
-)
-
-; Retrieves the STI from tuple of Atoms
-(= (getSTIFromList $atoms)
+; Retrieves all the STIs of the atoms in the tuple
+;
+; i.e (getSTIFromTuple (1 2 3)) will return sti values like (100 (200 (50))
+(: getSTIFromTuple (-> Atoms (-> Atoms)))
+(= (getSTIFromTuple $atoms)
     (if (== $atoms ())
         ()
-        ( (let $a (car-atom $atoms) (getSTI $a)) (getSTIFromList (cdr-atom $atoms)))
+        ( (let $a (car-atom $atoms) (getSTI $a)) (getSTIFromTuple (cdr-atom $atoms)))
     )
 )
 
-;This function updates the global variables _minSTI and _maxSTI
-(= (update)
+; This function updates the global variables _minSTI and _maxSTI for
+; use by other methods or functions that need them
+; the space that will be passed is the space that the atoms are stored in
+;
+; i.e (update &atombin) will update the global variables _minSTI and _maxSTI
+
+(: update (-> hyperon::space::DynSpace Atom))
+(= (update $space)
     (let* (
-            ($minBinContents (getAllBinContents))
-            ($nums (idxExractor $minBinContents))
-            ($max (max $nums))
-            ($maxAtoms (getContent $max))
-            ($allMaxSTI (getSTIFromList $maxAtoms))
-            ($maxSTI (max $allMaxSTI))
-            ($min (min $nums))
-            ($minAtoms (getContent $min))
-            ($allMinSTI (getSTIFromList $minAtoms))
-            ($minSTI (min $allMinSTI))
+            ($nums (idxExractor $space))
+            ($max (Max $nums))
+            ($maxAtoms (getContent $max ()))
+            ($allMaxSTI (getSTIFromTuple $maxAtoms))
+            ($maxSTI (maxList $allMaxSTI))
+            ($min (Min $nums))
+            ($minAtoms (getContent $min ()))
+            ($allMinSTI (getSTIFromTuple $minAtoms))
+            ($minSTI (minList $allMinSTI))
             ($_ (remove-atom &globalVars (_minSTI $_)))
             ($_ (remove-atom &globalVars (_maxSTI $_)))
             ($_ (add-reduct &globalVars (_maxSTI $maxSTI)))
             ($_ (add-reduct &globalVars (_minSTI $minSTI)))
         )
-        ("UPDATED")
+        ("Updated")
     )
 )
 
-;####################### getMaxSTI ##################################
+;.recent and .val need to be explored this are from the C++
+; The getMaxSTI function returns the maxSTI from the &globalVars space
+; which is the space that stores the global variables
+; i.e (getMaxSTI) output: (_maxSTI Number)
+
+(: getMaxSTI (-> Tuple))
 (= (getMaxSTI)
-    (collapse (match &globalVars (_maxSTI $_) (_maxSTI $_)))
+    (let $temp (collapse (match &globalVars (_maxSTI $_) (_maxSTI $_))) (car-atom $temp))
 )
 
-;####################### getMinSTI ##################################
+;.recent and .val need to be explored this are from the C++
+; The getMinSTI function returns the minSTI from the &globalVars space
+; which is the space that stores the global variables
+; i.e (getMinSTI) output: (_minSTI Number) 
+
+(: getMinSTI (-> Tuple))
 (= (getMinSTI)
-    (collapse (match &globalVars (_minSTI $_) (_minSTI $_)))
+    (let $temp (collapse (match &globalVars (_minSTI $_) (_minSTI $_))) (car-atom $temp))
 )
 
-
-;####################### getHandleSet ##################################
-
-; This functions retrievs bins between lowerBin and upperBin
-(= (getBinsIn $lowerBin $upperBin)
-    (if (== $lowerBin (+ 1 $upperBin))
-        ()
-        (let* (
-                ($result (collapse (match &atombin ($lowerBin $_) ($lowerBin $_))))
-            )
-            (if (== $result ())
-                (getBinsIn (+ $lowerBin 1) $upperBin)
-                ( (let ($idx $content) (car-atom $result) $idx) (getBinsIn (+ $lowerBin 1) $upperBin))
-            )
-        )
-    )
-)
-
- ;Simulation Function
-( = (getContentIf $binIndex)
-    A
-)
-
-(= (binIndex $lowerBin $upperBin)
-    (let $index (getBinsIn $lowerBin $upperBin)
-        (contentExtractor $index)
-    )
-)
-
-(= (contentExtractor ()) ())
-(= (contentExtractor ($x $xs))
-    ((getContentIf $x) (contentExtractor $xs))
-)
-
-;Receive lower and uper bound of sti and return atoms in that bound
-(= (getHandleSet $lowerBound $upperBound)
-    (if (or (< $lowerBound 0) (< $upperBound 0))
-        ("Invalid bounds")
-        (let* (
-                ($lowerBin (importanceBin $lowerBound))
-                ($upperBin (importanceBin $upperBound)))
-            (binIndex $lowerBin $upperBin)
-        )
-    )
-)
 
 ;####################### updateImportance ##################################
 
-;This function receives atom, old and new sti value and updates its bin location or update its position
-(= (updateImportance $atom $oldav $newav)
+; the updateImportance function receives atom, old and new sti value and updates 
+; its bin location or update its position according to the new sti
+;
+; i.e (updateImportance a 1 100) output: "Importance Updated"
+;
+; What this does is remove the a atom from the 1st bin index and add it to the index
+; that the STI 100 belongs to.
+
+(: updateImportance (-> hyperon::space::DynSpace Atom Number Number Atom))
+(= (updateImportance $space $atom $oldav $newav)
     (let* (
             ($oldbin (importanceBin $oldav))
             ($newbin (importanceBin $newav)))
         (if (== $oldbin $newbin)
             ()
             (let*  (
-                    ( ($elementOld) (collapse (match &atombin ($oldbin $atoms) $atoms)))
-                    ( ($elementNew) (collapse (match &atombin ($newbin $atoms) $atoms)))
-                    ($a (remove-Atom $oldbin $atom))
-                    ($b (addAtom $newbin $atom))
-                    ($rem1 (remove-atom &atombin ($oldbin $elementOld)))
-                    ($rem2 (remove-atom &atombin ($newbin $elementNew)))
-                    ($add1 (add-atom &atombin ($newbin $b)))
-                    ($add2 (add-atom &atombin ($oldbin $a)))
+                    ( ($elementOld) (collapse (match $space ($oldbin $atoms) $atoms)))
+                    ( ($elementNew) (collapse (match $space ($newbin $atoms) $atoms)))
+                    ($a (removeAtom $oldbin $atom))
+                    ($b (insertAtom $newbin $atom))
+                    ($rem1 (remove-atom $space ($oldbin $elementOld)))
+                    ($rem2 (remove-atom $space ($newbin $elementNew)))
                 )
 
-            ("Importance Updated")))
-    )
-)
-
-
-; Removes the atom from the tuple and return new tuple
-(= (remove-Atom $oldbin $atom)
-    (let ($atomHolder) (collapse (match &atombin ($oldbin $atoms) $atoms))
-        (removeHelper $atomHolder $atom )
-    )
-)
-
-(= (removeHelper $tuple $value)
-    (if (== $tuple ())
-        ()
-        (let $temp (car-atom $tuple)
-            (if (== $temp $value)
-                (removeHelper (cdr-atom $tuple) $value)
-                (concatTuple ($temp) (removeHelper (cdr-atom $tuple) $value))
+            ("Importance Updated")
             )
         )
     )
 )
-
-; Add the atom to the tuple and return new tuple
-(= (addAtom $newbin $atom)
-    (let ($atomHolder) (collapse (match &atombin ($newbin $atoms) $atoms))
-        (addHelper $atomHolder $atom )
-    )
-)
-
-(= (addHelper $tuple $value)
-    (if (== $tuple ())
-        (cons-atom $value ())
-        (let $temp (car-atom $tuple)
-            (concatTuple ($temp) (addHelper (cdr-atom $tuple) $value))
-        )
-    )
-)
-
-;Test cases that need to be refactored
-; ! (updateImportance g 20 1)
-; ! (match &atombin ($x $y) ($x $y))
-; ! (update)
-; ! (getMaxSTI)
-; ! (getMinSTI)
-; ! (getHandleSet 1 3)

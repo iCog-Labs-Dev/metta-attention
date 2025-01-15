@@ -1,6 +1,4 @@
 
-!(bind! &atombin (new-space))
-
 ; this function take atoms from atombin space and return atoms found inside the largest bin index
 ; it uses Max helper function to get the largest bin index then it returns the atom found in that bin index
 (= (getMaxContent) 

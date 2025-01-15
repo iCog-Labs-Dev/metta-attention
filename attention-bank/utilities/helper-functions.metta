@@ -1,18 +1,20 @@
 (: filter (-> Expression (-> $t Bool) Expression))
-(= (filter () $predicate) ())
 (= (filter $list $predicate)
-   (let*
-     (
-        ($head (car-atom $list))
-        ($tail (cdr-atom $list))
-        ($res ($predicate $head))
-        ($filteredTail (filter $tail $predicate))
-     )
-     (if $res
-        (cons-atom $head $filteredTail)
-        $filteredTail
-       )
-    )
+    (if (== $list ())
+        ()
+        (let*
+            (
+                ($head (car-atom $list))
+                ($tail (cdr-atom $list))
+                ($res ($predicate $head))
+                ($filteredTail (filter $tail $predicate))
+            )
+            (if $res
+                (cons-atom $head $filteredTail)
+                $filteredTail
+            )
+            )
+        )
 )
 
 (: valuesAtIndex (-> Number Expression Expression))
@@ -135,7 +137,7 @@
         (maxValue $x $xs)
     )
 )
-(= (max $list)
+(= (maxList $list)
     (maxValue -1 $list)
 )
 
@@ -146,7 +148,7 @@
         (minValue $x $xs)
     )
 )
-(= (min $list)
+(= (minList $list)
     (minValue (firstElement $list) $list)
 )
 
