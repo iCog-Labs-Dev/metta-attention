@@ -42,7 +42,7 @@ def print_ascii_art(text):
 
 
 # Define the command to run with the test files
-metta_run_command = "metta"
+metta_run_command = "metta-run"
 
 
 root = pathlib.Path(".")

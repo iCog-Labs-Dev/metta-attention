@@ -71,17 +71,7 @@
         )
     )
 )
-
-(= (length ()) 0)
-(= (length $atoms) 
-    (
-        let* (
-            ($rest (cdr-atom $atoms))
-        )
-        (+ 1 (length $rest))
-        )
-)
-
+ 
 ; Recursive helper to calculate the group index
 (= (findGroup $imp $sum $i)
    (if (or (>= $sum $imp) (>= $i (GroupNum)))
@@ -125,3 +115,37 @@
       (* $base (pow $base (- $exp 1)))
    )
 ) ; Recursive multiplication
+
+(= (firstElement ($x $xs)) $x)
+(= (maxValue $max ()) $max)
+(= (maxValue $max ($x $xs))
+    (if (> $max $x)
+        (maxValue $max $xs)
+        (maxValue $x $xs)
+    )
+)
+(= (maxList $list)
+    (maxValue -1 $list)
+)
+
+(= (minValue $min ()) $min)
+(= (minValue $min ($x $xs))
+    (if (< $min $x)
+        (minValue $min $xs)
+        (minValue $x $xs)
+    )
+)
+(= (minList $list)
+    (minValue (firstElement $list) $list)
+)
+
+;Function for concatinating
+(= (concatTuple $xs $ys)
+    (if (== $xs ())
+        $ys
+        (let* ( ($head (car-atom $xs))
+                ($tail (cdr-atom $xs))
+                ($tailNew (concatTuple $tail $ys)))
+            (cons-atom $head $tailNew))
+    )
+)
