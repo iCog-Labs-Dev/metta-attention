@@ -110,8 +110,3 @@
 (= (getType $pattern)
     (get-type $pattern)
 )
-
-;For test pupose
-(: A (AV 2 2 2))
-(: B (AV 4 2 2))
-(: C (AV 3 2 2))

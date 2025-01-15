@@ -36,7 +36,7 @@
       )
    )
 )
- Function to remove an atom from a specific bin
+;Function to remove an atom from a specific bin
 (: removeAtom (-> Number Atom empty))
 (= (removeAtom $bin_index $atom)
    (if (== (getType $atom) %Undefined%)
@@ -121,7 +121,7 @@
 ;A function to get the values stored in the &atombin atomspace, at the specified index.
 ;it accepts a predicate function as it's second argument.
 ;the type of the function should take a generic value and return a Boolean 
-(: getContentIf (-> Number (-> $x Boolean)) Expression)
+(: getContentIf (-> Number (-> $x Bool)) Expression)
 (= (getContentIf $index $predicate $out)
   (
    let*(
