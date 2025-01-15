@@ -49,5 +49,27 @@
 )
 
 
+;This function receives atom, old and new sti value and updates its bin location or update its position
+(= (updateImportance $atom $oldav $newav)
+    (let* (
+            ($oldbin (importanceBin $oldav))
+            ($newbin (importanceBin $newav)))
+        (if (== $oldbin $newbin)
+            ()
+            (let*  (
+                    ( ($elementOld) (collapse (match &atombin ($oldbin $atoms) $atoms)))
+                    ( ($elementNew) (collapse (match &atombin ($newbin $atoms) $atoms)))
+                    ($a (remove-Atom $oldbin $atom))
+                    ($b (addAtom $newbin $atom))
+                    ($rem1 (remove-atom &atombin ($oldbin $elementOld)))
+                    ($rem2 (remove-atom &atombin ($newbin $elementNew)))
+                    ($add1 (add-atom &atombin ($newbin $b)))
+                    ($add2 (add-atom &atombin ($oldbin $a)))
+                )
+
+            ("Importance Updated")))
+    )
+)
+
 
 
