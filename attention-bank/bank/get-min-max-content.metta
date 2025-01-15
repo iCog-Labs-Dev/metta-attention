@@ -29,7 +29,7 @@
     (let* (
         ($atoms (match &atombin ($binNumber $x) $x))
     )
-        (length $atoms)
+        (size $atoms)
     )
 )
 ; Calculates the total number of atoms across all bins in &atombin
