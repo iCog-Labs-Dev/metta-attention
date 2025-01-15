@@ -3,14 +3,14 @@
 !(import! &self metta-attention:attention-bank:bank:atombins)
 
 !(assertEqual 
-              (filter ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)) (27 ())) notEmpty) 
+              (filter ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)) (27 ())) notEmpty ()) 
               ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)))
 )
 
-!(assertEqual (filter ((1 ()) (2 ())) notEmpty) ())
+!(assertEqual (filter ((1 ()) (2 ())) notEmpty ()) ())
 
-!(assertEqual (size ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d))) 0) 6)
-!(assertEqual (size () 0) 0)
+!(assertEqual (size ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)))) 6)
+!(assertEqual (size ()) 0)
 
 ! (assertEqual (Max (1 2 3 17 18 37)) 37)
 ! (assertEqual (Max (34 22 1 17 18 107)) 107)
