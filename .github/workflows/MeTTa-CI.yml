@@ -1,43 +1,37 @@
-name: metta-run CI
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+ name: metta-run CI
 
-jobs:
-  setup-and-test:
-    runs-on: ubuntu-latest
+ on:
+   push:
+     branches:
+       - main
+       - v0.3.0
+   pull_request:
+     branches:
+       - main
+       - v0.3.0
 
-    steps:
-    - uses: actions/checkout@v2
+ jobs:
+   setup-and-test:
+     runs-on: ubuntu-latest
 
+     steps:
+     - uses: actions/checkout@v2
+     - uses: actions/setup-python@v5
+       with:
+         python-version: '3.11.6'
 
-    - name: Run Metta setup script
-      run: |
-        curl -fsSL https://raw.githubusercontent.com/iCog-Labs-Dev/metta-prebuilt-binary/main/install.sh | bash
+     - name: install and setup metta-run script
+       run: |
+         curl -fsSL https://raw.githubusercontent.com/iCog-Labs-Dev/metta-prebuilt-binary/main/install.sh | bash
 
-    - name: Set up Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
+     -name: install and setup metta
+       run: |
 
-    - name: Navigate to the metta-run directory
-      working-directory: ./metta-run
-      run: |
-        echo "Moved to metta-run directory"
+     - name: Run tests
+       working-directory: ./
+       run: python3 scripts/run-tests.py
 
-    - name: Setup Python Environment
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11.6'
-          
-    - name: Run tests
-      working-directory: ./metta-run
-      run: cargo test --verbose
+     - name: Ensure metta-run is executable
+       run: chmod +x $HOME/metta-bin/metta-run
 
-    - name: Ensure metta-run is executable
-      run: chmod +x $HOME/metta-bin/metta-run
