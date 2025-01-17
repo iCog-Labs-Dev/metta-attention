@@ -1,13 +1,13 @@
-(: filter (-> Expression (-> $t Bool) Expression Expression))
-(= (filter $list $predicate $acc)
+(: filter (-> Expression (-> $t Bool) Expression))
+(= (filter $list $predicate)
    (if (== $list ())
-    $acc
+    ()
     (let*
       (
           ($head (car-atom $list))
           ($tail (cdr-atom $list))
           ($res ($predicate $head))
-          ($filteredTail (filter $tail $predicate $acc))
+          ($filteredTail (filter $tail $predicate))
       )
       (if $res
           (cons-atom $head $filteredTail)
@@ -17,19 +17,39 @@
    )
 )
 
+(: customFilter (-> Expression (-> Symbol Number Number Bool) Number Number Expression))
+(= (customFilter $list $predicate $lower $upper)
+  (if(== $list ())
+    ()
+    (let*
+      (
+       ($head (car-atom $list))
+       ($tail (cdr-atom $list))
+       ($res ($predicate $head $lower $upper))
+       ($filteredTail (customFilter $tail $predicate $lower $upper))
+       )
+      (if $res
+        (cons-atom $head $filteredTail)
+        $filteredTail
+      )
+    )
+   )
+)
+
 (: valuesAtIndex (-> Number Expression Expression))
-(= (valuesAtIndex $i ()) ())
 (= (valuesAtIndex $i $handleSetSeq)
-   (
-    let*(
+   (if(== $handleSetSeq ())
+     ()
+     (let*(
          (($index $val) (car-atom $handleSetSeq))
          ($tail (cdr-atom $handleSetSeq))
          ($newTail (valuesAtIndex $i $tail))
         )
-    (
-     if(== $i $index)
-      $val
-      $newTail
+      (
+      if(== $i $index)
+        $val
+        $newTail
+      )
     )
   )
 )
@@ -71,17 +91,7 @@
         )
     )
 )
-
-(= (length ()) 0)
-(= (length $atoms) 
-    (
-        let* (
-            ($rest (cdr-atom $atoms))
-        )
-        (+ 1 (length $rest))
-        )
-)
-
+ 
 ; Recursive helper to calculate the group index
 (= (findGroup $imp $sum $i)
    (if (or (>= $sum $imp) (>= $i (GroupNum)))
@@ -125,3 +135,37 @@
       (* $base (pow $base (- $exp 1)))
    )
 ) ; Recursive multiplication
+
+(= (firstElement ($x $xs)) $x)
+(= (maxValue $max ()) $max)
+(= (maxValue $max ($x $xs))
+    (if (> $max $x)
+        (maxValue $max $xs)
+        (maxValue $x $xs)
+    )
+)
+(= (maxList $list)
+    (maxValue -1 $list)
+)
+
+(= (minValue $min ()) $min)
+(= (minValue $min ($x $xs))
+    (if (< $min $x)
+        (minValue $min $xs)
+        (minValue $x $xs)
+    )
+)
+(= (minList $list)
+    (minValue (firstElement $list) $list)
+)
+
+;Function for concatinating
+(= (concatTuple $xs $ys)
+    (if (== $xs ())
+        $ys
+        (let* ( ($head (car-atom $xs))
+                ($tail (cdr-atom $xs))
+                ($tailNew (concatTuple $tail $ys)))
+            (cons-atom $head $tailNew))
+    )
+)
