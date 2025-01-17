@@ -114,22 +114,23 @@
 (: getContent (-> Number Expression Expression))
 (= (getContent $index $out)
    (let $content (collapseAtomBin &atombin)
-    (valuesAtIndex $index $content)
+    (concatTuple $out (valuesAtIndex $index $content))
    )
 )
 
 ;A function to get the values stored in the &atombin atomspace, at the specified index.
 ;it accepts a predicate function as it's second argument.
 ;the type of the function should take a generic value and return a Boolean 
-(: getContentIf (-> Number (-> $x Bool)) Expression)
-(= (getContentIf $index $predicate $out)
+(: getContentIf (-> Number (-> Symbol Number Number Bool)) Number Number Expression Expression)
+(= (getContentIf $index $predicate $lower $upper $out)
   (
    let*(
         ($handleSetSeq (collapseAtomBin &atombin))
         ($handleSet (valuesAtIndex $index $handleSetSeq))
-        ($filteredOutput (filter $handleSet $predicate ()))
+        ($filteredOutput (customFilter $handleSet $predicate $lower $upper))
+        ($res (concatTuple $filteredOutput $out))
       )
-      $filteredOutput
+      $res
   )
 )
 

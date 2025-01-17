@@ -1,13 +1,13 @@
-(: filter (-> Expression (-> $t Bool) Expression Expression))
-(= (filter $list $predicate $acc)
+(: filter (-> Expression (-> $t Bool) Expression))
+(= (filter $list $predicate)
    (if (== $list ())
-    $acc
+    ()
     (let*
       (
           ($head (car-atom $list))
           ($tail (cdr-atom $list))
           ($res ($predicate $head))
-          ($filteredTail (filter $tail $predicate $acc))
+          ($filteredTail (filter $tail $predicate))
       )
       (if $res
           (cons-atom $head $filteredTail)
@@ -17,19 +17,39 @@
    )
 )
 
+(: customFilter (-> Expression (-> Symbol Number Number Bool) Number Number Expression))
+(= (customFilter $list $predicate $lower $upper)
+  (if(== $list ())
+    ()
+    (let*
+      (
+       ($head (car-atom $list))
+       ($tail (cdr-atom $list))
+       ($res ($predicate $head $lower $upper))
+       ($filteredTail (customFilter $tail $predicate $lower $upper))
+       )
+      (if $res
+        (cons-atom $head $filteredTail)
+        $filteredTail
+      )
+    )
+   )
+)
+
 (: valuesAtIndex (-> Number Expression Expression))
-(= (valuesAtIndex $i ()) ())
 (= (valuesAtIndex $i $handleSetSeq)
-   (
-    let*(
+   (if(== $handleSetSeq ())
+     ()
+     (let*(
          (($index $val) (car-atom $handleSetSeq))
          ($tail (cdr-atom $handleSetSeq))
          ($newTail (valuesAtIndex $i $tail))
         )
-    (
-     if(== $i $index)
-      $val
-      $newTail
+      (
+      if(== $i $index)
+        $val
+        $newTail
+      )
     )
   )
 )

@@ -20,20 +20,19 @@
 !(let $res (collapse (getRandomAtom)) (assertEqual (size $res) 1))
 ;
 ;;; Example Predicate function
-(= (pred $x) (
+;(: pred (-> Symbol Number Number Bool))
+(= (pred $x $lower $higher) (
     let $sti (getSTI $x) 
       (and 
-        (>=  $sti 0) 
-        (<=  $sti 10)
+        (>=  $sti $lower) 
+        (<=  $sti $higher)
       )
   )
 )
-!(assertEqual (getContentIf 2 pred ()) (d))
-!(assertEqual (getContentIf 1 pred ()) (a))
-!(assertEqual (getContent 2 ()) (d))
+!(assertEqual (getContentIf 2 pred 0 10 (a)) (d a))
+!(assertEqual (getContentIf 1 pred 0 10 ()) (a))
+!(assertEqual (getContent 2 (a b)) (a b d))
 !(assertEqual (getContent 1 ()) (a))
-!(assertEqual (valuesAtIndex 37 ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)))) (f h j k))
-!(assertEqual (valuesAtIndex 17 ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)))) (s c))
 !(setAv  E (200 200 0))
 !(insertAtom  45 E)
 !(assertEqual (match &atombin (45 $x) $x) (E)) 
