@@ -12,6 +12,7 @@
 !(add-atom &space (LTIAtomWage 10))
 
 
+
 ; Function to compute the minimum of two values
 (: min (-> Number Number Number))
 (= (min $a $b)

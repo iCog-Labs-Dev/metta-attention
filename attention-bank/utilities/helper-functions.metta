@@ -17,6 +17,26 @@
    )
 )
 
+; Binary filter for filtering atoms based on a binary predicate
+(: binaryFilter (-> (-> Atom Atom Bool) Atom Expression Expression))
+(= (binaryFilter $f $pivot $tuple)
+   (if (== $tuple ())  
+       ()
+       (let* 
+            (
+               ($head (car-atom $tuple))  
+               ($tail (cdr-atom $tuple))  
+               ($is-valid ($f $pivot $head)) 
+               ($filtered-tail (binaryFilter $f $pivot $tail)) 
+            )
+            (if $is-valid
+               (cons-atom $head $filtered-tail) 
+               $filtered-tail
+            ) 
+       )
+   )
+)
+
 (: valuesAtIndex (-> Number Expression Expression))
 (= (valuesAtIndex $i ()) ())
 (= (valuesAtIndex $i $handleSetSeq)

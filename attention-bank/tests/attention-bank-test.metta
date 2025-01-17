@@ -29,3 +29,4 @@
 !(assertEqual (match &space (fundsSTI $x) $x) 99930.0)
 !(assertEqual (match &space (fundsLTI $x) $x) 99930.0)
 
+
