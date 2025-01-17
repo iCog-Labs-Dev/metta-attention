@@ -175,3 +175,38 @@
         )
     )
 )
+
+(: pred (-> Symbol Number Number Bool))
+(= (pred $x $lower $higher) (
+    let $sti (getSTI $x) 
+      (and 
+        (>=  $sti $lower) 
+        (<=  $sti $higher)
+      )
+  )
+)
+
+(= (loop $i $term $acc)
+   (if(== $i $term)
+      $acc
+      (getContent (+ 1 $i) $acc)
+   )
+)
+
+(= (getHandleSet $lowerBound $upperBound)
+   (if (or (< $lowerBound 0) (< $upperBound 0))
+     ()
+     (let*
+       ($lowerBin (importanceBin $lowerBound))
+       ($upperBin (importanceBin $upperBound))
+       ($gcIfRes (getContentIf $lowerBin pred $lowerBound $upperBound ())) ;gcIfRes - getContentIfResult (result obtained after calling getContentIf)
+       ($exitCondition (== $upperBin $lowerBin))
+       ($gcRes (loop $lowerBin $upperBin $gcIfRes)) ;gcRes - getContentResult (result obtained after calling getContent)
+       ($finalResult (getContentIf $upperBin pred $lowerBound $upperBound $gcRes))
+      )
+      (if $exitCondition
+        $gcIfRes
+        $finalResult
+      )
+    )
+)
