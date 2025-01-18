@@ -123,12 +123,12 @@
     )
 )
 
-;.recent and .val need to be explored this are from the C++
+;TODO.recent and .val need to be explored this are from the C++
 ; The getMaxSTI function returns the maxSTI from the &globalVars space
 ; which is the space that stores the global variables
 ; i.e (getMaxSTI) output: (_maxSTI Number)
 
-(: getMaxSTI (-> Tuple))
+;(: getMaxSTI (-> Tuple))
 (= (getMaxSTI)
     (let $temp (collapse (match &globalVars (_maxSTI $_) (_maxSTI $_))) (car-atom $temp))
 )
@@ -186,27 +186,29 @@
   )
 )
 
+(: loop (-> Number Number Expression Expression))
 (= (loop $i $term $acc)
    (if(== $i $term)
       $acc
-      (getContent (+ 1 $i) $acc)
-   )
+      (let $next (+ 1 $i) (loop $next $term (getContent $i $acc)))
+    )
 )
 
+(: getHandleSet (-> Number Number Expression))
 (= (getHandleSet $lowerBound $upperBound)
    (if (or (< $lowerBound 0) (< $upperBound 0))
      ()
      (let*
-       ($lowerBin (importanceBin $lowerBound))
-       ($upperBin (importanceBin $upperBound))
-       ($gcIfRes (getContentIf $lowerBin pred $lowerBound $upperBound ())) ;gcIfRes - getContentIfResult (result obtained after calling getContentIf)
-       ($exitCondition (== $upperBin $lowerBin))
-       ($gcRes (loop $lowerBin $upperBin $gcIfRes)) ;gcRes - getContentResult (result obtained after calling getContent)
-       ($finalResult (getContentIf $upperBin pred $lowerBound $upperBound $gcRes))
+       (
+        ($lowerBin (importanceBin $lowerBound))
+        ($upperBin (importanceBin $upperBound))
+        ($gcIfRes (getContentIf $lowerBin pred $lowerBound $upperBound ())) ;gcIfRes - getContentIfResult (result obtained after calling getContentIf)
+        ($exitCondition (== $upperBin $lowerBin))
+        ($gcRes (loop $lowerBin $upperBin $gcIfRes)) ;gcRes - getContentResult (result obtained after calling getContent)
+        ($res (getContentIf $upperBin pred $lowerBound $upperBound $gcRes))
+        ($finalResult (if $exitCondition (removeDuplicates $gcIfRes) (removeDuplicates $res))) ;remove duplicates because the result needs to be a set of atoms.
       )
-      (if $exitCondition
-        $gcIfRes
-        $finalResult
-      )
+       $finalResult
     )
+  )
 )
