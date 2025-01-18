@@ -128,7 +128,7 @@
         ($handleSetSeq (collapseAtomBin &atombin))
         ($handleSet (valuesAtIndex $index $handleSetSeq))
         ($filteredOutput (customFilter $handleSet $predicate $lower $upper))
-        ($res (concatTuple $filteredOutput $out))
+        ($res (concatTuple $out $filteredOutput))
       )
       $res
   )
