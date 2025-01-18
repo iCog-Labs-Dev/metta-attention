@@ -169,3 +169,37 @@
             (cons-atom $head $tailNew))
     )
 )
+
+(= (contains $list $x)
+   (if(== $list ())
+     False
+     (let*
+       (
+        ($head (car-atom $list))
+        ($tail (cdr-atom $list))
+        )
+       (if(== $head $x)
+         True
+         (contains $tail $x)
+       )
+      )
+    )
+)
+
+(: removeDuplicates (-> Expression Expression))
+(= (removeDuplicates $list)
+   (if (== $list ())
+     ()
+     (let*
+       (
+          ($head (car-atom $list))
+          ($tail (cdr-atom $list))
+          ($filteredTail (removeDuplicates $tail))
+        )
+       (if(contains $filteredTail $head)
+        $filteredTail
+        (cons-atom $head $filteredTail)
+       )
+    )
+  )
+)
