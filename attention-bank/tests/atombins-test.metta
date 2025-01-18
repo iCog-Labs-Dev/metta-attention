@@ -29,7 +29,7 @@
       )
   )
 )
-!(assertEqual (getContentIf 2 pred 0 10 (a)) (d a))
+!(assertEqual (getContentIf 2 pred 0 10 (a)) (a d))
 !(assertEqual (getContentIf 1 pred 0 10 ()) (a))
 !(assertEqual (getContent 2 (a b)) (a b d))
 !(assertEqual (getContent 1 ()) (a))
