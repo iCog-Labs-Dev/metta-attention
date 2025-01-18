@@ -14,6 +14,9 @@
 !(add-atom &atombin (18 (c)))
 
 
+!(assertEqual (getHandleSet 1 20) (a d c))
+!(assertEqual (getHandleSet 10 10) ())
+
 ; Test importanceBin function
 !(assertEqual (importanceBin -5)  0)    ; Should return 0
 !(assertEqual (importanceBin 10)   10)   ; Should return 10 (direct assignment)
