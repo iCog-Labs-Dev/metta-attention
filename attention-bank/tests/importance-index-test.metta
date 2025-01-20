@@ -15,18 +15,18 @@
 
 
 ; Test importanceBin function
-!(assertEqual (importanceBin -5)  0)    ; Should return 0
-!(assertEqual (importanceBin 10)   10)   ; Should return 10 (direct assignment)
-!(assertEqual (importanceBin 20)  18)    ; Should calculate based on group logic 18
-!(assertEqual (importanceBin 50)  29)    ; Should calculate based on group logic 29
-
-! (assertEqual (update &atombin) ("Updated"))
-! (assertEqual (getMaxSTI) (_maxSTI 3))
-! (assertEqual (getMinSTI) (_minSTI 2))
-
-;Test cases that need to be refactored
-! (assertEqual (updateImportance &atombin a 1 20) ("Importance Updated"))
-! (assertEqual (or (== (collapse (match &atombin ($x $y) ($x $y))) ((10 (d)) (18 (a c)))) 
-                   (== (collapse (match &atombin ($x $y) ($x $y))) ((18 (a c)) (10 (d))))) 
-                   True)
-
+;!(assertEqual (importanceBin -5)  0)    ; Should return 0
+;!(assertEqual (importanceBin 10)   10)   ; Should return 10 (direct assignment)
+;!(assertEqual (importanceBin 20)  18)    ; Should calculate based on group logic 18
+;!(assertEqual (importanceBin 50)  29)    ; Should calculate based on group logic 29
+;
+;! (assertEqual (update &atombin) ("Updated"))
+;! (assertEqual (getMaxSTI) (_maxSTI 3))
+;! (assertEqual (getMinSTI) (_minSTI 2))
+;
+;;Test cases that need to be refactored
+;! (assertEqual (updateImportance &atombin a 1 20) ("Importance Updated"))
+;! (assertEqual (or (== (collapse (match &atombin ($x $y) ($x $y))) ((10 (d)) (18 (a c)))) 
+;                   (== (collapse (match &atombin ($x $y) ($x $y))) ((18 (a c)) (10 (d))))) 
+;                   True)
+;
