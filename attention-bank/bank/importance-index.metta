@@ -121,7 +121,6 @@
 ; i.e (getMaxSTI) output: (_maxSTI Number)
 
 
-
 ;####################### updateImportance ##################################
 
 ; the updateImportance function receives atom, old and new sti value and updates 
