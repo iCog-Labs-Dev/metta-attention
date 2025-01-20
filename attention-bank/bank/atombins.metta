@@ -22,38 +22,46 @@
 (: insertAtom (-> Number Atom empty))
 (= (insertAtom $bin_index $pattern)
    (if(== (getType $pattern) %Undefined%)
-      (Atom is not valid) ; Validate type
+      ("Atom is not valid") ; Validate type
       (if (== (collapse (match &atombin ($bin_index $x) $x)) ())
-         (add-atom &atombin ($bin_index ($pattern))) ; Insert new bin
+         (let () 
+              (add-atom &atombin ($bin_index ($pattern)))
+              ("Atom Inserted")
+           ) ; Insert new bin
          (match &atombin ($bin_index $x)
-            (let ()
-               (remove-atom &atombin ($bin_index $x)) ; Update bin
-               (let $updated (cons-atom $pattern $x)
-                  (add-atom &atombin ($bin_index $updated))
+            (let*(
+                ($_ (remove-atom &atombin ($bin_index $x))) ; Update bin
+                ($updated (cons-atom $pattern $x))
+                ($_ (add-atom &atombin ($bin_index $updated)))
                )
+              ("Atom Inserted")
             )
          )
       )
    )
 )
+
 ;Function to remove an atom from a specific bin
 (: removeAtom (-> Number Atom empty))
 (= (removeAtom $bin_index $atom)
    (if (== (getType $atom) %Undefined%)
-      (Atom is not valid) ; Validate type
+      ("Atom is not valid") ; Validate type
       (let $bin_contents (collapse (match &atombin ($bin_index $contents) $contents))
          (if(== $bin_contents ())
-            (Bin is empty) ; Bin is empty, nothing to remove
+            ("Bin is empty") ; Bin is empty, nothing to remove
             (let $updated_contents (remove_atom_helper $atom (car-atom $bin_contents))
-               (if (== $updated_contents ())
-                  (remove-atom &atombin ($bin_index $bin_contents)) ; Remove empty bin
+               ;(if (== $updated_contents ())
+               ;   (remove-atom &atombin ($bin_index $bin_contents)) ; Remove empty bin
                   (match &atombin ($bin_index $x)
-                     (let ()
-                        (remove-atom &atombin($bin_index $x))
-                        (add-atom &atombin ($bin_index $updated_contents))
+                     (let*
+                       (
+                          ($_ (remove-atom &atombin ($bin_index $x)))
+                          ($_ (add-atom &atombin ($bin_index $updated_contents)))
+                        )
+                      ("Atom Removed")
                      )
                   )
-               )
+               ;)
             )
          )
       )
