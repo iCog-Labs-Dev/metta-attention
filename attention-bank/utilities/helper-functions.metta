@@ -1,13 +1,13 @@
-(: filter (-> Expression (-> $t Bool) Expression Expression))
-(= (filter $list $predicate $acc)
+(: filter (-> Expression (-> $t Bool) Expression))
+(= (filter $list $predicate)
    (if (== $list ())
-    $acc
+    ()
     (let*
       (
           ($head (car-atom $list))
           ($tail (cdr-atom $list))
           ($res ($predicate $head))
-          ($filteredTail (filter $tail $predicate $acc))
+          ($filteredTail (filter $tail $predicate))
       )
       (if $res
           (cons-atom $head $filteredTail)
@@ -17,19 +17,39 @@
    )
 )
 
+(: customFilter (-> Expression (-> Symbol Number Number Bool) Number Number Expression))
+(= (customFilter $list $predicate $lower $upper)
+  (if(== $list ())
+    ()
+    (let*
+      (
+       ($head (car-atom $list))
+       ($tail (cdr-atom $list))
+       ($res ($predicate $head $lower $upper))
+       ($filteredTail (customFilter $tail $predicate $lower $upper))
+       )
+      (if $res
+        (cons-atom $head $filteredTail)
+        $filteredTail
+      )
+    )
+   )
+)
+
 (: valuesAtIndex (-> Number Expression Expression))
-(= (valuesAtIndex $i ()) ())
 (= (valuesAtIndex $i $handleSetSeq)
-   (
-    let*(
+   (if(== $handleSetSeq ())
+     ()
+     (let*(
          (($index $val) (car-atom $handleSetSeq))
          ($tail (cdr-atom $handleSetSeq))
          ($newTail (valuesAtIndex $i $tail))
         )
-    (
-     if(== $i $index)
-      $val
-      $newTail
+      (
+      if(== $i $index)
+        $val
+        $newTail
+      )
     )
   )
 )
@@ -149,3 +169,139 @@
             (cons-atom $head $tailNew))
     )
 )
+
+(= (contains $list $x)
+   (if(== $list ())
+     False
+     (let*
+       (
+        ($head (car-atom $list))
+        ($tail (cdr-atom $list))
+        )
+       (if(== $head $x)
+         True
+         (contains $tail $x)
+       )
+      )
+    )
+)
+
+(: removeDuplicates (-> Expression Expression))
+(= (removeDuplicates $list)
+   (if (== $list ())
+     ()
+     (let*
+       (
+          ($head (car-atom $list))
+          ($tail (cdr-atom $list))
+          ($filteredTail (removeDuplicates $tail))
+        )
+       (if(contains $filteredTail $head)
+        $filteredTail
+        (cons-atom $head $filteredTail)
+       )
+    )
+  )
+)
+
+(= (sort $list)
+   (if (== $list ())
+       () ; Base case: empty list is already sorted
+       (let*
+           (
+               ($pivot (car-atom $list)) ; Split into pivot and rest
+               ($rest (cdr-atom $list))
+               ($smaller (filterLess $pivot $rest)) ; Elements smaller than pivot
+               ($greater (filterGreaterEqual $pivot $rest)) ; Elements greater or equal to pivot
+               ($greaterRemaining (sort $greater))
+           )
+           (concatTuple (sort $smaller) (cons-atom $pivot $greaterRemaining)) ; Recursively sort and combine
+       )
+   )
+)
+
+(= (filterLess $pivot $list)
+   (if (== $list ())
+       () ; Base case: empty list
+       (let*
+           (
+              ($head (car-atom $list))
+              ($tail (cdr-atom $list))
+               ($restFiltered (filterLess $pivot $tail)) ; Recursive filtering
+           )
+           (if (< $head $pivot)
+               (cons-atom $head $restFiltered) ; Include $head if it's less than $pivot
+               $restFiltered ; Skip $head otherwise
+           )
+       )
+   )
+)
+
+(= (filterGreaterEqual $pivot $list)
+   (if (== $list ())
+       () ; Base case: empty list
+       (let*
+           (
+              ($head (car-atom $list))
+              ($tail (cdr-atom $list))
+               ($restFiltered (filterGreaterEqual $pivot $tail)) ; Recursive filtering
+           )
+           (if (>= $head $pivot)
+               (cons-atom $head $restFiltered) ; Include $head if it's greater or equal to $pivot
+               $restFiltered ; Skip $head otherwise
+           )
+       )
+   )
+)
+
+(: collectContents (-> Expression Expression Expression))
+(= (collectContents $list $acc)
+   (if(== $list ())
+    $acc
+    (let*
+      (
+        (($index $content) (car-atom $list))
+        ($tail (cdr-atom $list))
+        ($rest (collectContents $tail $acc))
+       )
+      (concatTuple $content $rest)
+      )
+    )
+)
+
+(: findMaxSTI (-> Expression Number))
+(= (findMaxSTI $list)
+   (let*
+     (
+      ($atom (car-atom $list))
+      ($max (getSTI $atom))
+      ($rest (cdr-atom $list))
+      )
+     (if(not (== $rest ()))
+       (if (> $max (findMaxSTI $rest))
+          $max
+          (findMaxSTI $rest)
+        )
+       $max
+      )
+  )
+)
+
+(: findMinSTI (-> Expression Number))
+(= (findMinSTI $list)
+   (let*
+     (
+      ($atom (car-atom $list))
+      ($min (getSTI $atom))
+      ($rest (cdr-atom $list))
+      )
+     (if(not (== $rest ()))
+       (if (<= $min (findMinSTI $rest))
+          $min
+          (findMinSTI $rest)
+        )
+       $min
+      )
+  )
+ )
+

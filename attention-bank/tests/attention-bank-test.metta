@@ -1,29 +1,40 @@
 !(register-module! ../../../metta-attention)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
+!(import! &self metta-attention:attention-bank:bank:importance-index)
+!(import! &self metta-attention:attention-bank:bank:atombins)
+!(import! &self metta-attention:attention-bank:utilities:helper-functions)
 
 ; Example usage to compute STI and LTI wages
 !(assertEqual (calculateSTIWage) 20.0)
 !(assertEqual (calculateLTIWage) 20.0)
 
+!(add-atom &atombin (1 (x)))
+!(add-atom &atombin (10 (y)))
+!(add-atom &atombin (18 (z)))
 ; Initial AttentionValues
-!(setAv E (200 200 0))
+!(setAv x (200 200 0))
+!(setAv y (200 200 0))
+!(setAv z (200 200 0))
 
+;!(getContent 18 ())
+;!(collapseAtomBin &atombin)
+;!(let $ab (collapseAtomBin &atombin) (valuesAtIndex 1 $ab))
 ; Stimulate the atom with a stimulus of 1.5
-!(stimulate E 1.5)
+!(stimulate x 1.5)
 
 ; Retrieve the updated AttentionValue
-!(assertEqual (getAv E) (AV 230.0 230.0 0))
+!(assertEqual (getAv x) (AV 230.0 230.0 0))
 
 ; Check updated funds
 !(assertEqual (match &space (fundsSTI $x) $x) 99970.0)
 !(assertEqual (match &space (fundsLTI $x) $x) 99970.0)
 
 ; Stimulate the atom with a stimulus of 2
-!(stimulate E 2)
+!(stimulate x 2)
 
 ; Retrieve the updated AttentionValue
-!(assertEqual (getAv E) (AV 270.0 270.0 0))
+!(assertEqual (getAv x) (AV 270.0 270.0 0))
 
 ; Check updated funds
 !(assertEqual (match &space (fundsSTI $x) $x) 99930.0)
