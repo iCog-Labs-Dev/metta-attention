@@ -62,29 +62,6 @@
     (collapse (match $space ($x $y) $x))
 )
 
-;This function receives atom, old and new sti value and updates its bin location or update its position
-(= (updateImportance $atom $oldav $newav)
-    (let* (
-            ($oldbin (importanceBin $oldav))
-            ($newbin (importanceBin $newav)))
-        (if (== $oldbin $newbin)
-            ()
-            (let*  (
-                    ( ($elementOld) (collapse (match &atombin ($oldbin $atoms) $atoms)))
-                    ( ($elementNew) (collapse (match &atombin ($newbin $atoms) $atoms)))
-                    ($a (remove-Atom $oldbin $atom))
-                    ($b (addAtom $newbin $atom))
-                    ($rem1 (remove-atom &atombin ($oldbin $elementOld)))
-                    ($rem2 (remove-atom &atombin ($newbin $elementNew)))
-                    ($add1 (add-atom &atombin ($newbin $b)))
-                    ($add2 (add-atom &atombin ($oldbin $a)))
-                )
-
-            ("Importance Updated")))
-    )
-)
-
-
 ; Retrieves all the STIs of the atoms in the tuple
 ;
 ; i.e (getSTIFromTuple (1 2 3)) will return sti values like (100 (200 (50))
@@ -102,24 +79,39 @@
 ;
 ; i.e (update &atombin) will update the global variables _minSTI and _maxSTI
 
+;get all contents that are in atombin indices
+;filter out empty contents
+;find maximum sti
+;find minumum sti
+;if min_sti > max_sti: min_sti = max_sti
+;_min_sti = min_sti, max_sti = max_sti
+
 (: update (-> hyperon::space::DynSpace Atom))
 (= (update $space)
     (let* (
             ($nums (idxExractor $space))
-            ($max (Max $nums))
-            ($maxAtoms (getContent $max ()))
-            ($allMaxSTI (getSTIFromTuple $maxAtoms))
-            ($maxSTI (maxList $allMaxSTI))
-            ($min (Min $nums))
-            ($minAtoms (getContent $min ()))
-            ($allMinSTI (getSTIFromTuple $minAtoms))
-            ($minSTI (minList $allMinSTI))
+            ($vals (collapseAtomBin $space))
+            ($filteredVals (filter $vals notEmpty))
+            ($collectedContents (collectContents $filteredVals ()))
+            ($max (findMaxSTI $collectedContents))
+            ($min (findMinSTI $collectedContents))
+            ($exitCondition (> $min $max))
+        )
+        (if $exitCondition
+            (updateGlobalVars $max $max)
+            (updateGlobalVars $min $max)
+          )
+    )
+)
+
+(= (updateGlobalVars $min $max)
+   (let* (
             ($_ (remove-atom &globalVars (_minSTI $_)))
             ($_ (remove-atom &globalVars (_maxSTI $_)))
-            ($_ (add-reduct &globalVars (_maxSTI $maxSTI)))
-            ($_ (add-reduct &globalVars (_minSTI $minSTI)))
-        )
-        ("Updated")
+            ($_ (add-reduct &globalVars (_maxSTI $max)))
+            ($_ (add-reduct &globalVars (_minSTI $min)))
+          )
+     ("Updated")
     )
 )
 
@@ -128,20 +120,6 @@
 ; which is the space that stores the global variables
 ; i.e (getMaxSTI) output: (_maxSTI Number)
 
-;(: getMaxSTI (-> Tuple))
-(= (getMaxSTI)
-    (let $temp (collapse (match &globalVars (_maxSTI $_) (_maxSTI $_))) (car-atom $temp))
-)
-
-;.recent and .val need to be explored this are from the C++
-; The getMinSTI function returns the minSTI from the &globalVars space
-; which is the space that stores the global variables
-; i.e (getMinSTI) output: (_minSTI Number) 
-
-(: getMinSTI (-> Tuple))
-(= (getMinSTI)
-    (let $temp (collapse (match &globalVars (_minSTI $_) (_minSTI $_))) (car-atom $temp))
-)
 
 
 ;####################### updateImportance ##################################
@@ -155,24 +133,26 @@
 ; that the STI 100 belongs to.
 
 (: updateImportance (-> hyperon::space::DynSpace Atom Number Number Atom))
-(= (updateImportance $space $atom $oldav $newav)
+(= (updateImportance $space $atom $oldSTI $newSTI)
     (let* (
-            ($oldbin (importanceBin $oldav))
-            ($newbin (importanceBin $newav)))
-        (if (== $oldbin $newbin)
+            ($oldBin (importanceBin $oldSTI))
+            ($newBin (importanceBin $newSTI)))
+        (if (== $oldBin $newBin)
             ()
-            (let*  (
-                    ( ($elementOld) (collapse (match $space ($oldbin $atoms) $atoms)))
-                    ( ($elementNew) (collapse (match $space ($newbin $atoms) $atoms)))
-                    ($a (removeAtom $oldbin $atom))
-                    ($b (insertAtom $newbin $atom))
-                    ($rem1 (remove-atom $space ($oldbin $elementOld)))
-                    ($rem2 (remove-atom $space ($newbin $elementNew)))
-                )
-
-            ("Importance Updated")
+            (let $result (relocateAtom $oldBin $newBin $atom)
+              (if $result ("Importance Updated") ("Importance Not Updated"))
             )
         )
+    )
+)
+
+(: relocateAtom (-> Number Number Symbol Bool))
+(= (relocateAtom $oldBin $newBin $atom)
+   (let $res1 (removeAtom $oldBin $atom)
+     (if (or (== $res1 ("Atom is not valid")) (== $res1 ("Bin is empty")))
+       False
+       (== (insertAtom $newBin $atom) ("Atom Inserted"))
+      )
     )
 )
 
