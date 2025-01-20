@@ -203,3 +203,105 @@
     )
   )
 )
+
+(= (sort $list)
+   (if (== $list ())
+       () ; Base case: empty list is already sorted
+       (let*
+           (
+               ($pivot (car-atom $list)) ; Split into pivot and rest
+               ($rest (cdr-atom $list))
+               ($smaller (filterLess $pivot $rest)) ; Elements smaller than pivot
+               ($greater (filterGreaterEqual $pivot $rest)) ; Elements greater or equal to pivot
+               ($greaterRemaining (sort $greater))
+           )
+           (concatTuple (sort $smaller) (cons-atom $pivot $greaterRemaining)) ; Recursively sort and combine
+       )
+   )
+)
+
+(= (filterLess $pivot $list)
+   (if (== $list ())
+       () ; Base case: empty list
+       (let*
+           (
+              ($head (car-atom $list))
+              ($tail (cdr-atom $list))
+               ($restFiltered (filterLess $pivot $tail)) ; Recursive filtering
+           )
+           (if (< $head $pivot)
+               (cons-atom $head $restFiltered) ; Include $head if it's less than $pivot
+               $restFiltered ; Skip $head otherwise
+           )
+       )
+   )
+)
+
+(= (filterGreaterEqual $pivot $list)
+   (if (== $list ())
+       () ; Base case: empty list
+       (let*
+           (
+              ($head (car-atom $list))
+              ($tail (cdr-atom $list))
+               ($restFiltered (filterGreaterEqual $pivot $tail)) ; Recursive filtering
+           )
+           (if (>= $head $pivot)
+               (cons-atom $head $restFiltered) ; Include $head if it's greater or equal to $pivot
+               $restFiltered ; Skip $head otherwise
+           )
+       )
+   )
+)
+
+(: collectContents (-> Expression Expression Expression))
+(= (collectContents $list $acc)
+   (if(== $list ())
+    $acc
+    (let*
+      (
+        (($index $content) (car-atom $list))
+        ($tail (cdr-atom $list))
+        ($rest (collectContents $tail $acc))
+       )
+      (concatTuple $content $rest)
+      )
+    )
+)
+
+(: findMaxSTI (-> Expression Number))
+(= (findMaxSTI $list)
+   (let*
+     (
+      ($atom (car-atom $list))
+      ($max (getSTI $atom))
+      ($rest (cdr-atom $list))
+      )
+     (if(not (== $rest ()))
+       (if (> $max (findMaxSTI $rest))
+          $max
+          (findMaxSTI $rest)
+        )
+       $max
+      )
+  )
+)
+
+(: findMinSTI (-> Expression Number))
+(= (findMinSTI $list)
+   (let*
+     (
+      ($atom (car-atom $list))
+      ($min (getSTI $atom))
+      ($rest (cdr-atom $list))
+      )
+     (if(not (== $rest ()))
+       (if (<= $min (findMinSTI $rest))
+          $min
+          (findMinSTI $rest)
+        )
+       $min
+      )
+  )
+ )
+
