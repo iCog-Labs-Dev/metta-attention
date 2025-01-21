@@ -133,6 +133,7 @@
            (add-atom  &space  (fundsLTI $newltifund))
       )
     )
+    (updateAttentionalFocus $pattern)
    )
 )
 

@@ -22,38 +22,46 @@
 (: insertAtom (-> Number Atom empty))
 (= (insertAtom $bin_index $pattern)
    (if(== (getType $pattern) %Undefined%)
-      (Atom is not valid) ; Validate type
+      ("Atom is not valid") ; Validate type
       (if (== (collapse (match &atombin ($bin_index $x) $x)) ())
-         (add-atom &atombin ($bin_index ($pattern))) ; Insert new bin
+         (let () 
+              (add-atom &atombin ($bin_index ($pattern)))
+              ("Atom Inserted")
+           ) ; Insert new bin
          (match &atombin ($bin_index $x)
-            (let ()
-               (remove-atom &atombin ($bin_index $x)) ; Update bin
-               (let $updated (cons-atom $pattern $x)
-                  (add-atom &atombin ($bin_index $updated))
+            (let*(
+                ($_ (remove-atom &atombin ($bin_index $x))) ; Update bin
+                ($updated (cons-atom $pattern $x))
+                ($_ (add-atom &atombin ($bin_index $updated)))
                )
+              ("Atom Inserted")
             )
          )
       )
    )
 )
+
 ;Function to remove an atom from a specific bin
 (: removeAtom (-> Number Atom empty))
 (= (removeAtom $bin_index $atom)
    (if (== (getType $atom) %Undefined%)
-      (Atom is not valid) ; Validate type
+      ("Atom is not valid") ; Validate type
       (let $bin_contents (collapse (match &atombin ($bin_index $contents) $contents))
          (if(== $bin_contents ())
-            (Bin is empty) ; Bin is empty, nothing to remove
+            ("Bin is empty") ; Bin is empty, nothing to remove
             (let $updated_contents (remove_atom_helper $atom (car-atom $bin_contents))
-               (if (== $updated_contents ())
-                  (remove-atom &atombin ($bin_index $bin_contents)) ; Remove empty bin
+               ;(if (== $updated_contents ())
+               ;   (remove-atom &atombin ($bin_index $bin_contents)) ; Remove empty bin
                   (match &atombin ($bin_index $x)
-                     (let ()
-                        (remove-atom &atombin($bin_index $x))
-                        (add-atom &atombin ($bin_index $updated_contents))
+                     (let*
+                       (
+                          ($_ (remove-atom &atombin ($bin_index $x)))
+                          ($_ (add-atom &atombin ($bin_index $updated_contents)))
+                        )
+                      ("Atom Removed")
                      )
                   )
-               )
+               ;)
             )
          )
       )
@@ -114,22 +122,23 @@
 (: getContent (-> Number Expression Expression))
 (= (getContent $index $out)
    (let $content (collapseAtomBin &atombin)
-    (valuesAtIndex $index $content)
+    (concatTuple $out (valuesAtIndex $index $content))
    )
 )
 
 ;A function to get the values stored in the &atombin atomspace, at the specified index.
 ;it accepts a predicate function as it's second argument.
 ;the type of the function should take a generic value and return a Boolean 
-(: getContentIf (-> Number (-> $x Bool)) Expression)
-(= (getContentIf $index $predicate $out)
+(: getContentIf (-> Number (-> Symbol Number Number Bool)) Number Number Expression Expression)
+(= (getContentIf $index $predicate $lower $upper $out)
   (
    let*(
         ($handleSetSeq (collapseAtomBin &atombin))
         ($handleSet (valuesAtIndex $index $handleSetSeq))
-        ($filteredOutput (filter $handleSet $predicate ()))
+        ($filteredOutput (customFilter $handleSet $predicate $lower $upper))
+        ($res (concatTuple $out $filteredOutput))
       )
-      $filteredOutput
+      $res
   )
 )
 

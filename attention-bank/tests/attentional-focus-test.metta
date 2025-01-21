@@ -33,3 +33,4 @@
 !(assertEqual (updateAttentionalFocus L) (Atom is not valid))
 !(assertEqual (getAtomList) (A B C D F G H I))
 !(assertEqual (sortAtomsBySti  (getAtomList)) (H D B F C G I A))
+

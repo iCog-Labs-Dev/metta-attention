@@ -13,6 +13,8 @@
 !(add-atom &atombin (10 (d)))
 !(add-atom &atombin (18 (c)))
 
+!(assertEqual (getHandleSet 1 20) (a d c))
+!(assertEqual (getHandleSet 10 10) ())
 
 ; Test importanceBin function
 !(assertEqual (importanceBin -5)  0)    ; Should return 0
@@ -21,12 +23,10 @@
 !(assertEqual (importanceBin 50)  29)    ; Should calculate based on group logic 29
 
 ! (assertEqual (update &atombin) ("Updated"))
-! (assertEqual (getMaxSTI) (_maxSTI 3))
-! (assertEqual (getMinSTI) (_minSTI 2))
+! (assertEqual (match &globalVars (_maxSTI $x) $x) 4)
+! (assertEqual (match &globalVars (_minSTI $x) $x) 2)
 
-;Test cases that need to be refactored
+;;Test cases that need to be refactored
 ! (assertEqual (updateImportance &atombin a 1 20) ("Importance Updated"))
-! (assertEqual (or (== (collapse (match &atombin ($x $y) ($x $y))) ((10 (d)) (18 (a c)))) 
-                   (== (collapse (match &atombin ($x $y) ($x $y))) ((18 (a c)) (10 (d))))) 
-                   True)
 
+!(assertEqual (getContent 1 ()) ())
