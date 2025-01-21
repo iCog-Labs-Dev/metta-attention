@@ -28,18 +28,20 @@
 !(assertEqual (getAv x) (AV 230.0 230.0 0))
 
 ; Check updated funds
-;!(assertEqual (match &space (fundsSTI $x) $x) 99970.0)
-;!(assertEqual (match &space (fundsLTI $x) $x) 99970.0)
+!(assertEqual (match &space (fundsSTI $x) $x) 99970.0)
+!(assertEqual (match &space (fundsLTI $x) $x) 99970.0)
 
 ; Stimulate the atom with a stimulus of 2
 !(stimulate x 2)
 
 ; Retrieve the updated AttentionValue
-;!(assertEqual (getAv x) (AV 270.0 270.0 0))
+!(assertEqual (getAv x) (AV 270.0 270.0 0))
 
 ; Check updated funds
-;!(assertEqual (match &space (fundsSTI $x) $x) 99930.0)
-;!(assertEqual (match &space (fundsLTI $x) $x) 99930.0)
+!(assertEqual (match &space (fundsSTI $x) $x) 99930.0)
+!(assertEqual (match &space (fundsLTI $x) $x) 99930.0)
 
-!(getAtomList)
-
+; Check the  attentional focus  is updated  when an atom is stimulated
+!(assertEqual (getAtomList) (x))
+!(stimulate y 2)
+!!(assertEqual (getAtomList) (x y))
