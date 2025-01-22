@@ -1,5 +1,6 @@
 ; Define initial variables and insert them in newspace called space
 !(bind! &space (new-space))
+!(bind! &atombin (new-space))
 !(add-atom &space (startingFundsSTI 100000))
 !(add-atom &space (fundsSTI 100000))
 !(add-atom &space (startingFundsLTI 100000))
@@ -10,7 +11,6 @@
 !(add-atom &space (targetLTI 10000))
 !(add-atom &space (STIAtomWage 10))
 !(add-atom &space (LTIAtomWage 10))
-
 
 
 ; Function to compute the minimum of two values
@@ -105,6 +105,7 @@
            ($fundsLTI (match  &space  (fundsLTI $x) $x))
            ($newstifund (+ $fundsSTI $stiDiff))
            ($newltifund (+ $fundsLTI $ltiDiff))
+           ($res (updateImportance $space $pattern $sti $new-sti))
          )
          (attentionValueChanged $pattern $newstifund $newltifund $new-av)
    )
@@ -118,23 +119,37 @@
 ;    - Remove the current fundsSTI and fundsLTI values from the AtomSpace.
 ;    - Add the updated fundsSTI and fundsLTI values to the AtomSpace.
 
-(: attentionValueChanged (->Atom Number Number AttentionValue empty))
-(= (attentionValueChanged $pattern  $newstifund $newltifund $new-av)
-   ((setAv $pattern $new-av)
-    (match  &space  (fundsSTI $fundsSTI)
-      (let ()
-           (remove-atom &space (fundsSTI $fundsSTI))
-           (add-atom  &space  (fundsSTI $newstifund))
-      )
+(: attentionValueChanged (-> Atom Number Number AttentionValue empty))
+(= (attentionValueChanged $pattern $newSTIFund $newLTIFund $newAv)
+   (let*(
+         ($res (setAv $pattern $newAv))
+         ($oldSTIFund (match &space (fundsSTI $fundsSTI) $fundsSTI))
+         ($oldLTIFund (match &space (fundsLTI $fundsLTI) $fundsLTI))
+         ($_ (updateLTIFunds $oldLTIFund $newLTIFund))
+         ($_ (updateSTIFunds $oldSTIFund $newSTIFund))
+         ($_ (updateAttentionalFocus $pattern))
+         ($r (update &atombin))
+        )
+        $r
     )
-    (match  &space  (fundsLTI $fundsLTI)
-      (let ()
-           (remove-atom  &space  (fundsLTI $fundsLTI))
-           (add-atom  &space  (fundsLTI $newltifund))
-      )
-    )
-    (updateAttentionalFocus $pattern)
-   )
 )
 
+(: updateLTIFunds (-> Number Number empty))
+(= (updateLTIFunds $old $new)
+  (match  &space  (fundsLTI $old)
+      (let ()
+           (remove-atom &space (fundsLTI $old))
+           (add-atom &space (fundsLTI $new))
+      )
+  )
+)
 
+(: updateSTIFunds (-> Number Number empty))
+(= (updateSTIFunds $old $new)
+  (match  &space  (fundsSTI $old)
+      (let ()
+           (remove-atom &space (fundsSTI $old))
+           (add-atom &space (fundsSTI $new))
+      )
+  )
+)

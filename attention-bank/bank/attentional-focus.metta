@@ -93,7 +93,7 @@
 
 ;the function below updates the attentional focus with a new atom
 ;the RemoveAFSignal() and AddAFSignal() functions have been skiped in this function because it appears to primarily 
-;serve logging the additiona and removal of an atom as i reviewed in the example/AtomSpaceEventSubscribeExample.cc
+;serve logging the additional and removal of an atom as i reviewed in the example/AtomSpaceEventSubscribeExample.cc
 ;and we may implement it in the future if needed
 
 (: updateAttentionalFocus (-> Atom empty))

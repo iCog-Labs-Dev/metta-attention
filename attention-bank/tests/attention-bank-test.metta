@@ -44,4 +44,4 @@
 ; Check the  attentional focus  is updated  when an atom is stimulated
 !(assertEqual (getAtomList) (x))
 !(stimulate y 2)
-!!(assertEqual (getAtomList) (x y))
+!(assertEqual (getAtomList) (x y))

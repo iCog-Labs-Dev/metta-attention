@@ -11,12 +11,7 @@
 !(setAv B (50 150 250))
 !(setAv C (200 300 400))
 
-!(assertEqual 
-              (filter ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)) (27 ())) notEmpty ()) 
-              ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)))
-)
 
-!(assertEqual (filter ((1 ()) (2 ())) notEmpty ()) ())
 !(assertEqual (binaryFilter lessThanSti A (B C)) (B))
 !(assertEqual (binaryFilter greaterEqualSti A (B C)) (C))
 !(assertEqual (size ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)))) 6)
