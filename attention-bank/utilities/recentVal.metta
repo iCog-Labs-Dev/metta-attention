@@ -1,4 +1,13 @@
 !(bind! &recentVal (new-space))
+;This space holds changing values: value, recent and decay.
+;These first two values are used to represent STI values. Whereas, decay, is the 
+;rate at which these values decay at. 
+;
+;When the respective update functions are called, the recent value will be Updated
+;according to this mathematical relationship between the three:
+    ;recent = ((decay * newValue) + ((decay - 1.0) * recent))
+    ;where: newValue is the value passed as the argument to the update functions.
+
 !(add-atom &recentVal (value_min 0))
 !(add-atom &recentVal (recent_min 0.0))
 !(add-atom &recentVal (decay_min 0.5))
