@@ -19,8 +19,8 @@
 (: RecentVal (-> Grounded))
 (= (RecentVal) &recentVal)
 
-(: updateRecentMinValue (-> Number empty))
-(= (updateRecentMinValue $newValue)
+(: updateMin (-> Number empty))
+(= (updateMin $newValue)
    (let*
      (
         ($recent (match &recentVal (recent_min $_) $_))
@@ -34,8 +34,8 @@
     )
 )
 
-(: updateRecentMaxValue (-> Number empty))
-(= (updateRecentMaxValue $newValue)
+(: updateMax (-> Number empty))
+(= (updateMax $newValue)
    (let*
      (
         ($recent (match &recentVal (recent_max $_) $_))
