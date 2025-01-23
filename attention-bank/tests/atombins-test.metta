@@ -2,16 +2,16 @@
 !(import! &self metta-attention:attention-bank:bank:atombins)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
-
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention-bank:bank:get-min-max-content)
+!(import! &self metta-attention:attention-bank:bank:attentional-focus)
+
 
 ;
 !(add-atom &atombin (1 (a)))
 !(add-atom &atombin (2 (d)))
-!(add-atom &atombin (3 (c)))
 !(add-atom &atombin (17 (s c)))
-!(add-atom &atombin (18 (g j)))
+!(add-atom &atombin (18 (g)))
 !(add-atom &atombin (37 (f h j k)))
 !(setAv a (0 0 0))
 !(setAv d (7 4 0))
@@ -48,3 +48,5 @@
 !(removeAtom  45 H)
 !(assertEqual (match &atombin  (45 $x) $x) (G E))
 !(assertEqual (removeAtom  45 L) ("Atom is not valid"))
+!(addAtomToAF a)
+!(addAtomToAF d)

@@ -10,7 +10,12 @@
         True
     )
 )
-
+(= (atomIsNotInAF $atom)
+   (if  (== (collapse (match &attentionalFocus $atom $atom)) ())
+        True
+        False
+    )
+)
 
 ;adds an atom to the attentional focus if it is valid
 (: addAtomToAF (-> Atom Symbol))
@@ -132,6 +137,28 @@
    )
 )
 
+; Function to retrieve a random atom not in attentional focus
+(: getRandomAtomNotInAF (-> Atom))
+(= (getRandomAtomNotInAF)
+   (let*
+       (
+
+           ($allAtoms  (getAtomBinList))
+           ($filteredAtoms (filter $allAtoms atomIsNotInAF))
+       )
+       (if (== $filteredAtoms ())
+           %Undefined 
+           (let*
+               (
+
+                   ($res (py-list $filteredAtoms))
+                   ($randomAtom ((py-atom random.choice) $res))
+               )
+               $randomAtom 
+           )
+       )
+   )
+)
 
 
 
