@@ -10,11 +10,10 @@
         True
     )
 )
+;checks if an atom is in attentional focus
+(: atomIsNotInAF (-> Atom Bool))
 (= (atomIsNotInAF $atom)
-   (if  (== (collapse (match &attentionalFocus $atom $atom)) ())
-        True
-        False
-    )
+   (not (atomIsInAF $atom))
 )
 
 ;adds an atom to the attentional focus if it is valid
