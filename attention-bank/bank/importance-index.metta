@@ -14,8 +14,6 @@
 ; - bin_size - return the total bin size
 ; - size - it recives atom bin index and return the size or total number of atoms found inside that bin index
 
-! (bind! &globalVars (new-space))
-
 (: GroupSize Number)
 (= (GroupSize) 8)
 
@@ -52,27 +50,6 @@
 
 ;####################### update ##################################
 
-; Retrieves all the indices from the $space in this case is
-; the &atombin space and return them to the caller
-;
-; i.e (idxExractor &atombin) will return all the indices in &atombin
-
-(: idxExractor (-> hyperon::space::DynSpace Tuple))
-(= (idxExractor $space)
-    (collapse (match $space ($x $y) $x))
-)
-
-; Retrieves all the STIs of the atoms in the tuple
-;
-; i.e (getSTIFromTuple (1 2 3)) will return sti values like (100 (200 (50))
-(: getSTIFromTuple (-> Atoms (-> Atoms)))
-(= (getSTIFromTuple $atoms)
-    (if (== $atoms ())
-        ()
-        ( (let $a (car-atom $atoms) (getSTI $a)) (getSTIFromTuple (cdr-atom $atoms)))
-    )
-)
-
 ; This function updates the global variables _minSTI and _maxSTI for
 ; use by other methods or functions that need them
 ; the space that will be passed is the space that the atoms are stored in
@@ -89,7 +66,7 @@
 (: update (-> hyperon::space::DynSpace Atom))
 (= (update $space)
     (let* (
-            ($nums (idxExractor $space))
+            ($nums (collapse (match $space ($x $y) $x)))
             ($vals (collapseAtomBin $space))
             ($filteredVals (filter $vals notEmpty))
             ($collectedContents (collectContents $filteredVals ()))
@@ -98,28 +75,21 @@
             ($exitCondition (> $min $max))
         )
         (if $exitCondition
-            (updateGlobalVars $max $max)
-            (updateGlobalVars $min $max)
+            (updateGlobalMaxAndMinSTI $max $max)
+            (updateGlobalMaxAndMinSTI $min $max)
           )
     )
 )
 
-(= (updateGlobalVars $min $max)
-   (let* (
-            ($_ (remove-atom &globalVars (_minSTI $_)))
-            ($_ (remove-atom &globalVars (_maxSTI $_)))
-            ($_ (add-reduct &globalVars (_maxSTI $max)))
-            ($_ (add-reduct &globalVars (_minSTI $min)))
-          )
-     ("Updated")
-    )
+(= (updateGlobalMaxAndMinSTI $min $max)
+    (let*
+      (
+       ($firstRes (updateMin $min))
+       ($secondRes (updateMax $max))
+      )
+      ("Updated")
+     )
 )
-
-;TODO.recent and .val need to be explored this are from the C++
-; The getMaxSTI function returns the maxSTI from the &globalVars space
-; which is the space that stores the global variables
-; i.e (getMaxSTI) output: (_maxSTI Number)
-
 
 ;####################### updateImportance ##################################
 
@@ -191,3 +161,29 @@
     )
   )
 )
+
+(: getMaxSTI (-> Bool Number))
+(= (getMaxSTI $avg) 
+   (let $recentVal (RecentVal)
+    (if $avg
+      (match $recentVal (recent_max $_) $_)
+      (match $recentVal (value_max $_) $_)
+      )
+   )
+)
+
+(: getMaxSTI (-> Number))
+(= (getMaxSTI) (let $recentVal (RecentVal) (match $recentVal (recent_max $_) $_)))
+
+(: getMinSTI (-> Bool Number))
+(= (getMinSTI $avg)
+   (let $recentVal (RecentVal)
+    (if $avg
+      (match $recentVal (recent_min $_) $_)
+      (match $recentVal (value_min $_) $_)
+      )
+   )
+)
+
+(: getMinSTI (-> Number))
+(= (getMinSTI) (let $recentVal (RecentVal) (match $recentVal (recent_min $_) $_)))
