@@ -84,8 +84,8 @@
 (= (updateGlobalMaxAndMinSTI $min $max)
     (let*
       (
-       ($firstRes (updateRecentMinValue $min))
-       ($secondRes (updateRecentMaxValue $max))
+       ($firstRes (updateMin $min))
+       ($secondRes (updateMax $max))
       )
       ("Updated")
      )
