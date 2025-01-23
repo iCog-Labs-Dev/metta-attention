@@ -3,6 +3,7 @@
 !(import! &self metta-attention:attention-bank:bank:atombins)
 !(import! &self metta-attention:attention-bank:bank:importance-index)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
+!(import! &self metta-attention:attention-bank:utilities:recentVal)
 
 ;For Testing the update, getMaxSTI, getMinSTI
 !(setAv a (2 2 2))
@@ -21,12 +22,13 @@
 !(assertEqual (importanceBin 10)   10)   ; Should return 10 (direct assignment)
 !(assertEqual (importanceBin 20)  18)    ; Should calculate based on group logic 18
 !(assertEqual (importanceBin 50)  29)    ; Should calculate based on group logic 29
-
+;
 ! (assertEqual (update &atombin) ("Updated"))
-! (assertEqual (match &globalVars (_maxSTI $x) $x) 4)
-! (assertEqual (match &globalVars (_minSTI $x) $x) 2)
-
-;;Test cases that need to be refactored
+!(assertEqual (getMaxSTI) 2.0)
+!(assertEqual (getMinSTI) 1.0)
+;
+;;;Test cases that need to be refactored
 ! (assertEqual (updateImportance &atombin a 1 20) ("Importance Updated"))
 
 !(assertEqual (getContent 1 ()) ())
+;
