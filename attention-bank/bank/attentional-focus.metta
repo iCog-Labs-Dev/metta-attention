@@ -23,12 +23,11 @@
    (if (== (getType $atom) %Undefined%)
        ("Atom is not valid")
        (let()
-       (add-atom &attentionalFocus $atom)
-       ("Atom Added")
+         (add-atom &attentionalFocus $atom)
+         ("Atom Added")
        )
    )
 )
-
 
 ; Collapse space to list of atoms
 (: getAtomList(->Symbol))
@@ -47,7 +46,6 @@
     )
 )
 
-
 ; Helper function for filtering atoms with STI less than the pivot
 (: lessThanSti (-> Atom Atom Bool))
 (= (lessThanSti $elem $pivot)
@@ -65,8 +63,6 @@
         (>= (getSTI $elem) (getSTI $pivot))
     )
 )
-
-
 
 ; Sorts a list of atoms by their STI values in ascending order
 (: sortAtomsBySti (-> Symbol Symbol))
@@ -88,9 +84,6 @@
     )
 )
 
-
-
-
 ;gets the atom with the lowest STI value in the attentional focus
 (:getLowestStiAtomInAF (-> Number))
 (=(getLowestStiAtomInAF)
@@ -101,10 +94,6 @@
         )
     )
 )
-
-
-
-
 
 ;the function below updates the attentional focus with a new atom
 ;the RemoveAFSignal() and AddAFSignal() functions have been skiped in this function because it appears to primarily 
@@ -130,7 +119,6 @@
                (remove-atom &attentionalFocus $atom)
                (addAtomToAF $atom)
            )
-
            (if $canAdd
                ; Case 2: AF is not full, add the new atom
                (addAtomToAF $atom)
@@ -149,12 +137,25 @@
    )
 )
 
+; Function to retrieve a random atom not in attentional focus
+(: getRandomAtomNotInAF (-> Atom))
+(= (getRandomAtomNotInAF)
+   (let*
+       (
 
+           ($allAtoms  (getAtomBinList))
+           ($filteredAtoms (filter $allAtoms atomIsNotInAF))
+       )
+       (if (== $filteredAtoms ())
+           %Undefined 
+           (let*
+               (
 
-
-
-
-
-
-
-
+                   ($res (py-list $filteredAtoms))
+                   ($randomAtom ((py-atom random.choice) $res))
+               )
+               $randomAtom 
+           )
+       )
+   )
+)
