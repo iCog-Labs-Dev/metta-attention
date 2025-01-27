@@ -4,6 +4,7 @@
 !(import! &self metta-attention:attention-bank:bank:importance-index)
 !(import! &self metta-attention:attention-bank:bank:atombins)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
+!(import! &self metta-attention:attention-bank:bank:attentional-focus)
 
 ; Example usage to compute STI and LTI wages
 !(assertEqual (calculateSTIWage) 20.0)
@@ -40,3 +41,7 @@
 !(assertEqual (match &space (fundsSTI $x) $x) 99930.0)
 !(assertEqual (match &space (fundsLTI $x) $x) 99930.0)
 
+; Check the  attentional focus  is updated  when an atom is stimulated
+!(assertEqual (getAtomList) (x))
+!(stimulate y 2)
+!(assertEqual (getAtomList) (x y))

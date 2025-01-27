@@ -127,6 +127,7 @@
          ($oldLTIFund (match &space (fundsLTI $fundsLTI) $fundsLTI))
          ($_ (updateLTIFunds $oldLTIFund $newLTIFund))
          ($_ (updateSTIFunds $oldSTIFund $newSTIFund))
+         ($_ (updateAttentionalFocus $pattern))
          ($r (update &atombin))
         )
         $r

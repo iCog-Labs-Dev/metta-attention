@@ -1,14 +1,30 @@
 !(register-module! ../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
+!(import! &self metta-attention:attention-bank:bank:atombins)
+!(import! &self metta-attention:attention-bank:bank:attentional-focus)
+!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 !(import! &self metta-attention:attention-bank:bank:importance-index)
 
 
 ;Test helper functions
-!(assertEqual (findGroup 5 0 0) 3) ; Should return 3
-!(assertEqual (findGroup 10 0 0) 4); Should return 4
-!(assertEqual (ceil 5.7) 6)      ; Should return 6
-!(assertEqual (ceil 7.3) 8)     ; Should return 8
-!(assertEqual (truncate 5.7) 5)  ; Should return 5
-!(assertEqual (truncate 4.8)  4) ; Should return 4
-!(assertEqual (pow 2 3)  8)      ; Should return 8
-!(assertEqual (pow 2 4)  16)      ; Should return 16
+!(setAv A (100 200 300))
+!(setAv B (50 150 250))
+!(setAv C (200 300 400))
+
+
+!(assertEqual (binaryFilter lessThanSti A (B C)) (B))
+!(assertEqual (binaryFilter greaterEqualSti A (B C)) (C))
+!(assertEqual (size ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)))) 6)
+!(assertEqual (size ()) 0)
+!(assertEqual (Max (1 2 3 17 18 37)) 37)
+!(assertEqual (Max (34 22 1 17 18 107)) 107)
+!(assertEqual (Min (34 22 1 17 18 107)) 1)
+!(assertEqual (Min (1 2 3 17 18 37)) 1)
+!(assertEqual (findGroup 5 0 0) 3) 
+!(assertEqual (findGroup 10 0 0) 4)
+!(assertEqual (ceil 5.7) 6)      
+!(assertEqual (ceil 7.3) 8)
+!(assertEqual (truncate 5.7) 5)  
+!(assertEqual (truncate 4.8)  4) 
+!(assertEqual (pow 2 3)  8)      
+!(assertEqual (pow 2 4)  16)
