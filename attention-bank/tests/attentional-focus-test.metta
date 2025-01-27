@@ -30,7 +30,7 @@
 !(updateAttentionalFocus I) 
 !(setAv A (600 200 300))
 !(updateAttentionalFocus A)
-!(assertEqual (updateAttentionalFocus L) (Atom is not valid))
+!(assertEqual (updateAttentionalFocus L) ("Atom is not valid"))
 !(assertEqual (getAtomList) (A B C D F G H I))
 !(assertEqual (sortAtomsBySti  (getAtomList)) (H D B F C G I A))
 

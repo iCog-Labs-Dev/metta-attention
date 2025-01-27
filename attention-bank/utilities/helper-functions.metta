@@ -45,12 +45,12 @@
             (
                ($head (car-atom $tuple))  
                ($tail (cdr-atom $tuple))  
-               ($is-valid ($f $pivot $head)) 
-               ($filtered-tail (binaryFilter $f $pivot $tail)) 
+               ($isValid ($f $head $pivot)) 
+               ($filteredTail (binaryFilter $f $pivot $tail)) 
             )
-            (if $is-valid
-               (cons-atom $head $filtered-tail) 
-               $filtered-tail
+            (if $isValid
+               (cons-atom $head $filteredTail) 
+               $filteredTail
             ) 
        )
    )
