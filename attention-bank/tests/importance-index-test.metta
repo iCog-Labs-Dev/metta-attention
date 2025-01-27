@@ -32,9 +32,12 @@
 
 !(assertEqual (getContent 1 ()) ())
 ; Normalize STI value 30 with clipping
-!(getNormalisedZeroToOneSTI 30 False False) ; Output: 0.5
-
+!(assertEqual(getNormalisedZeroToOneSTI 30 False True) 1.0) 
+; Normalize STI value 30 without clipping
+!(assertEqual (getNormalisedZeroToOneSTI 30 False False) 14.0)
+; Normalize STI value 70 with clipping
+!(assertEqual (getNormalisedZeroToOneSTI 70 True True) 1.0) 
 ; Normalize STI value 70 without clipping
-!(getNormalisedZeroToOneSTI 70 True True) ; Output: 1.5
+!(assertEqual (getNormalisedZeroToOneSTI 70 True False) 69.0) 
 
 
