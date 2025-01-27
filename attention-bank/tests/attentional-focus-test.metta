@@ -19,12 +19,14 @@
 !(setAv C (200 300 400))
 !(setAv D (25 125 225))
 !(setAv F (70 100 200))
+
 !(addAtomToAF a)
 !(addAtomToAF A)
 !(addAtomToAF B)
 !(addAtomToAF C)
 !(addAtomToAF D)
 !(addAtomToAF F)
+
 !(assertEqual(attentionalFocusSize) 6)
 !(assertEqual(atomIsInAF C) True)
 !(assertEqual (sortAtomsBySti  (getAtomList)) (a D B F A C))
@@ -35,10 +37,12 @@
 !(setAv H (15 25 35))
 !(updateAttentionalFocus H) 
 !(assertEqual (getAtomList) (a A B C D F G H))
+
 !(setAv I (500 600 700))
 !(updateAttentionalFocus I) 
 !(setAv A (600 200 300))
 !(updateAttentionalFocus A)
+
 !(assertEqual (updateAttentionalFocus L) (Atom is not valid))
 !(assertEqual (getAtomList) (a A B C D F G H I))
 !(assertEqual (sortAtomsBySti  (getAtomList)) (a H D B F C G I A))
