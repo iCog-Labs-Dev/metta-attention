@@ -187,3 +187,25 @@
 
 (: getMinSTI (-> Number))
 (= (getMinSTI) (let $recentVal (RecentVal) (match $recentVal (recent_min $_) $_)))
+
+(: getNormalisedZeroToOneSTI (-> Number Bool Bool Number))
+(= (getNormalisedZeroToOneSTI $sti $average $clip)
+   (let*
+       (
+           ($maxSTI (getMaxSTI $average))
+           ($minSTI (getMinSTI $average))
+           ($normaliser (- $maxSTI $minSTI))
+           ($diff (- $sti $minSTI))
+          
+           ($value (if (== $normaliser 0)
+                      0.0
+                      (/ $diff $normaliser)))
+            ($minim  (Min ($value 1.0)))
+           ($clippedValue (if $clip
+                              (Max (0.0 $minim))
+                              $value))
+           
+       )
+       $clippedValue
+   )
+)
