@@ -1,3 +1,4 @@
+
 ; this function take atoms from atombin space and return atoms found inside the largest bin index
 ; it uses Max helper function to get the largest bin index then it returns the atom found in that bin index
 (= (getMaxContent) 
@@ -27,11 +28,9 @@
 ; it used size helper function to count the number of atoms found in the bin
 (= (getSize $binNumber)
     (let* (
-        ($atombin (AtomBin))
-        ($atoms (match $atombin ($binNumber $x) $x))
-        ($size (size $atoms))
-      )
-      $size
+        ($atoms (match (atombins) ($binNumber $x) $x))
+    )
+        (size $atoms)
     )
 )
 
