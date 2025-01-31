@@ -152,3 +152,4 @@
  )
 )
 
+(= (AtomBin) &atombin) ; to be able to reference atombins from outside this metta file.
