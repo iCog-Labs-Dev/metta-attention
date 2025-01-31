@@ -54,3 +54,4 @@
 !(add-atom &attentionalFocus (PlusLink abebe kebede))
 
 ! (assertEqual (getIncomingSet abebe habbianlink) ((habbianlink challa abebe)))
+! (assertEqual (nodeMatch (ConceptNode abebe) (ConceptNode abebe)) False) ;False snce (ConceptNode abebe) is not in the attentional focus

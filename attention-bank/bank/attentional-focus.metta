@@ -217,3 +217,12 @@
         (concatTuple $link-variation-one $link-variation-two)
     )
 )
+
+;This function simply matches if two nodes are equal and they are in AF
+(:nodeMatch (-> Atom Atom Bool))
+(= (nodeMatch $node1 $node2)
+    (if (and (== $node1 $node2) (atomIsInAF $node2))
+        True
+        False
+    )
+)
