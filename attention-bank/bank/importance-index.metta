@@ -187,7 +187,7 @@
 
 (: getMinSTI (-> Number))
 (= (getMinSTI) (let $recentVal (RecentVal) (match $recentVal (recent_min $_) $_)))
-
+; Normalizes the STI of an atom to the range [0,1] with optional clipping.
 (: getNormalisedZeroToOneSTI (-> Atom Bool Bool Number))
 (= (getNormalisedZeroToOneSTI $atom $average $clip)
    (let*
@@ -201,14 +201,19 @@
                       0.0
                       (/ $diff $normaliser)))
             ($minim  (Min ($value 1.0)))
-           ($clippedValue (if $clip
-                              (Max (0.0 $minim))
-                              $value))
+           ($clippedValue 
+                     (if $clip
+                           (Max (0.0 $minim))
+                           $value
+                     )
+            )
            
        )
        $clippedValue
    )
 )
+
+; Normalizes the STI of an atom relative to a fixed max/min STI value.
 
 (: getNormalisedSTI (-> Atom Number))
 (= (getNormalisedSTI $atom)
@@ -231,7 +236,7 @@
 )
 
 
-
+; Normalizes the STI of an atom with respect to attentional focus max STI, with optional clipping.
 (: getNormalisedSTI (-> Atom Bool Bool Number))
 (= (getNormalisedSTI $atom $average $clip)
    (let*
