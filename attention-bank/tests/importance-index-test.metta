@@ -4,6 +4,9 @@
 !(import! &self metta-attention:attention-bank:bank:importance-index)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
+!(import! &self metta-attention:attention-bank:bank:attentional-focus)
+!(import! &self metta-attention:attention-bank:bank:attention-bank)
+
 
 ;For Testing the update, getMaxSTI, getMinSTI
 !(setAv a (2 2 2))
@@ -29,15 +32,15 @@
 ;
 ;;;Test cases that need to be refactored
 ! (assertEqual (updateImportance &atombin a 1 20) ("Importance Updated"))
-
 !(assertEqual (getContent 1 ()) ())
-; Normalize STI value 30 with clipping
-!(assertEqual(getNormalisedZeroToOneSTI 30 False True) 1.0) 
-; Normalize STI value 30 without clipping
-!(assertEqual (getNormalisedZeroToOneSTI 30 False False) 14.0)
-; Normalize STI value 70 with clipping
-!(assertEqual (getNormalisedZeroToOneSTI 70 True True) 1.0) 
-; Normalize STI value 70 without clipping
-!(assertEqual (getNormalisedZeroToOneSTI 70 True False) 69.0) 
+!(assertEqual (getNormalisedZeroToOneSTI a True True) 1.0)
+!(assertEqual (getNormalisedZeroToOneSTI d True False) 3.0)
+!(assertEqual (getNormalisedZeroToOneSTI c  False False) 0.5)
+!(assertEqual(getNormalisedSTI a) 1.0)
+!(setAv x (200 200 0))
+!(stimulate x 1.5)
+!(assertEqual (getNormalisedSTI x) 230.0)
+!(assertEqual (getNormalisedSTI a True True) -1.0)
+!(assertEqual (getNormalisedSTI d True False) -1.0218340611353711)
 
 

@@ -301,6 +301,35 @@
     )
 )
 
+; Helper function to append an element to the end of a list
+(= (append-to-end $list $elem)
+   (if (== $list ()) 
+       (cons-atom $elem ())
+       (let* (
+               ($head (car-atom $list))  
+               ($tail (cdr-atom $list))  
+               ($appended-tail (append-to-end $tail $elem))
+             )
+           (cons-atom $head $appended-tail) 
+       )
+   )
+)
+
+;function to reverse an expression 
+(= (reverseExpr $expr)
+   (if (== $expr ())
+       ()
+       (let* (
+               ($head (car-atom $expr))  
+               ($tail (cdr-atom $expr))  
+               ($reversed-tail (reverseExpr $tail))  
+               ($result (append-to-end $reversed-tail $head))
+           )
+           $result  
+       )
+   )
+)
+
 (: findMaxSTI (-> Expression Number))
 (= (findMaxSTI $list)
    (let*

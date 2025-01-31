@@ -188,10 +188,10 @@
 (: getMinSTI (-> Number))
 (= (getMinSTI) (let $recentVal (RecentVal) (match $recentVal (recent_min $_) $_)))
 
-(: getNormalisedZeroToOneSTI (-> Number Bool Bool Number))
-(= (getNormalisedZeroToOneSTI $sti $average $clip)
+(: getNormalisedZeroToOneSTI (-> Atom Bool Bool Number))
+(= (getNormalisedZeroToOneSTI $atom $average $clip)
    (let*
-       (
+       (   ($sti  (getSTI $atom))
            ($maxSTI (getMaxSTI $average))
            ($minSTI (getMinSTI $average))
            ($normaliser (- $maxSTI $minSTI))
@@ -207,5 +207,62 @@
            
        )
        $clippedValue
+   )
+)
+
+(: getNormalisedSTI (-> Atom Number))
+(= (getNormalisedSTI $atom)
+   (let*
+       (
+           ($s (getSTI $atom))
+           ($afMax (getAfMaxSTI))
+           ($normaliser
+               (if (> $s $afMax)
+                   (getMaxSTI)
+                   (getMinSTI)
+               )
+            )
+       )
+       (if (== $normaliser 0)
+           0.0
+           (/ $s $normaliser)
+       )
+   )
+)
+
+
+
+(: getNormalisedSTI (-> Atom Bool Bool Number))
+(= (getNormalisedSTI $atom $average $clip)
+   (let*
+       (
+           ($s (getSTI $atom))
+           ($afMax (getAfMaxSTI)) 
+           ($diff (- $s $afMax))
+           ($sum (+ $s $afMax)) 
+           ($normaliser
+               (if (> $s $afMax)
+                   (- (getMaxSTI $average) $afMax)
+                   (- (getMinSTI $average) $afMax)
+               )
+           )
+       )
+       (if (== $normaliser 0)
+           0.0
+           (let*
+               (
+                   ($val 
+                       (if (> $s $afMax)
+                           (/ $diff $normaliser)  
+                           (/ $sum $normaliser)
+                       )
+                   )
+               )
+               (if $clip
+                   (Max (-1.0 (Min ($val 1.0))))
+                   $val
+               )
+           )
+       )
    )
 )

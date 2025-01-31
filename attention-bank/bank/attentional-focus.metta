@@ -98,6 +98,30 @@
     )
 )
 
+;gets the maximum STI value in the attentional focus
+(: getAfMaxSTI (-> Number))
+(= (getAfMaxSTI)
+    
+        (let*
+            (
+               
+               ($sortedAtoms (sortAtomsBySti  (getAtomList)))
+               ($reverseSortedAtoms (reverseExpr $sortedAtoms))
+              
+               
+            )
+
+            (if (==  $sortedAtoms ())
+                0
+                (let $maxAtom (car-atom $reverseSortedAtoms)
+                    (getSTI $maxAtom)
+                )
+              
+            )
+        )
+)
+    
+
 ;the function below updates the attentional focus with a new atom
 ;the RemoveAFSignal() and AddAFSignal() functions have been skiped in this function because it appears to primarily 
 ;serve logging the additional and removal of an atom as i reviewed in the example/AtomSpaceEventSubscribeExample.cc
@@ -139,6 +163,10 @@
        )
    )
 )
+
+
+
+
 
 
 ; Function to retrieve a random atom not in attentional focus
