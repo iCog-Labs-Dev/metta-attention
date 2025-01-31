@@ -47,3 +47,10 @@
 !(assertEqual (getAtomList) (a A B C D F G H I))
 !(assertEqual (sortAtomsBySti  (getAtomList)) (a H D B F C G I A))
 !(let $res (collapse (getRandomAtomNotInAF)) (assertEqual (size $res) 1))
+
+;This should be removed temporary Population for test
+ (habbianlink abebe kebede) 
+!(add-atom &attentionalFocus (habbianlink challa abebe))
+!(add-atom &attentionalFocus (PlusLink abebe kebede))
+
+! (assertEqual (getIncomingSet abebe habbianlink) ((habbianlink challa abebe)))

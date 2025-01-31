@@ -159,3 +159,61 @@
        )
    )
 )
+
+;;; Function: getIncomingSet
+;;; Description: Retrieves the set of incoming links of a specific type for a given atom,
+;;;              filtering out links not in the active frame (AF).
+;;; Parameters:
+;;;   $atom: The atom for which to find incoming links.
+;;;   $type: The type of link to consider.
+;;; Returns: A list of incoming links that are in the AF.
+(: getIncomingSet (-> Atom Type List))
+(= (getIncomingSet $atom $type)
+    (let* (
+          ($incoming_set (getIncomingSetByType $atom $type))
+          ($filtered_set (filterLinksInAF $incoming_set))
+           )
+        $filtered_set
+    )
+)
+;!!!the filtered set needs sorting by STI value
+
+;;; Function: filterLinksInAF
+;;; Description: Filters a list of links, returning only those that are in the active frame (AF).
+;;; Parameters:
+;;;   $incoming_set: A list of incoming links to filter.
+;;; Returns: A new list containing only the links that are in the AF.
+(: filterLinksInAF (-> List List))
+(= (filterLinksInAF $incoming_set)
+    (if (== $incoming_set ())
+        ()
+        (let* (
+              ($head (car-atom $incoming_set))
+              ($tail (cdr-atom $incoming_set))
+              ($filtered_head 
+                    (if (atomIsInAF $head)
+                        $head
+                        ()
+                    ))
+               )
+               
+            (concatTuple ($filtered_head) (filterLinksInAF $tail))
+        )
+    )
+)
+;;; Function: getIncomingSetByType
+;;; Description: Retrieves the set of incoming links of a specific type for a given atom
+;;;              without filtering based on the active frame.
+;;; Parameters:
+;;;   $atom: The atom for which to find incoming links.
+;;;   $type: The type of link to consider.
+;;; Returns: A list of incoming links of the specified type.
+(: getIncomingSetByType (-> Atom Type List))
+(= (getIncomingSetByType $atom $type)
+    (let* (
+          ($link-variation-one (collapse (match &attentionalFocus ($type $atom $b) ($type $atom $b))))
+          ($link-variation-two (collapse (match &attentionalFocus ($type $a $atom) ($type $a $atom))))
+           )
+        (concatTuple $link-variation-one $link-variation-two)
+    )
+)
