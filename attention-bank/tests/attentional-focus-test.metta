@@ -48,4 +48,4 @@
 !(assertEqual (sortAtomsBySti  (getAtomList)) (a H D B F C G I A))
 !(let $res (collapse (getRandomAtomNotInAF)) (assertEqual (size $res) 1))
 !(assertEqual(getAfMaxSTI) 600)
-
+!(assertEqual(sortAtomsByStiDescending  (getAtomList)) (A I G C F B D H a))

@@ -31,14 +31,15 @@
 !(assertEqual (getMinSTI) 1.0)
 ;
 ;;;Test cases that need to be refactored
+!(setAv x (200 200 0))
+!(stimulate x 1.5)
 ! (assertEqual (updateImportance &atombin a 1 20) ("Importance Updated"))
 !(assertEqual (getContent 1 ()) ())
 !(assertEqual (getNormalisedZeroToOneSTI a True True) 1.0)
 !(assertEqual (getNormalisedZeroToOneSTI d True False) 3.0)
 !(assertEqual (getNormalisedZeroToOneSTI c  False False) 0.5)
-!(assertEqual(getNormalisedSTI a) 1.0)
-!(setAv x (200 200 0))
-!(stimulate x 1.5)
+!(assertEqual(getNormalisedSTI a) 2.0)
+
 !(assertEqual (getNormalisedSTI x) 230.0)
 !(assertEqual (getNormalisedSTI a True True) -1.0)
 !(assertEqual (getNormalisedSTI d True False) -1.0218340611353711)
