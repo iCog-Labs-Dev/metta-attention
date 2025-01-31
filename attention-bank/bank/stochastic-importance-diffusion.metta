@@ -20,8 +20,8 @@
 ;($index ((count $cnt_val) (index $idx_val) (_size $size_val) (update_rate $update_rate_val) (last_update $last_update_val)))
 ;I used _size instead of size because size is use in metta as a function name
 
-(: update_bin (-> Atom empty))
-(= (update_bin $atom)
+(: updateBin (-> Atom empty))
+(= (updateBin $atom)
     (let* (
             ($index (importanceBin (getSTI $atom)))
             ($it (collapse (match &diffusionrecordbin ($index $_) $index)))
@@ -53,8 +53,8 @@
 ;This function returns the elapsed time of the atom
 ;by dividing the size of the bin by the update rate
 
-(: elapsed_time (-> Atom Number))
-(= (elapsed_time $atom)
+(: elapsedTime (-> Atom Number))
+(= (elapsedTime $atom)
     (let* (
             ($index (importanceBin (getSTI $atom)))
             ($average_elapsed_time 

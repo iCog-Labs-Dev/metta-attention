@@ -13,12 +13,12 @@
 !(setAv a (1 1 1))
 
 ;This will update the _bin
-!(update_bin a)
-!(update_bin a)
-!(update_bin a)
+!(updateBin a)
+!(updateBin a)
+!(updateBin a)
 
 ;This will the elapsed_time of the atom
-; !(elapsed_time a)
+; !(elapsedTime a)
 
 ;Since we have updated the _bin 3 times and since the size of 
 ;the bin is 2 the below should return (3 2)
