@@ -84,6 +84,30 @@
     )
 )
 
+; Sorts a list of atoms by their STI values in descending order
+(: sortAtomsByStiDescending (-> Symbol Symbol))
+(= (sortAtomsByStiDescending $atoms)
+    (if (== $atoms ())
+        ()
+        (let*
+           (
+               ($pivot (car-atom $atoms))
+               ($tail (cdr-atom $atoms))
+               ($greater (binaryFilter greaterEqualSti $pivot $tail)) 
+               ($lesser (binaryFilter lessThanSti $pivot $tail)) 
+               ($sortedGreater (sortAtomsByStiDescending $greater)) 
+               ($sortedLesser (sortAtomsByStiDescending $lesser)) 
+           )
+           (concatTuple $sortedGreater (cons-atom $pivot $sortedLesser))
+        )
+    )
+)
+
+
+
+
+
+
 ;gets the atom with the lowest STI value in the attentional focus
 (:getLowestStiAtomInAF (-> Number))
 (=(getLowestStiAtomInAF)
@@ -94,6 +118,22 @@
         )
     )
 )
+
+;gets the maximum STI value in the attentional focus
+(: getAfMaxSTI (-> Number))
+(=(getAfMaxSTI)
+    (let $sortedAtoms (sortAtomsByStiDescending (getAtomList))
+        (if (==  $sortedAtoms ())
+            0
+            (let $maxAtom (car-atom $sortedAtoms)
+                    (getSTI $maxAtom)
+            )
+        )
+    )
+)
+
+
+    
 
 ;the function below updates the attentional focus with a new atom
 ;the RemoveAFSignal() and AddAFSignal() functions have been skiped in this function because it appears to primarily 
@@ -136,6 +176,11 @@
        )
    )
 )
+
+
+
+
+
 
 ; Function to retrieve a random atom not in attentional focus
 (: getRandomAtomNotInAF (-> Atom))

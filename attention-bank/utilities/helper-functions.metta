@@ -36,7 +36,7 @@
    )
 )
 
-; Binary filter for filtering atoms based on a binary predicate
+; Binary filter remains unchanged
 (: binaryFilter (-> (-> Atom Atom Bool) Atom Expression Expression))
 (= (binaryFilter $f $pivot $tuple)
    (if (== $tuple ())  
@@ -55,7 +55,6 @@
        )
    )
 )
-
 (: valuesAtIndex (-> Number Expression Expression))
 (= (valuesAtIndex $i $handleSetSeq)
    (if(== $handleSetSeq ())
@@ -300,6 +299,35 @@
       (concatTuple $content $rest)
       )
     )
+)
+
+; Helper function to append an element to the end of a list
+(= (append-to-end $list $elem)
+   (if (== $list ()) 
+       (cons-atom $elem ())
+       (let* (
+               ($head (car-atom $list))  
+               ($tail (cdr-atom $list))  
+               ($appended-tail (append-to-end $tail $elem))
+             )
+           (cons-atom $head $appended-tail) 
+       )
+   )
+)
+
+;function to reverse an expression 
+(= (reverseExpr $expr)
+   (if (== $expr ())
+       ()
+       (let* (
+               ($head (car-atom $expr))  
+               ($tail (cdr-atom $expr))  
+               ($reversed-tail (reverseExpr $tail))  
+               ($result (append-to-end $reversed-tail $head))
+           )
+           $result  
+       )
+   )
 )
 
 (: findMaxSTI (-> Expression Number))
