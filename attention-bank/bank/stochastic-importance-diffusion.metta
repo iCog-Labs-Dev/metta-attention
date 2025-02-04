@@ -81,6 +81,19 @@
     )
 )
 
+;the purpose of this function is to calculate the Estimated
+;current STI value of the Atom after diffusion.
+(: diffusedValue (-> Symbol Number Number))
+(= (diffusedValue $atom $decayRate)
+   (let* (
+          ($averageElapsedTime (elapsedTime $atom))
+          ($sti (getSTI $atom))
+          ($powerRes (pow (- 1 $decayRate) $averageElapsedTime))
+        )
+        (* $sti $powerRes)
+    )
+)
+
 (= (AtomBinInfo)
     &atomBinInfo
 )
