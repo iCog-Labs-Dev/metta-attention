@@ -1,6 +1,5 @@
 ; Define initial variables and insert them in newspace called space
 !(bind! &space (new-space))
-!(bind! &atombin (new-space))
 !(add-atom &space (startingFundsSTI 100000))
 !(add-atom &space (fundsSTI 100000))
 !(add-atom &space (startingFundsLTI 100000))
@@ -128,7 +127,8 @@
          ($_ (updateLTIFunds $oldLTIFund $newLTIFund))
          ($_ (updateSTIFunds $oldSTIFund $newSTIFund))
          ($_ (updateAttentionalFocus $pattern))
-         ($r (update &atombin))
+         ($atombin (AtomBin))
+         ($r (update $atombin))
         )
         $r
     )

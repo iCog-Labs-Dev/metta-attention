@@ -4,6 +4,7 @@
 !(import! &self metta-attention:attention-bank:bank:atombins)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention-bank:bank:attentional-focus)
+!(import! &self metta-attention:attention-bank:bank:importance-index)
 
 ; Test attentional focus
 !(add-atom &atombin (1 (a)))
@@ -11,6 +12,7 @@
 !(add-atom &atombin (17 (s c)))
 !(add-atom &atombin (18 (g)))
 !(add-atom &atombin (37 (f h j k)))
+!(getAfMaxSTI)
 !(setAv a (0 0 0))
 !(setAv d (7 4 0))
 !(setAv c (0 0 0))
@@ -19,14 +21,12 @@
 !(setAv C (200 300 400))
 !(setAv D (25 125 225))
 !(setAv F (70 100 200))
-
 !(addAtomToAF a)
 !(addAtomToAF A)
 !(addAtomToAF B)
 !(addAtomToAF C)
 !(addAtomToAF D)
 !(addAtomToAF F)
-
 !(assertEqual(attentionalFocusSize) 6)
 !(assertEqual(atomIsInAF C) True)
 !(assertEqual (sortAtomsBySti  (getAtomList)) (a D B F A C))
@@ -55,3 +55,7 @@
 
 ! (assertEqual (getIncomingSet abebe habbianlink) ((habbianlink challa abebe)))
 ! (assertEqual (nodeMatch (ConceptNode abebe) (ConceptNode abebe)) False) ;False snce (ConceptNode abebe) is not in the attentional focus
+
+!(assertEqual(getAfMaxSTI) 600)
+!(assertEqual(sortAtomsByStiDescending  (getAtomList)) (A I G C F B D H a))
+

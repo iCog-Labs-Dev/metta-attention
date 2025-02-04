@@ -25,3 +25,5 @@
 !(assertEqual (removeDuplicates (a a d c)) (a d c))
 !(assertEqual (removeDuplicates (a a)) (a))
 !(flatten ((s c) (G E) (a) (g) (f h j k) (d)))
+!(assertEqual(reverseExpr (a b c d)) (d c b a))
+!(assertEqual(reverseExpr ()) ())

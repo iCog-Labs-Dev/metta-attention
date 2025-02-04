@@ -1,12 +1,12 @@
-!(bind! &atombin (new-space))
 
 ; this function take atoms from atombin space and return atoms found inside the largest bin index
 ; it uses Max helper function to get the largest bin index then it returns the atom found in that bin index
 (= (getMaxContent) 
     (let* (
-        ($numbers (collapse (match &atombin ($y $x) $y)))
+        ($atombin (AtomBin))
+        ($numbers (collapse (match $atombin ($y $x) $y)))
         ($max (Max $numbers))
-        ($content (match &atombin ($max $x)  $x))
+        ($content (match (AtomBin) ($max $x)  $x))
     )
         $content
     )
@@ -15,45 +15,48 @@
 ; it uses Min helper function to get the smallest bin index then it returns the atom found in that bin index
 (= (getMinContent)
     (let* (
-        ($numbers (collapse (match &atombin ($y $x) $y)))
+        ($atombin (AtomBin))
+        ($numbers (collapse (match $atombin ($y $x) $y)))
         ($min (Min $numbers))
-        ($content (match &atombin ($min $x)  $x))
-    )
-        $content
+        ($content (match (AtomBin) ($min $x)  $x))
+      )
+      $content
     )
 )
 
 ; this function takes a bin number and return the number of atoms found in that bin
-; it used length helper function to count the number of atoms found in the bin
+; it used size helper function to count the number of atoms found in the bin
 (= (getSize $binNumber)
     (let* (
-        ($atoms (match &atombin ($binNumber $x) $x))
+        ($atoms (match (AtomBin) ($binNumber $x) $x))
     )
         (size $atoms)
     )
 )
+
 ; Calculates the total number of atoms across all bins in &atombin
 (: binSize (-> Number))
 (= (binSize)
-   (let $bins (collapse (match &atombin ($index $contents) $index))
-        (if (== $bins ()) 
-          0
-          (sumSizes $bins)
-        )
+   (let* (
+      ($atombin (AtomBin))
+      ($indices (collapse (match $atombin ($x $y) $x)))
+      ($binsSize (sumSizes $indices)) ;cumulative sum of all sizes of bins in atombin
     )
-) 
+    $binsSize
+  )
+)
+
 ; Recursively sums the sizes of all bins in a list of bins
 (: sumSizes (-> Expression Number))
-(= (sumSizes $bins)
-   (if(== $bins ())
-        0 
-        (let $bin (car-atom $bins)
-            (let $rest (cdr-atom $bins)
-                (if (== $rest ()) 
-                    (getSize $bin) 
-                    (+ (getSize $bin) (sumSizes $rest))
-                )
+(= (sumSizes $indices)
+   (if (== $indices ())
+      0
+      (let* (
+             ($index (car-atom $indices))
+             ($rest (cdr-atom $indices))
+             ($remainingSize (sumSizes $rest))
             )
-        )
+        (+ (getSize $index) $remainingSize)
+       )
     )
 )

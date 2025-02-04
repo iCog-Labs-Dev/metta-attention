@@ -141,14 +141,7 @@
       $res
   )
 )
-(: getAtomBinList(->Symbol))
-(= (getAtomBinList)
- (let*( 
-      ($binList (collapse (match &atombin ($bin_index $contents) $contents)))
-      ($AllAtoms (flatten $binList))
-      
-    )
-    $AllAtoms
- )
-)
 
+(= (AtomBin)
+   &atombin
+)
