@@ -4,7 +4,7 @@
 ; i.e !(set_av A (399 400 1))
 (: setAv (-> Atom (Number Number Number) Atom))
 (= (setAv $pattern ($sti $lti $vlti))
-    (if (== (collapse (getType $pattern)) ())
+    (if (== (collapse (getValueType $pattern)) ())
         (add-atom &self (: $pattern (AV $sti $lti $vlti)))
         (let* (
                 ( $stv (getStv $pattern))
@@ -22,15 +22,12 @@
  ; i.e !(getAv A)  output: (AV 400 400 1)
  
 ;
-(: getType (-> Atom Type))
-(= (getType $pattern) 
-   (let $t (get-type $pattern) (if (== $t %Undefined%) (empty) $t)))
 
 (: getAv (-> Atom AV))
 (= (getAv $pattern)
-    (case (getType $pattern)
+    (case (getValueType $pattern)
         (
-            ( (AV $a $b $c) (getType $pattern))
+            ( (AV $a $b $c) (getValueType $pattern))
             ( ( (STV $a $b) (AV $x $y $z)) (AV $x $y $z))
             ($else (AV 0 0 0)))
     )
@@ -45,7 +42,7 @@
 
  (: setStv (-> Atom (Number Number) Atom))
 (= (setStv $pattern ($mean $conf))
-    (if (== (collapse (getType $pattern)) ())
+    (if (== (collapse (getValueType $pattern)) ())
         (add-atom &self (: $pattern (STV $mean $conf)))
         (let* ( ( $av (getAv $pattern))
                 ($_ (let $x (collapse (match &self (: $pattern $_) (: $pattern $_)))
@@ -64,13 +61,19 @@
 
 (: getStv (-> Atom STV))
 (= (getStv $pattern)
-    (case (getType $pattern)
+    (case (getValueType $pattern)
         (
-            ( (STV $x $y) (getType $pattern) )
+            ( (STV $x $y) (getValueType $pattern) )
             ( ( (STV $x $y) (AV $a $b $c)) (STV $x $y))
             ($else (STV 1 0)))
     )
 )
+
+
+(: getValueType (-> Atom Type))
+(= (getValueType $pattern) 
+   (let $t (get-type $pattern) (if (== $t %Undefined%) (empty) $t)))
+
 
 ; getMean retrieves mean from a pattern
 ; i.e !(getMean A)  output: 1 
@@ -111,3 +114,5 @@
 (= (getVLTI $pattern)
     (let ($link $sti $lti $vlti) (getAv $pattern) $vlti)
 )
+
+(= (getType $pattern) (get-type $pattern))
