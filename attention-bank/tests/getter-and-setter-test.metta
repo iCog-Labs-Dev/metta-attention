@@ -7,6 +7,19 @@
 ! (setStv A (0.1 0.9))
 ! (setStv A (1 0.9))
 
+! (setAv (link a b) (200 200 0))
+! (setStv (link a b) (0.1 0.9))
+! (setAv (C) (400 400 1))
+! (setStv (C) (1 0.9))
+
+! (assertEqual (getStv (C)) (STV 1 0.9))
+! (assertEqual (getAv (C)) (AV 400 400 1))
+
+! (assertEqual (getStv (link a b)) (STV 0.1 0.9))
+! (assertEqual (getAv (link a b)) (AV 200 200 0))
+
+
+
 ! (assertEqual (getStv A) (STV 1 0.9))
 ! (assertEqual (getAv A) (AV 400 400 1))
 ! (assertEqual (getMean A) 1)
