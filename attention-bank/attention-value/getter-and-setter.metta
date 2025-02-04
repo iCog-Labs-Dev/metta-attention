@@ -25,16 +25,13 @@
 
 (: getAv (-> Atom AV))
 (= (getAv $pattern)
-    (let $res (getValueType $pattern) 
-      (case $res (
-            ( (AV $a $b $c) $res)
+    (case (getValueType $pattern)
+        (
+            ( (AV $a $b $c) (getValueType $pattern))
             ( ( (STV $a $b) (AV $x $y $z)) (AV $x $y $z))
-            ($else (AV 0 0 0))
-          )
-        )
+            ($else (AV 0 0 0)))
     )
 )
-
 
 
  ; set_stv function accepts a pattern/node with the truthvalues
@@ -64,23 +61,18 @@
 
 (: getStv (-> Atom STV))
 (= (getStv $pattern)
-    (let $res (getValueType $pattern) 
-        (case $res
-          (
-            ( (STV $x $y) $res )
+    (case (getValueType $pattern)
+        (
+            ( (STV $x $y) (getValueType $pattern) )
             ( ( (STV $x $y) (AV $a $b $c)) (STV $x $y))
             ($else (STV 1 0)))
-          )
     )
 )
 
 
 (: getValueType (-> Atom Type))
 (= (getValueType $pattern) 
-   (let $t (get-type $pattern) 
-     (if (== $t %Undefined%) (empty) $t)
-    )
-)
+   (let $t (get-type $pattern) (if (== $t %Undefined%) (empty) $t)))
 
 
 ; getMean retrieves mean from a pattern
