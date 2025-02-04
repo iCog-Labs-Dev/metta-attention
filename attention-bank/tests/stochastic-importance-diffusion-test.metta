@@ -5,7 +5,9 @@
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 !(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion)
 !(import! &self metta-attention:attention-bank:bank:get-min-max-content)
+!(import! &self metta-attention:attention-bank:utilities:helper-functions)
 
+;add atoms for testing diffusedValue
 ;This sets the atom bin index's size to 2
 !(add-atom &atombin (1 (a b)))
 
@@ -25,3 +27,6 @@
 ;the bin is 2 the below should return (3 2)
 !(assertEqual (match (AtomBinInfo) (1 ((count $cnt_val) (index $idx_val) (_size $size_val) (update_rate $update_rate_val) (last_update $last_update_val))) 
     ($cnt_val $size_val)) (3 2))
+
+!(assertEqual (diffusedValue a 0.5) 0.5)
+!(assertEqual (diffusedValue a 1) 0) ;after on round the sti value 1 will have decreased by the decay rate=1 therefore, output becomes 0
