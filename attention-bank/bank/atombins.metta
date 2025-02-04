@@ -142,6 +142,6 @@
   )
 )
 
-(= (atombins)
+(= (AtomBin)
    &atombin
 )

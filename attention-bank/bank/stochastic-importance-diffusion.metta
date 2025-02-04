@@ -1,8 +1,8 @@
 
-! (bind! &diffusionrecordbin (new-space))
+! (bind! &atomBinInfo (new-space))
 ! (bind! time-mod (py-atom time))
-! (bind! time-time (py-dot time-mod time (-> Number)))
-! (time-time)
+! (bind! timeTime (py-dot time-mod time (-> Number)))
+! (timeTime)
 
 ;The udate_bin function receives an atom and updates this values
 ; struct DiffusionRecordBin {
@@ -24,29 +24,31 @@
 (= (updateBin $atom)
     (let* (
             ($index (importanceBin (getSTI $atom)))
-            ($it (collapse (match &diffusionrecordbin ($index $_) $index)))
+            ($it (collapse (match &atomBinInfo ($index $_) $index)))
           )
         (if (== $it ($index))
-            (let (($cnt $cnt_val) ($idx $idx_val) ($size $size_val) ($update_rate $update_rate_val) ($last_update $last_update_val)) 
-                    (match &diffusionrecordbin ($index $ret) 
-                        (let () (remove-atom &diffusionrecordbin ($index $ret))
-                            $ret
-                        )
-                    )
-                    (let* (
-                            ($count (+ $cnt_val 1))
-                            ($newSec (- (time-time) $last_update_val))
-                            ($newupdate-rate (/ $count $newSec))
-                            ($newsize (getSize $index))
-                            )
-                            (add-atom &diffusionrecordbin 
-                                ($index ((count $count) (index $index) (_size $newsize) (update_rate $newupdate-rate) (last_update (time-time)))))
-                    )
-            )
-            (add-atom &diffusionrecordbin 
-                ($index ((count 1) (index $index) (_size (getSize $index)) (update_rate (/ 1 (time-time)) ) (last_update (time-time))) )
+            (updateExistingBin $index)
+            (add-atom &atomBinInfo 
+                ($index ((count 1) (index $index) (_size (getSize $index)) (update_rate (/ 1 (timeTime)) ) (last_update (timeTime))) )
             )
         )
+    )
+)
+
+(: updateExistingBin (-> Number empty))
+(= (updateExistingBin $index)
+    (let (($cnt $cntVal) ($idx $idxVal) ($size $sizeVal) ($updateRate $updateRateVal) ($lastUpdate $lastUpdateVal)) 
+            (match &atomBinInfo ($index $info) 
+                (let () (remove-atom &atomBinInfo ($index $info))
+                    $info))
+            (let* (
+                    ($count (+ $cntVal 1))
+                    ($newSec (- (timeTime) $lastUpdateVal))
+                    ($newUpdateRate (/ $count $newSec))
+                    ($newSize (getSize $index)))
+                    (add-atom &atomBinInfo 
+                        ($index ((count $count) (index $index) (_size $newSize) (update_rate $newUpdateRate) (last_update (timeTime)))))
+            )
     )
 )
 
@@ -57,21 +59,28 @@
 (= (elapsedTime $atom)
     (let* (
             ($index (importanceBin (getSTI $atom)))
-            ($average_elapsed_time 
-                (if (== (collapse (match &diffusionrecordbin ($index $_) $index)) ($index))
-                    (let (($cnt $cnt_val) ($idx $idx_val) ($size $size_val) ($update_rate $update_rate_val) ($last_update $last_update_val)) 
-                            (match &diffusionrecordbin ($index $ret) $ret)
-                            (/ $size_val $update_rate_val)
-                    )
-                    0
-                )
-            )
-            ($_ (update_bin $atom))
+            ($averageElapsedTime (calcElapsedTime $index))
+            ($res (updateBin $atom))
           )
-        $average_elapsed_time
+        $averageElapsedTime
     )
 )
 
-(= (diffusionrecordbin)
-    &diffusionrecordbin
+(:calcElapsedTime (-> Number Number))
+(= (calcElapsedTime $index)
+    (if (== (collapse (match &atomBinInfo ($index $_) $index)) ($index))
+        (let (($cnt $cntVal) ($idx $idxVal) ($size $sizeVal) ($updateRate $updateRateVal) ($lastUpdate $lastUpdateVal)) 
+                (match &atomBinInfo ($index $info) $info)
+                (if (== $updateRateVal 0)
+                    ("updateRate can not be zero")
+                    (/ $sizeVal $updateRateVal)
+                )
+        
+        )
+        0.0
+    )
+)
+
+(= (AtomBinInfo)
+    &atomBinInfo
 )

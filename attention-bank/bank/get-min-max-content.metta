@@ -28,7 +28,7 @@
 ; it used size helper function to count the number of atoms found in the bin
 (= (getSize $binNumber)
     (let* (
-        ($atoms (match (atombins) ($binNumber $x) $x))
+        ($atoms (match (AtomBin) ($binNumber $x) $x))
     )
         (size $atoms)
     )

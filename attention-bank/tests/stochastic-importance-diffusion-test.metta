@@ -15,12 +15,13 @@
 ;This will update the _bin
 !(updateBin a)
 !(updateBin a)
-!(updateBin a)
 
 ;This will the elapsed_time of the atom
-; !(elapsedTime a)
+;Since size is greater than zero it will return some value
+;above zero
+!(assertEqual (> (elapsedTime a) 0) True)
 
-;Since we have updated the _bin 3 times and since the size of 
+;Since we have updated the _bin 3 times (considering elapsedTime updating the bin) and since the size of 
 ;the bin is 2 the below should return (3 2)
-!(assertEqual (match (diffusionrecordbin) (1 ((count $cnt_val) (index $idx_val) (_size $size_val) (update_rate $update_rate_val) (last_update $last_update_val))) 
+!(assertEqual (match (AtomBinInfo) (1 ((count $cnt_val) (index $idx_val) (_size $size_val) (update_rate $update_rate_val) (last_update $last_update_val))) 
     ($cnt_val $size_val)) (3 2))
