@@ -30,15 +30,15 @@
     )
 )
 )
- ; Function: merge_bin
+ ; Function: mergeBin
  ; -------------------
  ; Merges recent bins with past bins by updating the count values based on a bias factor.
  ; If a matching past bin exists, it updates the count in recent-space.
  ; Otherwise, it proceeds without updating and continues merging recursively.
  ; Returns a confirmation message and recursively processes the remaining bins.
-(: merge_bin (-> space Number empty))
+(: mergeBin (-> space Number empty))
 
-( = (merge_bin  $recent $bias)
+( = (mergeBin  $recent $bias)
     (
         if ( == $recent ()) ; base case
         ("Merge completed")
@@ -62,7 +62,7 @@
                 ($pastBin (collapse (match &past-space ($index ( (count $pastCount) (index $pastIndex) (Size $past_size) )) $pastCount)))
             )
         (if (== $pastBin ()) ;check if past bin not exist or not
-            (merge_bin $tail $bias)
+            (mergeBin $tail $bias)
             (
                  ; extract past count if past bin with recent bin similar index exist
                 let* (
@@ -74,7 +74,7 @@
                         ($_ (remove-atom &recent-space ($index (  (count $count) $indexVal  $sizeVal))) )
                         ($update (+ (* $pastCount $bias) (* (- 1 $bias) $count)))
                         ($_ (add-atom &recent-space ($index ( (count $update) $indexVal $sizeVal)))))
-                    (merge_bin $tail $bias) )
+                    (mergeBin $tail $bias) )
             )
     )
 )
