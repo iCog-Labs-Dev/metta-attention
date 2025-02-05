@@ -1,4 +1,4 @@
-!(register-module! ../../../metta-attention)
+!(register-module! ../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention-bank:bank:importance-index)

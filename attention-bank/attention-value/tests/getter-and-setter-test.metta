@@ -1,4 +1,4 @@
-!(register-module! ../../../metta-attention)
+!(register-module! ../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 
 ! (setAv A (200 200 0))
@@ -27,4 +27,4 @@
 ! (assertEqual (getSTI A) 400)
 ! (assertEqual (getLTI A) 400)
 ! (assertEqual (getVLTI A) 1)
- 
+
