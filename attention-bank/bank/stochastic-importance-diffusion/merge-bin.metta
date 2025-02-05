@@ -35,7 +35,7 @@
  ; If a matching past bin exists, it updates the count in recent-space.
  ; Otherwise, it proceeds without updating and continues merging recursively.
  ; Returns a confirmation message and recursively processes the remaining bins.
-(: mergeBin (-> Symbol Number Expression))
+(: mergeBin (-> hyperon::space::DynSpace Number Expression))
 ( = (mergeBin  $recent $bias)
     (if ( == $recent ()) ; base case
         (collapse (get-atoms &recent-space))
