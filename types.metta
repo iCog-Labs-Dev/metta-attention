@@ -11,6 +11,6 @@
 
 (: TruthValue Type)
 
-(:AV (-> Number Number Number AttentionValue))
+(: AV (-> Number Number Number AttentionValue))
 
-(:STV (-> Number Number Number TruthValue))
+(: STV (-> Number Number TruthValue))
