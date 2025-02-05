@@ -180,14 +180,9 @@
 
 ;Function for concatinating
 (= (concatTuple $xs $ys)
-    (if (== $xs ())
-        $ys
-        (let* ( ($head (car-atom $xs))
-                ($tail (cdr-atom $xs))
-                ($tailNew (concatTuple $tail $ys)))
-            (cons-atom $head $tailNew))
-    )
+    (collapse (union (superpose $xs) (superpose $ys)))
 )
+
 (: flatten (-> Expression Expression))
 (= (flatten $expr)
    (if (== $expr ()) 
@@ -203,37 +198,12 @@
 
 
 (= (contains $list $x)
-   (if(== $list ())
-     False
-     (let*
-       (
-        ($head (car-atom $list))
-        ($tail (cdr-atom $list))
-        )
-       (if(== $head $x)
-         True
-         (contains $tail $x)
-       )
-      )
-    )
+   (not (== (collapse (intersection (superpose ($x)) (superpose $list))) ()))
 )
 
 (: removeDuplicates (-> Expression Expression))
 (= (removeDuplicates $list)
-   (if (== $list ())
-     ()
-     (let*
-       (
-          ($head (car-atom $list))
-          ($tail (cdr-atom $list))
-          ($filteredTail (removeDuplicates $tail))
-        )
-       (if(contains $filteredTail $head)
-        $filteredTail
-        (cons-atom $head $filteredTail)
-       )
-    )
-  )
+   (collapse (unique (superpose $list)))
 )
 
 (= (sort $list)
