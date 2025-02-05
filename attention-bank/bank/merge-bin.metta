@@ -34,11 +34,11 @@
  ; If a matching past bin exists, it updates the count in recent-space.
  ; Otherwise, it proceeds without updating and continues merging recursively.
  ; Returns a confirmation message and recursively processes the remaining bins.
-(: mergeBin (-> space Number empty))
+(: mergeBin (-> space Number List))
 
 ( = (mergeBin  $recent $bias)
     (if ( == $recent ()) ; base case
-        ("Merge completed")
+        (collapse (get-atoms &recent-space))
         (
              ;pre defined variables
             let* (
