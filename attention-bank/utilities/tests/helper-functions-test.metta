@@ -1,7 +1,7 @@
 !(register-module! ../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
-!(import! &self metta-attention:attention-bank:bank:atombins)
-!(import! &self metta-attention:attention-bank:bank:attentional-focus)
+!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
+!(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 
 !(assertEqual 
               (filter ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)) (27 ())) notEmpty) 
