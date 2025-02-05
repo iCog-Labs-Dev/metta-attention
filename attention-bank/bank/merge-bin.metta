@@ -10,11 +10,9 @@
  ; Returns a list with these extracted values.
 (: helperToIdentifyParameter (-> List List))
 ( = (helperToIdentifyParameter $list)
-    (
-        if ( == $list ())
+    (if ( == $list ())
         ()
-        (
-            let* (
+        (let* (
                 ($index (car-atom $list))
                 ($countIndexSize (cdr-atom $list))
                 ($binValues (car-atom $countIndexSize))
@@ -27,8 +25,8 @@
                 ($countVal (car-atom $countList))
             )
         ($index $countVal $indexMap $size)
+        )
     )
-)
 )
  ; Function: mergeBin
  ; -------------------
@@ -39,8 +37,7 @@
 (: mergeBin (-> space Number empty))
 
 ( = (mergeBin  $recent $bias)
-    (
-        if ( == $recent ()) ; base case
+    (if ( == $recent ()) ; base case
         ("Merge completed")
         (
              ;pre defined variables
@@ -55,28 +52,31 @@
                 ($indexVal (car-atom $indexMap))
                 ($sizeMap (cdr-atom $indexMap))
                 ($sizeVal (car-atom $sizeMap))
-            )
-        (let*
-            (
-                 ; Extract the past bin with the same index
-                ($pastBin (collapse (match &past-space ($index ( (count $pastCount) (index $pastIndex) (Size $past_size) )) $pastCount)))
-            )
-        (if (== $pastBin ()) ;check if past bin not exist or not
-            (mergeBin $tail $bias)
-            (
-                 ; extract past count if past bin with recent bin similar index exist
-                let* (
-                    ($pastCount (car-atom $pastBin))
                 )
-            (match &recent-space ($index (  (count $count) $indexVal  $sizeVal))
-                 ; update the count also remove existing recent bin and add updated one
-                (let* (
-                        ($_ (remove-atom &recent-space ($index (  (count $count) $indexVal  $sizeVal))) )
-                        ($update (+ (* $pastCount $bias) (* (- 1 $bias) $count)))
-                        ($_ (add-atom &recent-space ($index ( (count $update) $indexVal $sizeVal)))))
-                    (mergeBin $tail $bias) )
+            (let*
+                (
+                    ; Extract the past bin with the same index
+                    ($pastBin (collapse (match &past-space ($index ( (count $pastCount) (index $pastIndex) (Size $past_size) )) $pastCount)))
+                )
+                (if (== $pastBin ()) ;check if past bin not exist or not
+                    (mergeBin $tail $bias)
+                    (
+                        ; extract past count if past bin with recent bin similar index exist
+                        let* (
+                            ($pastCount (car-atom $pastBin))
+                        )
+                        (match &recent-space ($index (  (count $count) $indexVal  $sizeVal))
+                            ; update the count also remove existing recent bin and add updated one
+                            (let* (
+                                    ($_ (remove-atom &recent-space ($index (  (count $count) $indexVal  $sizeVal))) )
+                                    ($update (+ (* $pastCount $bias) (* (- 1 $bias) $count)))
+                                    ($_ (add-atom &recent-space ($index ( (count $update) $indexVal $sizeVal)))))
+                                (mergeBin $tail $bias) 
+                            )
+                        )
+                    )
+                )
             )
+        )
     )
 )
-)
-)))
