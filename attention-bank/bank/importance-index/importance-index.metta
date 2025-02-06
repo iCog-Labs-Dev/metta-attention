@@ -23,29 +23,34 @@
 (: ImportanceIndexSize Number)
 (= (ImportanceIndexSize) 104)
 
-(: importanceBin (-> Number Number))
 ; Function to calculate the bin for a given importance value
+(: importanceBin (-> Number Number))
 (= (importanceBin $impo)
-   (let $impo_int (truncate $impo) ; Ensure $impo is treated as an integer
-      (if (< $impo_int 0)
-          0 ; Importance is less than 0
-          (if (< $impo_int (* 2 (GroupSize)))
-              $impo_int ; Importance is within the first 2 groups
-              (let $imp (ceil (/ (- $impo_int (GroupSize)) (GroupSize)))
-                 (let $i (findGroup $imp 0 0) ; Find the group index
-                    (let $ad (- (GroupSize) (ceil (/ $impo_int (pow 2 (- $i 1)))))
-                       (let $bin (- (* $i (GroupSize)) $ad)
-                          (if (> $bin (ImportanceIndexSize))
-                              (ImportanceIndexSize)
-                              $bin
-                           )
-                        )
-                     )
-                  )
-               )
-         )
+   (
+    let*
+    (
+      ($groupSize (GroupSize))
+      ($impo_int (truncate $impo)) ; Ensure $impo is treated as an integer
+      ($firstCondition (< $impo_int 0))
+      ($secondCondition (< $impo_int (* 2 $groupSize)))
+    )
+    (if $firstCondition
+      0
+      (if $secondCondition
+        $impo_int
+        (let*
+          (
+            ($imp (ceil (/ (- $impo_int $groupSize) $groupSize)))
+            ($i (findGroup $imp 0 0))
+            ($temp (ceil (/ $impo_int (pow 2 (- $i 1)))))
+            ($ad (- $groupSize $temp))
+            ($bin (- (* $i $groupSize) $ad))
+          )
+          $bin
+        )
       )
-   )
+    )
+  )
 )
 
 ;####################### update ##################################
