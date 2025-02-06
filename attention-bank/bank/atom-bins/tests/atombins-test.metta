@@ -33,9 +33,9 @@
       )
   )
 )
-!(assertEqual (getContentIf 2 pred 0 10 (collapseAtomBin &atombin) (a)) (d a))
+!(assertEqual (getContentIf 2 pred 0 10 (collapseAtomBin &atombin) (a)) (a d))
 !(assertEqual (getContentIf 1 pred 0 10 (collapseAtomBin &atombin)()) (a))
-!(assertEqual (getContent 2 (collapseAtomBin &atombin) (a b)) (d b a))
+!(assertEqual (getContent 2 (collapseAtomBin &atombin) (a b)) (a b d))
 !(assertEqual (getContent 1 (collapseAtomBin &atombin) ()) (a))
 
 !(setAv  E (200 200 0))
