@@ -135,11 +135,11 @@
   )
 )
 
-(: loop (-> Number Number Expression Expression))
-(= (loop $i $term $acc)
+(: loop (-> Number Number $list_t $list_t $list_t))
+(= (loop $i $term $atomBins $acc)
    (if(== $i $term)
       $acc
-      (let $next (+ 1 $i) (loop $next $term (getContent $i $acc)))
+      (let $next (+ 1 $i) (loop $next $term $atomBins (getContent $i $atomBins $acc)))
     )
 )
 
@@ -151,10 +151,11 @@
        (
         ($lowerBin (importanceBin $lowerBound))
         ($upperBin (importanceBin $upperBound))
-        ($gcIfRes (getContentIf $lowerBin pred $lowerBound $upperBound ())) ;gcIfRes - getContentIfResult (result obtained after calling getContentIf)
+        ($atomBins (collapseAtomBin (AtomBin)))
+        ($gcIfRes (getContentIf $lowerBin pred $lowerBound $upperBound $atomBins ())) ;gcIfRes - getContentIfResult (result obtained after calling getContentIf)
         ($exitCondition (== $upperBin $lowerBin))
-        ($gcRes (loop $lowerBin $upperBin $gcIfRes)) ;gcRes - getContentResult (result obtained after calling getContent)
-        ($res (getContentIf $upperBin pred $lowerBound $upperBound $gcRes))
+        ($gcRes (loop $lowerBin $upperBin $atomBins $gcIfRes)) ;gcRes - getContentResult (result obtained after calling getContent)
+        ($res (getContentIf $upperBin pred $lowerBound $upperBound $atomBins $gcRes))
         ($finalResult (if $exitCondition (removeDuplicates $gcIfRes) (removeDuplicates $res))) ;remove duplicates because the result needs to be a set of atoms.
       )
        $finalResult

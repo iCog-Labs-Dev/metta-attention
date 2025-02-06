@@ -55,7 +55,8 @@
        )
    )
 )
-(: valuesAtIndex (-> Number Expression Expression))
+;TODO: Figure out why when types are added to this function, It returns []
+;(: valuesAtIndex (-> Number $list_t $list_t))
 (= (valuesAtIndex $i $handleSetSeq)
    (if(== $handleSetSeq ())
      ()

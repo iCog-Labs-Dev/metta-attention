@@ -34,7 +34,7 @@
 !(setAv x (200 200 0))
 !(stimulate x 1.5)
 ! (assertEqual (updateImportance &atombin a 1 20) ("Importance Updated"))
-!(assertEqual (getContent 1 ()) ())
+!(assertEqual (getContent 1 (collapseAtomBin &atombin) ()) ())
 !(assertEqual (getNormalisedZeroToOneSTI a True True) 1.0)
 !(assertEqual (getNormalisedZeroToOneSTI d True False) 3.0)
 !(assertEqual (getNormalisedZeroToOneSTI c  False False) 0.5)
