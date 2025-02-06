@@ -181,7 +181,16 @@
 
 ;Function for concatinating
 (= (concatTuple $xs $ys)
-    (collapse (union (superpose $xs) (superpose $ys)))
+    (if (== $xs ())
+        $ys
+        (let* ( 
+                ($head (car-atom $xs))
+                ($tail (cdr-atom $xs))
+                ($tailNew (concatTuple $tail $ys))
+              )
+            (cons-atom $head $tailNew)
+        )
+    )
 )
 
 (: flatten (-> Expression Expression))
@@ -218,10 +227,11 @@
                ($greater (filterGreaterEqual $pivot $rest)) ; Elements greater or equal to pivot
                ($greaterRemaining (sort $greater))
            )
-           (concatTuple (sort $smaller) (cons-atom $pivot $greaterRemaining)) ; Recursively sort and combine
+           (concatTuple (sort $smaller) (cons-atom $pivot $greaterRemaining)  ) ; Recursively sort and combine
        )
    )
 )
+
 
 (= (filterLess $pivot $list)
    (if (== $list ())
