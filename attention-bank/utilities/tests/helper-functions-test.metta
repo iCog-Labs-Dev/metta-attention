@@ -22,7 +22,7 @@
 !(assertEqual (valuesAtIndex 37 ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)))) (f h j k))
 !(assertEqual (valuesAtIndex 17 ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)))) (s c))
 
-!(assertEqual (removeDuplicates (a a d c)) (a d c))
+!(assertEqual (removeDuplicates (a a d c)) (c d a))
 !(assertEqual (removeDuplicates (a a)) (a))
 !(flatten ((s c) (G E) (a) (g) (f h j k) (d)))
 !(assertEqual(reverseExpr (a b c d)) (d c b a))
