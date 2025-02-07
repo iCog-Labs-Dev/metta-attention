@@ -165,10 +165,7 @@
            ($maxSize (maxAFSize)) 
            ($sti (getSTI $atom)) 
            ($currentSize (attentionalFocusSize)) 
-           ($lowestAtom (getLowestStiAtomInAF)) 
            ($isInAF (atomIsInAF $atom)) ; Check if atom is already in AF
-           ($canAdd (< $currentSize $maxSize)) ; Check if AF is not full
-           ($shouldReplace (> $sti (getSTI $lowestAtom))) ; Check if replacement is needed
        )
 
        (if $isInAF
@@ -177,18 +174,18 @@
                (remove-atom &attentionalFocus $atom)
                (addAtomToAF $atom)
            )
-           (if $canAdd
+           (if (< $currentSize $maxSize)
                ; Case 2: AF is not full, add the new atom
                (addAtomToAF $atom)
 
-               (if $shouldReplace
-                   ; Case 3: Replace the lowest STI atom with the new atom
-                   (let ()
-                       (remove-atom &attentionalFocus $lowestAtom)
-                       (addAtomToAF $atom)
-                   )
-                   ; Case 4: Atom not added (STI is too low)
-                   (empty)
+               (let $lowestAtom (getLowestStiAtomInAF) ; Only compute if needed
+                    (if (> $sti (getSTI $lowestAtom))  ; Case 3: Replace if better
+                        (let ()
+                            (remove-atom &attentionalFocus $lowestAtom)
+                            (addAtomToAF $atom)
+                        )
+                        (empty) ; Case 4: Atom not added
+                    )
                )
            )
        )
