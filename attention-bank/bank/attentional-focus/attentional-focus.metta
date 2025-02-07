@@ -38,12 +38,7 @@
 ;it returns the total number of atoms in the attentional focus
 (: attentionalFocusSize (-> Number))
 (= (attentionalFocusSize)
-    (let $atoms (getAtomList)
-        (if (== $atoms ())
-            0
-            (size $atoms)
-        )
-    )
+    (size (getAtomList))
 )
 
 ; Helper function for filtering atoms with STI less than the pivot
