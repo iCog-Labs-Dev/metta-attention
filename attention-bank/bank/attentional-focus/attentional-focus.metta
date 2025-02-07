@@ -270,11 +270,13 @@
 ;;; Returns: A list of incoming links of the specified type.
 (: getIncomingSetByType (-> Atom Type List))
 (= (getIncomingSetByType $atom $type)
-    (let* (
-          ($linkVariationOne (collapse (match &attentionalFocus ($type $atom $b) ($type $atom $b))))
-          ($linkVariationTwo (collapse (match &attentionalFocus ($type $a $atom) ($type $a $atom))))
-          )
-        (concatTuple $linkVariationOne $linkVariationTwo)
+    (collapse 
+        (superpose   
+            (
+                (match &attentionalFocus ($type $atom $b) ($type $atom $b))
+                (match &attentionalFocus ($type $b $atom) ($type $b $atom))
+            )
+        )  
     )
 )
 
