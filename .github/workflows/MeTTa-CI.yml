@@ -28,15 +28,6 @@ jobs:
         python -m pip install conan==2.5.0
         conan profile detect --force
 
-    - name: Setup Rust Environment
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        override: true
-
-    - name: Verify Rust Installation
-      run: rustc --version
-
     - name: Run Tests
       run: |
         cd ../metta-attention
