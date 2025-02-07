@@ -16,7 +16,7 @@
 !(add-atom &atombin (1 (a b)))
 
 ;This sets the STI of a to 1 which will give bin index of 1
-!(setAv a (1 1 1))
+!(setAv a (1.0 1.0 1.0))
 
 ;This will update the _bin
 !(updateBin a)

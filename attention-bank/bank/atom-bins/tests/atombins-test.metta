@@ -17,9 +17,9 @@
 !(add-atom &atombin (17 (s c)))
 !(add-atom &atombin (18 (g)))
 !(add-atom &atombin (37 (f h j k)))
-!(setAv a (0 0 0))
-!(setAv d (7 4 0))
-!(setAv c (0 0 0))
+!(setAv a (0.0 0.0 0.0))
+!(setAv d (7.0 4.0 0.0))
+!(setAv c (0.0 0.0 0.0))
 
 !(let $res (collapse (getRandomAtom)) (assertEqual (size $res) 1))
 ;
