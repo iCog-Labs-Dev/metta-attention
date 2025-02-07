@@ -19,11 +19,11 @@
 
 ;av and stv setters for Node types
 (= (setAV $pattern $newAV)
-   (let $var (get-type node_a) (
+   (let $var (get-type $pattern) (
                               unify (quote $var)
                                     (quote ($node $type $symbol $av $stv))
-                                    (let () (remove-atom &self (: node_a ($node $type $symbol $av $stv)))
-                                      (add-atom &self (: node_a ($node $type $symbol $newAV $stv))
+                                    (let () (remove-atom &self (: $pattern ($node $type $symbol $av $stv)))
+                                      (add-atom &self (: $pattern ($node $type $symbol $newAV $stv))
                                       )
                                     )
                                     failure
@@ -33,11 +33,11 @@
 )
 
 (= (setSTV $pattern $newSTV)
-   (let $var (get-type node_a) (
+   (let $var (get-type $pattern) (
                               unify (quote $var)
                                     (quote ($node $type $symbol $av $stv))
-                                    (let () (remove-atom &self (: node_a ($node $type $symbol $av $stv)))
-                                      (add-atom &self (: node_a ($node $type $symbol $av $newSTV))
+                                    (let () (remove-atom &self (: $pattern ($node $type $symbol $av $stv)))
+                                      (add-atom &self (: $pattern ($node $type $symbol $av $newSTV))
                                       )
                                     )
                                     failure
