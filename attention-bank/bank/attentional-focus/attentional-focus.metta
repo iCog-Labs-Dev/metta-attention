@@ -129,20 +129,29 @@
 )
 
 ;gets the maximum STI value in the attentional focus
-(: getAfMaxSTI (-> Number))
-(=(getAfMaxSTI)
-    (let $sortedAtoms (sortAtomsByStiDescending (getAtomList))
-        (if (==  $sortedAtoms ())
-            0
-            (let $maxAtom (car-atom $sortedAtoms)
-                    (getSTI $maxAtom)
-            )
+;(: getAfMaxSTIHelper (-> List Atom Number Atom))
+(= (getAfMaxSTIHelper $atoms $maxAtom $maxSTI)
+    (if (== $atoms ())
+        $maxSTI
+        (let* (
+            ($current (car-atom $atoms))
+            ($sti (getSTI $current))
+            ($newMaxAtom (if (> $sti $maxSTI) $current $maxAtom))
+            ($newMaxSTI (if (> $sti $maxSTI) $sti $maxSTI))
         )
+        (getAfMaxSTIHelper (cdr-atom $atoms) $newMaxAtom $newMaxSTI))
     )
 )
 
-
-    
+(: getAfMaxSTI (-> Number))
+(= (getAfMaxSTI)
+    (let $atoms (getAtomList)
+        (if (== $atoms ())
+            0
+            (getAfMaxSTIHelper $atoms (car-atom $atoms) (getSTI (car-atom $atoms)))
+        )
+    )
+)
 
 ;the function below updates the attentional focus with a new atom
 ;the RemoveAFSignal() and AddAFSignal() functions have been skiped in this function because it appears to primarily 
