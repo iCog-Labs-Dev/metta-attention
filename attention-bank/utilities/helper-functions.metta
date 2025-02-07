@@ -143,7 +143,7 @@
 (= (truncateHelper $x $acc)
    (if (< $x (+ $acc 1))
        $acc ; The accumulated integer part
-       (truncateHelper $x (+ $acc 1))
+       (truncateHelper $x (+ $acc 1.0))
    )
 )
 
