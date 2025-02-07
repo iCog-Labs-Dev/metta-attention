@@ -104,12 +104,26 @@
 
 
 ;gets the atom with the lowest STI value in the attentional focus
-(:getLowestStiAtomInAF (-> Number))
-(=(getLowestStiAtomInAF)
-    (let $sortedAtoms (sortAtomsBySti  (getAtomList))
-        (if (==  $sortedAtoms ())
+;(: getLowestStiAtomInAFHelper (-> List Atom Number Atom))
+(= (getLowestStiAtomInAFHelper $atoms $minAtom $minSTI)
+    (if (== $atoms ())
+        $minAtom
+        (let* (
+            ($current (car-atom $atoms))
+            ($sti (getSTI $current))
+            ($newMinAtom (if (< $sti $minSTI) $current $minAtom))
+            ($newMinSTI (if (< $sti $minSTI) $sti $minSTI))
+        )
+        (getLowestStiAtomInAFHelper (cdr-atom $atoms) $newMinAtom $newMinSTI))
+    )
+)
+
+(: getLowestStiAtomInAF (-> Atom))
+(= (getLowestStiAtomInAF)
+    (let $atoms (getAtomList)
+        (if (== $atoms ())
             ()
-            (car-atom  $sortedAtoms)
+            (getLowestStiAtomInAFHelper $atoms (car-atom $atoms) (getSTI (car-atom $atoms)))
         )
     )
 )
