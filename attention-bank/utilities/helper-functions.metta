@@ -80,35 +80,47 @@
       (let $tail (cdr-atom $list) (+ 1 (size $tail)))
     )
 )
-
-(= (Max $numbers) 
-    (let* (
-        ($max (car-atom $numbers))
-        ($rest (cdr-atom $numbers))
+( = (Max $numbers)
+  (let* (
+    ($top (car-atom $numbers))
+    ($rest (cdr-atom $numbers))
     )
-        (if (not (== $rest ()))
-            (if (> $max (Max $rest))
-                $max
-                (Max $rest)
-            )
-            $max
+    (if (== $rest ())
+      $top
+      (let* (
+        ($nextTop (car-atom $rest))
+        ($tail (cdr-atom $rest))
         )
+        (if (> $top $nextTop)
+          (Max (cons-atom $top $tail))
+          (Max $rest)
+        )
+      )
+    
     )
+
+  )
 )
-
-(= (Min $numbers) 
-    (let* (
-        ($min (car-atom $numbers))
-        ($rest (cdr-atom $numbers))
+( = (Min $numbers)
+  (let* (
+    ($top (car-atom $numbers))
+    ($rest (cdr-atom $numbers))
     )
-        (if (not (== $rest ()))
-            (if (< $min (Min $rest))
-                $min
-                (Min $rest)
-            )
-            $min
+    (if (== $rest ())
+      $top
+      (let* (
+        ($nextTop (car-atom $rest))
+        ($tail (cdr-atom $rest))
         )
+        (if (< $top $nextTop)
+          (Min (cons-atom $top $tail))
+          (Min $rest)
+        )
+      )
+    
     )
+
+  )
 )
  
 ; Recursive helper to calculate the group index
