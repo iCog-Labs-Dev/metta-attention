@@ -18,34 +18,70 @@
 ;used once the separate cases are proven to work.
 
 ;av and stv setters for Node types
-(= (setAV $pattern $newAV)
-   (let $var (get-type $pattern) (
-                              unify (quote $var)
-                                    (quote ($node $type $symbol $av $stv))
-                                    (let () (remove-atom &self (: $pattern ($node $type $symbol $av $stv)))
-                                      (add-atom &self (: $pattern ($node $type $symbol $newAV $stv))
-                                      )
-                                    )
-                                    failure
-                            )
+
+
+(= (applySTV Node $pattern ($type $symbol $av $stv) $newSTV)
+   (unify (quote (Node $type $symbol $av $stv))
+           (quote ($node $type $symbol $av $stv))
+           (let () (remove-atom &self (: $pattern ($node $type $symbol $av $stv)))
+                                      (add-atom &self (: $pattern ($node $type $symbol $av $newSTV)))
+            )
+          ("Failure")
+    )
+)
+
+(= (applySTV Link $pattern ($type $source $target $av $stv) $newSTV)
+   (unify (quote (Link $type $source $target $av $stv))
+           (quote ($link $type $source $target $av $stv))
+           (let () (remove-atom &self (: $pattern ($link $type $source $target $av $stv)))
+                                      (add-atom &self (: $pattern ($link $type $source $target $av $newSTV)))
+            )
+          ("Failure")
 
     )
 )
 
 (= (setSTV $pattern $newSTV)
-   (let $var (get-type $pattern) (
-                              unify (quote $var)
-                                    (quote ($node $type $symbol $av $stv))
-                                    (let () (remove-atom &self (: $pattern ($node $type $symbol $av $stv)))
-                                      (add-atom &self (: $pattern ($node $type $symbol $av $newSTV))
-                                      )
-                                    )
-                                    failure
-                            )
+   (let* (
+          ($val (get-type $pattern))
+          ($signal (car-atom $val))
+          ($rest (cdr-atom $val))
+          )
+     (applySTV $signal $pattern $rest $newSTV)
+    )
+)
+
+(= (applyAV Node $pattern ($type $symbol $av $stv) $newAV)
+   (unify (quote (Node $type $symbol $av $stv))
+           (quote ($node $type $symbol $av $stv))
+           (let () (remove-atom &self (: $pattern ($node $type $symbol $av $stv)))
+                                      (add-atom &self (: $pattern ($node $type $symbol $newAV $stv)))
+            )
+          ("Failure")
+    )
+)
+
+(= (applyAV Link $pattern ($type $source $target $av $stv) $newAV)
+   (unify (quote (Link $type $source $target $av $stv))
+           (quote ($link $type $source $target $av $stv))
+           (let () (remove-atom &self (: $pattern ($link $type $source $target $av $stv)))
+                                      (add-atom &self (: $pattern ($link $type $source $target $newAV $stv)))
+            )
+          ("Failure")
 
     )
 )
 
+(= (setAV $pattern $newAV)
+   (let* 
+     (
+      ($val (get-type $pattern))
+      ($signal (car-atom $val))
+      ($rest (cdr-atom $val))
+      )
+     (applyAV $signal $pattern $rest $newAV)
+    )
+)
 
 
 ; TESTS
@@ -66,10 +102,17 @@
 ;test AV and STV getters for nodes
 !(assertEqual (getAV (get-type node_a)) (1.0 2.0 3.0))
 !(assertEqual (getSTV (get-type node_a)) (0.5 0.8))
-
-;test AV and STV setters for nodes
+;
+;;test AV and STV setters for nodes
 !(setAV node_a (0 0 0))
 !(setSTV node_a (0.0 0.0))
+;
+!(setSTV link_ab (0.0 0.0))
+!(setAV link_ab (0.0 0.0 0.0))
+
+;!(getAV (get-type link_ab))
+!(assertEqual (getAV (get-type link_ab)) (0.0 0.0 0.0))
+!(assertEqual (getSTV (get-type link_ab)) (0.0 0.0))
 
 !(assertEqual (getAV (get-type node_a)) (0 0 0))
 !(assertEqual (getSTV (get-type node_a)) (0.0 0.0))
