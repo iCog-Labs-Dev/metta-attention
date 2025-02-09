@@ -13,13 +13,7 @@
 (= (getSTV (Node $type $symbol $av $stv)) $stv)
 (= (getAV (Node $type $symbol $av $stv)) $av)
 
-;NOTE: Currently, the functions setAV and setSTV are being written independently only
-;to check if they each work properly. A general function that brings them together will be 
-;used once the separate cases are proven to work.
-
 ;av and stv setters for Node types
-
-
 (= (applySTV Node $pattern ($type $symbol $av $stv) $newSTV)
    (unify (quote (Node $type $symbol $av $stv))
            (quote ($node $type $symbol $av $stv))
