@@ -80,6 +80,7 @@
       (let $tail (cdr-atom $list) (+ 1 (size $tail)))
     )
 )
+(: Max (-> Expression Number))
 ( = (Max $numbers)
   (let* (
     ($top (car-atom $numbers))
@@ -90,9 +91,10 @@
       (let* (
         ($nextTop (car-atom $rest))
         ($tail (cdr-atom $rest))
+        ($mergeList (cons-atom $top $tail))
         )
         (if (> $top $nextTop)
-          (Max (cons-atom $top $tail))
+          (Max $mergeList)
           (Max $rest)
         )
       )
@@ -101,6 +103,7 @@
 
   )
 )
+(: Min (-> Expression Number))
 ( = (Min $numbers)
   (let* (
     ($top (car-atom $numbers))
@@ -111,9 +114,10 @@
       (let* (
         ($nextTop (car-atom $rest))
         ($tail (cdr-atom $rest))
+        ($mergeList (cons-atom $top $tail))
         )
         (if (< $top $nextTop)
-          (Min (cons-atom $top $tail))
+          (Min $mergeList)
           (Min $rest)
         )
       )
@@ -343,6 +347,7 @@
 )
 
 ; a function that find the maximum STI value of the  given atoms
+(: findMaxSTI (-> Expression Number))
 (= (findMaxSTI $list)
   (let* (
     ($atom (car-atom $list))
@@ -355,9 +360,10 @@
         ($nextTop (car-atom $rest))
         ($secondMax (getSTI $nextTop))
         ($tail (cdr-atom $rest))
+        ($mergeList (cons-atom $atom $tail))
         )
         (if (> $max $secondMax)
-          (findMaxSTI (cons-atom $atom $tail))
+          (findMaxSTI $mergeList)
           (findMaxSTI $rest)
         )
       )
@@ -365,6 +371,7 @@
   )
 )
 ; a function that find the minimum STI value of the  given atoms
+(: findMinSTI (-> Expression Number))
 (= (findMinSTI $list)
   (let* (
     ($atom (car-atom $list))
@@ -377,12 +384,15 @@
         ($nextTop (car-atom $rest))
         ($secondMax (getSTI $nextTop))
         ($tail (cdr-atom $rest))
+        ($mergeList (cons-atom $atom $tail))
         )
         (if (< $max $secondMax)
-          (findMinSTI (cons-atom $atom $tail))
+          (findMinSTI $mergeList)
           (findMinSTI $rest)
         )
       )
     )
   )
  )
+
+             
