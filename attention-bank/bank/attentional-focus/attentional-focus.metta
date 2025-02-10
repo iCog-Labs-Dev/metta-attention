@@ -160,6 +160,8 @@
     )
 )
 
+
+
 ;the function below updates the attentional focus with a new atom
 ;the RemoveAFSignal() and AddAFSignal() functions have been skipped in this function because it appears to primarily 
 ;serve logging the additional and removal of an atom as i reviewed in the example/AtomSpaceEventSubscribeExample.cc
@@ -397,4 +399,14 @@
     False
     )
 )
+
+; This function matches if the link matches the TermMatchMixin condition and is in The attentional focus.
+;TermMatchMixinLinkMatch is not currently implemented.It is a function that is currently found in the opencog atomspace repository(https://github.com/opencog/atomspace/blob/master/opencog/query/TermMatchMixin.cc).
+; PatternTerm type is also defined in the same repository(https://github.com/opencog/atomspace/blob/6fdbddde19ca7ac5242d141d6ce64a2d7e1ef2e5/opencog/atoms/pattern/PatternTerm.cc)
+( :linkMatch(-> PatternTerm Atom Bool))
+( = (linkMatch $ptm $lsoln))
+    (if (and (termMatchMixinLinkMatch $ptm $lsoln) (atomIsInAF $lsoln))
+    True
+    False
+    )
 
