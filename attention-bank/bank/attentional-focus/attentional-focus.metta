@@ -153,7 +153,7 @@
 (= (getAfMaxSTI)
     (let $atoms (getAtomList)
         (if (== $atoms ())
-            0
+            0.0
             (getAfMaxSTIHelper $atoms (car-atom $atoms) (getSTI (car-atom $atoms)))
         )
     )
