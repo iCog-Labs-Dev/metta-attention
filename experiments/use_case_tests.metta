@@ -5,3 +5,4 @@
 
 !(filterLinksByType &kb Hebbian)
 !(filterNodesByType &kb Concept)
+!(filterLinksByType &kb Evaluation)

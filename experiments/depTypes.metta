@@ -11,6 +11,14 @@
 (= (getAV (Link $type $source $target $av $stv)) $av)
 (= (getSTV (Link $type $source $target $av $stv)) $stv)
 
+(: Event Type)
+
+(: getSTI (-> Event Number))
+(: getLTI (-> Event Number))
+
+(: getAV (-> Event AV))
+(: getSTV (-> Event STV))
+
 ;getters for Node types
 (= (getSTV (Node $type $symbol $av $stv)) $stv)
 (= (getAV (Node $type $symbol $av $stv)) $av)
@@ -56,7 +64,6 @@
            (quote (Link $type $source $target $av $stv))
            (update-atom $space (: $pattern (Link $type $source $target $av $stv)) (: $pattern (Link $type $source $target $newAV $stv)))
           ("Failure")
-
     )
 )
 
