@@ -73,11 +73,11 @@
   )
 )
 
-(: size (-> Expression Number))
+;(: size (-> Expression Number))
 (= (size $list)
-   (if (== $list ())
-      0
-      (let $tail (cdr-atom $list) (+ 1 (size $tail)))
+    (if (== $list ())
+        0
+        (+ 1 (size (cdr-atom $list)))
     )
 )
 (: Max (-> Expression Number))
@@ -193,6 +193,7 @@
 (= (minList $list)
     (minValue (firstElement $list) $list)
 )
+
 
 ;Function for concatinating
 (= (concatTuple $xs $ys)
@@ -317,34 +318,10 @@
     )
 )
 
-; Helper function to append an element to the end of a list
-(= (append-to-end $list $elem)
-   (if (== $list ()) 
-       (cons-atom $elem ())
-       (let* (
-               ($head (car-atom $list))  
-               ($tail (cdr-atom $list))  
-               ($appended-tail (append-to-end $tail $elem))
-             )
-           (cons-atom $head $appended-tail) 
-       )
-   )
-)
-
 ;function to reverse an expression 
-(= (reverseExpr $expr)
-   (if (== $expr ())
-       ()
-       (let* (
-               ($head (car-atom $expr))  
-               ($tail (cdr-atom $expr))  
-               ($reversed-tail (reverseExpr $tail))  
-               ($result (append-to-end $reversed-tail $head))
-           )
-           $result  
-       )
-   )
-)
+
+(= (reverseExpr $x ) (collapse (union (superpose $x) (superpose ())))) 
+
 
 ; a function that find the maximum STI value of the  given atoms
 (: findMaxSTI (-> Expression Number))
