@@ -55,7 +55,8 @@
        )
    )
 )
-(: valuesAtIndex (-> Number Expression Expression))
+;TODO: Figure out why when types are added to this function, It returns []
+;(: valuesAtIndex (-> Number $list_t $list_t))
 (= (valuesAtIndex $i $handleSetSeq)
    (if(== $handleSetSeq ())
      ()
@@ -158,7 +159,7 @@
 (= (truncateHelper $x $acc)
    (if (< $x (+ $acc 1))
        $acc ; The accumulated integer part
-       (truncateHelper $x (+ $acc 1))
+       (truncateHelper $x (+ $acc 1.0))
    )
 )
 
@@ -199,12 +200,16 @@
 (= (concatTuple $xs $ys)
     (if (== $xs ())
         $ys
-        (let* ( ($head (car-atom $xs))
+        (let* ( 
+                ($head (car-atom $xs))
                 ($tail (cdr-atom $xs))
-                ($tailNew (concatTuple $tail $ys)))
-            (cons-atom $head $tailNew))
+                ($tailNew (concatTuple $tail $ys))
+              )
+            (cons-atom $head $tailNew)
+        )
     )
 )
+
 (: flatten (-> Expression Expression))
 (= (flatten $expr)
    (if (== $expr ()) 
@@ -220,37 +225,12 @@
 
 
 (= (contains $list $x)
-   (if(== $list ())
-     False
-     (let*
-       (
-        ($head (car-atom $list))
-        ($tail (cdr-atom $list))
-        )
-       (if(== $head $x)
-         True
-         (contains $tail $x)
-       )
-      )
-    )
+   (not (== (collapse (intersection (superpose ($x)) (superpose $list))) ()))
 )
 
 (: removeDuplicates (-> Expression Expression))
 (= (removeDuplicates $list)
-   (if (== $list ())
-     ()
-     (let*
-       (
-          ($head (car-atom $list))
-          ($tail (cdr-atom $list))
-          ($filteredTail (removeDuplicates $tail))
-        )
-       (if(contains $filteredTail $head)
-        $filteredTail
-        (cons-atom $head $filteredTail)
-       )
-    )
-  )
+   (collapse (unique (superpose $list)))
 )
 
 (= (sort $list)
@@ -264,10 +244,11 @@
                ($greater (filterGreaterEqual $pivot $rest)) ; Elements greater or equal to pivot
                ($greaterRemaining (sort $greater))
            )
-           (concatTuple (sort $smaller) (cons-atom $pivot $greaterRemaining)) ; Recursively sort and combine
+           (concatTuple (sort $smaller) (cons-atom $pivot $greaterRemaining)  ) ; Recursively sort and combine
        )
    )
 )
+
 
 (= (filterLess $pivot $list)
    (if (== $list ())

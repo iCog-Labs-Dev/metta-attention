@@ -81,7 +81,6 @@
                ($sortedLesser (sortAtomsBySti $lesser))
                ($sortedGreater (sortAtomsBySti $greater))
            )
-
            (concatTuple $sortedLesser (cons-atom $pivot $sortedGreater))
         )
     )
