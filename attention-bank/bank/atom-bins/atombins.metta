@@ -93,7 +93,7 @@
 
 ;predicate function to check if a list is empty
 (: notEmpty (-> Expression Bool))
-(= (notEmpty ($x $y)) (> (size $y) 0 ))
+(= (notEmpty ($x $y)) (> (size-atom $y) 0 ))
 
 ;this function randomly selects a bin from atombins and proceeds to randomly choose a single element from selected random bin.
 (: getRandomAtom (-> Symbol))

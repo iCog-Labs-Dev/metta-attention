@@ -30,7 +30,7 @@
     let*
     (
       ($groupSize (GroupSize))
-      ($impo_int (truncate $impo)) ; Ensure $impo is treated as an integer
+      ($impo_int (trunc-math $impo)) ; Ensure $impo is treated as an integer
       ($firstCondition (< $impo_int 0))
       ($secondCondition (< $impo_int (* 2 $groupSize)))
     )
@@ -42,7 +42,8 @@
           (
             ($imp (ceil (/ (- $impo_int $groupSize) $groupSize)))
             ($i (findGroup $imp 0 0))
-            ($temp (ceil (/ $impo_int (pow 2 (- $i 1)))))
+            ($num (- $i 1))
+            ($temp (ceil (/ $impo_int (pow-math 2 $num))))
             ($ad (- $groupSize $temp))
             ($bin (- (* $i $groupSize) $ad))
           )
@@ -194,6 +195,7 @@
 (: getMinSTI (-> Number))
 (= (getMinSTI) (let $recentVal (RecentVal) (match $recentVal (recent_min $_) $_)))
 ; Normalizes the STI of an atom to the range [0,1] with optional clipping.
+; Normalizes the STI of an atom to the range [0,1] with optional clipping.
 (: getNormalisedZeroToOneSTI (-> Atom Bool Bool Number))
 (= (getNormalisedZeroToOneSTI $atom $average $clip)
    (let*
@@ -206,10 +208,10 @@
            ($value (if (== $normaliser 0)
                       0.0
                       (/ $diff $normaliser)))
-            ($minim  (Min ($value 1.0)))
+            ($minim  (min-atom ($value 1.0)))
            ($clippedValue 
                      (if $clip
-                           (Max (0.0 $minim))
+                           (max-atom (0.0 $minim))
                            $value
                      )
             )
@@ -268,9 +270,11 @@
                            (/ $sum $normaliser)
                        )
                    )
+                   ($minim  (min-atom ($val 1.0)))
                )
+               
                (if $clip
-                   (Max (-1.0 (Min ($val 1.0))))
+                   (max-atom (-1.0 $minim))
                    $val
                )
            )

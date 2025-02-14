@@ -5,7 +5,7 @@
     (let* (
         ($atombin (AtomBin))
         ($numbers (collapse (match $atombin ($y $x) $y)))
-        ($max (Max $numbers))
+        ($max (max-atom $numbers))
         ($content (match (AtomBin) ($max $x)  $x))
     )
         $content
@@ -17,7 +17,7 @@
     (let* (
         ($atombin (AtomBin))
         ($numbers (collapse (match $atombin ($y $x) $y)))
-        ($min (Min $numbers))
+        ($min (min-atom $numbers))
         ($content (match (AtomBin) ($min $x)  $x))
       )
       $content
@@ -30,7 +30,7 @@
     (let* (
         ($atoms (match (AtomBin) ($binNumber $x) $x))
     )
-        (size $atoms)
+        (size-atom $atoms)
     )
 )
 
