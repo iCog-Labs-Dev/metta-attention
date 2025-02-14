@@ -21,7 +21,7 @@
 !(setAv d (7.0 4.0 0.0))
 !(setAv c (0.0 0.0 0.0))
 
-!(let $res (collapse (getRandomAtom)) (assertEqual (size $res) 1))
+!(let $res (collapse (getRandomAtom)) (assertEqual (size-atom $res) 1))
 ;
 ;;; Example Predicate function
 ;(: pred (-> Symbol Number Number Bool))

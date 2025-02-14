@@ -21,10 +21,10 @@
 !(assertEqual (getHandleSet 10 10) ())
 
 ; Test importanceBin function
-!(assertEqual (importanceBin -5)  0)    ; Should return 0
-!(assertEqual (importanceBin 10)   10)   ; Should return 10 (direct assignment)
-!(assertEqual (importanceBin 20)  18)    ; Should calculate based on group logic 18
-!(assertEqual (importanceBin 50)  29)    ; Should calculate based on group logic 29
+!(assertEqual (importanceBin -5.0)  0)    ; Should return 0
+!(assertEqual (importanceBin 10.0)   10)   ; Should return 10 (direct assignment)
+!(assertEqual (importanceBin 20.0)  18)    ; Should calculate based on group logic 18
+!(assertEqual (importanceBin 50.0)  29)    ; Should calculate based on group logic 29
 ;
 !(assertEqual (update &atombin) ("Updated"))
 !(assertEqual (getMaxSTI) 2.0)

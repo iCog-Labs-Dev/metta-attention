@@ -46,7 +46,7 @@
 !(assertEqual (updateAttentionalFocus L) ("Atom is not valid"))
 !(assertEqual (getAtomList) (a A B C D F G H I))
 !(assertEqual (sortAtomsBySti  (getAtomList)) (a H D B F C G I A))
-!(let $res (collapse (getRandomAtomNotInAF)) (assertEqual (size $res) 1))
+!(let $res (collapse (getRandomAtomNotInAF)) (assertEqual (size-atom $res) 1))
 
 !(assertEqual(getAfMaxSTI) 600.0)
 !(assertEqual(sortAtomsByStiDescending  (getAtomList)) (A I G C F B D H a))

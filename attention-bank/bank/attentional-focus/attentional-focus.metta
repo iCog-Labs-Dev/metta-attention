@@ -43,7 +43,9 @@
 
 (: attentionalFocusSize (-> Number))
 (= (attentionalFocusSize)
-    (size (getAtomList))
+   (let $atomList (getAtomList)
+    (size-atom $atomList)
+   )
 )
 
 ; Helper function for filtering atoms with STI less than the pivot

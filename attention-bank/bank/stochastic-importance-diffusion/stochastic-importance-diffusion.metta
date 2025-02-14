@@ -88,7 +88,7 @@
    (let* (
           ($averageElapsedTime (elapsedTime $atom))
           ($sti (getSTI $atom))
-          ($powerRes (pow (- 1 $decayRate) $averageElapsedTime))
+          ($powerRes (pow-math (- 1 $decayRate) $averageElapsedTime))
         )
         (* $sti $powerRes)
     )
