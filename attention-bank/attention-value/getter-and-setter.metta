@@ -94,14 +94,20 @@
 
 (: getMean (-> Atom Number))
 (= (getMean $pattern)
-    (let ($link $mean $conf) (getStv $pattern) $mean)
+    (case (getStv $pattern)
+        ((%Undefined% 0)
+        ((STV $mean $conf) $mean))
+    )
 )
 
 ; getConfidence retrieves Confidence from a pattern
 ; i.e !(getConfidence A)  output: 0.9 
 (: getConfidence (-> Atom Number))
 (= (getConfidence $pattern)
-    (let ($link $mean $conf) (getStv $pattern) $conf)
+    (case (getStv $pattern)
+        ((%Undefined% 0)
+        ((STV $mean $conf) $conf))
+    )
 )
 
 ; getSTI retrieves STI from a pattern
@@ -109,7 +115,11 @@
 
 (: getSTI (-> Atom Number))
 (= (getSTI $pattern)
-    (let ($link $sti $lti $vlti) (getAv $pattern) $sti)
+    (case (getAv $pattern)
+        ((%Undefined% 0)
+        ((AV $sti $lti $vlti) $sti))
+    )
+        
 )
 
 
@@ -118,7 +128,10 @@
 
 (: getLTI (-> Atom Number))
 (= (getLTI $pattern)
-    (let ($link $sti $lti $vlti) (getAv $pattern) $lti)
+    (case (getAv $pattern)
+        ((%Undefined% 0)
+        ((AV $sti $lti $vlti) $lti))
+    )
 )
 
 ; getVLTI retrieves VLTI from a pattern
@@ -126,7 +139,12 @@
 
 (: getVLTI (-> Atom Number))
 (= (getVLTI $pattern)
-    (let ($link $sti $lti $vlti) (getAv $pattern) $vlti)
+    (case (getAv $pattern)
+        ((%Undefined% 0)
+        ((AV $sti $lti $vlti) $vlti)
+        )
+    )
+
 )
 
 (= (getType $pattern) (get-type $pattern))
