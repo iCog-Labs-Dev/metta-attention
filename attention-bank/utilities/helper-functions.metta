@@ -164,13 +164,13 @@
 ;)
 
 ;function to find power of a number
-(: pow (-> Number Number Number))    
-(= (pow $base $exp)
-   (if(<= $exp 0)
-      1 ; Any number to the power of 0 is 1
-      (* $base (pow $base (- $exp 1)))
-   )
-) ; Recursive multiplication
+;(: pow (-> Number Number Number))    
+;(= (pow $base $exp)
+;   (if(<= $exp 0)
+;      1 ; Any number to the power of 0 is 1
+;      (* $base (pow $base (- $exp 1)))
+;   )
+;) ; Recursive multiplication
 
 (= (firstElement ($x $xs)) $x)
 (= (maxValue $max ()) $max)
