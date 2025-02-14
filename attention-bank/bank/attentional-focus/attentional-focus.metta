@@ -299,10 +299,122 @@
     )
 )
 
-; This function matches if the link matches the TermMatchMixin condition and is in The attentional focus.
-;TermMatchMixinLinkMatch is not currently implemented.It is a function that is currently found in the opencog atomspace repository(https://github.com/opencog/atomspace/blob/master/opencog/query/TermMatchMixin.cc).
-; PatternTerm type is also defined in the same repository(https://github.com/opencog/atomspace/blob/6fdbddde19ca7ac5242d141d6ce64a2d7e1ef2e5/opencog/atoms/pattern/PatternTerm.cc)
-( :linkMatch(-> PatternTerm Atom Bool))
+
+
+
+
+; Function: tuple-count
+ ; Description: Calculates the tuple-count of a tuple.
+ ; Parameters:
+ ;   - $tuple: The tuple whose tuple-count is to be calculated.
+ ; Returns:
+ ;   - The tuple-count of the tuple as an integer.
+ ;; Count the number elements in an expression
+
+ ;; this Function is copied from the pattern minor project found at https://github.com/iCog-Labs-Dev/hyperon-miner/blob/experiments/experiments/utils/common-utils.metta
+
+   (: tupleCount (-> %Undefined% Number))
+   (= (tupleCount $atom) (if (== $atom ()) 0 (+ 1 (tupleCount (cdr-atom $atom)))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ ;;(: getArity (-> $pattern) Number)
+ ;; we substruct 1 since the getArity count the all tuple and we don't want to count
+ ;; the "AND LINK" as a part of the arity
+
+ ;; this Function is copied from the pattern minor project found at https://github.com/iCog-Labs-Dev/hyperon-miner/blob/experiments/experiments/utils/common-utils.metta
+
+
+(= (getArity Nil ) 0 )
+(= (getArity $pattern)
+    (- (tupleCount $pattern) 1) )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ ; Function: getVariables
+ ; This function extracts all the variables from a given pattern (Expression).
+ ; It works recursively by checking each element of the pattern to see if it is of the metatype "Variable".
+
+(= (getVariables $pattern)
+    (if (== $pattern ())
+        ()
+        (if (== (let* (
+                        ($var (car-atom $pattern)))
+                    (get-metatype $var)) Variable)
+            ( (car-atom $pattern) (getVariables (cdr-atom $pattern)))
+            (getVariables (cdr-atom $pattern))
+        ))
+)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+ ; Function: isQuoted
+ ; This function checks if a given pattern is quoted or not.
+ ; It does this by checking if the first element of the pattern is a QuoteLink.
+
+ ; TODO: what happens if the there are nested quotes?
+
+(: isQuoted (-> Atom Bool))
+
+(= (isQuoted $ptm)
+    (if (== (car-atom $ptm) QuoteLink)
+        True
+        False
+    )
+)
+
+
+
+
+
+
+(: termMatchMixinLinkMatch ( -> Atom Atom Bool))
+
+( = (termMatchMixinLinkMatch $ptm $lsoln)
+    ( if (==  $ptm $lsoln)
+        True
+      ;else
+      (if ( == (car-atom $ptm) CHOICE_LINK)  
+        True
+        ;else
+        (if not (== (car-atom  $ptm) (car-atom $lsoln))
+            False
+            ;else
+            (if not ( == (getArity getHandle $ptm) (getArity $lsoln))
+                False
+                ;else
+                (if (== (car-atom $ptm) SCOPE_LINK)
+                    (if (isQuoted $ptm)  
+                        True
+                        (if not ( == (getVariables $ptm) (getVariables $lsoln))
+                            False
+                            True
+                        )
+                    True
+                    
+                    )
+                
+            
+            )
+
+        
+        )
+      )
+    
+    )
+
+
+)
+)
+
+
+
+
+; This function matches if the link matches the TermMatchMixin condition and is in The attentional focus.It is a function that is currently found in the opencog atomspace repository(https://github.com/opencog/atomspace/blob/master/opencog/query/TermMatchMixin.cc).
+
+( :linkMatch(-> Atom Atom Bool))
 ( = (linkMatch $ptm $lsoln))
     (if (and (termMatchMixinLinkMatch $ptm $lsoln) (atomIsInAF $lsoln))
     True
