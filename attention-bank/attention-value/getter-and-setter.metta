@@ -9,8 +9,10 @@
         (let* (
                 ( $stv (getStv $pattern))
                 ( $_ (let $x (collapse (match &self (: $pattern $_) (: $pattern $_)))
-                        (let $y (car-atom $x)
-                            (remove-atom &self $y)))))
+                        (if (== $x ())
+                            ()
+                            (let $y (car-atom $x) (remove-atom &self $y))
+                            ))))
             (if (== $stv (STV 0 0))
                 (add-atom &self (: $pattern (AV $sti $lti $vlti)))
                 (add-atom &self (: $pattern ($stv (AV $sti $lti $vlti)))))))
@@ -20,16 +22,15 @@
  ; value attached to the pattern/node.
  ;
  ; i.e !(getAv A)  output: (AV 400 400 1)
- 
-;
 
 (: getAv (-> Atom AV))
 (= (getAv $pattern)
-    (case (getValueType $pattern)
-        (
-            ( (AV $a $b $c) (getValueType $pattern))
-            ( ( (STV $a $b) (AV $x $y $z)) (AV $x $y $z))
-            ($else (AV 0 0 0)))
+    (if (== (get-metatype $pattern) Expression)
+        (let $a (collapse (let $x (getValueType $pattern) (collapse (superpose $x)))) (index-atom $a 0))
+        (case (getValueType $pattern)
+                (( (AV $a $b $c) (getValueType $pattern))
+                    ( ( (STV $a $b) (AV $x $y $z)) (AV $x $y $z))
+                    ($else (AV 0 0 0))))
     )
 )
 
