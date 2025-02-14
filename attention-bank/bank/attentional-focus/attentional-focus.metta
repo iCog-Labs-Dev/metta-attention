@@ -3,6 +3,7 @@
 (= (maxAFSize) 100)
 
 ;checks if an atom is in attentional focus
+
 (: atomIsInAF (-> Atom Bool))
 (= (atomIsInAF $atom)
    (if  (== (collapse (match &attentionalFocus $atom $atom)) ())
@@ -12,12 +13,14 @@
 )
 
 ;checks if an atom is in attentional focus
+
 (: atomIsNotInAF (-> Atom Bool))
 (= (atomIsNotInAF $atom)
    (not (atomIsInAF $atom))
 )
 
 ;adds an atom to the attentional focus if it is valid
+
 (: addAtomToAF (-> Atom Symbol))
 (= (addAtomToAF $atom)
    (if (== (getType $atom) %Undefined%)
@@ -30,23 +33,23 @@
 )
 
 ; Collapse space to list of atoms
+
 (: getAtomList(->Symbol))
 (= (getAtomList)
    (collapse (get-atoms &attentionalFocus))
 )
 
 ;it returns the total number of atoms in the attentional focus
+
 (: attentionalFocusSize (-> Number))
 (= (attentionalFocusSize)
-    (let $atoms (getAtomList)
-        (if (== $atoms ())
-            0
-            (size $atoms)
-        )
-    )
+   (let $atomList (getAtomList)
+    (size-atom $atomList)
+   )
 )
 
 ; Helper function for filtering atoms with STI less than the pivot
+
 (: lessThanSti (-> Atom Atom Bool))
 (= (lessThanSti $elem $pivot)
     (if (or (== $elem ()) (== $pivot ())) 
@@ -56,6 +59,7 @@
 )
 
 ; Helper function for filtering atoms with STI greater than or equal to the pivot
+
 (: greaterEqualSti (-> Atom Atom Bool))
 (= (greaterEqualSti $elem $pivot)
     (if (or (== $elem ()) (== $pivot ())) 
@@ -65,6 +69,7 @@
 )
 
 ; Sorts a list of atoms by their STI values in ascending order
+
 (: sortAtomsBySti (-> Symbol Symbol))
 (= (sortAtomsBySti $atoms)
     (if (== $atoms ())
@@ -78,13 +83,13 @@
                ($sortedLesser (sortAtomsBySti $lesser))
                ($sortedGreater (sortAtomsBySti $greater))
            )
-
            (concatTuple $sortedLesser (cons-atom $pivot $sortedGreater))
         )
     )
 )
 
 ; Sorts a list of atoms by their STI values in descending order
+
 (: sortAtomsByStiDescending (-> Symbol Symbol))
 (= (sortAtomsByStiDescending $atoms)
     (if (== $atoms ())
@@ -103,37 +108,62 @@
     )
 )
 
-
-
-
-
-
 ;gets the atom with the lowest STI value in the attentional focus
-(:getLowestStiAtomInAF (-> Number))
-(=(getLowestStiAtomInAF)
-    (let $sortedAtoms (sortAtomsBySti  (getAtomList))
-        (if (==  $sortedAtoms ())
+
+;(: getLowestStiAtomInAFHelper (-> List Atom Number Atom))
+(= (getLowestStiAtomInAFHelper $atoms $minAtom $minSTI)
+    (if (== $atoms ())
+        $minAtom
+        (let* (
+            ($current (car-atom $atoms))
+            ($sti (getSTI $current))
+            ($newMinAtom (if (< $sti $minSTI) $current $minAtom))
+            ($newMinSTI (if (< $sti $minSTI) $sti $minSTI))
+        )
+        (getLowestStiAtomInAFHelper (cdr-atom $atoms) $newMinAtom $newMinSTI))
+    )
+)
+
+(: getLowestStiAtomInAF (-> Atom))
+(= (getLowestStiAtomInAF)
+    (let $atoms (getAtomList)
+        (if (== $atoms ())
             ()
-            (car-atom  $sortedAtoms)
+            (getLowestStiAtomInAFHelper $atoms (car-atom $atoms) (getSTI (car-atom $atoms)))
         )
     )
 )
 
 ;gets the maximum STI value in the attentional focus
-(: getAfMaxSTI (-> Number))
-(=(getAfMaxSTI)
-    (let $sortedAtoms (sortAtomsByStiDescending (getAtomList))
-        (if (==  $sortedAtoms ())
-            0
-            (let $maxAtom (car-atom $sortedAtoms)
-                    (getSTI $maxAtom)
-            )
+
+;(: getAfMaxSTIHelper (-> List Atom Number Atom))
+(= (getAfMaxSTIHelper $atoms $maxAtom $maxSTI)
+    (if (== $atoms ())
+        $maxSTI
+        (let* (
+            ($current (car-atom $atoms))
+            ($sti (getSTI $current))
+            ($newMaxAtom (if (> $sti $maxSTI) $current $maxAtom))
+            ($newMaxSTI (if (> $sti $maxSTI) $sti $maxSTI))
         )
+        (getAfMaxSTIHelper (cdr-atom $atoms) $newMaxAtom $newMaxSTI))
     )
 )
 
+<<<<<<< HEAD
 
 
+=======
+(: getAfMaxSTI (-> Number))
+(= (getAfMaxSTI)
+    (let $atoms (getAtomList)
+        (if (== $atoms ())
+            0.0
+            (getAfMaxSTIHelper $atoms (car-atom $atoms) (getSTI (car-atom $atoms)))
+        )
+    )
+)
+>>>>>>> upstream/main
 
 ;the function below updates the attentional focus with a new atom
 ;the RemoveAFSignal() and AddAFSignal() functions have been skipped in this function because it appears to primarily 
@@ -147,10 +177,7 @@
            ($maxSize (maxAFSize)) 
            ($sti (getSTI $atom)) 
            ($currentSize (attentionalFocusSize)) 
-           ($lowestAtom (getLowestStiAtomInAF)) 
            ($isInAF (atomIsInAF $atom)) ; Check if atom is already in AF
-           ($canAdd (< $currentSize $maxSize)) ; Check if AF is not full
-           ($shouldReplace (> $sti (getSTI $lowestAtom))) ; Check if replacement is needed
        )
 
        (if $isInAF
@@ -159,30 +186,26 @@
                (remove-atom &attentionalFocus $atom)
                (addAtomToAF $atom)
            )
-           (if $canAdd
+           (if (< $currentSize $maxSize)
                ; Case 2: AF is not full, add the new atom
                (addAtomToAF $atom)
 
-               (if $shouldReplace
-                   ; Case 3: Replace the lowest STI atom with the new atom
-                   (let ()
-                       (remove-atom &attentionalFocus $lowestAtom)
-                       (addAtomToAF $atom)
-                   )
-                   ; Case 4: Atom not added (STI is too low)
-                   (empty)
+               (let $lowestAtom (getLowestStiAtomInAF) ; Only compute if needed
+                    (if (> $sti (getSTI $lowestAtom))  ; Case 3: Replace if better
+                        (let ()
+                            (remove-atom &attentionalFocus $lowestAtom)
+                            (addAtomToAF $atom)
+                        )
+                        (empty) ; Case 4: Atom not added
+                    )
                )
            )
        )
    )
 )
 
-
-
-
-
-
 ; Function to retrieve a random atom not in attentional focus
+
 (: getRandomAtomNotInAF (-> Atom))
 (= (getRandomAtomNotInAF)
    (let*
@@ -212,6 +235,7 @@
 ;;;   $atom: The atom for which to find incoming links.
 ;;;   $type: The type of link to consider.
 ;;; Returns: A list of incoming links that are in the AF.
+
 (: getIncomingSet (-> Atom Type List))
 (= (getIncomingSet $atom $type)
     (let* (
@@ -228,6 +252,7 @@
 ;;; Parameters:
 ;;;   $incoming_set: A list of incoming links to filter.
 ;;; Returns: A new list containing only the links that are in the AF.
+
 (: filterLinksInAF (-> List List))
 (= (filterLinksInAF $incoming_set)
     (if (== $incoming_set ())
@@ -246,6 +271,7 @@
         )
     )
 )
+
 ;;; Function: getIncomingSetByType
 ;;; Description: Retrieves the set of incoming links of a specific type for a given atom
 ;;;              without filtering based on the active frame.
@@ -253,18 +279,22 @@
 ;;;   $atom: The atom for which to find incoming links.
 ;;;   $type: The type of link to consider.
 ;;; Returns: A list of incoming links of the specified type.
+
 (: getIncomingSetByType (-> Atom Type List))
 (= (getIncomingSetByType $atom $type)
-    (let* (
-          ($linkVariationOne (collapse (match &attentionalFocus ($type $atom $b) ($type $atom $b))))
-          ($linkVariationTwo (collapse (match &attentionalFocus ($type $a $atom) ($type $a $atom))))
-          )
-        (concatTuple $linkVariationOne $linkVariationTwo)
+    (collapse 
+        (superpose   
+            (
+                (match &attentionalFocus ($type $atom $b) ($type $atom $b))
+                (match &attentionalFocus ($type $b $atom) ($type $b $atom))
+            )
+        )  
     )
 )
 
 ;This function simply matches if two nodes are equal and they are in AF
 (:nodeMatch (-> Atom Atom Bool))
+
 (= (nodeMatch $node1 $node2)
     (if (and (== $node1 $node2) (atomIsInAF $node2))
         True

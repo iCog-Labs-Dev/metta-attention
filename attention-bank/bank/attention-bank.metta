@@ -13,16 +13,16 @@
 
 
 ; Function to compute the minimum of two values
-(: min (-> Number Number Number))
-(= (min $a $b)
-    (if (< $a $b) $a $b)
-)
+;(: min (-> Number Number Number))
+;(= (min $a $b)
+;    (if (< $a $b) $a $b)
+;)
 
 ; Function to compute the maximum of two values
-(: max (-> Number Number Number))
-(= (max $a $b)
-    (if (> $a $b) $a $b)
-)
+;(: max (-> Number Number Number))
+;(= (max $a $b)
+;    (if (> $a $b) $a $b)
+;)
 
 ; Function to calculate STI wage
 ; Purpose:
@@ -43,8 +43,8 @@
            ($STIAtomWage (match  &space  (STIAtomWage $z) $z))
            ($diff (- $funds $targetSTI))
            ($ndiff-raw (/ $diff $stiFundsBuffer))
-           ($ndiff-clamped-min (min $ndiff-raw 1.0))
-           ($ndiff (max $ndiff-clamped-min -1.0))
+           ($ndiff-clamped-min (min-atom ($ndiff-raw 1.0)))
+           ($ndiff (max-atom ($ndiff-clamped-min -1.0)))
            ($atom-wage $STIAtomWage)
          )
          (+ $atom-wage (* $atom-wage $ndiff))
@@ -70,8 +70,8 @@
            ($LTIAtomWage (match  &space (LTIAtomWage $z) $z))
            ($diff (- $funds $targetLTI))
            ($ndiff-raw (/ $diff $ltiFundsBuffer))
-           ($ndiff-clamped-min (min $ndiff-raw 1.0))
-           ($ndiff (max $ndiff-clamped-min -1.0))
+           ($ndiff-clamped-min (min-atom ($ndiff-raw 1.0)))
+           ($ndiff (max-atom ($ndiff-clamped-min -1.0)))
            ($atom-wage $LTIAtomWage)
          )
          (+ $atom-wage (* $atom-wage $ndiff))

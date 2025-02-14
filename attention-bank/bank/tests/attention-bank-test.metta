@@ -17,13 +17,10 @@
 !(add-atom &atombin (10 (y)))
 !(add-atom &atombin (18 (z)))
 ; Initial AttentionValues
-!(setAv x (200 200 0))
-!(setAv y (200 200 0))
-!(setAv z (200 200 0))
+!(setAv x (200.0 200.0 0.0))
+!(setAv y (200.0 200.0 0.0))
+!(setAv z (200.0 200.0 0.0))
 
-;!(getContent 18 ())
-;!(collapseAtomBin &atombin)
-;!(let $ab (collapseAtomBin &atombin) (valuesAtIndex 1 $ab))
 ; Stimulate the atom with a stimulus of 1.5
 !(stimulate x 1.5)
 

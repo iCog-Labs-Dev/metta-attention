@@ -93,7 +93,7 @@
 
 ;predicate function to check if a list is empty
 (: notEmpty (-> Expression Bool))
-(= (notEmpty ($x $y)) (> (size $y) 0 ))
+(= (notEmpty ($x $y)) (> (size-atom $y) 0 ))
 
 ;this function randomly selects a bin from atombins and proceeds to randomly choose a single element from selected random bin.
 (: getRandomAtom (-> Symbol))
@@ -119,26 +119,25 @@
   )
 )
 ;This function fetches all the values stored in &atombin atomspace, which are located at the specified index.
-(: getContent (-> Number Expression Expression))
-(= (getContent $index $out)
-   (let $content (collapseAtomBin &atombin)
-    (concatTuple $out (valuesAtIndex $index $content))
+(: getContent (-> Number $list_t $list_t $list_t))
+(= (getContent $index $atombins $out)
+   (let $vals (valuesAtIndex $index $atombins) 
+     (concatTuple $out $vals)
    )
 )
 
 ;A function to get the values stored in the &atombin atomspace, at the specified index.
 ;it accepts a predicate function as it's second argument.
 ;the type of the function should take a generic value and return a Boolean 
-(: getContentIf (-> Number (-> Symbol Number Number Bool)) Number Number Expression Expression)
-(= (getContentIf $index $predicate $lower $upper $out)
+;(: getContentIf (-> Number (-> Symbol Number Number Bool)) Number Number $list_t $list_t $list_t)
+(= (getContentIf $index $predicate $lower $upper $atombins $out)
   (
    let*(
-        ($handleSetSeq (collapseAtomBin &atombin))
-        ($handleSet (valuesAtIndex $index $handleSetSeq))
+        ($handleSet (valuesAtIndex $index $atombins))
         ($filteredOutput (customFilter $handleSet $predicate $lower $upper))
         ($res (concatTuple $out $filteredOutput))
       )
-      $res
+    $res
   )
 )
 

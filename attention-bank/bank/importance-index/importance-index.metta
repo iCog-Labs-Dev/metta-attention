@@ -23,29 +23,35 @@
 (: ImportanceIndexSize Number)
 (= (ImportanceIndexSize) 104)
 
-(: importanceBin (-> Number Number))
 ; Function to calculate the bin for a given importance value
+(: importanceBin (-> Number Number))
 (= (importanceBin $impo)
-   (let $impo_int (truncate $impo) ; Ensure $impo is treated as an integer
-      (if (< $impo_int 0)
-          0 ; Importance is less than 0
-          (if (< $impo_int (* 2 (GroupSize)))
-              $impo_int ; Importance is within the first 2 groups
-              (let $imp (ceil (/ (- $impo_int (GroupSize)) (GroupSize)))
-                 (let $i (findGroup $imp 0 0) ; Find the group index
-                    (let $ad (- (GroupSize) (ceil (/ $impo_int (pow 2 (- $i 1)))))
-                       (let $bin (- (* $i (GroupSize)) $ad)
-                          (if (> $bin (ImportanceIndexSize))
-                              (ImportanceIndexSize)
-                              $bin
-                           )
-                        )
-                     )
-                  )
-               )
-         )
+   (
+    let*
+    (
+      ($groupSize (GroupSize))
+      ($impo_int (trunc-math $impo)) ; Ensure $impo is treated as an integer
+      ($firstCondition (< $impo_int 0))
+      ($secondCondition (< $impo_int (* 2 $groupSize)))
+    )
+    (if $firstCondition
+      0
+      (if $secondCondition
+        $impo_int
+        (let*
+          (
+            ($imp (ceil (/ (- $impo_int $groupSize) $groupSize)))
+            ($i (findGroup $imp 0 0))
+            ($num (- $i 1))
+            ($temp (ceil (/ $impo_int (pow-math 2 $num))))
+            ($ad (- $groupSize $temp))
+            ($bin (- (* $i $groupSize) $ad))
+          )
+          $bin
+        )
       )
-   )
+    )
+  )
 )
 
 ;####################### update ##################################
@@ -135,11 +141,11 @@
   )
 )
 
-(: loop (-> Number Number Expression Expression))
-(= (loop $i $term $acc)
+(: loop (-> Number Number $list_t $list_t $list_t))
+(= (loop $i $term $atomBins $acc)
    (if(== $i $term)
       $acc
-      (let $next (+ 1 $i) (loop $next $term (getContent $i $acc)))
+      (let $next (+ 1 $i) (loop $next $term $atomBins (getContent $i $atomBins $acc)))
     )
 )
 
@@ -151,10 +157,11 @@
        (
         ($lowerBin (importanceBin $lowerBound))
         ($upperBin (importanceBin $upperBound))
-        ($gcIfRes (getContentIf $lowerBin pred $lowerBound $upperBound ())) ;gcIfRes - getContentIfResult (result obtained after calling getContentIf)
+        ($atomBins (collapseAtomBin (AtomBin)))
+        ($gcIfRes (getContentIf $lowerBin pred $lowerBound $upperBound $atomBins ())) ;gcIfRes - getContentIfResult (result obtained after calling getContentIf)
         ($exitCondition (== $upperBin $lowerBin))
-        ($gcRes (loop $lowerBin $upperBin $gcIfRes)) ;gcRes - getContentResult (result obtained after calling getContent)
-        ($res (getContentIf $upperBin pred $lowerBound $upperBound $gcRes))
+        ($gcRes (loop $lowerBin $upperBin $atomBins $gcIfRes)) ;gcRes - getContentResult (result obtained after calling getContent)
+        ($res (getContentIf $upperBin pred $lowerBound $upperBound $atomBins $gcRes))
         ($finalResult (if $exitCondition (removeDuplicates $gcIfRes) (removeDuplicates $res))) ;remove duplicates because the result needs to be a set of atoms.
       )
        $finalResult
@@ -188,6 +195,7 @@
 (: getMinSTI (-> Number))
 (= (getMinSTI) (let $recentVal (RecentVal) (match $recentVal (recent_min $_) $_)))
 ; Normalizes the STI of an atom to the range [0,1] with optional clipping.
+; Normalizes the STI of an atom to the range [0,1] with optional clipping.
 (: getNormalisedZeroToOneSTI (-> Atom Bool Bool Number))
 (= (getNormalisedZeroToOneSTI $atom $average $clip)
    (let*
@@ -200,10 +208,10 @@
            ($value (if (== $normaliser 0)
                       0.0
                       (/ $diff $normaliser)))
-            ($minim  (Min ($value 1.0)))
+            ($minim  (min-atom ($value 1.0)))
            ($clippedValue 
                      (if $clip
-                           (Max (0.0 $minim))
+                           (max-atom (0.0 $minim))
                            $value
                      )
             )
@@ -262,9 +270,11 @@
                            (/ $sum $normaliser)
                        )
                    )
+                   ($minim  (min-atom ($val 1.0)))
                )
+               
                (if $clip
-                   (Max (-1.0 (Min ($val 1.0))))
+                   (max-atom (-1.0 $minim))
                    $val
                )
            )
