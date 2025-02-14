@@ -307,6 +307,11 @@
  ; Function: getVariables
  ; This function extracts all the variables from a given pattern (Expression).
  ; It works recursively by checking each element of the pattern to see if it is of the metatype "Variable".
+; this funtion is required because it is called by the termMatchMixinLinkMatch function
+ ; Parameters:
+ ;   - $pattern: The pattern from which to extract the variables.
+ ; Returns:
+ ;   - A list of all the variables in the pattern.
 
 (= (getVariables $pattern)
     (if (== $pattern ())
@@ -320,13 +325,9 @@
 )
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
-
-
-
+; the termMatchMixinLinkMatch function is a function that is currently found in the opencog atomspace repository not in the attention repository.
 
 (: termMatchMixinLinkMatch ( -> Atom Atom Bool))
 
@@ -348,18 +349,13 @@
                         False
                         True
                         )
-                    
-                
-                True
+                    True
                 )
 
-        
         )
       )
     
     )
-
-
 )
 )
 
