@@ -65,3 +65,25 @@
 
 ! (getStv a) ;Should return (200 200)
 ! (getStv (link a b)) ;Should return (300 200)
+
+
+! (setAv (link (link a b) (link c d)) (399 400 1))
+! (getAv (link (link a b) (link c d)))
+
+! (setStv (link (link a b) (link c d)) (0.1 0.9))
+! (getStv (link (link a b) (link c d)))
+
+! (setAv a (150 400 100))
+! (getAv a)
+
+! (setStv a (0.1 0.9))
+! (getStv a)
+
+
+! (setStv (a) (0.2 0.9))
+! (getStv (a))
+
+! (setAv (a) (397 400 1))
+! (getAv (a))
+
+! (getAv k)

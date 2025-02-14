@@ -13,7 +13,7 @@
                             ()
                             (let $y (car-atom $x) (remove-atom &self $y))
                             ))))
-            (if (== $stv (STV 0 0))
+            (if (== $stv %Undefined%); 
                 (add-atom &self (: $pattern (AV $sti $lti $vlti)))
                 (add-atom &self (: $pattern ($stv (AV $sti $lti $vlti)))))))
 )
@@ -34,7 +34,7 @@
         (case (getValueType $pattern)
                 (( (AV $a $b $c) (getValueType $pattern))
                     ( ( (STV $a $b) (AV $x $y $z)) (AV $x $y $z))
-                    ($else (AV 0 0 0))))
+                    ($else %Undefined%)))
     )
 )
 
@@ -55,7 +55,7 @@
                             ()
                             (let $y (car-atom $x) (remove-atom &self $y))
                             ))))
-            (if (== $av (AV 0 0 0))
+            (if (== $av %Undefined%)
                 (add-atom &self (: $pattern (STV $mean $conf)))
                 (add-atom &self (: $pattern ( (STV $mean $conf) $av)))))
     )
@@ -70,7 +70,7 @@
 (= (getStv $pattern)
     (if (== (get-metatype $pattern) Expression)
             (case (let $a (collapse (let $x (getValueType $pattern) (collapse (superpose $x)))) (index-atom $a 0))
-                (( (STV $x $y) (getValueType $pattern) )
+                (( (STV $x $y) (STV $x $y) )
                 ( ( (STV $x $y) (AV $a $b $c)) (STV $x $y))
                 ($else (STV 1 0)))
         )
@@ -78,7 +78,7 @@
             (
                 ( (STV $x $y) (getValueType $pattern) )
                 ( ( (STV $x $y) (AV $a $b $c)) (STV $x $y))
-                ($else (STV 1 0)))
+                ($else %Undefined%))
         )
     )
 )
@@ -130,3 +130,4 @@
 )
 
 (= (getType $pattern) (get-type $pattern))
+
