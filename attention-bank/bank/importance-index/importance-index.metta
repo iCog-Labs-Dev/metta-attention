@@ -40,9 +40,9 @@
         $impo_int
         (let*
           (
-            ($imp (ceil-math (/ (- $impo_int $groupSize) $groupSize)))
+            ($imp (ceil (/ (- $impo_int $groupSize) $groupSize)))
             ($i (findGroup $imp 0 0))
-            ($temp (ceil-math (/ $impo_int (pow 2 (- $i 1)))))
+            ($temp (ceil (/ $impo_int (pow 2 (- $i 1)))))
             ($ad (- $groupSize $temp))
             ($bin (- (* $i $groupSize) $ad))
           )
