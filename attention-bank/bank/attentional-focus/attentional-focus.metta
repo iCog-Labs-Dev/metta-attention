@@ -354,7 +354,6 @@
  ; This function checks if a given pattern is quoted or not.
  ; It does this by checking if the first element of the pattern is a QuoteLink.
 
- ; TODO: what happens if the there are nested quotes?
 
 (: isQuoted (-> Atom Bool))
 
