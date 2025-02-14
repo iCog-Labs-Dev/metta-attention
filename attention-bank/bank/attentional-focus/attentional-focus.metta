@@ -350,19 +350,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
- ; Function: isQuoted
- ; This function checks if a given pattern is quoted or not.
- ; It does this by checking if the first element of the pattern is a QuoteLink.
-
-
-(: isQuoted (-> Atom Bool))
-
-(= (isQuoted $ptm)
-    (if (== (car-atom $ptm) QuoteLink)
-        True
-        False
-    )
-)
 
 
 
@@ -378,25 +365,21 @@
       (if ( == (car-atom $ptm) CHOICE_LINK)  
         True
         ;else
-        (if not (== (car-atom  $ptm) (car-atom $lsoln))
+        (if  (not (== (car-atom  $ptm) (car-atom $lsoln)))
             False
             ;else
-            (if not ( == (getArity getHandle $ptm) (getArity $lsoln))
+            (if (not ( == (getArity  $ptm) (getArity $lsoln)))
                 False
                 ;else
                 (if (== (car-atom $ptm) SCOPE_LINK)
-                    (if (isQuoted $ptm)  
+                    (if (not ( == (getVariables $ptm) (getVariables $lsoln)))
+                        False
                         True
-                        (if not ( == (getVariables $ptm) (getVariables $lsoln))
-                            False
-                            True
                         )
-                    True
                     
-                    )
                 
-            
-            )
+                True
+                )
 
         
         )
@@ -414,9 +397,10 @@
 ; This function matches if the link matches the TermMatchMixin condition and is in The attentional focus.It is a function that is currently found in the opencog atomspace repository(https://github.com/opencog/atomspace/blob/master/opencog/query/TermMatchMixin.cc).
 
 ( :linkMatch(-> Atom Atom Bool))
-( = (linkMatch $ptm $lsoln))
+( = (linkMatch $ptm $lsoln)
     (if (and (termMatchMixinLinkMatch $ptm $lsoln) (atomIsInAF $lsoln))
     True
     False
     )
+)
 
