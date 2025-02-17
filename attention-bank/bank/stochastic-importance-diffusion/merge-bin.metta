@@ -1,14 +1,15 @@
  ; merge past and recent bin
- ; stractuer of the bin
+ ; stracture of the bin
  ; (index((count $cnt_val) (index $idx_val) (_size $sizeVal)))
 ! (bind! &past-space (new-space))
 ! (bind! &recent-space (new-space))
- ;add atoms to past-space
 
- ; Function: helperToIdentifyParameter
- ; -----------------------------------
- ; Extracts key values (index, count, indexMap, size) from a nested bin list.
- ; Returns a list with these extracted values.
+;add atoms to past-space
+
+; Function: helperToIdentifyParameter
+; -----------------------------------
+; Extracts key values (index, count, indexMap, size) from a nested bin list.
+;Returns a list with these extracted values.
 (: helperToIdentifyParameter (-> Expression Expression))
 ( = (helperToIdentifyParameter $list)
     (if ( == $list ())

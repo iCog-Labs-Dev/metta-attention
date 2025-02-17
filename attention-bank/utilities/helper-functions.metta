@@ -36,7 +36,13 @@
    )
 )
 
-; Binary filter remains unchanged
+;Function: binaryFilter
+;Description: Recursively filters atoms from a list based on a comparison function.
+;Parameters:
+;          $f: A function that determines whether an atom should be included.
+;          $pivot: The reference atom for comparison.
+;          $tuple: A list of atoms to filter.
+;Returns: A filtered list of atoms satisfying the comparison condition.
 (: binaryFilter (-> (-> Atom Atom Bool) Atom Expression Expression))
 (= (binaryFilter $f $pivot $tuple)
    (if (== $tuple ())  

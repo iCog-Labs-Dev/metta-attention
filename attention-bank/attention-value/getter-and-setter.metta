@@ -65,7 +65,8 @@
         (
             ( (STV $x $y) (getValueType $pattern) )
             ( ( (STV $x $y) (AV $a $b $c)) (STV $x $y))
-            ($else (STV 1 0)))
+            ($else (STV 1 0))
+        )
     )
 )
 
