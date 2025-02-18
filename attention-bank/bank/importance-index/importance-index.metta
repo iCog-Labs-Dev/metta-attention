@@ -50,10 +50,10 @@
         $impo_int
         (let*
           (
-            ($imp (ceil (/ (- $impo_int $groupSize) $groupSize)))
+            ($imp (ceil-math (/ (- $impo_int $groupSize) $groupSize)))
             ($i (findGroup $imp 0 0))
             ($num (- $i 1))
-            ($temp (ceil (/ $impo_int (pow-math 2 $num))))
+            ($temp (ceil-math (/ $impo_int (pow-math 2 (- $i 1)))))
             ($ad (- $groupSize $temp))
             ($bin (- (* $i $groupSize) $ad))
           )
@@ -204,6 +204,7 @@
 
 (: getMinSTI (-> Number))
 (= (getMinSTI) (let $recentVal (RecentVal) (match $recentVal (recent_min $_) $_)))
+
 
 ;Function: getNormalisedZeroToOneSTI
 ;Description: Normalizes an atom's STI based on the minimum and maximum STI values.
