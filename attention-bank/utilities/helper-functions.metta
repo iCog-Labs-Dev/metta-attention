@@ -146,7 +146,7 @@
                                    (flatten $head)
                                    (cons-atom $head ())))
               ($flattened-tail (flatten $tail)))
-         (concatTuple $flattened-head $flattened-tail)))
+         (union-atom $flattened-head $flattened-tail)))
 )
 
 
@@ -170,7 +170,7 @@
                ($greater (filterGreaterEqual $pivot $rest)) ; Elements greater or equal to pivot
                ($greaterRemaining (sort $greater))
            )
-           (concatTuple (sort $smaller) (cons-atom $pivot $greaterRemaining)  ) ; Recursively sort and combine
+           (union-atom (sort $smaller) (cons-atom $pivot $greaterRemaining)  ) ; Recursively sort and combine
        )
    )
 )
@@ -220,7 +220,7 @@
         ($tail (cdr-atom $list))
         ($rest (collectContents $tail $acc))
        )
-      (concatTuple $content $rest)
+      (union-atom $content $rest)
       )
     )
 )
