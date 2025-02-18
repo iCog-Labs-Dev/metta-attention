@@ -150,10 +150,6 @@
     )
 )
 
-<<<<<<< HEAD
-
-
-=======
 (: getAfMaxSTI (-> Number))
 (= (getAfMaxSTI)
     (let $atoms (getAtomList)
@@ -163,7 +159,6 @@
         )
     )
 )
->>>>>>> upstream/main
 
 ;the function below updates the attentional focus with a new atom
 ;the RemoveAFSignal() and AddAFSignal() functions have been skipped in this function because it appears to primarily 
