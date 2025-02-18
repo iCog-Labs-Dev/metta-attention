@@ -19,7 +19,7 @@
 - For windows users, an alternative way of running MeTTa can be using the [metta-run](https://github.com/iCog-Labs-Dev/metta-prebuilt-binary) binary.
 
 
-## Contributing
+## Contributing 
 
 Before you start contributing to this repository, make sure to read the [CONTRIBUTING.md](https://github.com/iCog-Labs-Dev/metta-attention/blob/main/.github/CONTRIBUTING.md) file from our repository
 
