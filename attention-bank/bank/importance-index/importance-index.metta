@@ -40,10 +40,10 @@
         $impo_int
         (let*
           (
-            ($imp (ceil (/ (- $impo_int $groupSize) $groupSize)))
+            ($imp (ceil-math (/ (- $impo_int $groupSize) $groupSize)))
             ($i (findGroup $imp 0 0))
             ($num (- $i 1))
-            ($temp (ceil (/ $impo_int (pow-math 2 $num))))
+            ($temp (ceil-math (/ $impo_int (pow-math 2 (- $i 1)))))
             ($ad (- $groupSize $temp))
             ($bin (- (* $i $groupSize) $ad))
           )
@@ -194,7 +194,6 @@
 
 (: getMinSTI (-> Number))
 (= (getMinSTI) (let $recentVal (RecentVal) (match $recentVal (recent_min $_) $_)))
-; Normalizes the STI of an atom to the range [0,1] with optional clipping.
 ; Normalizes the STI of an atom to the range [0,1] with optional clipping.
 (: getNormalisedZeroToOneSTI (-> Atom Bool Bool Number))
 (= (getNormalisedZeroToOneSTI $atom $average $clip)

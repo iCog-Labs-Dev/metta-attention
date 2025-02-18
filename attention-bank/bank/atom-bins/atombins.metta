@@ -122,7 +122,7 @@
 (: getContent (-> Number $list_t $list_t $list_t))
 (= (getContent $index $atombins $out)
    (let $vals (valuesAtIndex $index $atombins) 
-     (concatTuple $out $vals)
+     (union-atom $out $vals)
    )
 )
 
@@ -135,7 +135,7 @@
    let*(
         ($handleSet (valuesAtIndex $index $atombins))
         ($filteredOutput (customFilter $handleSet $predicate $lower $upper))
-        ($res (concatTuple $out $filteredOutput))
+        ($res (union-atom $out $filteredOutput))
       )
     $res
   )
