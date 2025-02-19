@@ -48,6 +48,7 @@
    )
 )
 
+
 ; Helper function for filtering atoms with STI less than the pivot
 
 (: lessThanSti (-> Atom Atom Bool))
@@ -351,39 +352,34 @@
 )
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; the termMatchMixinLinkMatch function is a function that is currently found in the opencog atomspace repository not in the attention repository.
-
 (: termMatchMixinLinkMatch ( -> Atom Atom Bool))
 
-( = (termMatchMixinLinkMatch $ptm $lsoln)
-    ( if (==  $ptm $lsoln)
+(= (termMatchMixinLinkMatch $ptm $lsoln)
+    (if (== $ptm $lsoln)
         True
-      ;else
-      (if ( == (car-atom $ptm) CHOICE_LINK)  
-        True
-        ;else
-        (if  (not (== (car-atom  $ptm) (car-atom $lsoln)))
-            False
-            ;else
-            (if (not ( == (getArity  $ptm) (getArity $lsoln)))
+        (if (== (car-atom $ptm) CHOICE_LINK)  
+            True
+            (if (not (== (car-atom $ptm) (car-atom $lsoln)))
                 False
                 ;else
-                (if (== (car-atom $ptm) SCOPE_LINK)
-                    (if (not ( == (getVariables $ptm) (getVariables $lsoln)))
+                (let* (( $ptmArity (getArity $ptm))
+                       ( $lsolnArity (getArity $lsoln)))
+                    (if (not (== $ptmArity $lsolnArity))
                         False
-                        True
-                        )
-                    True
+                        ;else
+                        (if (== (car-atom $ptm) SCOPE_LINK)
+                            (if (not (== (getVariables $ptm) (getVariables $lsoln)))
+                                False
+                                True)
+                            True)
+                    )
                 )
-
+            )
         )
-      )
-    
     )
 )
-)
+
+
 
 
 
@@ -397,5 +393,6 @@
     False
     )
 )
+
 
 

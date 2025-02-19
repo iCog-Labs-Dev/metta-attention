@@ -74,13 +74,20 @@
 !(assertEqual (tupleCount (AndLink A B C  )) 4)
 !(assertEqual (tupleCount (AndLink X Y  )) 3)
 
-!(assertEqual (linkMatch (AndLink A B C () ) (AndLink X Y () )) False)  ;arity is different
+!(assertEqual (getArity (AndLink A B C  )) 3)
+!(assertEqual (getArity (AndLink X Y  )) 2)
 
-; !(assertEqual (linkMatch (AndLink A B) (AndLink J C)) False) ; Atom not in AF
+
+!(assertEqual (termMatchMixinLinkMatch (AndLink A B C ) (AndLink X Y  ))False)
+
+!(assertEqual (linkMatch (AndLink A B C ) (AndLink X Y  )) False)  ;arity is different
+
+!(assertEqual (linkMatch (AndLink A B) (AndLink J C)) False) ; Atom not in AF
+
 
 !(add-atom &attentionalFocus ( AndLink E F))
 
-; !(assertEqual (linkMatch (AndLink A B) (AndLink E F)) True) ;This works 
+!(assertEqual (linkMatch (AndLink A B) (AndLink E F)) True) ;This works 
 
 !(add-atom &attentionalFocus (SCOPE_LINK  $x $y ))
 !(add-atom &attentionalFocus (SCOPE_LINK $z $w))
