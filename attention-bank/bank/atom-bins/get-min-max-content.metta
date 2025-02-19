@@ -34,19 +34,28 @@
     )
 )
 
-; Calculates the total number of atoms across all bins in &atombin
+;Function: binSize
+;Description: Calculates the total number of atoms across all bins in &atombin space.
+;             It retrieves all bin indices and computes the cumulative sum of their sizes.
+;Parameters: None.
+;Returns: The total number of atoms across all bins.
 (: binSize (-> Number))
 (= (binSize)
    (let* (
       ($atombin (AtomBin))
       ($indices (collapse (match $atombin ($x $y) $x)))
-      ($binsSize (sumSizes $indices)) ;cumulative sum of all sizes of bins in atombin
+      ($binsSize (sumSizes $indices)) 
     )
     $binsSize
   )
 )
 
-; Recursively sums the sizes of all bins in a list of bins
+;Function: sumSizes
+;Description: Recursively computes the total number of atoms across all bins in a given list of bin indices.
+;             It iterates through the list of indices, retrieves the size of each bin, and sums them up.
+;Parameters:
+;          $indices: A list of bin indices whose sizes should be summed.
+;Returns: The cumulative size of all bins in the given list.
 (: sumSizes (-> Expression Number))
 (= (sumSizes $indices)
    (if (== $indices ())

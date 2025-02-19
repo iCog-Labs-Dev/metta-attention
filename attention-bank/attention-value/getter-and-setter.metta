@@ -148,4 +148,3 @@
 )
 
 (= (getType $pattern) (get-type $pattern))
-
