@@ -49,8 +49,12 @@
 )
 
 
-; Helper function for filtering atoms with STI less than the pivot
-
+;Function: lessThanSti
+;Description: Helper function that checks if the STI of $elem is less than the STI of $pivot.
+;Parameters:
+;         $elem: The first atom.
+;         $pivot: The atom to compare against.
+;Returns: True if $elem has a lower STI than $pivot, otherwise False.
 (: lessThanSti (-> Atom Atom Bool))
 (= (lessThanSti $elem $pivot)
     (if (or (== $elem ()) (== $pivot ())) 
