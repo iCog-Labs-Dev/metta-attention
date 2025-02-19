@@ -36,7 +36,13 @@
    )
 )
 
-; Binary filter remains unchanged
+;Function: binaryFilter
+;Description: Recursively filters atoms from a list based on a comparison function.
+;Parameters:
+;          $f: A function that determines whether an atom should be included.
+;          $pivot: The reference atom for comparison.
+;          $tuple: A list of atoms to filter.
+;Returns: A filtered list of atoms satisfying the comparison condition.
 (: binaryFilter (-> (-> Atom Atom Bool) Atom Expression Expression))
 (= (binaryFilter $f $pivot $tuple)
    (if (== $tuple ())  
@@ -146,7 +152,7 @@
                                    (flatten $head)
                                    (cons-atom $head ())))
               ($flattened-tail (flatten $tail)))
-         (concatTuple $flattened-head $flattened-tail)))
+         (union-atom $flattened-head $flattened-tail)))
 )
 
 
@@ -170,7 +176,7 @@
                ($greater (filterGreaterEqual $pivot $rest)) ; Elements greater or equal to pivot
                ($greaterRemaining (sort $greater))
            )
-           (concatTuple (sort $smaller) (cons-atom $pivot $greaterRemaining)  ) ; Recursively sort and combine
+           (union-atom (sort $smaller) (cons-atom $pivot $greaterRemaining)  ) ; Recursively sort and combine
        )
    )
 )
@@ -220,7 +226,7 @@
         ($tail (cdr-atom $list))
         ($rest (collectContents $tail $acc))
        )
-      (concatTuple $content $rest)
+      (union-atom $content $rest)
       )
     )
 )

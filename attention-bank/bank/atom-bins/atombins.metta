@@ -19,6 +19,19 @@
 ; Function to insert an atom into the specifc bin
 !(bind! &atombin (new-space))
 
+;Function: insertAtom
+;Description: Inserts an atom into the specified bin index within &atombin space.
+;             If the atom's type is undefined(ifthe atom has neither AV nor STV)
+;             , it returns an error message.
+;             If the bin(the index of the bin in which the atom is to be inserted to)is empty, 
+;             it creates a new bin and adds the atom.
+;             Otherwise, it updates the existing bin by adding the new atom.
+;Parameters:
+;         $bin_index: The index of the bin where the atom should be inserted.
+;         $pattern: The atom to be inserted.
+;Returns: A confirmation message ("Atom Inserted") if successful, 
+;         or an error message if the atom is invalid.
+
 (: insertAtom (-> Number Atom empty))
 (= (insertAtom $bin_index $pattern)
    (if(== (getType $pattern) %Undefined%)
@@ -41,7 +54,18 @@
    )
 )
 
-;Function to remove an atom from a specific bin
+;Function: removeAtom
+;Description: Removes a specified atom from a given bin from &atombin space.
+;            If the atom's type is undefined (if the atom has neither AV nor STV), 
+;            it returns an error message.
+;            If the bin is empty, it returns a message indicating that there is nothing to remove.
+;            Otherwise, it updates the bin by removing the specified atom.
+;Parameters:
+;          $bin_index: The index of the bin from which the atom should be removed.
+;          $atom: The atom to be removed.
+;Returns: A confirmation message ("Atom Removed") if successful, 
+;         or an error message if the atom is invalid or the bin is empty.
+
 (: removeAtom (-> Number Atom empty))
 (= (removeAtom $bin_index $atom)
    (if (== (getType $atom) %Undefined%)
@@ -50,8 +74,6 @@
          (if(== $bin_contents ())
             ("Bin is empty") ; Bin is empty, nothing to remove
             (let $updated_contents (remove_atom_helper $atom (car-atom $bin_contents))
-               ;(if (== $updated_contents ())
-               ;   (remove-atom &atombin ($bin_index $bin_contents)) ; Remove empty bin
                   (match &atombin ($bin_index $x)
                      (let*
                        (
@@ -61,15 +83,21 @@
                       ("Atom Removed")
                      )
                   )
-               ;)
+            
             )
          )
       )
    )
 )
 
+;Function: remove_atom_helper
+;Description: Recursively removes a specified atom from a list of contents.
+;             If the atom is found, it is skipped in the resulting list.
+;Parameters:
+;          $atom: The atom to be removed.
+;          $contents: The list of atoms from which to remove the specified atom.
+;Returns: A new list with all occurrences of the specified atom removed.
 
-; Helper function to remove an atom from a list of contents
 (: remove_atom_helper (-> Atom List List))
 (= (remove_atom_helper $atom $contents)
    (if(== $contents ())
@@ -122,7 +150,7 @@
 (: getContent (-> Number $list_t $list_t $list_t))
 (= (getContent $index $atombins $out)
    (let $vals (valuesAtIndex $index $atombins) 
-     (concatTuple $out $vals)
+     (union-atom $out $vals)
    )
 )
 
@@ -135,7 +163,7 @@
    let*(
         ($handleSet (valuesAtIndex $index $atombins))
         ($filteredOutput (customFilter $handleSet $predicate $lower $upper))
-        ($res (concatTuple $out $filteredOutput))
+        ($res (union-atom $out $filteredOutput))
       )
     $res
   )

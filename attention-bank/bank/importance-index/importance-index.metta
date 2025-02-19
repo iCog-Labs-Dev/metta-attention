@@ -23,7 +23,17 @@
 (: ImportanceIndexSize Number)
 (= (ImportanceIndexSize) 104)
 
-; Function to calculate the bin for a given importance value
+;Function: importanceBin
+;Description: Computes the bin index for a given importance value (STI value of an atom).
+;             The bin index is determined based on a grouping strategy that adjusts 
+;             the value into a structured set of bins.
+;             The grouping strategy is defined by the GroupSize and GroupNum constants.
+;The grouping strategy: Small values (less than 2 * GroupSize) go directly into bins with their number as the bin index.
+;                       Big values are grouped into bins that get wider as numbers get larger. This means higher numbers are stored in fewer, bigger bins.
+;                       The function adjusts the bin number to keep the bins evenly spaced and organized.
+;Parameters:
+;           $impo: The importance value (STI value of an atom) to be categorized into a bin.
+;Returns: The computed bin index for the given importance value.
 (: importanceBin (-> Number Number))
 (= (importanceBin $impo)
    (
@@ -40,10 +50,10 @@
         $impo_int
         (let*
           (
-            ($imp (ceil (/ (- $impo_int $groupSize) $groupSize)))
+            ($imp (ceil-math (/ (- $impo_int $groupSize) $groupSize)))
             ($i (findGroup $imp 0 0))
             ($num (- $i 1))
-            ($temp (ceil (/ $impo_int (pow-math 2 $num))))
+            ($temp (ceil-math (/ $impo_int (pow-math 2 (- $i 1)))))
             ($ad (- $groupSize $temp))
             ($bin (- (* $i $groupSize) $ad))
           )
@@ -194,8 +204,18 @@
 
 (: getMinSTI (-> Number))
 (= (getMinSTI) (let $recentVal (RecentVal) (match $recentVal (recent_min $_) $_)))
-; Normalizes the STI of an atom to the range [0,1] with optional clipping.
-; Normalizes the STI of an atom to the range [0,1] with optional clipping.
+
+
+;Function: getNormalisedZeroToOneSTI
+;Description: Normalizes an atom's STI based on the minimum and maximum STI values.
+;             If clipping is enabled, the output is restricted between 0 and 1.
+;             Otherwise, it can be outside this range.
+;Parameters:
+;           $atom: The atom whose STI is being normalized.
+;           $average: If True, uses recent_max and recent_min for normalization.
+;                     If False, uses value_max and value_min.
+;           $clip: If True, restricts the normalized value to the range [0,1].
+;Returns: The normalized STI value, possibly clipped between 0 and 1.
 (: getNormalisedZeroToOneSTI (-> Atom Bool Bool Number))
 (= (getNormalisedZeroToOneSTI $atom $average $clip)
    (let*
@@ -220,9 +240,13 @@
        $clippedValue
    )
 )
-
-; Normalizes the STI of an atom relative to a fixed max/min STI value.
-
+;Function: getNormalisedSTI (Single Argument)
+;Description: Normalizes an atom's STI relative to a fixed max/min STI value.
+;             If the atom's STI is higher than the  maximum STI in the attentional focus, 
+;             it normalizes using the global max STI; otherwise, it normalizes using the min STI.
+;Parameters:
+;          $atom: The atom whose STI is being normalized.
+;Returns: A normalized STI value
 (: getNormalisedSTI (-> Atom Number))
 (= (getNormalisedSTI $atom)
    (let*
@@ -244,7 +268,16 @@
 )
 
 
-; Normalizes the STI of an atom with respect to attentional focus max STI, with optional clipping.
+
+;Function: getNormalisedSTI
+;Description: Normalizes an atom's STI relative to the attentional focus max STI.
+;             The normalization formula varies based on whether the STI is above or below the attentional max STI.
+;             Optionally, the normalized value can be clipped to the range [-1, 1].
+;Parameters:
+;          $atom: The atom whose STI is being normalized.
+;          $average: If True, uses recent_max/recent_min for normalization; otherwise, uses value_max/value_min.
+;          $clip: If True, restricts the normalized value to the range [-1, 1].
+;Returns: A normalized STI value, possibly clipped to the range [-1, 1].
 (: getNormalisedSTI (-> Atom Bool Bool Number))
 (= (getNormalisedSTI $atom $average $clip)
    (let*

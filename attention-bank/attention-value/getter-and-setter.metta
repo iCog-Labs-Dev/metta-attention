@@ -9,9 +9,11 @@
         (let* (
                 ( $stv (getStv $pattern))
                 ( $_ (let $x (collapse (match &self (: $pattern $_) (: $pattern $_)))
-                        (let $y (car-atom $x)
-                            (remove-atom &self $y)))))
-            (if (== $stv (STV 0 0))
+                        (if (== $x ())
+                            ()
+                            (let $y (car-atom $x) (remove-atom &self $y))
+                            ))))
+            (if (== $stv %Undefined%); 
                 (add-atom &self (: $pattern (AV $sti $lti $vlti)))
                 (add-atom &self (: $pattern ($stv (AV $sti $lti $vlti)))))))
 )
@@ -20,16 +22,19 @@
  ; value attached to the pattern/node.
  ;
  ; i.e !(getAv A)  output: (AV 400 400 1)
- 
-;
 
 (: getAv (-> Atom AV))
 (= (getAv $pattern)
-    (case (getValueType $pattern)
-        (
-            ( (AV $a $b $c) (getValueType $pattern))
-            ( ( (STV $a $b) (AV $x $y $z)) (AV $x $y $z))
-            ($else (AV 0 0 0)))
+    (if (== (get-metatype $pattern) Expression)
+        (case (let $a (collapse (let $x (getValueType $pattern) (collapse (superpose $x)))) (index-atom $a 0))
+            (( (AV $a $b $c) (AV $a $b $c))
+                    ( ( (STV $a $b) (AV $x $y $z)) (AV $x $y $z))
+                    ($else (AV 0 0 0)))
+        )
+        (case (getValueType $pattern)
+                (( (AV $a $b $c) (getValueType $pattern))
+                    ( ( (STV $a $b) (AV $x $y $z)) (AV $x $y $z))
+                    ($else %Undefined%)))
     )
 )
 
@@ -46,9 +51,11 @@
         (add-atom &self (: $pattern (STV $mean $conf)))
         (let* ( ( $av (getAv $pattern))
                 ($_ (let $x (collapse (match &self (: $pattern $_) (: $pattern $_)))
-                        (let $y (car-atom $x)
-                            (remove-atom &self $y)))))
-            (if (== $av (AV 0 0 0))
+                        (if (== $x ())
+                            ()
+                            (let $y (car-atom $x) (remove-atom &self $y))
+                            ))))
+            (if (== $av %Undefined%)
                 (add-atom &self (: $pattern (STV $mean $conf)))
                 (add-atom &self (: $pattern ( (STV $mean $conf) $av)))))
     )
@@ -61,11 +68,18 @@
 
 (: getStv (-> Atom STV))
 (= (getStv $pattern)
-    (case (getValueType $pattern)
-        (
-            ( (STV $x $y) (getValueType $pattern) )
-            ( ( (STV $x $y) (AV $a $b $c)) (STV $x $y))
-            ($else (STV 1 0)))
+    (if (== (get-metatype $pattern) Expression)
+            (case (let $a (collapse (let $x (getValueType $pattern) (collapse (superpose $x)))) (index-atom $a 0))
+                (( (STV $x $y) (STV $x $y) )
+                ( ( (STV $x $y) (AV $a $b $c)) (STV $x $y))
+                ($else (STV 1 0)))
+        )
+        (case (getValueType $pattern)
+            (
+                ( (STV $x $y) (getValueType $pattern) )
+                ( ( (STV $x $y) (AV $a $b $c)) (STV $x $y))
+                ($else %Undefined%))
+        )
     )
 )
 
@@ -80,14 +94,20 @@
 
 (: getMean (-> Atom Number))
 (= (getMean $pattern)
-    (let ($link $mean $conf) (getStv $pattern) $mean)
+    (case (getStv $pattern)
+        ((%Undefined% 0)
+        ((STV $mean $conf) $mean))
+    )
 )
 
 ; getConfidence retrieves Confidence from a pattern
 ; i.e !(getConfidence A)  output: 0.9 
 (: getConfidence (-> Atom Number))
 (= (getConfidence $pattern)
-    (let ($link $mean $conf) (getStv $pattern) $conf)
+    (case (getStv $pattern)
+        ((%Undefined% 0)
+        ((STV $mean $conf) $conf))
+    )
 )
 
 ; getSTI retrieves STI from a pattern
@@ -95,7 +115,11 @@
 
 (: getSTI (-> Atom Number))
 (= (getSTI $pattern)
-    (let ($link $sti $lti $vlti) (getAv $pattern) $sti)
+    (case (getAv $pattern)
+        ((%Undefined% 0)
+        ((AV $sti $lti $vlti) $sti))
+    )
+        
 )
 
 
@@ -104,7 +128,10 @@
 
 (: getLTI (-> Atom Number))
 (= (getLTI $pattern)
-    (let ($link $sti $lti $vlti) (getAv $pattern) $lti)
+    (case (getAv $pattern)
+        ((%Undefined% 0)
+        ((AV $sti $lti $vlti) $lti))
+    )
 )
 
 ; getVLTI retrieves VLTI from a pattern
@@ -112,7 +139,12 @@
 
 (: getVLTI (-> Atom Number))
 (= (getVLTI $pattern)
-    (let ($link $sti $lti $vlti) (getAv $pattern) $vlti)
+    (case (getAv $pattern)
+        ((%Undefined% 0)
+        ((AV $sti $lti $vlti) $vlti)
+        )
+    )
+
 )
 
 (= (getType $pattern) (get-type $pattern))
