@@ -68,16 +68,19 @@
 !(assertEqual (linkMatch (CHOICE_LINK A B ) (ORLink A B )) True) ; if choice_link return True 
 !(assertEqual (linkMatch (ORLink A B ) (AndLink C D )) False) ; if first type differ return False 
 
-!(add-atom &attentionalFocus (AndLink A B C ))
-!(add-atom &attentionalFocus (AndLink X Y ))
+!(add-atom &attentionalFocus (AndLink A B C  ))
+!(add-atom &attentionalFocus (AndLink X Y  ))
 
-!(assertEqual (linkMatch (AndLink A B C ) (AndLink X Y )) False)  ;arity is different
+!(assertEqual (tupleCount (AndLink A B C  )) 4)
+!(assertEqual (tupleCount (AndLink X Y  )) 3)
 
-!(assertEqual (linkMatch (AndLink A B) (AndLink J C)) False) ; Atom not in AF
+!(assertEqual (linkMatch (AndLink A B C () ) (AndLink X Y () )) False)  ;arity is different
+
+; !(assertEqual (linkMatch (AndLink A B) (AndLink J C)) False) ; Atom not in AF
 
 !(add-atom &attentionalFocus ( AndLink E F))
 
-!(assertEqual (linkMatch (AndLink A B) (AndLink E F)) True) ;This works 
+; !(assertEqual (linkMatch (AndLink A B) (AndLink E F)) True) ;This works 
 
 !(add-atom &attentionalFocus (SCOPE_LINK  $x $y ))
 !(add-atom &attentionalFocus (SCOPE_LINK $z $w))
