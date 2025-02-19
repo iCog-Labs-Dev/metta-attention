@@ -58,4 +58,47 @@
 ! (assertEqual (getIncomingSet abebe habbianlink) ((habbianlink challa abebe)))
 ! (assertEqual (nodeMatch (ConceptNode abebe) (ConceptNode abebe)) False) ;False snce (ConceptNode abebe) is not in the attentional focus
 
+!(assertEqual (linkMatch (habbianlink challa abebe) (habbianlink challa abebe)) True)
+
+
+!(add-atom &attentionalFocus ( CHOICE_LINK A B))
+!(add-atom &attentionalFocus ( ORLink A B))
+!(add-atom &attentionalFocus ( AndLink C D))
+
+!(assertEqual (linkMatch (CHOICE_LINK A B ) (ORLink A B )) True) ; if choice_link return True 
+!(assertEqual (linkMatch (ORLink A B ) (AndLink C D )) False) ; if first type differ return False 
+
+!(add-atom &attentionalFocus (AndLink A B C  ))
+!(add-atom &attentionalFocus (AndLink X Y  ))
+
+!(assertEqual (tupleCount (AndLink A B C  )) 4)
+!(assertEqual (tupleCount (AndLink X Y  )) 3)
+
+!(assertEqual (getArity (AndLink A B C  )) 3)
+!(assertEqual (getArity (AndLink X Y  )) 2)
+
+
+!(assertEqual (termMatchMixinLinkMatch (AndLink A B C ) (AndLink X Y  ))False)
+
+!(assertEqual (linkMatch (AndLink A B C ) (AndLink X Y  )) False)  ;arity is different
+
+!(assertEqual (linkMatch (AndLink A B) (AndLink J C)) False) ; Atom not in AF
+
+
+!(add-atom &attentionalFocus ( AndLink E F))
+
+!(assertEqual (linkMatch (AndLink A B) (AndLink E F)) True) ;This works 
+
+!(add-atom &attentionalFocus (SCOPE_LINK  $x $y ))
+!(add-atom &attentionalFocus (SCOPE_LINK $z $w))
+
+
+!(assertEqual (getVariables (SCOPE_LINK $x $y ) ) ($x ($y ()))) 
+!(assertEqual (getVariables (SCOPE_LINK $z $w) )  ($z ($w ())))
+
+
+!(assertEqual (linkMatch (SCOPE_LINK $x $y ) (SCOPE_LINK $z $w)) False) ;because of different variables
+!(assertEqual (linkMatch (SCOPE_LINK $x $y ) (SCOPE_LINK $x $y)) True) ;because of same variables
+
+
 
