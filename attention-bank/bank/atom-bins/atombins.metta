@@ -1,13 +1,11 @@
 
 ; this file contain metta code for AtomBins class. here atom bin is a space where atoms are stored in a key value pair.
 ; key is the index of the atom and value is the collections of atom itself.
-; this class contain functions to insert, remove, size, getRandomatom, etc and can be implemented here in this file.
- 
 
-; functions like the following
+; the following function are implemented in this file:
 
 
-; - insert atom - it recives bin numebr and the atom
+; - insert atom - it recives bin number and the atom
 ; - remove atom - it recive bin number and the atom
 ; - size - it recive bin number return the number of atom found inside that bin 
 ; - getRandomAtom - it returns random atom from that space
@@ -15,8 +13,6 @@
 ; - getcontentif - it recives bin number, predicate and returns the atoms based on that predicat
 
 
-; implement insert, remove, size, getRandomatom, 
-; Function to insert an atom into the specifc bin
 !(bind! &atombin (new-space))
 
 ;Function: insertAtom

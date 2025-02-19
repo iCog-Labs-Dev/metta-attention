@@ -46,8 +46,9 @@ metta_run_command = "metta"
 
 
 root = pathlib.Path(".")
+print(f"Searching for test files in {root}")
 
-testMettaFiles = root.rglob("*-test.metta")
+testMettaFiles = root.rglob("tests/*-test.metta")
 total_files = 0
 results = []
 fails = 0

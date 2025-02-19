@@ -15,8 +15,8 @@
 
 ## Running the Code
 
-- Make sure to install MeTTa `v0.2.1` following the instruction on the [hyperon-experimental](https://github.com/trueagi-io/hyperon-experimental) repository.
-- For windows users, an alternative way of running MeTTa can be using the [metta-run](https://github.com/iCog-Labs-Dev/metta-prebuilt-binary) binary.
+- Make sure to install MeTTa `v0.2.2` following the instruction on the [hyperon-experimental](https://github.com/trueagi-io/hyperon-experimental) repository.
+- For windows users, an alternative way of running MeTTa can be using [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) enviroment.
 
 
 ## Contributing 

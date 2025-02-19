@@ -83,29 +83,6 @@ For more information on writing commit message, see “[Conventional Commits](ht
 - When you finish working on an issue, mention the issue number in your pull request (PR) to maintain traceability.
 	- Example: `Fixes #123` or `Addresses #456`. This ensures that the issue is automatically linked to the work being done in the PR.
 
-## File structure
-
-### Organization of files and directories
-The project is organized into different folders based on functionality and reusability:
-- Files specific to the boolean reduction process that cannot be reused outside of this context are located in the `boolean-reduct` folder.
-- Utility functions that are boolean reduction specific but can be reused within this context are found in the `boolean-reduct/rte-helpers.metta`.
-- Utility functions that are specific to a certain file and aren't necessarily needed by any other file yet should be put within the same file. For example, helper functions that are specific to the `boolean-reduct/promote-common-constraints.metta` file are found in this same file. Whenever the functions defined here are needed by any other files in the `boolean-reduct`, they will be moved to the `boolean-reduct/rte-helpers.metta`.
-- Corresponding tests for each folder are placed in a `tests` subdirectory within that same folder. For example, tests for boolean reduction are found in `boolean-reduct/tests`, while utility tests are in `utilities/tests`. 
-- When creating a new file, its test should be defined in the appropriate folder. The name of the test file should start with the same name as the file it's testing and has an extension of `-test.metta`.
-- Reusable code that can be applied across multiple use cases is placed in the `utilities` folder. These helpers mainly include `utilities/general-helpers.metta`.
-### Creating new files
-Whenever a new file is defined, it should follow our current project structure. Please adhere to the following rules:
-- **Self-contained Functions**: The file should include all the unique functions it needs to operate. These functions should be specific to the code within that file.
-- **Location for Boolean Reduction Files**: If the file contains Metta code that is specific to the boolean reduction process, place it in the `boolean-reduct` folder. For example: `boolean-reduct/<new-file>.metta`.
-- **Reusable Functions** : If the file contains functions that can be reused:
-	- **Within the context of boolean reduction**, move those functions to the `boolean-reduct/rte-helpers.metta` file.
-	- **Regardless of the use case**, such functions should be placed in `utilities/general-helpers.metta`.
-
-In short:
-- Boolean reduction-specific files go in `boolean-reduct/`.
-- Reusable functions should go in either `boolean-reduct/rte-helpers.metta` or `utilities/general-helpers.metta`, depending on the context.
-- Any executable code should be found in the `*-test.metta` files only. The rest of the files should contain the definitions of functions.
-
 ## Code conventions
 ### Naming Conventions
  - Use `camelCase` for naming custom functions and variables.
@@ -185,9 +162,6 @@ Example:
    (let $bar (if (== $x $y) (...) (...)))
 )
 ```
-
-### Commenting guidelines
-- Always use double semicolons (`;;`) for comments instead of a single semicolon (`;`) to maintain consistency.
 
 ## Documentation standards
 - Every new function should be documented using comments right before its definition.

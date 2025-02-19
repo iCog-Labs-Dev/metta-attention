@@ -1,4 +1,4 @@
-!(register-module! ../../../../metta-attention)
+!(register-module! ../../../metta-attention)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 
 ! (setAv A (200 200 0))
