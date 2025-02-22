@@ -1,0 +1,38 @@
+!(register-module! ../../../metta-attention)
+!(import! &self metta-attention:attention-bank:bank:attention-bank)
+!(import! &self metta-attention:attention-bank:utilities:helper-functions)
+!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
+!(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
+!(import! &self metta-attention:attention:AttentionParam)
+!(import! &self metta-attention:attention:RentCollectionBaseAgent)
+!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
+!(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
+
+!(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
+!(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
+!(import! &self metta-attention:attention:WARentCollectionAgent)
+
+; Test attentional focus
+
+;!(get-metatype a)
+;!(stimulate a 2)
+
+!(setAv a (100.0 100.0 100.0))
+!(insertAtom 45 a)
+
+
+!(getAv a)
+!(getRandomAtomNotInAF)
+!(let* (
+                ($target (getRandomAtomNotInAF)))
+  (getSTI $target) 
+       )
+!(selectTargets)
+!(updateBin a)
+!(updateBin a)
+!(updateBin a)
+!(updateBin a)
+!(let $res (selectTargets)
+           (collectRent $res)
+)
+!(getAv a)

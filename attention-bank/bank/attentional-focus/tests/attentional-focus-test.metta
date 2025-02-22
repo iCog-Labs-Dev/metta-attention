@@ -30,6 +30,7 @@
 !(assertEqual(attentionalFocusSize) 6)
 !(assertEqual(atomIsInAF C) True)
 !(assertEqual (sortAtomsBySti  (getAtomList)) (a D B F A C))
+
 !(assertEqual (getLowestStiAtomInAF) a)
 !(setAv G (300.0 400.0 500.0))
 !(updateAttentionalFocus G) 

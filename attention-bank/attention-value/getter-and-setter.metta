@@ -1,7 +1,7 @@
 ; set_av function accepts a pattern/node with the attention values
 ; and set the attention value to the pattern/node.
 ;
-; i.e !(set_av A (399 400 1))
+; i.e !(set_av A (399 400 1));
 (: setAv (-> Atom (Number Number Number) Atom))
 (= (setAv $pattern ($sti $lti $vlti))
     (if (== (collapse (getValueType $pattern)) ())
@@ -148,3 +148,4 @@
 )
 
 (= (getType $pattern) (get-type $pattern))
+

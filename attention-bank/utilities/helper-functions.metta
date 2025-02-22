@@ -36,7 +36,7 @@
    )
 )
 
-;Function: binaryFilter
+
 ;Description: Recursively filters atoms from a list based on a comparison function.
 ;Parameters:
 ;          $f: A function that determines whether an atom should be included.

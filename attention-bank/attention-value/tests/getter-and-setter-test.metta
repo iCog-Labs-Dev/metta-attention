@@ -1,5 +1,9 @@
 !(register-module! ../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
+!(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
+!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
+!(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
+!(import! &self metta-attention:attention-bank:utilities:helper-functions)
 
 ! (setAv A (200 200 0))
 ! (setAv A (400 400 1))
@@ -86,4 +90,4 @@
 ! (setAv (a) (397 400 1))
 ! (assertEqual (getAv (a)) (AV 397 400 1))
 
-! ( assertEqual (getAv k) %Undefined%)
+!( assertEqual (getAv k) %Undefined%)

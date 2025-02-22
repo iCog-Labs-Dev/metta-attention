@@ -12,12 +12,12 @@
 ;             float update_rate = 0;  // Estimated update rate for this bin.
 
 ;             // Latest time of diffusion event in this bin.
-;             time_point<high_resolution_clock> last_update = high_resolution_clock::now(); 
+;             time_point<high_resolution_clock> lastUpdate = high_resolution_clock::now(); 
 ;}
 
 ;from the diffusionrecordbin space.
 ;I have represented this in metta as an Expression
-;($index ((count $cnt_val) (index $idx_val) (_size $size_val) (update_rate $update_rate_val) (last_update $last_update_val)))
+;($index ((count $cnt_val) (index $idx_val) (_size $size_val) (update_rate $update_rate_val) (lastUpdate $lastUpdate_val)))
 ;I used _size instead of size because size is use in metta as a function name
 
 (: updateBin (-> Atom empty))
@@ -29,7 +29,7 @@
         (if (== $it ($index))
             (updateExistingBin $index)
             (add-atom &atomBinInfo 
-                ($index ((count 1) (index $index) (_size (getSize $index)) (update_rate (/ 1 (timeTime)) ) (last_update (timeTime))) )
+                ($index ((count 1) (index $index) (_size (getSize $index)) (update_rate (/ 1 (timeTime)) ) (lastUpdate (timeTime))) )
             )
         )
     )
@@ -47,7 +47,7 @@
                     ($newUpdateRate (/ $count $newSec))
                     ($newSize (getSize $index)))
                     (add-atom &atomBinInfo 
-                        ($index ((count $count) (index $index) (_size $newSize) (update_rate $newUpdateRate) (last_update (timeTime)))))
+                        ($index ((count $count) (index $index) (_size $newSize) (update_rate $newUpdateRate) (lastUpdate (timeTime)))))
             )
     )
 )

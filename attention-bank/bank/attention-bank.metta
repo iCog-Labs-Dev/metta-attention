@@ -157,3 +157,7 @@
       )
   )
 )
+(: getAttentionBank  (-> Symbol Number))
+(= (getAttentionBank $param)
+   (match &space ($param $x) $x)
+)
