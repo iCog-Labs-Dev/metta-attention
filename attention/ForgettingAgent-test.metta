@@ -32,3 +32,7 @@
 !(assertEqual (getAtomList) (a A B C D F G H I))
 
 !(assertEqual (ForgettingLTIThenTVAscendingSort (getAtomList)) (a H F D B A C G I))
+
+!(getAtomList)
+!(forgetAtoms (getAtomList))
+(getAtomList)
