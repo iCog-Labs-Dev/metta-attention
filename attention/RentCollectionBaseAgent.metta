@@ -1,24 +1,24 @@
-; Function: calculate_STI_Rent
-; Description: Computes STI rent based on the available STI funds and target STI.
-;              If the difference between target and current STI funds is non-positive, return 0.
-;              Otherwise, adjust STI rent based on the normalized difference, clamping it between -0.99 and 1.0.
-; Returns: The adjusted STI rent value.
+; Function: calculateStiRent
+; Description: Adjusts STI rent based on the difference between target and current STI funds.
+; Parameters:
+;   $STIAtomRent - Base STI rent value or scaled STI rent value
+; Returns: Adjusted STI rent.
 (: calculateStiRent (->  Number Number))
 (= (calculateStiRent $STIAtomRent)
    (let* (
-          ($funds (getAttentionBank  fundsSTI))                    ; Current STI funds from the bank.
-          ($targetSTI (getAttentionParam TargetStiFunds)) ; Retrieve target STI funds.
-          ($stiFundsBuffer (getAttentionParam StiFundsBuffer)) ; Retrieve STI buffer.
+          ($funds (getAttentionBank  fundsSTI))            
+          ($targetSTI (getAttentionParam TargetStiFunds)) 
+          ($stiFundsBuffer (getAttentionParam StiFundsBuffer)) 
         
-          ($diff (- $targetSTI $funds))              ; Difference: targetSTI - current funds.
+          ($diff (- $targetSTI $funds))              
          )
       (if (<= $diff 0)
           0.0
           (let* (
-                 ($ndiff (/ $diff $stiFundsBuffer))  ; Normalize the difference by the buffer.
-                 ($minDiffr (min-atom ($ndiff 1.0)))    ; Clamp upper bound to 1.0.
-                 ($maxDiffr (max-atom ($minDiffr -0.99)))  ; Clamp lower bound to -0.99.
-                 ($res (+ $STIAtomRent (* $STIAtomRent $maxDiffr))) ; Adjust STI rent by the factor.
+                 ($ndiff (/ $diff $stiFundsBuffer))  
+                 ($minDiffr (min-atom ($ndiff 1.0)))    
+                 ($maxDiffr (max-atom ($minDiffr -0.99)))  
+                 ($res (+ $STIAtomRent (* $STIAtomRent $maxDiffr))) 
                 )
              $res
           )
@@ -26,18 +26,18 @@
    )
 )
 
-; Function: calculate_LTI_Rent
-; Description: Computes LTI rent based on the available LTI funds and target LTI.
-;              If the difference between target and current LTI funds is non-positive, return 0.
-;              Otherwise, adjust LTI rent based on the normalized difference, clamping it between -1.0 and 1.0.
-; Returns: The adjusted LTI rent value.
+; Function: calculateLtiRent
+; Description: Adjusts LTI rent based on the difference between target and current LTI funds.
+; Parameters:
+;   $LTIAtomRent - Base LTI rent value or scaled LTI rent value
+; Returns: Adjusted LTI rent.
 (: calculateLtiRent (->Number  Number))
 (= (calculateLtiRent $LTIAtomRent)
    (let* (
-          ($funds (getAttentionBank fundsLTI))                    ; Current LTI funds from the bank.
-          ($targetLTI (getAttentionParam TargetLtiFunds)) ; Retrieve target LTI funds.
-          ($ltiFundsBuffer (getAttentionParam LtiFundsBuffer)) ; Retrieve LTI buffer.
-          ($diff (- $targetLTI $funds))              ; Difference: targetLTI - current funds.
+          ($funds (getAttentionBank fundsLTI))                   
+          ($targetLTI (getAttentionParam TargetLtiFunds)) 
+          ($ltiFundsBuffer (getAttentionParam LtiFundsBuffer)) 
+          ($diff (- $targetLTI $funds))              
          )
       (if (<= $diff 0)
           0.0

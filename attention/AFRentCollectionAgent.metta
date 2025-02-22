@@ -8,8 +8,8 @@
 
 (: lastUpdate Number)  
 (: firstTime Boolean)
-(= (firstTime) True)  ; Initialize firstTime flag
-(= (lastUpdate) (timeTime))  ; Initially set to current time.
+(= (firstTime) True) 
+(= (lastUpdate) (timeTime))  
 
 ; Function: selectTargets
 ; Description: Retrieves the list of atoms currently in attentional focus.
@@ -30,23 +30,22 @@
 (: collectAFRent (-> Expression empty))
 (= (collectAFRent $targetSet)
    (let* (
-           ($currentTime (timeTime))  ; Get current timestamp.
-           ($updateFreq (getAttentionParam AFRentFrequency))  ; Get AF rent update frequency.
-           ($elapsedTime (* (- $currentTime (lastUpdate)) 1000000))  ; Compute elapsed time.
+           ($currentTime (timeTime)) 
+           ($updateFreq (getAttentionParam AFRentFrequency))  
+           ($elapsedTime (* (- $currentTime (lastUpdate)) 1000000))  
            ($timeThreshold (/ 1000000 $updateFreq))
-           ($multiplier (/ $updateFreq 1000000))    ; Time threshold for rent collection.
+           ($multiplier (/ $updateFreq 1000000))    
          )
       (if (firstTime)
-          ((setLastUpdate $currentTime)  ; Initialize last update time.
-           (setFirstTime False))  ; Mark firstTime as false.
+          ((setLastUpdate $currentTime)
+           (setFirstTime False))  
           (if (< $elapsedTime $timeThreshold)
               (empty)                   
               (let* (
-                      ($w (* $elapsedTime $multiplier))  ; Compute weight factor w.
+                      ($w (* $elapsedTime $multiplier))  
                     )
-                ((collectRentRecursive $targetSet $w)  ; Start recursive rent collection.
+                ((collectRentRecursive $targetSet $w) 
                 (setLastUpdate (timeTime)))
-                 ; Update last collection timestamp.
               )
           )
       )
@@ -86,15 +85,15 @@
            ($lti (getLTI $atom))
            ($stiAtomRent (getAttentionParam StartingAtomStiRent))
            ($ltiAtomRent (getAttentionParam StartingAtomLtiRent))
-           ($stiRent (* (calculateStiRent $stiAtomRent) $w))  ; Scale STI rent by weight factor.
-           ($ltiRent (* (calculateLtiRent $ltiAtomRent) $w))  ; Scale LTI rent by weight factor.
-           ($minstiRent (min-atom ($stiRent $sti)))  ; Ensure STI rent does not exceed available STI.
+           ($stiRent (* (calculateStiRent $stiAtomRent) $w))  
+           ($ltiRent (* (calculateLtiRent $ltiAtomRent) $w))  
+           ($minstiRent (min-atom ($stiRent $sti)))
            ($minltiRent (min-atom ($ltiRent $lti)))
            ($stiDiff (- $sti $minstiRent))
            ($ltiDiff (- $lti $minltiRent))
-           ($atomVlti (getVLTI $atom))        ; Ensure LTI rent does not exceed available LTI.
+           ($atomVlti (getVLTI $atom))        
          )
-       (setAv $atom ($stiDiff $ltiDiff $atomVlti))  ; Update atom's values.
+       (setAv $atom ($stiDiff $ltiDiff $atomVlti))
    )
 )
 

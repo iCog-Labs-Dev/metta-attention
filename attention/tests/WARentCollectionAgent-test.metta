@@ -19,19 +19,7 @@
 
 !(setAv a (100.0 100.0 100.0))
 !(insertAtom 45 a)
-
-
-!(getAv a)
-!(getRandomAtomNotInAF)
-!(let* (
-                ($target (getRandomAtomNotInAF)))
-  (getSTI $target) 
-       )
-!(selectTargets)
-!(updateBin a)
-!(updateBin a)
-!(updateBin a)
-!(updateBin a)
+!(assertEqual (selectTargets) (a))
 !(let $res (selectTargets)
            (collectRent $res)
 )

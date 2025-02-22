@@ -5,7 +5,7 @@
 (= (selectTargets)
    (let $randomAtom (collapse (getRandomAtomNotInAF))
     
-      $randomAtom  ; Return atom if found, else return empty.
+      $randomAtom  
    )
 )
 
@@ -18,19 +18,19 @@
 (: collectRent (-> Atom empty))
 (= (collectRent $newtarget)
    (if (== $newtarget ())
-       (empty)  ; If no target, do nothing.
+       (empty)  
        (let* (
                ($target (car-atom $newtarget))
                ($sti (getSTI $target))
                ($lti (getLTI $target))
                ($elapsedTime (elapsedTime $target))
-               ($stiAtomRent (getAttentionParam StartingAtomStiRent)); Get last update time.
+               ($stiAtomRent (getAttentionParam StartingAtomStiRent))
                ($ltiAtomRent (getAttentionParam StartingAtomLtiRent))
-               ($scaledSTIRent (* $stiAtomRent $elapsedTime))  ; Scale rent by elapsed time.
+               ($scaledSTIRent (* $stiAtomRent $elapsedTime))
               ($scaledLTIRent (* $ltiAtomRent  $elapsedTime))
                ($stistartRent (calculateStiRent $scaledSTIRent))
                ($ltistartRent (calculateLtiRent $scaledLTIRent))
-               ($stiRent (min-atom ($stistartRent $sti)))  ; Ensure rent does not exceed available STI.
+               ($stiRent (min-atom ($stistartRent $sti)))
                ($ltiRent (min-atom ($ltistartRent $lti)))
                ($newsti (- $sti $stiRent))
                ($newlti (- $lti $ltiRent))
