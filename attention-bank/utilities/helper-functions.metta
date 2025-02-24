@@ -365,3 +365,10 @@
       )
   )
  )
+
+
+(: update-atom (-> Grounded Atom Atom (->)))
+(= (update-atom $space $oatom $natom) (let $_ (remove-atom $space $oatom) (add-atom $space $natom)))
+
+(: getType (-> Grounded Atom Atom))
+(= (getType $space $instance) (collapse (get-type-space $space $instance)))
