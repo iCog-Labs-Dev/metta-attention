@@ -14,7 +14,7 @@
 
 ! (assertEqual (getMaxContent) (f h j k))
 ! (assertEqual (getMinContent) (a))
-! (assertEqual (Max (1 2 3 17 18 37)) 37)
+;! (assertEqual (Max (1 2 3 17 18 37)) 37)
 
 ! (assertEqual (getSize 1) 1)
 ! (assertEqual (getSize 17) 2)

@@ -18,7 +18,7 @@
 !(add-atom &atombin (37 (f h j k)))
 
 !(let $res (collapse (getRandomAtom)) (assertEqual (size $res) 1))
-
+;
 ;;; Example Predicate function
 ;(: pred (-> Symbol Number Number Bool))
 (= (pred $x $lower $higher $space) (
@@ -32,8 +32,8 @@
 
 !(assertEqual (getContentIf 2 pred 0 10 (a) &test-kb) (a d))
 !(assertEqual (getContentIf 1 pred 0 10 () &test-kb) (a))
-!(assertEqual (getContent 2 (a b)) (a b d))
-!(assertEqual (getContent 1 ()) (a))
+!(assertEqual (getContent 2 (collapseAtomBin &atombin) (a b) ) (a b d))
+!(assertEqual (getContent 1 (collapseAtomBin &atombin) ()) (a))
 !(insertAtom 45 E &test-kb)
 !(assertEqual (match &atombin (45 $x) $x) (E)) 
 !(getAV (getType &test-kb G))
@@ -42,7 +42,6 @@
 !(insertAtom 45 H &test-kb)
 !(assertEqual (match &atombin  (45 $x) $x) (H G E))
 
-!(getType &test-kb f)
 !(assertEqual (insertAtom 20 f &test-kb) ("Atom is not valid")) 
 !(assertEqual (remove_atom_helper G (E  H Y G J K L)) (E H Y J K L))
 !(assertEqual (remove_atom_helper G (G J K L)) (J K L))

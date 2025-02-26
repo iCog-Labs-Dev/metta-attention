@@ -80,7 +80,6 @@
     )
 )
 
-
 (= (setAV $space $pattern $newAV)
    (let $val (collapse (get-type-space $space $pattern))
      (upsertAV $space $pattern $val $newAV)
