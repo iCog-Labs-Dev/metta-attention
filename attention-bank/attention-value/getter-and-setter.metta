@@ -6,12 +6,21 @@
 (= (getSTI ($y (createAV $x ($sti $lti $vlti)))) $sti)
 (= (getSTI ((createAV $x ($sti $lti $vlti))) )$sti)
 (= (getSTI ((createSTV $x $y))) 0.0)
+(= (getSTI (%Undefined%)) 0.0)
 
 (: getLTI (-> $instance Number))
 (= (getLTI ((createAV $x ($sti $lti $vlti)) $y)) $lti)
 (= (getLTI ((createSTV $x $y) (createAV $x ($sti $lti $vlti)))) $lti)
 (= (getLTI ((createAV $x ($sti $lti $vlti)))) $lti)
 (= (getLTI ((createSTV $x $y))) 0.0)
+(= (getLTI (%Undefined%)) 0.0)
+
+(: getVLTI (-> $instance Number))
+(= (getVLTI ((createAV $x ($sti $lti $vlti)) $y)) $vlti)
+(= (getVLTI ($y (createAV $x ($sti $lti $vlti)))) $vlti)
+(= (getVLTI ((createAV $x ($sti $lti $vlti)))) $vlti)
+(= (getVLTI ((createSTV $x $y))) 0.0)
+(= (getVLTI (%Undefined%)) 0.0)
 
 (: getAV (-> $instance Expression))
 (= (getAV ((createAV $x ($sti $lti $vlti)))) ($sti $lti $vlti))
@@ -70,6 +79,7 @@
     (: $pattern (createAV $instance $newAV))
     )
 )
+
 
 (= (setAV $space $pattern $newAV)
    (let $val (collapse (get-type-space $space $pattern))
