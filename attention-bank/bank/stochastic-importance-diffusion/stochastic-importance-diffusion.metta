@@ -20,10 +20,11 @@
 ;($index ((count $cnt_val) (index $idx_val) (_size $size_val) (update_rate $update_rate_val) (last_update $last_update_val)))
 ;I used _size instead of size because size is use in metta as a function name
 
-(: updateBin (-> Atom empty))
-(= (updateBin $atom)
+(: updateBin (-> Atom Grounded empty))
+(= (updateBin $atom $typeSpace)
     (let* (
-            ($index (importanceBin (getSTI $atom)))
+            ($sti (getSTI (getType $typeSpace $atom)))
+            ($index (importanceBin $sti))
             ($it (collapse (match &atomBinInfo ($index $_) $index)))
           )
         (if (== $it ($index))
@@ -55,12 +56,12 @@
 ;This function returns the elapsed time of the atom
 ;by dividing the size of the bin by the update rate
 
-(: elapsedTime (-> Atom Number))
-(= (elapsedTime $atom)
+(: elapsedTime (-> Atom Grounded Number))
+(= (elapsedTime $atom $typeSpace)
     (let* (
-            ($index (importanceBin (getSTI $atom)))
+            ($index (importanceBin (getSTI (getType $typeSpace $atom))))
             ($averageElapsedTime (calcElapsedTime $index))
-            ($res (updateBin $atom))
+            ($res (updateBin $atom $typeSpace))
           )
         $averageElapsedTime
     )
@@ -83,11 +84,11 @@
 
 ;the purpose of this function is to calculate the Estimated
 ;current STI value of the Atom after diffusion.
-(: diffusedValue (-> Symbol Number Number))
-(= (diffusedValue $atom $decayRate)
+(: diffusedValue (-> Symbol Number Grounded Number))
+(= (diffusedValue $atom $decayRate $typeSpace)
    (let* (
-          ($averageElapsedTime (elapsedTime $atom))
-          ($sti (getSTI $atom))
+          ($averageElapsedTime (elapsedTime $atom $typeSpace))
+          ($sti (getSTI (getType $typeSpace $atom)))
           ($powerRes (pow-math (- 1 $decayRate) $averageElapsedTime))
         )
         (* $sti $powerRes)
