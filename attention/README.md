@@ -14,17 +14,16 @@ This is a simple way of implementing a cognitive controller for the ECAN Agents.
 - `BaseListeningAgent`: An extension that adds message processing and event handling capabilities
 - `ParallelScheduler`: Manages the concurrent execution of multiple agents
 
-### Available Agents
+### Agents that are going to be implemented
 
-## The below Agents are not implemented in the repository. I just listed them to show what ECAN Agents are and what they do
 
 1. **Importance Diffusion Agents**
    - `AFImportanceDiffusionAgent`: Implements attentional-focus importance diffusion
    - `WAImportanceDiffusionAgent`: Handles Whole Atomspace importance diffusion
 
 2. **Rent Collection Agents**
-   - `AFRentCollectionAgent`: Manages AF Rent collection.
-   - `WARentCollectionAgent`: Manges WA Rent collection
+   - `AFRentCollectionAgent`: Manages attentional-focus Rent collection.
+   - `WARentCollectionAgent`: Manges Whole-atomspace Rent collection
 
 3. **Learning and Memory Agents**
    - `HebbianCreationAgent`: Manages Hebbian Link creation between atoms.
@@ -78,7 +77,7 @@ stimulate or stop
 3. **Execution**
 4. **Termination**
 
-### Message Processing (This is from the agent_base which I directly imported from the hyperon experimental repostory)
+### Message Processing (This is from the agent_base which is directly imported from the hyperon experimental repostory)
 
 
 Agents use a queue-based system for message processing:
