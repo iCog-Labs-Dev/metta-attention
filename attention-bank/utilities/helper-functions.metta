@@ -17,16 +17,16 @@
    )
 )
 
-(: customFilter (-> Expression (-> Symbol Number Number Bool) Number Number Expression))
-(= (customFilter $list $predicate $lower $upper)
+(: customFilter (-> Expression (-> Symbol Number Number Bool) Number Number Grounded Expression))
+(= (customFilter $list $predicate $lower $upper $space)
   (if(== $list ())
     ()
     (let*
       (
        ($head (car-atom $list))
        ($tail (cdr-atom $list))
-       ($res ($predicate $head $lower $upper))
-       ($filteredTail (customFilter $tail $predicate $lower $upper))
+       ($res ($predicate $head $lower $upper $space))
+       ($filteredTail (customFilter $tail $predicate $lower $upper $space))
        )
       (if $res
         (cons-atom $head $filteredTail)
@@ -37,16 +37,17 @@
 )
 
 ; Binary filter remains unchanged
-(: binaryFilter (-> (-> Atom Atom Bool) Atom Expression Expression))
-(= (binaryFilter $f $pivot $tuple)
+(: binaryFilter (-> (-> Atom Atom Bool) Atom Expression Grounded Expression))
+(= (binaryFilter $f $pivot $tuple $space)
    (if (== $tuple ())  
        ()
        (let* 
             (
                ($head (car-atom $tuple))  
                ($tail (cdr-atom $tuple))  
-               ($isValid ($f $head $pivot)) 
-               ($filteredTail (binaryFilter $f $pivot $tail)) 
+               ;(() (println! (get-metatype $space)))
+               ($isValid ($f $head $pivot $space)) 
+               ($filteredTail (binaryFilter $f $pivot $tail $space)) 
             )
             (if $isValid
                (cons-atom $head $filteredTail) 
@@ -55,6 +56,7 @@
        )
    )
 )
+
 (: valuesAtIndex (-> Number Expression Expression))
 (= (valuesAtIndex $i $handleSetSeq)
    (if(== $handleSetSeq ())
@@ -330,36 +332,36 @@
    )
 )
 
-(: findMaxSTI (-> Expression Number))
-(= (findMaxSTI $list)
+(: findMaxSTI (-> Expression Grounded Number))
+(= (findMaxSTI $list $space)
    (let*
      (
       ($atom (car-atom $list))
-      ($max (getSTI $atom))
+      ($max (getSTI (getType $space $atom)))
       ($rest (cdr-atom $list))
       )
      (if(not (== $rest ()))
-       (if (> $max (findMaxSTI $rest))
+       (if (> $max (findMaxSTI $rest $space))
           $max
-          (findMaxSTI $rest)
+          (findMaxSTI $rest $space)
         )
        $max
       )
   )
 )
 
-(: findMinSTI (-> Expression Number))
-(= (findMinSTI $list)
+(: findMinSTI (-> Expression Grounded Number))
+(= (findMinSTI $list $space)
    (let*
      (
       ($atom (car-atom $list))
-      ($min (getSTI $atom))
+      ($min (getSTI (getType $space $atom)))
       ($rest (cdr-atom $list))
       )
      (if(not (== $rest ()))
-       (if (<= $min (findMinSTI $rest))
+       (if (<= $min (findMinSTI $rest $space))
           $min
-          (findMinSTI $rest)
+          (findMinSTI $rest $space)
         )
        $min
       )
