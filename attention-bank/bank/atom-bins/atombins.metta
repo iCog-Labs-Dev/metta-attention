@@ -19,9 +19,9 @@
 ; Function to insert an atom into the specifc bin
 !(bind! &atombin (new-space))
 
-(: insertAtom (-> Number Atom empty))
-(= (insertAtom $bin_index $pattern)
-   (if(== (getType $pattern) %Undefined%)
+(: insertAtom (-> Number Atom Grounded empty))
+(= (insertAtom $bin_index $pattern $space)
+   (if(== (getType $space $pattern) (%Undefined%))
       ("Atom is not valid") ; Validate type
       (if (== (collapse (match &atombin ($bin_index $x) $x)) ())
          (let () 
@@ -42,9 +42,9 @@
 )
 
 ;Function to remove an atom from a specific bin
-(: removeAtom (-> Number Atom empty))
-(= (removeAtom $bin_index $atom)
-   (if (== (getType $atom) %Undefined%)
+(: removeAtom (-> Number Atom Grounded empty))
+(= (removeAtom $bin_index $atom $space)
+   (if (== (getType $space $atom) (%Undefined%))
       ("Atom is not valid") ; Validate type
       (let $bin_contents (collapse (match &atombin ($bin_index $contents) $contents))
          (if(== $bin_contents ())
@@ -129,13 +129,13 @@
 ;A function to get the values stored in the &atombin atomspace, at the specified index.
 ;it accepts a predicate function as it's second argument.
 ;the type of the function should take a generic value and return a Boolean 
-(: getContentIf (-> Number (-> Symbol Number Number Bool)) Number Number Expression Expression)
-(= (getContentIf $index $predicate $lower $upper $out)
+(: getContentIf (-> Number (-> Symbol Number Number Bool)) Number Number Expression Grounded Expression)
+(= (getContentIf $index $predicate $lower $upper $out $space)
   (
    let*(
         ($handleSetSeq (collapseAtomBin &atombin))
         ($handleSet (valuesAtIndex $index $handleSetSeq))
-        ($filteredOutput (customFilter $handleSet $predicate $lower $upper))
+        ($filteredOutput (customFilter $handleSet $predicate $lower $upper $space))
         ($res (concatTuple $out $filteredOutput))
       )
       $res

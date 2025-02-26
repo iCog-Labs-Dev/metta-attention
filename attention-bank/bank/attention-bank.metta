@@ -87,12 +87,12 @@
 ;    - Calculate the new STI and LTI values using the wages and stimulus.
 ;    - Calculate the changes in STI and LTI funds.
 ;    - Call attentionValueChanged to apply the updates.
-(: stimulate (-> Atom Number empty))
-(= (stimulate $pattern $stimulus)
+(: stimulate (-> Atom Number Grounded empty))
+(= (stimulate $pattern $stimulus $space)
    (let* (
-           ($sti (getSTI $pattern))
-           ($lti (getLTI $pattern))
-           ($vlti (getVLTI $pattern))
+           ($sti (getSTI (getType $space $pattern)))
+           ($lti (getLTI (getType $space $pattern)))
+           ($vlti (getVLTI (getType $space $pattern)))
            ($sti-wage (* (calculateSTIWage) $stimulus))
            ($lti-wage (* (calculateLTIWage) $stimulus))
            ($new-sti (+ $sti $sti-wage))
@@ -104,9 +104,9 @@
            ($fundsLTI (match  &space  (fundsLTI $x) $x))
            ($newstifund (+ $fundsSTI $stiDiff))
            ($newltifund (+ $fundsLTI $ltiDiff))
-           ($res (updateImportance $space $pattern $sti $new-sti))
+           ($res (updateImportance $space $pattern $sti $new-sti $space))
          )
-         (attentionValueChanged $pattern $newstifund $newltifund $new-av)
+         (attentionValueChanged $pattern $newstifund $newltifund $new-av $space)
    )
 )
 
@@ -118,15 +118,15 @@
 ;    - Remove the current fundsSTI and fundsLTI values from the AtomSpace.
 ;    - Add the updated fundsSTI and fundsLTI values to the AtomSpace.
 
-(: attentionValueChanged (-> Atom Number Number AttentionValue empty))
-(= (attentionValueChanged $pattern $newSTIFund $newLTIFund $newAv)
+(: attentionValueChanged (-> Atom Number Number Atom Grounded empty))
+(= (attentionValueChanged $pattern $newSTIFund $newLTIFund $newAv $space)
    (let*(
          ($res (setAv $pattern $newAv))
          ($oldSTIFund (match &space (fundsSTI $fundsSTI) $fundsSTI))
          ($oldLTIFund (match &space (fundsLTI $fundsLTI) $fundsLTI))
          ($_ (updateLTIFunds $oldLTIFund $newLTIFund))
          ($_ (updateSTIFunds $oldSTIFund $newSTIFund))
-         ($_ (updateAttentionalFocus $pattern))
+         ($_ (updateAttentionalFocus $pattern $space))
          ($atombin (AtomBin))
          ($r (update $atombin))
         )

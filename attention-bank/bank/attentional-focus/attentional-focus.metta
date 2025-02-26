@@ -18,12 +18,12 @@
 )
 
 ;adds an atom to the attentional focus if it is valid
-(: addAtomToAF (-> Atom Symbol))
-(= (addAtomToAF $atom)
-   (if (== (getType $atom) %Undefined%)
+(: addAtomToAF (-> Atom Grounded Symbol))
+(= (addAtomToAF $atom $space)
+   (if (== (getType $space $atom) (%Undefined%))
        ("Atom is not valid")
        (let()
-         (add-atom &attentionalFocus $atom)
+         (add-atom &attentionalFocus $atom) ;TODO: pass &attentionalFocus as parameter to hide implicit dependence and avoid side effects.
          ("Atom Added")
        )
    )
@@ -47,36 +47,36 @@
 )
 
 ; Helper function for filtering atoms with STI less than the pivot
-(: lessThanSti (-> Atom Atom Bool))
-(= (lessThanSti $elem $pivot)
+;(: lessThanSti (-> Expression Symbol Grounded Bool))
+(= (lessThanSti $elem $pivot $space)
     (if (or (== $elem ()) (== $pivot ())) 
         False 
-        (< (getSTI $elem) (getSTI $pivot))
+        (< (getSTI (getType $space $elem)) (getSTI (getType $space $pivot)))
     )
 )
 
 ; Helper function for filtering atoms with STI greater than or equal to the pivot
-(: greaterEqualSti (-> Atom Atom Bool))
-(= (greaterEqualSti $elem $pivot)
+;(: greaterEqualSti (-> Expression Symbol Grounded Bool))
+(= (greaterEqualSti $elem $pivot $space)
     (if (or (== $elem ()) (== $pivot ())) 
         False 
-        (>= (getSTI $elem) (getSTI $pivot))
+        (>= (getSTI (getType $space $elem)) (getSTI (getType $space $pivot)))
     )
 )
 
 ; Sorts a list of atoms by their STI values in ascending order
-(: sortAtomsBySti (-> Symbol Symbol))
-(= (sortAtomsBySti $atoms)
+(: sortAtomsBySti (-> Symbol Grounded Symbol))
+(= (sortAtomsBySti $atoms $space)
     (if (== $atoms ())
         ()
         (let*
            (
                ($pivot (car-atom $atoms))
                ($tail (cdr-atom $atoms))
-               ($lesser (binaryFilter lessThanSti $pivot $tail))
-               ($greater (binaryFilter greaterEqualSti $pivot $tail))
-               ($sortedLesser (sortAtomsBySti $lesser))
-               ($sortedGreater (sortAtomsBySti $greater))
+               ($lesser (binaryFilter lessThanSti $pivot $tail $space))
+               ($greater (binaryFilter greaterEqualSti $pivot $tail $space))
+               ($sortedLesser (sortAtomsBySti $lesser $space))
+               ($sortedGreater (sortAtomsBySti $greater $space))
            )
 
            (concatTuple $sortedLesser (cons-atom $pivot $sortedGreater))
@@ -109,9 +109,9 @@
 
 
 ;gets the atom with the lowest STI value in the attentional focus
-(:getLowestStiAtomInAF (-> Number))
-(=(getLowestStiAtomInAF)
-    (let $sortedAtoms (sortAtomsBySti  (getAtomList))
+(:getLowestStiAtomInAF (-> Grounded Number))
+(=(getLowestStiAtomInAF $space)
+    (let $sortedAtoms (sortAtomsBySti  (getAtomList) $space)
         (if (==  $sortedAtoms ())
             ()
             (car-atom  $sortedAtoms)
@@ -120,13 +120,13 @@
 )
 
 ;gets the maximum STI value in the attentional focus
-(: getAfMaxSTI (-> Number))
-(=(getAfMaxSTI)
+(: getAfMaxSTI (-> Grounded Number))
+(= (getAfMaxSTI $space)
     (let $sortedAtoms (sortAtomsByStiDescending (getAtomList))
         (if (==  $sortedAtoms ())
             0
             (let $maxAtom (car-atom $sortedAtoms)
-                    (getSTI $maxAtom)
+                    (getSTI (getType $space $maxAtom))
             )
         )
     )
@@ -140,34 +140,34 @@
 ;serve logging the additional and removal of an atom as i reviewed in the example/AtomSpaceEventSubscribeExample.cc
 ;and we may implement it in the future if needed
 
-(: updateAttentionalFocus (-> Atom empty))
-(= (updateAttentionalFocus $atom)
+(: updateAttentionalFocus (-> Atom Grounded empty))
+(= (updateAttentionalFocus $atom $space)
    (let*
        (
            ($maxSize (maxAFSize)) 
-           ($sti (getSTI $atom)) 
+           ($sti (getSTI (getType $space $atom))) 
            ($currentSize (attentionalFocusSize)) 
            ($lowestAtom (getLowestStiAtomInAF)) 
            ($isInAF (atomIsInAF $atom)) ; Check if atom is already in AF
            ($canAdd (< $currentSize $maxSize)) ; Check if AF is not full
-           ($shouldReplace (> $sti (getSTI $lowestAtom))) ; Check if replacement is needed
+           ($shouldReplace (> $sti (getSTI (getType $space $lowestAtom)))) ; Check if replacement is needed
        )
 
        (if $isInAF
            ; Case 1: Atom is already in AF, update its value
            (let ()
                (remove-atom &attentionalFocus $atom)
-               (addAtomToAF $atom)
+               (addAtomToAF $atom $space)
            )
            (if $canAdd
                ; Case 2: AF is not full, add the new atom
-               (addAtomToAF $atom)
+               (addAtomToAF $atom $space)
 
                (if $shouldReplace
                    ; Case 3: Replace the lowest STI atom with the new atom
                    (let ()
                        (remove-atom &attentionalFocus $lowestAtom)
-                       (addAtomToAF $atom)
+                       (addAtomToAF $atom $space)
                    )
                    ; Case 4: Atom not added (STI is too low)
                    (empty)
@@ -187,7 +187,6 @@
 (= (getRandomAtomNotInAF)
    (let*
        (
-
            ($allAtoms  (getAtomBinList))
            ($filteredAtoms (filter $allAtoms atomIsNotInAF))
        )

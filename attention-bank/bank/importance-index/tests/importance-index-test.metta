@@ -2,6 +2,7 @@
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
+!(import! &test-kb metta-attention:attention-bank:bank:importance-index:tests:test-kb)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
@@ -9,39 +10,34 @@
 
 
 ;For Testing the update, getMaxSTI, getMinSTI
-!(setAv a (2 2 2))
-!(setAv d (4 2 2))
-!(setAv c (3 2 2))
+!(add-atom &atombin (1 (node_a)))
+!(add-atom &atombin (10 (node_d)))
+!(add-atom &atombin (18 (node_c)))
 
-!(add-atom &atombin (1 (a)))
-!(add-atom &atombin (10 (d)))
-!(add-atom &atombin (18 (c)))
-
-!(assertEqual (getHandleSet 1 20) (a d c))
-!(assertEqual (getHandleSet 10 10) ())
+;!(assertEqual (getHandleSet 1 20 &test-kb) (node_a node_d node_c))
+;!(assertEqual (getHandleSet 10 10 &test-kb) ())
 
 ; Test importanceBin function
 !(assertEqual (importanceBin -5)  0)    ; Should return 0
 !(assertEqual (importanceBin 10)   10)   ; Should return 10 (direct assignment)
 !(assertEqual (importanceBin 20)  18)    ; Should calculate based on group logic 18
 !(assertEqual (importanceBin 50)  29)    ; Should calculate based on group logic 29
-;
-!(assertEqual (update &atombin) ("Updated"))
+;;
+!(assertEqual (update &atombin &test-kb) ("Updated"))
 !(assertEqual (getMaxSTI) 2.0)
 !(assertEqual (getMinSTI) 1.0)
-;
-;;;Test cases that need to be refactored
-!(setAv x (200 200 0))
-!(stimulate x 1.5)
-! (assertEqual (updateImportance &atombin a 1 20) ("Importance Updated"))
+;;
+;;;;Test cases that need to be refactored
+;!(setAv x (200 200 0))
+(: node_x (createAV x (200.0 200.0 0.0)))
+!(stimulate node_x 1.5 &test-kb)
+! (assertEqual (updateImportance &atombin node_a 1 20 &test-kb) ("Importance Updated"))
 !(assertEqual (getContent 1 ()) ())
-!(assertEqual (getNormalisedZeroToOneSTI a True True) 1.0)
-!(assertEqual (getNormalisedZeroToOneSTI d True False) 3.0)
-!(assertEqual (getNormalisedZeroToOneSTI c  False False) 0.5)
-!(assertEqual(getNormalisedSTI a) 2.0)
+!(assertEqual (getNormalisedZeroToOneSTI node_a True True &test-kb) 1.0)
+!(assertEqual (getNormalisedZeroToOneSTI node_d True False &test-kb) 3.0)
+!(assertEqual (getNormalisedZeroToOneSTI node_c  False False &test-kb) 0.5)
+!(assertEqual(getNormalisedSTI node_a &test-kb) 2.0)
 
-!(assertEqual (getNormalisedSTI x) 230.0)
-!(assertEqual (getNormalisedSTI a True True) -1.0)
-!(assertEqual (getNormalisedSTI d True False) -1.0218340611353711)
-
-
+!(assertEqual (getNormalisedSTI node_x &test-kb) 230.0)
+!(assertEqual (getNormalisedSTI node_a True True &test-kb) -1.0)
+!(assertEqual (getNormalisedSTI node_d True False &test-kb) -1.0218340611353711)

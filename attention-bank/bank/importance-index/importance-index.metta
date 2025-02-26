@@ -63,15 +63,15 @@
 ;if min_sti > max_sti: min_sti = max_sti
 ;_min_sti = min_sti, max_sti = max_sti
 
-(: update (-> hyperon::space::DynSpace Atom))
-(= (update $space)
+(: update (-> hyperon::space::DynSpace Grounded Atom))
+(= (update $space $otherSpace)
     (let* (
             ($nums (collapse (match $space ($x $y) $x)))
             ($vals (collapseAtomBin $space))
             ($filteredVals (filter $vals notEmpty))
             ($collectedContents (collectContents $filteredVals ()))
-            ($max (findMaxSTI $collectedContents))
-            ($min (findMinSTI $collectedContents))
+            ($max (findMaxSTI $collectedContents $otherSpace))
+            ($min (findMinSTI $collectedContents $otherSpace))
             ($exitCondition (> $min $max))
         )
         (if $exitCondition
@@ -101,33 +101,33 @@
 ; What this does is remove the a atom from the 1st bin index and add it to the index
 ; that the STI 100 belongs to.
 
-(: updateImportance (-> hyperon::space::DynSpace Atom Number Number Atom))
-(= (updateImportance $space $atom $oldSTI $newSTI)
+(: updateImportance (-> hyperon::space::DynSpace Atom Number Number Grounded Atom))
+(= (updateImportance $space $atom $oldSTI $newSTI $typeSpace)
     (let* (
             ($oldBin (importanceBin $oldSTI))
             ($newBin (importanceBin $newSTI)))
         (if (== $oldBin $newBin)
             ()
-            (let $result (relocateAtom $oldBin $newBin $atom)
+            (let $result (relocateAtom $oldBin $newBin $atom $typeSpace)
               (if $result ("Importance Updated") ("Importance Not Updated"))
             )
         )
     )
 )
 
-(: relocateAtom (-> Number Number Symbol Bool))
-(= (relocateAtom $oldBin $newBin $atom)
-   (let $res1 (removeAtom $oldBin $atom)
+(: relocateAtom (-> Number Number Symbol Grounded Bool))
+(= (relocateAtom $oldBin $newBin $atom $space)
+   (let $res1 (removeAtom $oldBin $atom $space)
      (if (or (== $res1 ("Atom is not valid")) (== $res1 ("Bin is empty")))
        False
-       (== (insertAtom $newBin $atom) ("Atom Inserted"))
+       (== (insertAtom $newBin $atom $space) ("Atom Inserted"))
       )
     )
 )
 
-(: pred (-> Symbol Number Number Bool))
-(= (pred $x $lower $higher) (
-    let $sti (getSTI $x) 
+;(: pred (-> Expression Number Number Grounded Bool))
+(= (pred $x $lower $higher $space) (
+    let $sti (getSTI (getType $space $x)) 
       (and 
         (>=  $sti $lower) 
         (<=  $sti $higher)
@@ -143,18 +143,18 @@
     )
 )
 
-(: getHandleSet (-> Number Number Expression))
-(= (getHandleSet $lowerBound $upperBound)
+(: getHandleSet (-> Number Number Grounded Expression))
+(= (getHandleSet $lowerBound $upperBound $space)
    (if (or (< $lowerBound 0) (< $upperBound 0))
      ()
      (let*
        (
         ($lowerBin (importanceBin $lowerBound))
         ($upperBin (importanceBin $upperBound))
-        ($gcIfRes (getContentIf $lowerBin pred $lowerBound $upperBound ())) ;gcIfRes - getContentIfResult (result obtained after calling getContentIf)
+        ($gcIfRes (getContentIf $lowerBin pred $lowerBound $upperBound () $space)) ;gcIfRes - getContentIfResult (result obtained after calling getContentIf)
         ($exitCondition (== $upperBin $lowerBin))
         ($gcRes (loop $lowerBin $upperBin $gcIfRes)) ;gcRes - getContentResult (result obtained after calling getContent)
-        ($res (getContentIf $upperBin pred $lowerBound $upperBound $gcRes))
+        ($res (getContentIf $upperBin pred $lowerBound $upperBound $gcRes $space))
         ($finalResult (if $exitCondition (removeDuplicates $gcIfRes) (removeDuplicates $res))) ;remove duplicates because the result needs to be a set of atoms.
       )
        $finalResult
@@ -188,10 +188,10 @@
 (: getMinSTI (-> Number))
 (= (getMinSTI) (let $recentVal (RecentVal) (match $recentVal (recent_min $_) $_)))
 ; Normalizes the STI of an atom to the range [0,1] with optional clipping.
-(: getNormalisedZeroToOneSTI (-> Atom Bool Bool Number))
-(= (getNormalisedZeroToOneSTI $atom $average $clip)
+(: getNormalisedZeroToOneSTI (-> Atom Bool Bool Grounded Number))
+(= (getNormalisedZeroToOneSTI $atom $average $clip $space)
    (let*
-       (   ($sti  (getSTI $atom))
+       (   ($sti  (getSTI (getType $space $atom)))
            ($maxSTI (getMaxSTI $average))
            ($minSTI (getMinSTI $average))
            ($normaliser (- $maxSTI $minSTI))
@@ -215,11 +215,11 @@
 
 ; Normalizes the STI of an atom relative to a fixed max/min STI value.
 
-(: getNormalisedSTI (-> Atom Number))
-(= (getNormalisedSTI $atom)
+(: getNormalisedSTI (-> Atom Grounded Number))
+(= (getNormalisedSTI $atom $space)
    (let*
        (
-           ($s (getSTI $atom))
+           ($s (getSTI (getType $space $atom)))
            ($afMax (getAfMaxSTI))
            ($normaliser
                (if (> $s $afMax)
@@ -237,11 +237,11 @@
 
 
 ; Normalizes the STI of an atom with respect to attentional focus max STI, with optional clipping.
-(: getNormalisedSTI (-> Atom Bool Bool Number))
-(= (getNormalisedSTI $atom $average $clip)
+(: getNormalisedSTI (-> Atom Bool Bool Grounded Number))
+(= (getNormalisedSTI $atom $average $clip $space)
    (let*
        (
-           ($s (getSTI $atom))
+           ($s (getSTI (getType $space $atom)))
            ($afMax (getAfMaxSTI)) 
            ($diff (- $s $afMax))
            ($sum (+ $s $afMax)) 
