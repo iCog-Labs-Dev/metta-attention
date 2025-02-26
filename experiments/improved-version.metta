@@ -1,7 +1,7 @@
-(: AV (-> Number Number Type))
+(: AV (-> Number Number Number Type))
 (: STV (-> Number Number Type))
 
-(: createAV (-> $event ($sti $lti) ((AV $sti $lti))))
+(: createAV (-> $event ($sti $lti $vlti) ((AV $sti $lti $vlti))))
 (: createSTV (-> $event ($tv $conf) ((STV $tv $conf))))
 
 (: getSTI (-> $instance Number))
