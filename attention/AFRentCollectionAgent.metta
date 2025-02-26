@@ -1,15 +1,14 @@
-; Bind Python time module to get current timestamps
+; Bind Python time module to get current timestamp
 ! (bind! time-mod (py-atom time))
-! (bind! timeTime (py-dot time-mod time (-> Number)))
+! (bind! timeTime(py-dot time-mod time (-> Number)))
 
 ; AFRentCollectionAgent - Handles rent collection for atoms in Attentional Focus (AF).
 ; The agent collects rent from atoms in AF based on elapsed time.
 ; Rent is deducted from STI and LTI values, ensuring values do not go negative.
-
-(: lastUpdate Number)  
-(: firstTime Boolean)
-(= (firstTime) True) 
-(= (lastUpdate) (timeTime))  
+!(bind! &timer (new-space))
+!(add-atom &timer  (firstTime True))
+!(add-atom &timer  (lastUpdate  (timeTime)))
+ 
 
 ; Function: selectTargets
 ; Description: Retrieves the list of atoms currently in attentional focus.
@@ -30,22 +29,25 @@
 (: collectAFRent (-> Expression empty))
 (= (collectAFRent $targetSet)
    (let* (
-           ($currentTime (timeTime)) 
-           ($updateFreq (getAttentionParam AFRentFrequency))  
-           ($elapsedTime (* (- $currentTime (lastUpdate)) 1000000))  
+           ($currentTime  (timeTime)) 
+           ($updateFreq (getAttentionParam AFRentFrequency))
+           ($lastUpdate   (match  &timer (lastUpdate $x) $x) )   
+           ($elapsedTime (* (- $currentTime $lastUpdate) 1000000))  
            ($timeThreshold (/ 1000000 $updateFreq))
            ($multiplier (/ $updateFreq 1000000))    
          )
-      (if (firstTime)
-          ((setLastUpdate $currentTime)
-           (setFirstTime False))  
+      (if (match &timer (firstTime $x) $x)
+          ((setFirstTime False)
+         (setLastUpdate $currentTime))
+             
           (if (< $elapsedTime $timeThreshold)
-              (empty)                   
+              (empty)                  
               (let* (
                       ($w (* $elapsedTime $multiplier))  
                     )
                 ((collectRentRecursive $targetSet $w) 
-                (setLastUpdate (timeTime)))
+                (setLastUpdate (timeTime))
+                )
               )
           )
       )
@@ -61,13 +63,13 @@
 (: collectRentRecursive (-> Symbol Number empty))
 (= (collectRentRecursive $atoms $w)
    (if (== $atoms ())  
-       (empty)  ; Base case: If no more atoms, stop recursion.
+       (empty)  
        (let* (
-               ($head (car-atom $atoms))  ; Get the first atom.
-               ($tail (cdr-atom $atoms))  ; Get the remaining atoms.
+               ($head (car-atom $atoms))  
+               ($tail (cdr-atom $atoms))  
              )
-         ((applyRent $head $w)  ; Apply rent to the current atom.
-         (collectRentRecursive $tail $w))  ; Recur for the remaining atoms.
+         ((applyRent $head $w)  
+         (collectRentRecursive $tail $w))  
        )
    )
 )
@@ -104,10 +106,10 @@
 ; Returns: None.
 (: setLastUpdate (-> Number empty))
 (= (setLastUpdate $time)
-     ((match  &self  (lastUpdate $x)
+     ((match  &timer (lastUpdate $x)
       (let ()
-           (remove-atom &self (lastUpdate $x))
-           (add-atom &self  (lastUpdate $time))
+           (remove-atom &timer (lastUpdate $x))
+           (add-atom &timer  (lastUpdate $time))
       )
   ))
 )
@@ -117,12 +119,20 @@
 ; Parameters:
 ;   - $flag: Boolean value to update firstTime.
 ; Returns: None.
-(: setFirstTime (-> Boolean empty))
+;(: setFirstTime (-> Bool empty))
 (= (setFirstTime $flag)
-     ((match &self (firstTime $x)
+     (
+      (match &timer (firstTime $x)
        (let ()
-          (remove-atom &self (firstTime $x))
-          (add-atom &self (firstTime $flag))
-       )
-     ))
+          (remove-atom  &timer (firstTime $x))
+          (add-atom  &timer (firstTime $flag))
+          
+        
+      )
+     
+     )
+     
+     )
 )
+
+

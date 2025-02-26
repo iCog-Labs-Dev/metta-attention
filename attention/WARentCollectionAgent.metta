@@ -1,3 +1,8 @@
+; !(register-module! ../../metta-attention)
+; !(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
+; !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
+; !(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
+
 ; Function: selectTargets
 ; Description: Selects a random atom that is not in attentional focus.
 ; Returns: A single atom or an empty result if none is found.
@@ -19,6 +24,7 @@
 (= (collectRent $newtarget)
    (if (== $newtarget ())
        (empty)  
+       
        (let* (
                ($target (car-atom $newtarget))
                ($sti (getSTI $target))
@@ -27,7 +33,7 @@
                ($stiAtomRent (getAttentionParam StartingAtomStiRent))
                ($ltiAtomRent (getAttentionParam StartingAtomLtiRent))
                ($scaledSTIRent (* $stiAtomRent $elapsedTime))
-              ($scaledLTIRent (* $ltiAtomRent  $elapsedTime))
+               ($scaledLTIRent (* $ltiAtomRent  $elapsedTime))
                ($stistartRent (calculateStiRent $scaledSTIRent))
                ($ltistartRent (calculateLtiRent $scaledLTIRent))
                ($stiRent (min-atom ($stistartRent $sti)))
@@ -42,5 +48,7 @@
 )
 
 
-
+(= (WARentCollectionAgent-Run) (let $res (selectAFTargets)
+           (collectAFRent $res)
+) )
 

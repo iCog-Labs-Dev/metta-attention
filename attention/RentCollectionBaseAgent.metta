@@ -9,7 +9,6 @@
           ($funds (getAttentionBank  fundsSTI))            
           ($targetSTI (getAttentionParam TargetStiFunds)) 
           ($stiFundsBuffer (getAttentionParam StiFundsBuffer)) 
-        
           ($diff (- $targetSTI $funds))              
          )
       (if (<= $diff 0)
@@ -52,3 +51,5 @@
       )
    )
 )
+
+    

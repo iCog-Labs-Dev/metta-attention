@@ -1,9 +1,8 @@
-!(register-module! ../../../metta-attention)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention:AttentionParam)
 !(import! &self metta-attention:attention:RentCollectionBaseAgent)
 
-!!(assertEqual (let $res (getAttentionParam StartingAtomStiRent)
+!(assertEqual (let $res (getAttentionParam StartingAtomStiRent)
     
     (calculateStiRent $res)
     

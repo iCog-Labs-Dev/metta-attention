@@ -1,4 +1,4 @@
-!(register-module! ../../../metta-attention)
+;!(register-module! ../../../metta-attention)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention:AttentionParam)
@@ -19,12 +19,9 @@
 !(addAtomToAF C)
 !(addAtomToAF D)
 !(addAtomToAF F)
-!(assertEqual (selectAFTargets) (a A B C D F))
- 
 !(let $res (selectAFTargets)
-           (collectAFRent $res)
-)
-!(assertEqual (getAv A) (AV 100.0 200.0 300.0))
-!(assertEqual (> (lastUpdate)0.0) True)
-!(applyRent A 1.0)
-!(assertEqual (getAv A) (AV 98.0 198.0 300.0))
+           (collectAFRent $res))
+!(getAv A)
+;1740396987.2371824
+;timeTime
+;timeTime

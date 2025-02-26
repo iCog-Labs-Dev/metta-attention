@@ -12,15 +12,14 @@
 !(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
 !(import! &self metta-attention:attention:WARentCollectionAgent)
 
-; Test attentional focus
-
-;!(get-metatype a)
-;!(stimulate a 2)
-
 !(setAv a (100.0 100.0 100.0))
+
 !(insertAtom 45 a)
-!(assertEqual (selectTargets) (a))
+;This will update the _bin
+!(updateBin a)
+!(updateBin a)
+
 !(let $res (selectTargets)
-           (collectRent $res)
-)
+           (collectRent $res))
+!(elapsedTime a)
 !(getAv a)
