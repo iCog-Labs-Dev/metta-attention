@@ -238,27 +238,28 @@
    )
 )
 
-;Function: getRandomAtomNotInAF
 ;Description: Retrieves a random atom that is not in attentional focus.
 ;Parameters: None.
 ;Returns: A randomly selected atom from outside attentional focus.
-(: getRandomAtomNotInAF (-> Atom))
+(: getRandomAtomNotInAF (-> Symbol))
 (= (getRandomAtomNotInAF)
    (let*
        (
 
-           ($allAtoms  (getAtomBinList))
-           ($filteredAtoms (filter $allAtoms atomIsNotInAF))
+           ($atombin (AtomBin))
+        ($allAtoms  (collapse (match $atombin ($x $y) $y)))
+        ($filteredAtoms (filter $allAtoms atomIsNotInAF))
        )
        (if (== $filteredAtoms ())
-           %Undefined 
-           (let*
+           %Undefined%
+        (let*
                (
-
-                   ($res (py-list $filteredAtoms))
-                   ($randomAtom ((py-atom random.choice) $res))
+                   ($flatten (flatten $filteredAtoms))
+                   ($randInt (random-int 0 (size-atom $flatten)))
+                   ($randomAtom (index-atom $flatten $randInt))
                )
-               $randomAtom 
+             $randomAtom
+
            )
        )
    )
