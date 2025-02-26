@@ -28,22 +28,26 @@ class ParallelScheduler:
         
         return self.agent_instances[agent_id]
 
-    def stimulate(self):
-        """ Run all agents once in parallel while keeping state """
+    def run_continuously(self):
+        """ Run all agents continuously in parallel without stopping """
         if not self.agent_creators:
             print("No agents registered!")
             return
 
-        print("\nStarting agent execution cycle...")
+        print("\nStarting continuous agent execution... (Press Ctrl+C to stop)")
 
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            futures = []
-            for agent_id in self.agent_creators:
-                agent = self.get_or_create_agent(agent_id)  # Use persistent agent
-                if agent:
-                    futures.append(executor.submit(agent.run))
+        try:
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                while True:  # Infinite loop
+                    futures = []
+                    for agent_id in self.agent_creators:
+                        agent = self.get_or_create_agent(agent_id)  # Use persistent agent
+                        if agent:
+                            futures.append(executor.submit(agent.run))
 
-            # Wait for all agents to complete
-            concurrent.futures.wait(futures)
+                    # Wait for all agents to complete before starting the next iteration
+                    concurrent.futures.wait(futures)
 
-        print("Agent execution cycle completed.")
+        except KeyboardInterrupt:
+            print("\nReceived interrupt signal. Stopping agents...")
+
