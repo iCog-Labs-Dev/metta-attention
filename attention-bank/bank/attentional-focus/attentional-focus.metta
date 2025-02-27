@@ -1,5 +1,7 @@
 !(bind! &attentionalFocus (new-space))
 
+(= (AttentionalFocus) &attentionalFocus)
+
 (= (maxAFSize) 100)
 
 ;Function: atomIsInAF
@@ -435,4 +437,23 @@
 )
 
 
+;;; Function: getIncomingSetwithoutType
+;;; Description: Retrieves the set of incoming links for a given atom,
+;;;              without filtering out links not in the active frame (AF).
+;;; Parameters:
+;;;   $atom: The atom for which to find incoming links.
+;;; Returns: A list of incoming links.
+
+(: getIncomingSetwithoutType (-> Atom List))
+
+(= (getIncomingSetwithoutType $atom)
+    (collapse 
+        (superpose   
+            (
+                (match &attentionalFocus ($type $atom $b) ($type $atom $b))
+                (match &attentionalFocus  ($type $b $atom) ($type $b $atom))
+            )
+        )  
+    )
+)
 

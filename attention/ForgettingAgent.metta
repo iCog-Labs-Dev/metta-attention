@@ -1,7 +1,8 @@
+!(bind! &removeSpace (new-space)) ; a new space to store removed atoms
+
 (= (forgetThreshold)  5) ; constant set in line 57 opencog/attention/ForgettingAgent.cc
 (= (maxSize) 2) ; constant set in line 63 opencog/attention/ForgettingAgent.cc
 (= (accDivSize) 1) ;  constant set in line 64 opencog/attention/ForgettingAgent.cc
-
 
 ; Description: takes two atoms and return false if either is empty,
 ;			    if pivot has larger lti, if lit equal return false if pivot has larger mean
@@ -60,6 +61,28 @@
 	)
 )
 
+; Description: the function takes a list of atoms and experessions 
+;              and returns a new list wich contatins only symobls
+; params:
+;		$atoms: list of symbols and expressions
+; return: list of symbols
+(: removeLinksfromList (-> List List))
+(= (removeLinksfromList $atoms)
+	(if (== $atoms ())
+		()
+		(let* 
+			(
+				($head (car-atom $atoms))
+				($tail (cdr-atom $atoms))
+			)
+			(if (== (get-metatype $head) Symbol)
+				(concatTuple ($head) (removeLinksfromList $tail))	
+				(removeLinksfromList $tail)
+			)
+		)
+	)
+)
+
 ; Description: a function the will be used to start the forgeting process and intialize a count
 ; params:
 ;		$atoms: a List of unsorted atoms
@@ -92,34 +115,28 @@
 	(let* 
 		(	
 			($head (car-atom $sortedatoms))
+			($tail (cdr-atom $sortedatoms))
 			($isValid (atomBelowForgetThreshold $head $removalAmount $count))
-			($iset (getIncomingSet $head ASYMMETRIC_HEBBIAN_LINK))
+			($iset (getIncomingSetByType $head ASYMMETRIC_HEBBIAN_LINK))
 		)
 		(if $isValid
 			(if (== $iset ())
+				(checkThenRemoveAtom $tail $removalAmount $count)
 				(let*
 					(
-						($temp (removeLtiAtom $head))
-						($newCount (+ 1 $count ))
-						($tail (cdr-atom $sortedatoms))
+						($niset (getIncomingSetwithoutType $head))
+						($size (size-atom $niset))
+						(() (setAv $head (0.0 0.0 0.0)))
+						(() (extractAtomRecursive $niset))
+						($newCount (+ (+ 1 $count ) $size))
 					)
 					(checkThenRemoveAtom $tail $removalAmount $newCount)
 				)
-				(checkThenRemoveAtom $tail $removalAmount $count)
 			)
-			(can not remove $head $removalAmount $count)	
+			()	
 		)
 	)
 
-)
-
-; Description: a function that takes an atom and removes it from the AtomBin space
-; params:
-;		 $atom: an atom that will be removed
-; return: None
-(: removeLtiAtom (-> Atom empty))
-(= (removeLtiAtom $atom)
-	(let $_ (setAv $atom (0.0 0.0 0.0)) (remove-atom (AtomBin) $atom))
 )
 
 ; Description: a function to remove atoms that have low LTI values
@@ -130,12 +147,13 @@
 (= (forgetAtoms $atoms)
 	(let* 
 		(
-			($size (size-atom $atoms)) 
+			($parsedAtoms (removeLinksfromList $atoms))
+			($size (size-atom $parsedAtoms)) 
 			($removalAmount (- $size (- (maxSize) (accDivSize))))
 		)
 		(if (< $size (+ (maxSize) (accDivSize)))
 			()  
-			(forgetHelper $atoms $removalAmount)
+			(forgetHelper $parsedAtoms $removalAmount)
 		)
 	)
 )
@@ -155,6 +173,28 @@
 			False
 		)
 		False
+	)
+)
+
+; Description: a function to recusivly remove atoms and links ther incoming sets
+;			   it takes a list of incoming set of an atoms and moves it to a new space
+; params:
+;		$atoms: List of incoming atoms of an atom
+: return: None
+(: extractAtomRecursive (-> List empty))
+(= (extractAtomRecursive $atoms)
+	(if (== $atoms ())
+		()
+		(let* 
+			(
+				($head (car-atom $atoms))
+				($tail (cdr-atom $atoms))
+				(() (remove-atom (AttentionalFocus) $head))
+				(() (add-atom &removeSpace $head))
+
+			)
+			(extractAtomRecursive $tail)
+		)
 	)
 )
 
