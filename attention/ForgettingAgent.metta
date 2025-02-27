@@ -168,7 +168,7 @@
 (: atomBelowForgetThreshold (-> Atom Number Number Bool))
 (= (atomBelowForgetThreshold $head $removalAmount $count) 
 	(if (and (<= (getLTI $head) (forgetThreshold)) (< $count $removalAmount))
-		(if (>= (getVLTI $head) 0 ) ; change to (== (getVLTI $atom) 0)
+		(if (== (getVLTI $head) 0 ) ; Assumption that AttentionValue::DISPOSABLE resolves to 0 in attention implementation
 			True
 			False
 		)
