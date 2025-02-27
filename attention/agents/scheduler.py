@@ -7,9 +7,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from agents.agent_base import AgentObject
 
 class ParallelScheduler:
-    def __init__(self):
+    def __init__(self, metta):
         self.agent_creators = {}  # Stores agent creator functions
         self.agent_instances = {}  # Stores actual agent instances
+        self.metta = metta
 
     def register_agent(self, agent_id, agent_creator):
         """ Register an agent factory function (not instance) """
@@ -50,4 +51,3 @@ class ParallelScheduler:
 
         except KeyboardInterrupt:
             print("\nReceived interrupt signal. Stopping agents...")
-
