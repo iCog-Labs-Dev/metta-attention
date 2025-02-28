@@ -72,7 +72,7 @@
       ("Atom is not valid") ; Validate type
       (let $bin_contents (collapse (match &atombin ($bin_index $contents) $contents))
          (if(== $bin_contents ())
-            ("Bin is empty") ; Bin is empty, nothing to remove
+            ("Bin is emptty") ; Bin is empty, nothing to remove
             (let $updated_contents (remove_atom_helper $atom (car-atom $bin_contents))
                   (match &atombin ($bin_index $x)
                      (let*
@@ -172,3 +172,11 @@
 (= (AtomBin)
    &atombin
 )
+ (= (getAtomsInBins)
+      ( let* (($atombin (AtomBin))
+        ($allAtoms  (collapse (match $atombin ($x $y) $y)))
+        ($flatten (extractAndFlatten $allAtoms)))
+        $flatten
+        
+        
+        ))

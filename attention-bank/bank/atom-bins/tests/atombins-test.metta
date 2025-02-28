@@ -55,3 +55,4 @@
 !(assertEqual (removeAtom  45 L) ("Atom is not valid"))
 !(addAtomToAF a)
 !(addAtomToAF d)
+!(getAtomsInBins)

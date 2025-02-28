@@ -1,6 +1,6 @@
 !(bind! &attentionalFocus (new-space))
 
-(= (maxAFSize) 100)
+(= (maxAFSize) 3)
 
 ;Function: atomIsInAF
 ;Description: Checks if a given atom is in the attentional focus space.
@@ -246,18 +246,16 @@
 (= (getRandomAtomNotInAF)
    (let*
        (
-
-           ($atombin (AtomBin))
-        ($allAtoms  (collapse (match $atombin ($x $y) $y)))
-        ($filteredAtoms (filter $allAtoms atomIsNotInAF))
+        ($atomsInBins (getAtomsInBins))
+        ($filteredAtoms (filter $atomsInBins atomIsNotInAF))
        )
        (if (== $filteredAtoms ())
            %Undefined%
         (let*
                (
-                   ($flatten (flatten $filteredAtoms))
-                   ($randInt (random-int 0 (size-atom $flatten)))
-                   ($randomAtom (index-atom $flatten $randInt))
+
+                   ($randInt (random-int 0 (size-atom $filteredAtoms)))
+                   ($randomAtom (index-atom $filteredAtoms $randInt))
                )
              $randomAtom
 

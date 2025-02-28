@@ -41,14 +41,19 @@
                ($newsti (- $sti $stiRent))
                ($newlti (- $lti $ltiRent))
                ($newvlti (getVLTI $target))
+               
+
              )
-            (setAv $target ($newsti $newlti $newvlti))
+            ((setAv $target ($newsti $newlti $newvlti))
+            (updateImportance (AtomBinInfo)  $target $sti $newsti)
+            (updateBin $target))
        )
    )
 )
 
 
-(= (WARentCollectionAgent-Run) (let $res (selectAFTargets)
-           (collectAFRent $res)
-) )
+(= (WARentCollectionAgent-Run) 
+   (let $res (selectTargets)
+           (collectRent $res))
+)
 

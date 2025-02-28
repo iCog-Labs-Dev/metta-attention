@@ -135,4 +135,8 @@
      )
 )
 
+(=(AFRentCollectionAgent-run)
 
+(let $res (selectAFTargets)
+           (collectAFRent $res))
+)
