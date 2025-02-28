@@ -87,3 +87,8 @@
 ! (assertEqual (getAv (a)) (AV 397 400 1))
 
 ! ( assertEqual (getAv k) %Undefined%)
+
+; #######################################################
+
+; !(setSTI A 500)
+; !(getSTI A)

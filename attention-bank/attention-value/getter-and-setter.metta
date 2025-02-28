@@ -148,3 +148,14 @@
 )
 
 (= (getType $pattern) (get-type $pattern))
+
+;;setSTI fnction accepts a pattern/node with an Sti value to replace the original
+;;and set the Sti to the pattern/node.
+; i.e !(setSTI A 500)
+(: setSTI (-> Atom Number Atom)) 
+(= (setSTI $pattern $newSTI)
+    (case (getAv $pattern)
+        ((%Undefined% (setAv $pattern ($newSTI 0 0)))
+        ((AV $sti $lti $vlti) (setAv $pattern ($newSTI $lti $vlti))))
+    )
+)
