@@ -19,5 +19,4 @@
 !(getAv x)
 !(getAv y)
 !(getAv z)
-!(selectAFTargets)
 
