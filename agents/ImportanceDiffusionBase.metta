@@ -16,6 +16,7 @@
 !(add-atom &attentionalFocus (HEBBIAN_LINK G H))
 !(add-atom &attentionalFocus (HEBBIAN_LINK I J))
 !(add-atom &attentionalFocus (HEBBIAN_LINK K L))
+!(add-atom &attentionalFocus C)
 
 !(add-atom &attentionalFocus (HEBBIAN_LINK (HEBBIAN_LINK K L) L))
 !(add-atom &attentionalFocus (HEBBIAN_LINK G (HEBBIAN_LINK K L)))
@@ -23,39 +24,40 @@
 
 
 !(bind! maxSpreadPercentage 0.1)
-!(bind! hebbianMaxAllocationPercentage 0.1)
+!(bind! hebbianMaxAllocationPercentage 1)
 ; !(bind! spreadHebbianOnly False)
 
 !(setAv C (200 0.5 5))
+!(setStv (ASYMMETRIC_HEBBIAN_LINK C D) (1 0.9))
+!(setStv (ASYMMETRIC_HEBBIAN_LINK C F) (1 0.9))
 
 ; WE NEED SETSTI SETLTI SETVLTI FUNCTIONS
 (= (diffuseAtom $atom)
     (let*
         (
             ($incidentAtoms (collapse (incidentAtoms $atom)))
-            ; ($hebbianAdjacentAtoms (collapse (hebbianAdjacentAtoms $atom)))
-            ; ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAtoms)))
-            ; ($probabilityVectorHebbianAjacent (collapse (probabilityVectorHebbianAjacent $atom $hebbianAdjacentAtoms)))
-            ; ($combProbabilityVector (combineIncidentAdjacentVectors $probabilityVectorIncident $probabilityVectorHebbianAjacent))
-            ; ($totaldiffusionAmount (calculateDiffusionAmount $atom)) ; Why shouldn't this be at the top weird
-            ; (($atomToReceive $stiGiven)
-            ;         (if (== $totaldiffusionAmount 0)
-            ;             ()
-            ;             (let*
-            ;                 (
-            ;                     (($first $second) (superpose $combProbabilityVector))
-            ;                     ($diffusionAmount (if (== $totaldiffusionAmount 1) $totaldiffusionAmount (* $totaldiffusionAmount $second)))
-            ;                 )
-            ;                 ($first $diffusionAmount)
-            ;             )
-            ;         )
-            ; )
+            ($hebbianAdjacentAtoms (collapse (hebbianAdjacentAtoms $atom)))
+            ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAtoms)))
+            ($probabilityVectorHebbianAjacent (collapse (probabilityVectorHebbianAjacent $atom $hebbianAdjacentAtoms)))
+            ($combProbabilityVector (combineIncidentAdjacentVectors $probabilityVectorIncident $probabilityVectorHebbianAjacent))
+            ($totaldiffusionAmount (calculateDiffusionAmount $atom)) ; Why shouldn't this be at the top weird
+            (($atomToReceive $stiGiven)
+                    (if (== $totaldiffusionAmount 0)
+                        ()
+                        (let*
+                            (
+                                (($first $second) (superpose $combProbabilityVector))
+                                ($diffusionAmount  (* $totaldiffusionAmount $second))
+                            )
+                            ($first $diffusionAmount)
+                        )
+                    )
+            )
             ; (() (setSTI $atomToReceive $stiGiven))
         )
         ;Need SETSTI function
         ; (setSTI $atom (- (getSTI $atom) $totaldiffusionAmount))
-        ; ($atomToReceive $stiGiven)
-        $incidentAtoms
+        ($atomToReceive $stiGiven)
     )
 )
 
@@ -69,16 +71,19 @@
                     ()
                 )
             )
-            ; ($joinSet (concatTuple $incomingSet $outgoingSet))
-            ; ($decomposed (superpose $joinSet))
-            ; ($result
-            ;         (if (== (car-atom $decomposed) ASYMMETRIC_HEBBIAN_LINK)
-            ;              (empty)
-            ;              $decomposed
-            ;         )
-            ; )
+            ($joinSet (concatTuple $incomingSet $outgoingSet))
+            ($decomposed (superpose $joinSet))
+            ($result
+                (if (== (get-metatype $decomposed) Expression)
+                        (if (== (car-atom $decomposed) ASYMMETRIC_HEBBIAN_LINK)
+                            (empty)
+                            $decomposed
+                        )
+                        $decomposed
+                )
+            )
         )
-        $atom
+        $decomposed
     )
 )
 
@@ -208,13 +213,21 @@
     )
 )
 
-(= (HebbianUpdatingAgent-Run)
+(= (AFImportanceDiffusionAgent-Run)
     (spreadImportance)
 )
 
 (= (spreadImportance)
     (let $diffusionSourceVector (collapse (diffusionSourceVector))
-            (diffuseAtom (let $ext $diffusionSourceVector (car-atom $ext)))
+        (helper-loop $diffusionSourceVector)
+        ; (diffuseAtom (superpose $diffusionSourceVector))
+    )
+)
+
+(= (helper-loop $diffusionSourceVector)
+    (if (== $diffusionSourceVector ())
+        ()
+        ((collapse (diffuseAtom (car-atom $diffusionSourceVector))) (helper-loop (cdr-atom $diffusionSourceVector)))
     )
 )
 
@@ -223,7 +236,10 @@
 )
 
 
-!(HebbianUpdatingAgent-Run)
+!(AFImportanceDiffusionAgent-Run)
 ; ; !(incidentAtoms C)
 ;  !(diffuseAtom C)
 ; ;  !(diffusionSourceVector)
+
+
+; (((H 0.5) (G 0.5)) (((L 0.25) (K 0.25) ((HEBBIAN_LINK G (HEBBIAN_LINK K L)) 0.25) ((HEBBIAN_LINK (HEBBIAN_LINK K L) L) 0.25)) (((C 0.5) (B 0.5)) ((((HEBBIAN_LINK K L) 0.5) (G 0.5)) (((J 0.5) (I 0.5)) (((C 0.5) (A 0.5)) (((B 0.5) (A 0.5)) (((L 0.5) ((HEBBIAN_LINK K L) 0.5)) (((A 0.5) (B 0.5)) (((D 0.025) (F 0.0125) ((INHERITANCE_LINK B C) 0.125) ((HEBBIAN_LINK A C) 0.125)) ()))))))))))
