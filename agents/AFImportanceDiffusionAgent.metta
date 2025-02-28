@@ -22,25 +22,25 @@
 ; !(add-atom (attentionalFocus) (HEBBIAN_LINK G (HEBBIAN_LINK K L)))
 
 ; !(bind! hebbianMaxAllocationPercentage 0.1)
-!(bind! maxSpreadPercentage 0.1)
-!(bind! spreadHebbianOnly False)
+; !(bind! maxSpreadPercentage 0.1)
+; !(bind! spreadHebbianOnly False)
 
 
-!(setAv C (200 0.5 5))
+; !(setAv C (200 0.5 5))
 
-(= (HebbianUpdatingAgent-Run)
-    (spreadImportance)
-)
+; (= (HebbianUpdatingAgent-Run)
+;     (spreadImportance)
+; )
 
-(= (spreadImportance)
-    (let $diffusionSourceVector (diffusionSourceVector (attentionalFocus))
-            (diffuseAtom $diffusionSourceVector (attentionalFocus))
-    )
-)
+; (= (spreadImportance)
+;     (let $diffusionSourceVector (diffusionSourceVector (attentionalFocus))
+;             (diffuseAtom $diffusionSourceVector (attentionalFocus))
+;     )
+; )
 
-(= (calculateDiffusionAmount $atom)
-    (* (getSTI $atom) maxSpreadPercentage)
-)
+; (= (calculateDiffusionAmount $atom)
+;     (* (getSTI $atom) maxSpreadPercentage)
+; )
 
-!(diffuseAtom C (attentionalFocus))
+; !(diffuseAtom C (attentionalFocus))
 ; !(HebbianUpdatingAgent-Run)
