@@ -21,35 +21,54 @@
 ; Test case 01: Tesing that the getRandomAtom function returns one result
 !(let $res (collapse (getRandomAtom)) (assertEqual (size-atom $res) 1))
 
-;;; Example Predicate function
+; Prep: Creating a predicate function to test getContentIf
+;;; Descripton: an Example predicate function to check if atoms STI is between a range
+;;; params:
+;;; 	$x: an atom to be checked using predicte function
+;;;		$lower: The lower bound of the Atoms STI
+;;;		$higher: The upper bound of the Atoms STI
+;;; return: True if atom STI is in range of $lower and $higer else false
 ;(: pred (-> Symbol Number Number Bool))
-(= (pred $x $lower $higher) (
-    let $sti (getSTI $x) 
+(= (pred $x $lower $higher)
+	(let $sti (getSTI $x) 
       (and 
         (>=  $sti $lower) 
         (<=  $sti $higher)
       )
   )
 )
+
+; Test case 02: Testing getContentIf function using pred as a predicate function
 !(assertEqual (getContentIf 2 pred 0 10 (collapseAtomBin &atombin) (a)) (a d))
 !(assertEqual (getContentIf 1 pred 0 10 (collapseAtomBin &atombin)()) (a))
+
+; Test case 03: Testing getContent by retriveing values from the atombin space
 !(assertEqual (getContent 2 (collapseAtomBin &atombin) (a b)) (a b d))
 !(assertEqual (getContent 1 (collapseAtomBin &atombin) ()) (a))
 
+; Test case 04: Testing insertAtom can insert atom into the specifed empty index 
 !(setAv  E (200 200 0))
 !(insertAtom  45 E)
 !(assertEqual (match &atombin (45 $x) $x) (E)) 
+
+; Test case 05: Testing insertAtom can insert an atom into the specified non-empty index
 !(setAv G (200 200 0))
 !(insertAtom  45 G)
 !(assertEqual (match &atombin (45 $x) $x) (G E))
 !(setAv H (200 200 0))
 !(insertAtom 45 H)
 !(assertEqual (match &atombin  (45 $x) $x) (H G E))
-!(assertEqual (insertAtom 20 f) ("Atom is not valid")) 
+
+; Test case 06: Testing insertAtom does not insert atoms with out proper type set by using setAV
+!(assertEqual (insertAtom 20 f) ("Atom is not valid"))
+
+: Test case 07: Testing remove_atom_helper can remove an atom from a list of atoms
 !(assertEqual (remove_atom_helper G (E  H Y G J K L)) (E H Y J K L))
 !(assertEqual (remove_atom_helper G (G J K L)) (J K L))
-!(removeAtom  45 H)
+
+; Test case 08: Testing removeAtom can remove an Atom from an index in the atomBin
+!(assertEqual (removeAtom  45 H) ("Atom Removed"))
 !(assertEqual (match &atombin  (45 $x) $x) (G E))
+
+; Test case 08: Testing removeAtom to remove an atom not present in the specified index
 !(assertEqual (removeAtom  45 L) ("Atom is not valid"))
-!(addAtomToAF a)
-!(addAtomToAF d)
