@@ -1,28 +1,26 @@
 !(register-module! ../../../../../metta-attention)
-
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
-
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
-
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
-
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 
-
-;
+; Prep: Setting values in the atombin space prior to testing
 !(add-atom &atombin (1 (a)))
 !(add-atom &atombin (2 (d)))
 !(add-atom &atombin (17 (s c)))
 !(add-atom &atombin (18 (g)))
 !(add-atom &atombin (37 (f h j k)))
-!(setAv a (0.0 0.0 0.0))
-!(setAv d (7.0 4.0 0.0))
-!(setAv c (0.0 0.0 0.0))
 
+: Prep: Setting Attentionvalue for the below symobls
+!(setAv a (0.0 0.0 0.0))
+!(setAv c (7.0 4.0 0.0))
+!(setAv d (0.0 0.0 0.0))
+
+; Test case 01: Tesing that the getRandomAtom function returns one result
 !(let $res (collapse (getRandomAtom)) (assertEqual (size-atom $res) 1))
-;
+
 ;;; Example Predicate function
 ;(: pred (-> Symbol Number Number Bool))
 (= (pred $x $lower $higher) (
