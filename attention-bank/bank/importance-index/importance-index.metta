@@ -133,12 +133,17 @@
 
 (: relocateAtom (-> Number Number Symbol Bool))
 (= (relocateAtom $oldBin $newBin $atom)
-   (let $res1 (removeAtom $oldBin $atom)
+   (let* (($res1 (removeAtom $oldBin $atom))
+         ($res2 (insertAtom $newBin $atom)))
+   
+      
+
      (if (or (== $res1 ("Atom is not valid")) (== $res1 ("Bin is empty")))
        False
-       (== (insertAtom $newBin $atom) ("Atom Inserted"))
+       (== (collapse(index-atom $res2 0)) ("Atom Inserted"))
       )
-    )
+   )
+    
 )
 
 (: pred (-> Symbol Number Number Bool))

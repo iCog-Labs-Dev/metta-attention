@@ -9,9 +9,6 @@
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
-
-
-;
 !(add-atom &atombin (1 (a)))
 !(add-atom &atombin (2 (d)))
 !(add-atom &atombin (17 (s c)))
@@ -44,14 +41,31 @@
 !(setAv G (200 200 0))
 !(insertAtom  45 G)
 !(assertEqual (match &atombin (45 $x) $x) (G E))
+!(insertAtom  45 G)
 !(setAv H (200 200 0))
+!(match &atombin  (45 $x) $x) 
 !(insertAtom 45 H)
 !(assertEqual (match &atombin  (45 $x) $x) (H G E))
 !(assertEqual (insertAtom 20 f) ("Atom is not valid")) 
 !(assertEqual (remove_atom_helper G (E  H Y G J K L)) (E H Y J K L))
 !(assertEqual (remove_atom_helper G (G J K L)) (J K L))
+!(setAv Human (200 200 0))
+!(setAv Dog (200 200 0))
+;!(setAv (HebbianLink Human Dog) (200 200 0))
 !(removeAtom  45 H)
 !(assertEqual (match &atombin  (45 $x) $x) (G E))
 !(assertEqual (removeAtom  45 L) ("Atom is not valid"))
-!(addAtomToAF a)
-!(addAtomToAF d)
+!(insertAtom 45 Human)
+!(insertAtom 45 Dog)
+!(setAv (Hebbianlink Human Dog) (200 200 0))
+!(let $res (collapse(insertAtom 45 (Hebbianlink Human Dog))) 
+(index-atom $res 0)
+)
+
+
+!(match &atombin  (45 $x) $x) ((Hebbianlink Human Dog))
+
+
+
+
+

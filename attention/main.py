@@ -11,20 +11,20 @@ def main():
 
     # Register agents
     print("\nRegistering agents...")
-    scheduler.register_agent("AFImportanceDiffusionAgent", 
-        lambda: AgentObject(path="./agents/mettaAgents/AFImportanceDiffusionAgent.metta"))
-    scheduler.register_agent("WAImportanceDiffusionAgent", 
-        lambda: AgentObject(path="./agents/mettaAgents/WAImportanceDiffusionAgent.metta"))
+    # scheduler.register_agent("AFImportanceDiffusionAgent", 
+    #     lambda: AgentObject(path="./metta-attention:attention/agents:mettaAgents/AFRentCollectionAgent/AFRentCollectionAgent.metta"))
+    # scheduler.register_agent("WAImportanceDiffusionAgent", 
+    #     lambda: AgentObject(path="./metta-attention:attention/agents:mettaAgents/AFRentCollectionAgent/AFRentCollectionAgent.metta"))
     scheduler.register_agent("AFRentCollectionAgent", 
-        lambda: AgentObject(path="./agents/mettaAgents/AFRentCollectionAgent.metta"))
+        lambda: AgentObject(path="./metta-attention/attention/agents/mettaAgents/AFRentCollectionAgent/tests/AFRentCollectionAgent-test.metta"))
     scheduler.register_agent("WARentCollectionAgent", 
-        lambda: AgentObject(path="./agents/mettaAgents/WARentCollectionAgent.metta"))
-    scheduler.register_agent("ForgettingAgent", 
-        lambda: AgentObject(path="./agents/mettaAgents/ForgettingAgent.metta"))
-    scheduler.register_agent("HebbianCreationAgent", 
-        lambda: AgentObject(path="./agents/mettaAgents/HebbianCreationAgent.metta"))
-    scheduler.register_agent("HebbianUpdatingAgent", 
-        lambda: AgentObject(path="./agents/mettaAgents/HebbianUpdatingAgent.metta"))
+        lambda: AgentObject(path="./metta-attention/attention/agents/mettaAgents/WARentCollectionAgent/tests/WARentCollectionAgent-test.metta"))
+    # scheduler.register_agent("ForgettingAgent", 
+    #     lambda: AgentObject(path="./agents/mettaAgents/ForgettingAgent.metta"))
+    # scheduler.register_agent("HebbianCreationAgent", 
+    #     lambda: AgentObject(path="./agents/mettaAgents/HebbianCreationAgent.metta"))
+    # scheduler.register_agent("HebbianUpdatingAgent", 
+    #     lambda: AgentObject(path="./agents/mettaAgents/HebbianUpdatingAgent.metta"))
 
     print("\nAgent System Ready!")
 
