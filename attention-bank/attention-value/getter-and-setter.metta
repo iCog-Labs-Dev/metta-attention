@@ -80,6 +80,14 @@
     )
 )
 
+
+(= (upsertAV $space $pattern (%Undefined%) $newAV)
+   (add-atom
+    $space
+    (: $pattern (createAV $instance $newAV))
+    )
+)
+
 (= (setAV $space $pattern $newAV)
    (let $val (collapse (get-type-space $space $pattern))
      (upsertAV $space $pattern $val $newAV)
@@ -114,6 +122,13 @@
   (update-atom
     $space
     (: $pattern (createSTV $instance $stv))
+    (: $pattern (createSTV $instance $newSTV))
+   )
+)
+
+(= (upsertSTV $space $pattern (%Undefined%) $newSTV)
+  (add-atom
+    $space
     (: $pattern (createSTV $instance $newSTV))
    )
 )
