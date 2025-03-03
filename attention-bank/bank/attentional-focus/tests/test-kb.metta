@@ -13,10 +13,3 @@
 (: ChallaAbebe (createLink challa abebe habbianlink))
 (: AbebeKebede (createLink abebe kebede PlusLink))
 
-(= (getLinksByType $type $space)
-   (
-    match $space
-    (: $x (createLink $source $target $type))
-    (collapse ($type $source $target))
-  )
-)

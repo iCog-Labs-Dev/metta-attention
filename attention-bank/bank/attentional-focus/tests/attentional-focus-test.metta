@@ -20,7 +20,7 @@
 !(addAtomToAF node_C &test-kb)
 !(addAtomToAF node_D &test-kb)
 !(addAtomToAF node_F &test-kb)
-;
+
 !(assertEqual(attentionalFocusSize) 6)
 !(assertEqual(atomIsInAF node_C) True)
 !(assertEqual (sortAtomsBySti (getAtomList) &test-kb) (node_a node_D node_B node_F node_A node_C))
