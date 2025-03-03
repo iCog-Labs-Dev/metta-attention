@@ -1,5 +1,6 @@
 (: createAV (-> $event ($sti $lti $vlti) ($sti $lti $vlti)))
 (: createSTV (-> $event ($mean $conf) ($mean $conf)))
+;(: createLink (-> $source $target $type ($source $target)))
 
 (: getSTI (-> $instance Number))
 (= (getSTI ((createAV $x ($sti $lti $vlti)) $y)) $sti)

@@ -10,9 +10,8 @@
 (: node_H (createAV H (15.0 25.0 35.0)))
 (: node_I (createAV I (500.0 600.0 700.0)))
 
-(: createLink (-> $source $target $type ($source $target)))
-(: link_ak (createLink abebe kebede HebbianLink))
-(: link_ca (createLink challa abebe PlusLink))
+(: ChallaAbebe (createLink challa abebe habbianlink))
+(: AbebeKebede (createLink abebe kebede PlusLink))
 
 (= (getLinksByType $type $space)
    (

@@ -317,7 +317,8 @@
                     (if (atomIsInAF $head)
                         $head
                         ()
-                    ))
+                    )
+                      )
                )
                
             (concatTuple ($filtered_head) (filterLinksInAF $tail))
@@ -338,8 +339,8 @@
     (collapse 
         (superpose   
             (
-                (match &attentionalFocus ($type $atom $b) ($type $atom $b))
-                (match &attentionalFocus ($type $b $atom) ($type $b $atom))
+                (match &attentionalFocus (createLink $atom $b $type) (createLink $atom $b $type))
+                (match &attentionalFocus (createLink $b $atom $type) (createLink $b $atom $type))
             )
         )  
     )
@@ -410,7 +411,6 @@
 
 
 (: termMatchMixinLinkMatch ( -> Atom Atom Bool))
-
 (= (termMatchMixinLinkMatch $ptm $lsoln)
     (if (== $ptm $lsoln)
         True
