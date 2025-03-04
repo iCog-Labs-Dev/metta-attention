@@ -172,3 +172,14 @@
 (= (AtomBin)
    &atombin
 )
+
+(= (getAtomsInBins)
+	( let* 
+		(
+			($atombin (AtomBin))
+	        ($allAtoms  (collapse (match $atombin ($x $y) $y)))
+    	    ($flatten (extractAndFlatten $allAtoms))
+		)
+        $flatten
+	)
+)

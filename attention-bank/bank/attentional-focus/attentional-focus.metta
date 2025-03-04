@@ -246,17 +246,15 @@
 (= (getRandomAtomNotInAF)
    (let*
        (
-
-           ($allAtoms  (getAtomBinList))
+           ($allAtoms  (getAtomsInBins))
            ($filteredAtoms (filter $allAtoms atomIsNotInAF))
        )
        (if (== $filteredAtoms ())
            %Undefined 
            (let*
                (
-
-                   ($res (py-list $filteredAtoms))
-                   ($randomAtom ((py-atom random.choice) $res))
+					($randInt (random-int 0 (size-atom $filteredAtoms)))
+                   	($randomAtom (index-atom $filteredAtoms $randInt))
                )
                $randomAtom 
            )
@@ -330,7 +328,6 @@
 
 ;This function simply matches if two nodes are equal and they are in AF
 (:nodeMatch (-> Atom Atom Bool))
-
 (= (nodeMatch $node1 $node2)
     (if (and (== $node1 $node2) (atomIsInAF $node2))
         True
@@ -365,9 +362,12 @@
  ;; this Function is copied from the pattern minor project found at https://github.com/iCog-Labs-Dev/hyperon-miner/blob/experiments/experiments/utils/common-utils.metta
 
 
-(= (getArity Nil ) 0 )
 (= (getArity $pattern)
-    (- (tupleCount $pattern) 1) )
+	(if (== $pattern ())
+		0
+	    (- (tupleCount $pattern) 1)
+	) 
+)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
