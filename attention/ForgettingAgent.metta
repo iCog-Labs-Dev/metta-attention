@@ -118,13 +118,13 @@
 			($tail (cdr-atom $sortedatoms))
 			($isValid (atomBelowForgetThreshold $head $removalAmount $count))
 			($iset (getIncomingSetByType $head ASYMMETRIC_HEBBIAN_LINK))
+			($niset (getIncomingSetwithoutType $head))
 		)
 		(if $isValid
-			(if (== $iset ())
+			(if (== (size-atom $iset) (size-atom $niset))
 				(checkThenRemoveAtom $tail $removalAmount $count)
 				(let*
 					(
-						($niset (getIncomingSetwithoutType $head))
 						($size (size-atom $niset))
 						(() (setAv $head (0.0 0.0 0.0)))
 						(() (extractAtomRecursive $niset))
