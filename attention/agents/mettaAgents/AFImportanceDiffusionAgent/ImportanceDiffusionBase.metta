@@ -1,11 +1,4 @@
-!(register-module! ../../metta-attention)
-!(import! &self metta-attention:attention-bank:utilities:helper-functions)
-!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
-!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
-!(import! &self metta-attention:attention-bank:bank:attention-bank)
-!(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
-!(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
-!(import! &self metta-attention:agents:Neighbors)
+; !(register-module! ../../../../../metta-attention)
 
 !(add-atom &attentionalFocus (UNORDERED_LINK A B))
 !(add-atom &attentionalFocus (UNORDERED_LINK B A))
@@ -31,7 +24,6 @@
 !(setStv (ASYMMETRIC_HEBBIAN_LINK C D) (1 0.9))
 !(setStv (ASYMMETRIC_HEBBIAN_LINK C F) (1 0.9))
 
-; WE NEED SETSTI SETLTI SETVLTI FUNCTIONS
 (= (diffuseAtom $atom)
     (let*
         (
@@ -53,11 +45,8 @@
                         )
                     )
             )
-            ; (() (setSTI $atomToReceive $stiGiven))
         )
-        ;Need SETSTI function
-        ; (setSTI $atom (- (getSTI $atom) $totaldiffusionAmount))
-        ($atomToReceive $stiGiven)
+        (tradSti $atom $atomToReceive $stiGiven)
     )
 )
 
@@ -193,7 +182,6 @@
     )
 )
 
-;##################### Duplicates ##########################
 (= (getOutGoingAtoms $link)
     (if (== (size-atom $link) 3)
         (cdr-atom $link)
@@ -201,7 +189,6 @@
     )
 )
 
-(: getIncomingSetByType (-> Atom List))
 (= (getAllIncomingSets $atom)
     (collapse
         (superpose
@@ -211,10 +198,6 @@
             )
         )
     )
-)
-
-(= (AFImportanceDiffusionAgent-Run)
-    (spreadImportance)
 )
 
 (= (spreadImportance)
@@ -236,10 +219,24 @@
 )
 
 
-!(AFImportanceDiffusionAgent-Run)
-; ; !(incidentAtoms C)
-;  !(diffuseAtom C)
-; ;  !(diffusionSourceVector)
+(: tradeSti (-> Atom Atom Number %Undefined%))
+(= (tradeSti $source $target $value)
+      (let*
+            (
+                ($sourceSTI (getSTI $source))
+                ($targetSTI (getSTI $target))
+                ($newSourceSTI (- $sourceSTI $value))
+                ($newTargetSTI (+ $targetSTI $value))
+                (() (setSTI $target $newTargetSTI))
+                (() (setSTI $source $newSourceSTI))
+            )
+        ()
+    )
+)
 
 
-; (((H 0.5) (G 0.5)) (((L 0.25) (K 0.25) ((HEBBIAN_LINK G (HEBBIAN_LINK K L)) 0.25) ((HEBBIAN_LINK (HEBBIAN_LINK K L) L) 0.25)) (((C 0.5) (B 0.5)) ((((HEBBIAN_LINK K L) 0.5) (G 0.5)) (((J 0.5) (I 0.5)) (((C 0.5) (A 0.5)) (((B 0.5) (A 0.5)) (((L 0.5) ((HEBBIAN_LINK K L) 0.5)) (((A 0.5) (B 0.5)) (((D 0.025) (F 0.0125) ((INHERITANCE_LINK B C) 0.125) ((HEBBIAN_LINK A C) 0.125)) ()))))))))))
+(= (AFImportanceDiffusionAgent-Run)
+    (spreadImportance)
+)
+
+! (AFImportanceDiffusionAgent-Run)
