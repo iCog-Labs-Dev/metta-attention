@@ -1,1 +1,0 @@
-!("ForgettingAgent.metta")
