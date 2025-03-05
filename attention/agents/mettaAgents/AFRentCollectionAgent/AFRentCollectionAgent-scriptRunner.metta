@@ -1,4 +1,4 @@
-;!(register-module! ../../../../../../metta-attention)
+;!(register-module! ../../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam)
@@ -6,6 +6,11 @@
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 !(import! &self metta-attention:attention:agents:mettaAgents:AFRentCollectionAgent:AFRentCollectionAgent)
 
+(=(AFRentCollectionAgent-run)
+
+(let $res (selectAFTargets)
+           (collectAFRent $res))
+)
 !(setAv (t) (200.0 200.0 0.0))
 !(setAv x (200.0 200.0 0.0))
 !(setAv y (200.0 200.0 0.0))

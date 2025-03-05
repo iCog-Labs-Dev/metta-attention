@@ -15,9 +15,9 @@
 ; Returns: A list of atoms in attentional focus.
 (: selectAFTargets (-> Expression))
 (= (selectAFTargets)
-   (let $atomList (getAtomList)
-      $atomList  
-   ) 
+    (getAtomList)
+        
+   
 )
 
 ; Function: collectRent
@@ -43,10 +43,11 @@
           (if (< $elapsedTime $timeThreshold)
               (empty)                  
               (let* (
-                      ($w (* $elapsedTime $multiplier))  
+                      ($w (* $elapsedTime $multiplier))
+                      ($lists (superpose $targetSet))    
                     )
-                ((collectRentRecursive $targetSet $w) 
-                (setLastUpdate (timeTime))
+                  ((applyRent $w $lists)
+                   (setLastUpdate (timeTime))
                 )
               )
           )
@@ -80,8 +81,8 @@
 ;   - $atom: The atom undergoing rent collection.
 ;   - $w: Weight factor based on elapsed time.
 ; Returns: None.
-(: applyRent (-> Atom Number empty))
-(= (applyRent $atom $w)
+(: applyRent (->  Number Atom empty))
+(= (applyRent  $w $atom)
    (let* (
            ($sti (getSTI $atom))
            ($lti (getLTI $atom))
@@ -135,8 +136,8 @@
      )
 )
 
-(=(AFRentCollectionAgent-run)
+; (=(AFRentCollectionAgent-run)
 
-(let $res (selectAFTargets)
-           (collectAFRent $res))
-)
+; (let $res (selectAFTargets)
+;            (collectAFRent $res))
+; )

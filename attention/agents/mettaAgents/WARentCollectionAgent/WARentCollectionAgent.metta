@@ -52,8 +52,8 @@
 )
 
 
-(= (WARentCollectionAgent-Run) 
-   (let $res (selectTargets)
-           (collectRent $res))
-)
+; (= (WARentCollectionAgent-Run) 
+;    (let $res (selectTargets)
+;            (collectRent $res))
+; )
 

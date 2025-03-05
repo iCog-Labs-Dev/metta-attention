@@ -16,9 +16,9 @@ def main():
     # scheduler.register_agent("WAImportanceDiffusionAgent", 
     #     lambda: AgentObject(path="./metta-attention:attention/agents:mettaAgents/AFRentCollectionAgent/AFRentCollectionAgent.metta"))
     scheduler.register_agent("AFRentCollectionAgent", 
-        lambda: AgentObject(path="./metta-attention/attention/agents/mettaAgents/AFRentCollectionAgent/tests/AFRentCollectionAgent-test.metta"))
+        lambda: AgentObject(path="./metta-attention/attention/agents/mettaAgents/AFRentCollectionAgent/AFRentCollectionAgent-scriptRunner.metta"))
     scheduler.register_agent("WARentCollectionAgent", 
-        lambda: AgentObject(path="./metta-attention/attention/agents/mettaAgents/WARentCollectionAgent/tests/WARentCollectionAgent-test.metta"))
+        lambda: AgentObject(path="./metta-attention/attention/agents/mettaAgents/WARentCollectionAgent/WARentCollectionAgent-scriptRunner.metta"))
     # scheduler.register_agent("ForgettingAgent", 
     #     lambda: AgentObject(path="./agents/mettaAgents/ForgettingAgent.metta"))
     # scheduler.register_agent("HebbianCreationAgent", 

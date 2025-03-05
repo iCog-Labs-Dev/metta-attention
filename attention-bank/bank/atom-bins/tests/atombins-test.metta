@@ -17,6 +17,8 @@
 !(setAv a (0.0 0.0 0.0))
 !(setAv d (7.0 4.0 0.0))
 !(setAv c (0.0 0.0 0.0))
+!(setAv E (200 200 0))
+!(getAv E)
 
 !(let $res (collapse (getRandomAtom)) (assertEqual (size-atom $res) 1))
 ;
@@ -34,8 +36,7 @@
 !(assertEqual (getContentIf 1 pred 0 10 (collapseAtomBin &atombin)()) (a))
 !(assertEqual (getContent 2 (collapseAtomBin &atombin) (a b)) (a b d))
 !(assertEqual (getContent 1 (collapseAtomBin &atombin) ()) (a))
-
-!(setAv  E (200 200 0))
+!(== (getAv E) %Undefined%)
 !(insertAtom  45 E)
 !(assertEqual (match &atombin (45 $x) $x) (E)) 
 !(setAv G (200 200 0))
@@ -61,9 +62,9 @@
 !(let $res (collapse(insertAtom 45 (Hebbianlink Human Dog))) 
 (index-atom $res 0)
 )
-
-
-!(match &atombin  (45 $x) $x) ((Hebbianlink Human Dog))
+!(assertEqual (match &atombin  (45 $x) $x) ((Hebbianlink Human Dog) Dog Human G E)) 
+!(getAv (Hebbianlink Human Dog))
+!(getType (Hebbianlink Human Dog))
 
 
 

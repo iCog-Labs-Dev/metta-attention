@@ -50,4 +50,3 @@ class ParallelScheduler:
 
         except KeyboardInterrupt:
             print("\nReceived interrupt signal. Stopping agents...")
-

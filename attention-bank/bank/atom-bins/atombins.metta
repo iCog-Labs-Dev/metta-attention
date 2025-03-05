@@ -33,8 +33,8 @@
 ;         or an error message if the atom is invalid.
 (: insertAtom (-> Number Atom empty))
 (= (insertAtom $bin_index $pattern)
-   (if (== (getType $pattern) %Undefined%)
-       ("Atom is not valid") ; Validate type
+   (if (==(getType $pattern) %Undefined%)
+       ("Atom is not valid"); Validate type
        (if (== (collapse (match &atombin ($bin_index $x) $x)) ())
            (let ()
                (add-atom &atombin ($bin_index ($pattern))) ; Insert new bin
@@ -175,7 +175,7 @@
    &atombin
 )
  (= (getAtomsInBins)
-      ( let* (($atombin (AtomBin))
+      (let* (($atombin (AtomBin))
         ($allAtoms  (collapse (match $atombin ($x $y) $y)))
         ($flatten (extractAndFlatten $allAtoms)))
         $flatten
