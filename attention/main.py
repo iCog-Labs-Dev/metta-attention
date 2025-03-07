@@ -2,29 +2,21 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+from hyperon import MeTTa
 from agents.scheduler import ParallelScheduler
 from agents.agent_base import AgentObject
 
 def main():
-    # Create scheduler
-    scheduler = ParallelScheduler()
+    metta = MeTTa()
+
+    scheduler = ParallelScheduler(metta)
 
     # Register agents
     print("\nRegistering agents...")
-    # scheduler.register_agent("AFImportanceDiffusionAgent", 
-    #     lambda: AgentObject(path="./metta-attention:attention/agents:mettaAgents/AFRentCollectionAgent/AFRentCollectionAgent.metta"))
-    # scheduler.register_agent("WAImportanceDiffusionAgent", 
-    #     lambda: AgentObject(path="./metta-attention:attention/agents:mettaAgents/AFRentCollectionAgent/AFRentCollectionAgent.metta"))
     scheduler.register_agent("AFRentCollectionAgent", 
-        lambda: AgentObject(path="./metta-attention/attention/agents/mettaAgents/AFRentCollectionAgent/AFRentCollectionAgent-scriptRunner.metta"))
+        lambda: AgentObject(metta=metta, path="./metta-attention/attention/agents/mettaAgents/AFRentCollectionAgent/tests/AFRentCollectionAgent-test.metta"))
     scheduler.register_agent("WARentCollectionAgent", 
-        lambda: AgentObject(path="./metta-attention/attention/agents/mettaAgents/WARentCollectionAgent/WARentCollectionAgent-scriptRunner.metta"))
-    # scheduler.register_agent("ForgettingAgent", 
-    #     lambda: AgentObject(path="./agents/mettaAgents/ForgettingAgent.metta"))
-    # scheduler.register_agent("HebbianCreationAgent", 
-    #     lambda: AgentObject(path="./agents/mettaAgents/HebbianCreationAgent.metta"))
-    # scheduler.register_agent("HebbianUpdatingAgent", 
-    #     lambda: AgentObject(path="./agents/mettaAgents/HebbianUpdatingAgent.metta"))
+        lambda: AgentObject(metta=metta, path="./metta-attention/attention/agents/mettaAgents/WARentCollectionAgent/tests/WARentCollectionAgent-test.metta"))
 
     print("\nAgent System Ready!")
 

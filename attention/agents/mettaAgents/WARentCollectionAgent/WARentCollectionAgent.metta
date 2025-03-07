@@ -8,10 +8,9 @@
 ; Returns: A single atom or an empty result if none is found.
 (: selectTargets (-> Atom))
 (= (selectTargets)
-   (let $randomAtom (collapse (getRandomAtomNotInAF))
+    (collapse (getRandomAtomNotInAF))
     
-      $randomAtom  
-   )
+      
 )
 
 ; Function: collectRent
@@ -52,8 +51,8 @@
 )
 
 
-; (= (WARentCollectionAgent-Run) 
-;    (let $res (selectTargets)
-;            (collectRent $res))
-; )
+(= (WARentCollectionAgent-Run) 
+   (let $res (selectTargets)
+           (collectRent $res))
+)
 

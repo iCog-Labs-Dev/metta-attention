@@ -55,25 +55,6 @@
    )
 )
 
-; Function: collectRentRecursive
-; Description: Recursively applies rent to each atom in the given list.
-; Parameters:
-;   - $atoms: The list of atoms to process.
-;   - $w: Weight factor based on elapsed time.
-; Returns: None.
-(: collectRentRecursive (-> Symbol Number empty))
-(= (collectRentRecursive $atoms $w)
-   (if (== $atoms ())  
-       (empty)  
-       (let* (
-               ($head (car-atom $atoms))  
-               ($tail (cdr-atom $atoms))  
-             )
-         ((applyRent $head $w)  
-         (collectRentRecursive $tail $w))  
-       )
-   )
-)
 
 ; Function: applyRent
 ; Description: Deducts STI and LTI rent from an atom, ensuring it does not go below zero.
@@ -136,8 +117,8 @@
      )
 )
 
-; (=(AFRentCollectionAgent-run)
+(=(AFRentCollectionAgent-run)
 
-; (let $res (selectAFTargets)
-;            (collectAFRent $res))
-; )
+(let $res (selectAFTargets)
+           (collectAFRent $res))
+)
