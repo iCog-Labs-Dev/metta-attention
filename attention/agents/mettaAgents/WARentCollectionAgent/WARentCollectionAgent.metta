@@ -53,12 +53,12 @@
 
 (= (WARentCollectionAgent-Run) 
    (let $res (selectTargets)
-    (if (== $res ())
-    (empty)
-    (collectRent $res)
+        (if (== $res ())
+            (empty)
+            (collectRent $res)
     
     
+        )
     )
-)
 )
 

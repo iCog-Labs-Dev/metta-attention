@@ -6,11 +6,7 @@
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 !(import! &self metta-attention:attention:agents:mettaAgents:AFRentCollectionAgent:AFRentCollectionAgent)
 
-(=(AFRentCollectionAgent-run)
 
-(let $res (selectAFTargets)
-           (collectAFRent $res))
-)
 !(setAv (a) (200.0 200.0 0.0))
 !(setAv b (200.0 200.0 0.0))
 !(setAv c (200.0 200.0 0.0))
@@ -24,4 +20,5 @@
 !(getAv b)
 !(getAv c)
 !(getAv d)
+
 

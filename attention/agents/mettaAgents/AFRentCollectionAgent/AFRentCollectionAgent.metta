@@ -116,9 +116,13 @@
      
      )
 )
-
-(=(AFRentCollectionAgent-run)
-
-(let $res (selectAFTargets)
-           (collectAFRent $res))
+(= (AFRentCollectionAgent-run) 
+   (let $res (selectAFTargets)
+      (if (== $res ())
+        (empty)
+        (collectAFRent $res)
+      
+      
+      )
+    )
 )
