@@ -1,49 +1,10 @@
-!(register-module! ../../metta-attention)
-!(import! &self metta-attention:attention-bank:utilities:helper-functions)
-!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
-!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
-!(import! &self metta-attention:attention-bank:bank:attention-bank)
-!(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
-!(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
-!(import! &self metta-attention:attention-bank:utilities:recentVal)
-; !(bind! &attentionalFocus (new-space))
 !(bind! tcDecayRate 0.1)
 !(bind! DEFAULT_K 800)
 
-;Before updatehebbianlink there is this remember
-    ; std::default_random_engine generator;
-    ; std::uniform_int_distribution<int> distribution(0,size-1);
-    ; Handle source = atoms[distribution(generator)];
-;Foundout it is just a random number generator
-
-!(add-atom &attentionalFocus a)
-!(add-atom &attentionalFocus b)
-!(add-atom &attentionalFocus c)
-!(add-atom &attentionalFocus d)
-!(add-atom &attentionalFocus e)
-!(add-atom &attentionalFocus f)
-!(add-atom &attentionalFocus g)
-!(add-atom &attentionalFocus (ASYMMETRIC_HEBBIAN_LINK a b))
-!(add-atom &attentionalFocus (ASYMMETRIC_HEBBIAN_LINK b c))
-!(add-atom &attentionalFocus (ASYMMETRIC_HEBBIAN_LINK c d))
-!(add-atom &attentionalFocus (ASYMMETRIC_HEBBIAN_LINK d e))
-!(add-atom &attentionalFocus (ASYMMETRIC_HEBBIAN_LINK e f))
-!(add-atom &attentionalFocus (ASYMMETRIC_HEBBIAN_LINK f g))
-!(add-atom &attentionalFocus (ASYMMETRIC_HEBBIAN_LINK g a))
-!(add-atom &attentionalFocus (HEBBIAN_LINK a b))
-!(add-atom &attentionalFocus (HEBBIAN_LINK b c))
-!(add-atom &attentionalFocus (HEBBIAN_LINK c d))
-!(add-atom &attentionalFocus (HEBBIAN_LINK d e))
-!(add-atom &attentionalFocus (HEBBIAN_LINK e f))
-!(add-atom &attentionalFocus (HEBBIAN_LINK f g))
-!(add-atom &attentionalFocus (HEBBIAN_LINK g a))
-
-(= (HebbianUpdatingAgent-Run)
-    (let*
-        (
-            ($atoms (collapse (match &attentionalFocus $x $x)))
-        )
-        (if (== $atoms adaf)
+(: HebbianUpdatingAgent-Run (-> Grounded Atom))
+(= (HebbianUpdatingAgent-Run $space)
+    (let $atoms (collapse (match $space $x $x))
+        (if (== $atoms ())
             ()
             (let*
                 (
@@ -56,13 +17,14 @@
     )
 )
 
+(: updateHebbianLinks (-> Atom Atom))
 (= (updateHebbianLinks $source)
     (let*
         (
             ($link (let $decomposed (getIncomingSetByType $source ASYMMETRIC_HEBBIAN_LINK ) (superpose $decomposed)))
             ($outgoing (getOutGoingAtoms $link))
         )
-        (if (not (== $outgoing "No outgoing atoms"))
+        (if (not (== $outgoing ()))
             (let*
                 (
                     ($result
@@ -88,13 +50,15 @@
     )
 )
 
+(: getOutGoingAtoms (-> Atom Atom))
 (= (getOutGoingAtoms $link)
     (if (== (size-atom $link) 3)
         (cdr-atom $link)
-        "No outgoing atoms"
+        ()
     )
 )
 
+(: targetConjunction (-> Atom Number))
 (= (targetConjunction $outgoing)
     (let*
         (
@@ -110,6 +74,7 @@
 
 ;;tobe checked the calculation need to be the same as the
 ;; c++ test I tested
+(: mergecalculation (-> STV STV Symbol STV))
 (= (mergecalculation $stv1 $stv2 $formula-to-use)
     (case $formula-to-use
         (
@@ -135,6 +100,7 @@
     )
 )
 
+(: higherConfidenceMerge (-> STV STV STV))
 (= (higherConfidenceMerge $stv1 $stv2)
     (let*
         (
@@ -147,6 +113,3 @@
         )
     )
 )
-
-!(HebbianUpdatingAgent-Run)
-
