@@ -1,3 +1,4 @@
+(mod-space! top)
 ; set_av function accepts a pattern/node with the attention values
 ; and set the attention value to the pattern/node.
 ;
@@ -148,3 +149,14 @@
 )
 
 (= (getType $pattern) (get-type $pattern))
+
+(= (globalIncomingSetByType $atom $type)
+	(collapse
+		(superpose   
+			(
+				(match &self (: ($type $b $atom) $a) ($type $b $atom))
+				(match &self (: ($type $atom $b) $a) ($type $atom $b ))
+			)
+		)  
+	)
+)

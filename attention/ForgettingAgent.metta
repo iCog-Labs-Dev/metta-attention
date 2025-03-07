@@ -1,6 +1,6 @@
 !(bind! &removeSpace (new-space)) ; a new space to store removed atoms
 
-(= (forgetThreshold)  5) ; constant set in line 57 opencog/attention/ForgettingAgent.cc
+(= (forgetThreshold) 5) ; constant set in line 57 opencog/attention/ForgettingAgent.cc
 (= (maxSize) 2) ; constant set in line 63 opencog/attention/ForgettingAgent.cc
 (= (accDivSize) 1) ;  constant set in line 64 opencog/attention/ForgettingAgent.cc
 
@@ -122,21 +122,48 @@
 		)
 		(if $isValid
 			(if (== (size-atom $iset) (size-atom $niset))
-				(checkThenRemoveAtom $tail $removalAmount $count)
 				(let*
 					(
 						($size (size-atom $niset))
-						(() (setAv $head (0.0 0.0 0.0)))
-						(() (extractAtomRecursive $niset))
+						(() (add-atom &removeSpace $head))
+						(() (globalRemoveAtom $head $niset))
 						($newCount (+ (+ 1 $count ) $size))
 					)
-					(checkThenRemoveAtom $tail $removalAmount $newCount)
+					(check_ThenRemoveAtom $tail $removalAmount $newCount)
 				)
+				(checkThenRemoveAtom $tail $removalAmount $count)
 			)
-			()	
+			()
 		)
 	)
 
+)
+
+(= (globalRemoveAtom $head $niset) 
+	(let*
+		(
+			(() (setAv $head (0.0 0.0 0.0)))
+			(() (extractAtomRecursive $niset))
+			(() (remove-atom (AttentionalFocus) $head))
+			($bin (importanceBin (getSTI $head)))
+			($val (removeAtomBin $head $bin))
+			(() (remove-atom &self $head))
+		)
+		()
+	)
+)
+
+(= (removeAtomBin $head $bin)
+	(let*
+		(
+			($bins (match (AtomBin) ($bin $x) $x))
+			($intersection (intersection-atom $bins ($head)))
+		)
+		(if (== $intersection ())
+			()
+			(removeAtom $bin $head)
+		)
+	)
 )
 
 ; Description: a function to remove atoms that have low LTI values
@@ -152,7 +179,7 @@
 			($removalAmount (- $size (- (maxSize) (accDivSize))))
 		)
 		(if (< $size (+ (maxSize) (accDivSize)))
-			()  
+			()
 			(forgetHelper $parsedAtoms $removalAmount)
 		)
 	)
@@ -198,3 +225,34 @@
 	)
 )
 
+(= (incomingSetType $atom $type)
+	(let* 
+		(
+			($selfiset (globalIncomingSetByType  $atom $type))
+			($attiset (getIncomingSetByType $atom $type))
+			($union (union-atom $selfiset $attiset))
+		)
+		(unique-atom $union)
+	)
+)
+
+(= (getValueTypes $pattern) 
+	(if (== (get-metatype $pattern) Expression)
+		(let $a 
+			(collapse 
+				(let $x 
+					(let $t
+						(getType $pattern)
+						(if (== $t %Undefined%)
+							(empty)
+							$t
+						)
+					)
+					(collapse (superpose $x))
+				)
+			)
+			(index-atom $a 0)
+		) 
+		(let $t (getType $pattern) (if (== $t %Undefined%) (empty) $t))
+    )
+)

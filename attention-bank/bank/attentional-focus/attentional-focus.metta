@@ -1,5 +1,4 @@
 !(bind! &attentionalFocus (new-space))
-
 (= (AttentionalFocus) &attentionalFocus)
 
 (= (maxAFSize) 100)
@@ -329,6 +328,7 @@
         )  
     )
 )
+
 
 ;This function simply matches if two nodes are equal and they are in AF
 (:nodeMatch (-> Atom Atom Bool))
