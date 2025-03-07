@@ -27,7 +27,10 @@
 !(getAv x)
 !(getAv y)
 !(getAv z)
-
+!(getAv (a))
+!(getAv b)
+!(getAv c)
+!(getAv d)
 
 
 

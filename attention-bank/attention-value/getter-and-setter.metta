@@ -29,7 +29,7 @@
         (case (let $a (collapse (let $x (getValueType $pattern) (collapse (superpose $x)))) (index-atom $a 0))
             (( (AV $a $b $c) (AV $a $b $c))
                     ( ( (STV $a $b) (AV $x $y $z)) (AV $x $y $z))
-                    ($else  %Undefined%))
+                    ($else (AV 0 0 0)))
         )
         (case (getValueType $pattern)
                 (( (AV $a $b $c) (getValueType $pattern))
@@ -72,7 +72,7 @@
             (case (let $a (collapse (let $x (getValueType $pattern) (collapse (superpose $x)))) (index-atom $a 0))
                 (( (STV $x $y) (STV $x $y) )
                 ( ( (STV $x $y) (AV $a $b $c)) (STV $x $y))
-                ($else  %Undefined%))
+                ($else (STV 1 0)))
         )
         (case (getValueType $pattern)
             (
@@ -84,7 +84,7 @@
 )
 
 
-;(: getValueType (-> Atom symbol))
+(: getValueType (-> Atom Type))
 (= (getValueType $pattern) 
    (let $t (get-type $pattern) (if (== $t %Undefined%) (empty) $t)))
 

@@ -14,11 +14,16 @@
 !(stimulate (a) 2)
 !(stimulate b 2)
 !(stimulate c 2)
-!(stimulate d 1)
+!(stimulate d 2)
 !(AFRentCollectionAgent-run)
 !(getAv (a))
 !(getAv b)
 !(getAv c)
 !(getAv d)
+!(getAv (t))
+!(getAv x)
+!(getAv y)
+!(getAv z)
+
 
 
