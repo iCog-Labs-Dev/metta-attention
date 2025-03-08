@@ -13,9 +13,19 @@ def main():
 
     # Register agents
     print("\nRegistering agents...")
+
     scheduler.register_agent("AFImportanceDiffusionAgent", 
         lambda: AgentObject(metta=metta, path="./attention/agents/mettaAgents/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent.metta"))
     
+
+    scheduler.register_agent("AFRentCollectionAgent", 
+        lambda: AgentObject(metta=metta, path="./metta-attention/attention/agents/mettaAgents/AFRentCollectionAgent/tests/AFRentCollectionAgent-test.metta"))
+    scheduler.register_agent("WARentCollectionAgent", 
+        lambda: AgentObject(metta=metta, path="./metta-attention/attention/agents/mettaAgents/WARentCollectionAgent/tests/WARentCollectionAgent-test.metta"))
+    scheduler.register_agent("AFRentCollectionAgent", 
+        lambda: AgentObject(metta=metta, path="./metta-attention/attention/agents/mettaAgents/AFRentCollectionAgent/tests/ForgettingAgent-runner.metta"))
+
+
     print("\nAgent System Ready!")
 
     while True:
