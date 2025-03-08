@@ -457,3 +457,6 @@
     )
 )
 
+(= (attentionalFocus)
+    &attentionalFocus
+)

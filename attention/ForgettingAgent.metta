@@ -44,6 +44,7 @@
 ; params:
 ;       $atoms: a List of unsorted atoms
 ; return: List of sorted atoms
+(: ForgettingLTIThenTVAscendingSort (-> List List))
 (= (ForgettingLTIThenTVAscendingSort $atoms)
 	(if (== $atoms ())
 		()
@@ -61,27 +62,6 @@
 	)
 )
 
-; Description: the function takes a list of atoms and experessions 
-;              and returns a new list wich contatins only symobls
-; params:
-;		$atoms: list of symbols and expressions
-; return: list of symbols
-(: removeLinksfromList (-> List List))
-(= (removeLinksfromList $atoms)
-	(if (== $atoms ())
-		()
-		(let* 
-			(
-				($head (car-atom $atoms))
-				($tail (cdr-atom $atoms))
-			)
-			(if (== (get-metatype $head) Symbol)
-				(concatTuple ($head) (removeLinksfromList $tail))	
-				(removeLinksfromList $tail)
-			)
-		)
-	)
-)
 
 ; Description: a function the will be used to start the forgeting process and intialize a count
 ; params:
@@ -112,47 +92,61 @@
 ; return: None
 (: checkThenRemoveAtom (-> List Number Number empty))
 (= (checkThenRemoveAtom $sortedatoms $removalAmount $count)
-	(let* 
-		(	
-			($head (car-atom $sortedatoms))
-			($tail (cdr-atom $sortedatoms))
-			($isValid (atomBelowForgetThreshold $head $removalAmount $count))
-			($iset (getIncomingSetByType $head ASYMMETRIC_HEBBIAN_LINK))
-			($niset (getIncomingSetwithoutType $head))
-		)
-		(if $isValid
-			(if (== (size-atom $iset) (size-atom $niset))
-				(let*
-					(
-						($size (size-atom $niset))
-						(() (add-atom &removeSpace $head))
-						(() (globalRemoveAtom $head $niset))
-						($newCount (+ (+ 1 $count ) $size))
-					)
-					(check_ThenRemoveAtom $tail $removalAmount $newCount)
-				)
-				(checkThenRemoveAtom $tail $removalAmount $count)
+	(if (== $sortedatoms ())
+		()
+		(let* 
+			(	
+				($head (car-atom $sortedatoms))
+				($tail (cdr-atom $sortedatoms))
+				($isValid (atomBelowForgetThreshold $head $removalAmount $count))
+				($iset (getIncomingSetByType $head ASYMMETRIC_HEBBIAN_LINK))
+				($niset (getIncomingSetwithoutType $head))
 			)
-			()
+			(if $isValid
+				(if (== (size-atom $iset) (size-atom $niset))
+					(let*
+						(
+							($size (size-atom $niset))
+							(() (add-atom &removeSpace $head))
+							(() (globalRemoveAtom $head $niset))
+							($newCount (+ (+ 1 $count ) $size))
+						)
+						(checkThenRemoveAtom $tail $removalAmount $newCount)
+					)
+					(checkThenRemoveAtom $tail $removalAmount $count)
+				)
+				()
+			)
 		)
 	)
-
 )
 
+; Description: a function to set Av to Zero and remove an atom and its incoming sets from all the spaces
+; params:
+; 	$head: an atom that needs to be removed
+;	$nsiet: all incoming sets of the atom
+; return: None
+(: globalRemoveAtom (-> Atom List empty))
 (= (globalRemoveAtom $head $niset) 
 	(let*
 		(
+			($bin (importanceBin (getSTI $head)))
+			;($val (removeAtomBin $head $bin))
 			(() (setAv $head (0.0 0.0 0.0)))
 			(() (extractAtomRecursive $niset))
 			(() (remove-atom (AttentionalFocus) $head))
-			($bin (importanceBin (getSTI $head)))
-			($val (removeAtomBin $head $bin))
-			(() (remove-atom &self $head))
+			(() (removeAtomSelf $head))
 		)
 		()
 	)
 )
 
+; Description: function to check if atom is present in bin before attemping to remove
+; params:
+;	$head: atom to be searched inside the atom bin
+;	$bin: calculated bin of the atom
+; return: None	
+(: removeAtomBin (-> Atom Number empty))
 (= (removeAtomBin $head $bin)
 	(let*
 		(
@@ -174,13 +168,12 @@
 (= (forgetAtoms $atoms)
 	(let* 
 		(
-			($parsedAtoms (removeLinksfromList $atoms))
-			($size (size-atom $parsedAtoms)) 
+			($size (size-atom $atoms)) 
 			($removalAmount (- $size (- (maxSize) (accDivSize))))
 		)
 		(if (< $size (+ (maxSize) (accDivSize)))
 			()
-			(forgetHelper $parsedAtoms $removalAmount)
+			(forgetHelper $atoms $removalAmount)
 		)
 	)
 )
@@ -225,6 +218,12 @@
 	)
 )
 
+(: incomingSetType (-> Atom Atom List))
+: Description: a function to find incoming set from both attentioanl focus and self of getter and setter spaces
+; params:
+;		$atom: atom whose incoming set is to be searched
+;		$type: type of the link of the returned incoming set
+; return: all set of incoiming sets with matching types
 (= (incomingSetType $atom $type)
 	(let* 
 		(
@@ -236,23 +235,3 @@
 	)
 )
 
-(= (getValueTypes $pattern) 
-	(if (== (get-metatype $pattern) Expression)
-		(let $a 
-			(collapse 
-				(let $x 
-					(let $t
-						(getType $pattern)
-						(if (== $t %Undefined%)
-							(empty)
-							$t
-						)
-					)
-					(collapse (superpose $x))
-				)
-			)
-			(index-atom $a 0)
-		) 
-		(let $t (getType $pattern) (if (== $t %Undefined%) (empty) $t))
-    )
-)

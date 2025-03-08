@@ -285,4 +285,24 @@
   )
  )
 
-             
+; Description: the function takes a list of atoms and experessions 
+;              and returns a new list wich contatins only symobls
+; params:
+;		$atoms: list of symbols and expressions
+; return: list of symbols
+(: removeLinksfromList (-> List List))
+(= (removeLinksfromList $atoms)
+	(if (== $atoms ())
+		()
+		(let* 
+			(
+				($head (car-atom $atoms))
+				($tail (cdr-atom $atoms))
+			)
+			(if (== (get-metatype $head) Symbol)
+				(concatTuple ($head) (removeLinksfromList $tail))	
+				(removeLinksfromList $tail)
+			)
+		)
+	)
+)
