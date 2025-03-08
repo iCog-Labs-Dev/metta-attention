@@ -171,6 +171,7 @@
 
 )
 
+
 (= (getType $pattern) (get-type $pattern))
 
 ;;setSTI fnction accepts a pattern/node with an Sti value to replace the original
@@ -198,3 +199,4 @@
 (= (removeAtomSelf $atom) 
 	(remove-atom &self $atom)
 )
+

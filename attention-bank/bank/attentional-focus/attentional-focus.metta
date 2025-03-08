@@ -1,7 +1,7 @@
 !(bind! &attentionalFocus (new-space))
 (= (AttentionalFocus) &attentionalFocus)
 
-(= (maxAFSize) 100)
+(= (maxAFSize) 3)
 
 ;Function: atomIsInAF
 ;Description: Checks if a given atom is in the attentional focus space.
@@ -243,27 +243,28 @@
 ;Description: Retrieves a random atom that is not in attentional focus.
 ;Parameters: None.
 ;Returns: A randomly selected atom from outside attentional focus.
-(: getRandomAtomNotInAF (-> Atom))
+(: getRandomAtomNotInAF (-> Symbol))
 (= (getRandomAtomNotInAF)
    (let*
        (
-
-           ($allAtoms  (getAtomBinList))
-           ($filteredAtoms (filter $allAtoms atomIsNotInAF))
+        ($atomsInBins (getAtomsInBins))
+        ($filteredAtoms (filter $atomsInBins atomIsNotInAF))
        )
        (if (== $filteredAtoms ())
-           %Undefined 
-           (let*
+           %Undefined%
+        (let*
                (
 
-                   ($res (py-list $filteredAtoms))
-                   ($randomAtom ((py-atom random.choice) $res))
+                   ($randInt (random-int 0 (size-atom $filteredAtoms)))
+                   ($randomAtom (index-atom $filteredAtoms $randInt))
                )
-               $randomAtom 
+             $randomAtom
+
            )
        )
    )
 )
+
 
 ;;; Function: getIncomingSet
 ;;; Description: Retrieves the set of incoming links of a specific type for a given atom,
