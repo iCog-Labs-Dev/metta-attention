@@ -15,7 +15,8 @@
                             ))))
             (if (== $stv %Undefined%); 
                 (add-atom &self (: $pattern (AV $sti $lti $vlti)))
-                (add-atom &self (: $pattern ($stv (AV $sti $lti $vlti)))))))
+                (add-atom &self (: $pattern ($stv (AV $sti $lti $vlti))))))
+    )
 )
 
  ; getAv function accepts a pattern/node and returns the attention

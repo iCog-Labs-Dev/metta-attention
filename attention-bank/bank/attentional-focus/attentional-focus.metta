@@ -239,7 +239,6 @@
    )
 )
 
-;Function: getRandomAtomNotInAF
 ;Description: Retrieves a random atom that is not in attentional focus.
 ;Parameters: None.
 ;Returns: A randomly selected atom from outside attentional focus.
@@ -247,16 +246,18 @@
 (= (getRandomAtomNotInAF)
    (let*
        (
-        ($atomsInBins (getAtomsInBins))
-        ($filteredAtoms (filter $atomsInBins atomIsNotInAF))
+
+           ($atombin (AtomBin))
+        ($allAtoms  (collapse (match $atombin ($x $y) $y)))
+        ($filteredAtoms (filter $allAtoms atomIsNotInAF))
        )
        (if (== $filteredAtoms ())
            %Undefined%
         (let*
                (
-
-                   ($randInt (random-int 0 (size-atom $filteredAtoms)))
-                   ($randomAtom (index-atom $filteredAtoms $randInt))
+                   ($flatten (flatten $filteredAtoms))
+                   ($randInt (random-int 0 (size-atom $flatten)))
+                   ($randomAtom (index-atom $flatten $randInt))
                )
              $randomAtom
 
@@ -320,6 +321,17 @@
 
 (: getIncomingSetByType (-> Atom Type List))
 (= (getIncomingSetByType $atom $type)
+    (collapse 
+        (superpose   
+            (
+                (match &attentionalFocus ($type $atom $b) ($type $atom $b))
+                (match &attentionalFocus ($type $b $atom) ($type $b $atom))
+            )
+        )  
+    )
+)
+(: getIncomingSetAllType (-> Atom List))
+(= (getIncomingSetAllType $atom )
     (collapse 
         (superpose   
             (
