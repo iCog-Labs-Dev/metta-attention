@@ -25,11 +25,12 @@
     (let* (
             ($index (importanceBin (getSTI $atom)))
             ($it (collapse (match &atomBinInfo ($index $_) $index)))
+            ($current (timeTime))
           )
         (if (== $it ($index))
             (updateExistingBin $index)
             (add-atom &atomBinInfo 
-                ($index ((count 1) (index $index) (_size (getSize $index)) (update_rate (/ 1 (timeTime)) ) (last_update (timeTime))) )
+                ($index ((count 1) (index $index) (_size (getSize $index)) (update_rate (/ 1 (timeTime)) ) (last_update $current)) )
             )
         )
     )
@@ -42,12 +43,15 @@
                 (let () (remove-atom &atomBinInfo ($index $info))
                     $info))
             (let* (
+                   
                     ($count (+ $cntVal 1))
                     ($newSec (- (timeTime) $lastUpdateVal))
                     ($newUpdateRate (/ $count $newSec))
-                    ($newSize (getSize $index)))
+                    ($newSize (getSize $index))
+                    ($current (timeTime))
+                    )
                     (add-atom &atomBinInfo 
-                        ($index ((count $count) (index $index) (_size $newSize) (update_rate $newUpdateRate) (last_update (timeTime)))))
+                        ($index ((count $count) (index $index) (_size $newSize) (update_rate $newUpdateRate) (last_update $current))))
             )
     )
 )

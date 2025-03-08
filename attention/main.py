@@ -13,10 +13,10 @@ def main():
 
     # Register agents
     print("\nRegistering agents...")
-    scheduler.register_agent("AFImportanceDiffusionAgent", 
-        lambda: AgentObject(metta=metta, path="./attention/agents/mettaAgents/AFImportanceDiffusionAgent.metta"))
     scheduler.register_agent("AFRentCollectionAgent", 
-        lambda: AgentObject(metta=metta, path="./attention/agents/mettaAgents/AFRentCollectionAgent.metta"))
+        lambda: AgentObject(metta=metta, path="./metta-attention/attention/agents/mettaAgents/AFRentCollectionAgent/tests/AFRentCollectionAgent-test.metta"))
+    scheduler.register_agent("WARentCollectionAgent", 
+        lambda: AgentObject(metta=metta, path="./metta-attention/attention/agents/mettaAgents/WARentCollectionAgent/tests/WARentCollectionAgent-test.metta"))
 
     print("\nAgent System Ready!")
 
