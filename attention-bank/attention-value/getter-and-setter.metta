@@ -86,9 +86,33 @@
 
 (: getValueType (-> Atom Type))
 (= (getValueType $pattern) 
-   (let $t (get-type $pattern) (if (== $t %Undefined%) (empty) $t)))
+   (let $t (get-type $pattern) (if (== $t %Undefined%) (empty) $t))
+)
 
-
+(: getValueTypes (-> Atom Type))
+(= (getValueTypes $pattern) 
+   (if (== (get-metatype $pattern) Expression)
+        (let $a 
+			(collapse 
+				(let $x 
+					(let $t 
+						(get-type $pattern) 
+							(if (== $t %Undefined%) 
+								(empty) 
+								$t
+							)
+					) 
+					(collapse (superpose $x))
+				)
+			) 
+        	(if (> (size-atom $a) 1) 
+				(index-atom $a 1) 
+				%Undefined%
+			)
+		)
+        (let $t (get-type $pattern) (if (== $t %Undefined%) (empty) $t))
+    )
+)
 ; getMean retrieves mean from a pattern
 ; i.e !(getMean A)  output: 1 
 
@@ -147,4 +171,32 @@
 
 )
 
+
 (= (getType $pattern) (get-type $pattern))
+
+;;setSTI fnction accepts a pattern/node with an Sti value to replace the original
+;;and set the Sti to the pattern/node.
+; i.e !(setSTI A 500)
+(: setSTI (-> Atom Number Atom)) 
+(= (setSTI $pattern $newSTI)
+    (case (getAv $pattern)
+        ((%Undefined% (setAv $pattern ($newSTI 0 0)))
+        ((AV $sti $lti $vlti) (setAv $pattern ($newSTI $lti $vlti))))
+    )
+)
+(= (globalIncomingSetByType $atom $type)
+	(collapse
+		(superpose   
+			(
+				(match &self (: ($type $b $atom) $a) ($type $b $atom))
+				(match &self (: ($type $atom $b) $a) ($type $atom $b ))
+			)
+    )
+	)
+)
+
+(: removeAtomSelf (-> Atom empty))
+(= (removeAtomSelf $atom) 
+	(remove-atom &self $atom)
+)
+
