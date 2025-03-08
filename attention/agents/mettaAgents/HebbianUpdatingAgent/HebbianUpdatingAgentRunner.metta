@@ -9,4 +9,4 @@
 !(import! &self metta-attention:attention:agents:mettaAgents:HebbianUpdatingAgent:HebbianUpdatingAgent)
 
 
-!(HebbianUpdatingAgent-Run (attentionalFocus))
+!(HebbianUpdatingAgent-Run)

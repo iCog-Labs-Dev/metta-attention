@@ -1,9 +1,9 @@
 !(bind! tcDecayRate 0.1)
 !(bind! DEFAULT_K 800)
 
-(: HebbianUpdatingAgent-Run (-> Grounded Atom))
-(= (HebbianUpdatingAgent-Run $space)
-    (let $atoms (collapse (match $space $x $x))
+(: HebbianUpdatingAgent-Run (-> Atom))
+(= (HebbianUpdatingAgent-Run)
+    (let $atoms (getAtomList)
         (if (== $atoms ())
             ()
             (let*
