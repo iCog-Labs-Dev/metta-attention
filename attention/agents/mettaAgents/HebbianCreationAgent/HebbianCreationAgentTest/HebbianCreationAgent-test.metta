@@ -6,41 +6,48 @@
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
-!(import! &self metta-attention:attention:agents::HebbianCreationAgent:hebbianCreationagent)mettaAgents
+!(import! &self metta-attention:attention:agents:mettaAgents:ImportanceDiffusionAgent:Neighbors)
+
+!(import! &self metta-attention:attention:agents:mettaAgents:HebbianCreationAgent:HebbianCreationAgent)
 
 
-!(getAfMaxSTI)
-!(setAv a (0.0 0.0 0.0))
-!(setAv d (7.0 4.0 0.0))
-!(setAv c (0.0 0.0 0.0))
 
-!(setAv a (0.0 0.0 0.0))
-!(setAv d (7.0 4.0 0.0))
-!(setAv c (0.0 0.0 0.0))
-!(setAv A (100.0 200.0 300.0))
-!(setAv B (50.0 150.0 250.0))
-!(setAv C (200.0 300.0 400.0))
-!(setAv D (25.0 125.0 225.0))
-!(setAv F (70.0 100.0 200.0))
-!(setAv G (300.0 400.0 500.0))
-!(setAv H (15.0 20.0 35.0))
-!(setAv I (500.0 600.0 700.0))
+!(add-atom (attentionalFocus) a)
+!(add-atom (attentionalFocus) b)
+!(add-atom (attentionalFocus) c)
+!(add-atom (attentionalFocus) d)
+!(add-atom (attentionalFocus) e)
+!(add-atom (attentionalFocus) f)
+!(add-atom (attentionalFocus) g)
+!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK a b))
+!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK b c))
+!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK c d))
+!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK d e))
+!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK e f))
+!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK f g))
+!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK g a))
+!(add-atom (attentionalFocus) (HEBBIAN_LINK a b))
+!(add-atom (attentionalFocus) (HEBBIAN_LINK b c))
+!(add-atom (attentionalFocus) (HEBBIAN_LINK c d))
+!(add-atom (attentionalFocus) (HEBBIAN_LINK d e))
+!(add-atom (attentionalFocus) (HEBBIAN_LINK e f))
+!(add-atom (attentionalFocus) (HEBBIAN_LINK f g))
+!(add-atom (attentionalFocus) (HEBBIAN_LINK g a))
+!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK z f))
 
 
-; !(addLink (Abebe Kebede) )
 ; !(getAtomList)
+!(attentionalFocusSize)
+!(getRandomAtomInAF)
 
-!(hello)
+!(getIncomingSetByType g HEBBIAN_LINK)
+!(getIncomingSet  e HEBBIAN_LINK  )
+!(car-atom (g HebbianLink))
+!( collapse (getSourceNeighbors f ASYMMETRIC_HEBBIAN_LINK True))
+!(collapse (getTargetNeighbors a ASYMMETRIC_HEBBIAN_LINK True))
 
-!(addAtomToAFCustom a)
-!(addAtomToAFCustom A)
-!(addAtomToAFCustom B)
-!(addAtomToAFCustom C)
-!(addAtomToAFCustom D)
-!(addAtomToAFCustom F)
-!(addAtomToAFCustom G)
-!(addAtomToAFCustom H)
-!(addAtomToAFCustom I)
 
-!(getAtomList)
-a
+ !(HebbianCreationAgent-Run)
+
+
+
