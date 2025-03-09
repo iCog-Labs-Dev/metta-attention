@@ -24,7 +24,7 @@
 (: getTargetNeighbors (-> Atom Atom Bool Atom))
 (= (getTargetNeighbors $atom $type $match-subtype)
     (if (== $type UNORDERED_LINK)
-        (hello)
+        ()
         (let*
             (
                 (($link $source $target) (let $tmp (getIncomingSet $atom $type) (superpose $tmp)))
@@ -46,7 +46,7 @@
 (: getSourceNeighbors (-> Atom Atom Bool Atom))
 (= (getSourceNeighbors $atom $type $match-subtype)
     (if (== $type UNORDERED_LINK)
-        (hello)
+        ()
         (let*
             (
                 (($link $source $target) (let $tmp (getIncomingSet $atom $type) (superpose $tmp)))
