@@ -1,7 +1,7 @@
 !(bind! maxSpreadPercentage 0.1)
 !(bind! hebbianMaxAllocationPercentage 1)
 
-(= (diffuseAtom $atom $space)
+(= (diffuseAtom $atom $space $AForWA)
     (let*
         (
             ($incidentAtoms (collapse (incidentAtoms $atom $space)))
@@ -11,7 +11,11 @@
             ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAtoms)))
             ($probabilityVectorHebbianAjacent (collapse (probabilityVectorHebbianAjacent $atom $hebbianAdjacentAtoms)))
             ($combProbabilityVector (combineIncidentAdjacentVectors $probabilityVectorIncident $probabilityVectorHebbianAjacent))
-            ($totaldiffusionAmount (calculateDiffusionAmount $atom)) ; Why shouldn't this be at the top weird
+            ($totaldiffusionAmount (if (== $AForWA AF)
+                                       (calculateDiffusionAmount $atom)
+                                       (calculateDiffusionAmountWA $atom)
+                                    )
+            ) ; Why shouldn't this be at the top weird
             (($atomToReceive $stiGiven)
                     (if (== $totaldiffusionAmount 0)
                         (() 0)
@@ -171,16 +175,19 @@
     )
 )
 
-; (= (diffusionSourceVectorWA $space)
-;     (let*
-;         (
-;             ($atoms (getRandomAtomNotInAF))
-;             ($result
-;                     (unify $atoms (ASYMMETRIC_HEBBIAN_LINK $a $b) (empty) $atoms))
-;         )
-;         $result
-;     )
-; )
+(= (diffusionSourceVectorWA $space)
+    (let*
+        (
+            ($atoms (getRandomAtomNotInAF))
+            ((if (== $atoms ())
+                ()
+                ($result
+                    (unify $atoms (ASYMMETRIC_HEBBIAN_LINK $a $b) (empty) $atoms)))
+            )
+        )
+        $result
+    )
+)
 
 (: getOutGoingAtoms (-> Atom Atom))
 (= (getOutGoingAtoms $link)
@@ -209,10 +216,22 @@
     )
 )
 
+(: spreadImportanceWA (-> Grounded Empty))
+(= (spreadImportanceWA $space)
+    (let $diffusionSourceVector (collapse (diffusionSourceVectorWA $space))
+        (if (== (size-atom $diffusionSourceVector) 0)
+            ()
+            (let $target (index-atom $diffusionSourceVector 0)
+                (diffuseAtom $target $space WA)
+            )
+        )
+    )
+)
+
 (= (helper-loop $diffusionSourceVector $space)
     (if (== $diffusionSourceVector ())
         ()
-        ((diffuseAtom (car-atom $diffusionSourceVector) $space) (helper-loop (cdr-atom $diffusionSourceVector) $space))
+        ((diffuseAtom (car-atom $diffusionSourceVector) $space AF) (helper-loop (cdr-atom $diffusionSourceVector) $space))
     )
 )
 
@@ -221,9 +240,15 @@
     (* (getSTI $atom) maxSpreadPercentage)
 )
 
-; (= (calculateDiffusionAmountWA $atom)
-;     ("To be implemented")
-; )
+(= (calculateDiffusionAmountWA $atom)
+    (let*
+        (
+            ($currentEstiate (diffusedValue $atom maxSpreadPercentage))
+            ($diffusionAmount (- (getSTI $atom) $currentEstiate))
+        )
+        $diffusionAmount
+    )
+)
 
 
 (: tradeSti (-> Atom Atom Number %Undefined%))
@@ -246,6 +271,7 @@
     (spreadImportance $space)
 )
 
+(: WAImportanceDiffusionAgent (-> Grounded Empty))
 (= (WAImportanceDiffusionAgent-Run $space)
-    ("To be implemented")
+    (spreadImportanceWA $space)
 )

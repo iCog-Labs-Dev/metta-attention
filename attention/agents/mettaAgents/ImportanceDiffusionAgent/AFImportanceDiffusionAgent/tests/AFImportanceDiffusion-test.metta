@@ -7,6 +7,7 @@
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention:agents:mettaAgents:Neighbors)
 !(import! &self metta-attention:attention:agents:mettaAgents:ImportanceDiffusionAgent:ImportanceDiffusionBase)
+!(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
 
 !(add-atom (attentionalFocus) (UNORDERED_LINK A B))
 !(add-atom (attentionalFocus) (UNORDERED_LINK B A))
