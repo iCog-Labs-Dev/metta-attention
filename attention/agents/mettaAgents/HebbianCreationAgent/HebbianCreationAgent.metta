@@ -127,18 +127,13 @@
 )
 
 
-; ( = (linkMatcher $atom) 
-;     (if (match &attentionalFocus (ASYMMETRIC_HEBBIAN_LINK $source $target) $source)
-;     )
-
-; )
 
 (= (filterHebbianLinks $list)
     (if (== $list ())
         ()  ; Base case: return empty list if input is empty
         (let (($head (car-atom $list))
               ($tail (cdr-atom $list)))
-            (if (match &attentionalFocus (ASYMMETRIC_HEBBIAN_LINK $source $target) $source) ;this will return non-deterministic many values right 
+            (if (match &attentionalFocus (ASYMMETRIC_HEBBIAN_LINK $source $target) $source) ;this will return non-deterministic many values right? 
                 ( (list $source $target) (filterHebbianLinks $tail)) ; Keep valid links. use concat tuple
                 (filterHebbianLinks $tail)  ; Skip invalid links
             )
