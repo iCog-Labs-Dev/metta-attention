@@ -29,7 +29,7 @@
         (case (let $a (collapse (let $x (getValueType $pattern) (collapse (superpose $x)))) (index-atom $a 0))
             (( (AV $a $b $c) (AV $a $b $c))
                     ( ( (STV $a $b) (AV $x $y $z)) (AV $x $y $z))
-                    ($else (AV 0 0 0)))
+                    ($else %Undefined%))
         )
         (case (getValueType $pattern)
                 (( (AV $a $b $c) (getValueType $pattern))
@@ -72,7 +72,7 @@
             (case (let $a (collapse (let $x (getValueType $pattern) (collapse (superpose $x)))) (index-atom $a 0))
                 (( (STV $x $y) (STV $x $y) )
                 ( ( (STV $x $y) (AV $a $b $c)) (STV $x $y))
-                ($else (STV 1 0)))
+                ($else %Undefined%))
         )
         (case (getValueType $pattern)
             (
@@ -86,32 +86,33 @@
 
 (: getValueType (-> Atom Type))
 (= (getValueType $pattern) 
-   (let $t (get-type $pattern) (if (== $t %Undefined%) (empty) $t))
+	(let $a 
+		(collapse (getValueType-helper $pattern))
+		(if (== $a ())
+			%Undefined%
+			(car-atom $a)
+		)
+	)
 )
 
-(: getValueTypes (-> Atom Type))
-(= (getValueTypes $pattern) 
-   (if (== (get-metatype $pattern) Expression)
-        (let $a 
-			(collapse 
-				(let $x 
-					(let $t 
-						(get-type $pattern) 
-							(if (== $t %Undefined%) 
-								(empty) 
-								$t
-							)
-					) 
-					(collapse (superpose $x))
+(: getValueType-helper (-> Atom Type))
+(= (getValueType-helper $pattern) 
+	(let $a 
+		(get-type $pattern) 
+		(unify $a  
+			(AV $sti $lti $vlti) 
+			(AV $sti $lti $vlti)
+			(unify $a
+				(STV $mean $conf)
+				(STV $mean $conf)
+				(unify $a
+					((STV $mean $conf) (AV $sti $lti $vlti))
+					((STV $mean $conf) (AV $sti $lti $vlti))
+					(empty)
 				)
-			) 
-        	(if (> (size-atom $a) 1) 
-				(index-atom $a 1) 
-				%Undefined%
 			)
 		)
-        (let $t (get-type $pattern) (if (== $t %Undefined%) (empty) $t))
-    )
+	)
 )
 ; getMean retrieves mean from a pattern
 ; i.e !(getMean A)  output: 1 

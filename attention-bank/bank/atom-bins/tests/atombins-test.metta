@@ -1,5 +1,4 @@
-!(register-module! ../../../../../metta-attention)
-
+!(register-module! ../../../../../metta-attention) 
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
 
@@ -32,8 +31,9 @@
 ; Prep: Setting Attentionvalue for Expressions
 ! (setAv (EvaluationLink a b) (300 200 0))
 ! (setAv (Hebbianlink Human Cat) (200 200 0))
+! (setAv  (Hebbianlink Human Dog) (200 20 0))
 ! (setAv (Hebbianlink (Hebbianlink Human Cat) Animal) (300 200 0))
-! (setAv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat)) (200 200 0))
+!  (setAv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat)) (200 200 0))
 
 ; Prep: Creating a predicate function to test getContentIf
 ;;; Descripton: an Example predicate function to check if atoms STI is between a range
@@ -55,7 +55,7 @@
 ;################################### Testing ###################################
 
 ; Test case 01: Tesing that the getRandomAtom function returns one result
-!(let $res (collapse (getRandomAtom)) (assertEqual (size-atom $res) 1))
+! (let $res (collapse (getRandomAtom)) (assertEqual (size-atom $res) 1))
 
 ; Test case 02: Testing getContentIf function using pred as a predicate function
 !(assertEqual (getContentIf 1 pred 0 10 (collapseAtomBin &atombin) ()) (a))
@@ -79,6 +79,9 @@
 !(insertAtom  45 H)
 !(assertEqual (match &atombin (45 $x) $x) (H E))
 
+!(insertAtom  45 (EvaluationLink a b))
+!(assertEqual (match &atombin (45 $x) $x) ((EvaluationLink a b) H E))
+
 ; Test case 07: Testing insertAtom does not insert atoms with out proper type set by using setAV
 !(assertEqual (insertAtom 20 f) ("Atom is not valid"))
 
@@ -91,16 +94,16 @@
 
 ; Test case 09: Testing removeAtom can remove an Atom from an index in the atomBin
 !(assertEqual (removeAtom  45 H) ("Atom Removed"))
-!(assertEqual (match &atombin  (45 $x) $x) (E))
+!(assertEqual (match &atombin  (45 $x) $x) ((EvaluationLink a b) E))
 !(assertEqual (removeAtom 29 c) ("Bin is empty"))
 !(assertEqual (removeAtom 1 a) ("Atom Removed"))
 !(assertEqual (match &atombin  (1 $x) $x) (Cat (Hebbianlink Human Cat)))
-(assertEqual (removeAtom 1 (Hebbianlink Human Dog)) ("Atom Removed"))
+!(assertEqual (removeAtom 1 (Hebbianlink Human Dog)) ("Atom Removed"))
 
 ; Test case 10: Testing removeAtom to remove an atom not present in the specified index
 !(assertEqual (removeAtom  45 L) ("Atom is not valid"))
 
 ; Test case 06: Testing intertAtom with an Expression
-(setAv (Hebbianlink Human Dog) (200 200 0))
-(insertAtom 45 (Hebbianlink Human Dog))
-(assertEqual (match &atombin  (45 $x) $x) ((Hebbianlink Human Dog) G E))
+!(setAv (Hebbianlink Human Dog) (200 200 0))
+!(insertAtom 45 (Hebbianlink Human Dog))
+!(assertEqual (match &atombin  (45 $x) $x) ((Hebbianlink Human Dog) (EvaluationLink a b) E))

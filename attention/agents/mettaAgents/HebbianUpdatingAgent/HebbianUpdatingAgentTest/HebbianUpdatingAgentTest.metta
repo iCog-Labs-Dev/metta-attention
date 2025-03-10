@@ -30,4 +30,4 @@
 !(add-atom (attentionalFocus) (HEBBIAN_LINK f g))
 !(add-atom (attentionalFocus) (HEBBIAN_LINK g a))
 
-!(HebbianUpdatingAgent-Run)
+(HebbianUpdatingAgent-Run)

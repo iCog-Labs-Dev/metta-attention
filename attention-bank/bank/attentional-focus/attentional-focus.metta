@@ -38,7 +38,7 @@
 ;Returns: A message indicating success or failure.
 (: addAtomToAF (-> Atom Symbol))
 (= (addAtomToAF $atom)
-   (if (== (getType $atom) %Undefined%)
+   (if (== (getValueType $atom) %Undefined%)
        ("Atom is not valid")
        (let()
          (add-atom &attentionalFocus $atom)
