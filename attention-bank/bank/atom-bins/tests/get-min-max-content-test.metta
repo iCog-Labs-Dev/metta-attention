@@ -35,13 +35,13 @@
 
 ; Test Case 04: Adding Atom to Max Bin
 
-; Expected: Max bin remains 60, content updated to include Father
+; Expected: Max bin to be 90 =  (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother))
 
 !(assertEqual (getMaxContent) (collapse(Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother))))
 
 ; Test Case 05: getMaxContent for Multiple Max Bins
-; Adding "Father" to bin 50 should update getMaxContent
-; Insert another atom in bin 50 and ensure both "Mother" and "Father" are returned
+; Adding "Father" to bin 1 should update getMaxContent
+; Insert another atom in bin 1 and ensure both "Human" and "Father" are returned
 !(insertAtom 1 Father)
 
 ;Test with Symbol Atom Type
@@ -64,7 +64,7 @@
 
 ; Test Case 08: Testing sumSizes Function
 ; Ensure sumSizes correctly sums atoms in specified bins
-; Expected: sumSizes(1 2) should return 4, sumSizes(70 60 90) should return 3
+; Expected: sumSizes(1 2) should return 5, sumSizes(70 60 90) should return 3
 !(assertEqual (sumSizes (1 2)) 5)
 !(assertEqual (sumSizes (70 60 90 )) 3)
 
