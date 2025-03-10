@@ -24,7 +24,7 @@
 
 ; Test Case 03: Testing getMaxContent and getMinContent with Initial Data
 ; Ensure they return correct values when bins are populated
-; Expected: Max bin (60) = Mother, Min bin (1) = Human
+; Expected: Max bin (50) = Mother, Min bin (1) = Human
 !(assertEqual (getMaxContent) (Mother))
 !(assertEqual (getMinContent) (Human))
 
@@ -39,8 +39,8 @@
 
 !(assertEqual (getMaxContent) (collapse(Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother))))
 
-; Test Case 05: getMaxContent for Multiple Max Bins
-; Adding "Father" to bin 1 should update getMaxContent
+; Test Case 05: getMinContent for Multiple Min Bins
+; Adding "Father" to bin 1 should update getMinContent
 ; Insert another atom in bin 1 and ensure both "Human" and "Father" are returned
 !(insertAtom 1 Father)
 
@@ -49,7 +49,7 @@
 
 ; Test Case 06: Testing getSize Function
 ; Ensure getSize returns correct atom count in bins
-; Expected: Bin 1 has 2 atoms, Bin 2 has 2 atoms, Bin 50 has 1 atoms, Bin 90 has 1 atom
+; Expected: Bin 1 has 3 atoms, Bin 2 has 2 atoms, Bin 50 has 1 atoms, Bin 90 has 1 atom
 !(insertAtom 1 Humaner)
 !(insertAtom 2 Doger)
 !(assertEqual (getSize 1) 3)
