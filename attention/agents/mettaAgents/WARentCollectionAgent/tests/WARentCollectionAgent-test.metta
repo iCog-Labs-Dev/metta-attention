@@ -12,25 +12,27 @@
 !(import! &self metta-attention:attention:agents:mettaAgents:WARentCollectionAgent:WARentCollectionAgent)
 
 
-
-!(setAv (t) (200.0 200.0 0.0))
+;;inorder to see the rent collection in action,we have to decrease the size of the attentional focus 
+;;run it with cogntive controller because it depends on time passed since last renet collected
+;;i have tested with that and it works fine
 !(setAv x (200.0 200.0 0.0))
 !(setAv y (200.0 200.0 0.0))
 !(setAv z (200.0 200.0 0.0))
-!(stimulate (t) 2)
+!(setAv (Hebbianlink x z) (200.0 200.0 0.0))
+!(setAv (Hebbianlink (Hebbianlink x y) (Hebbianlink x z))(200.0 200.0 0.0))
+!(stimulate (Hebbianlink x z) 2)
 !(stimulate x 2)
 !(stimulate y 2)
+!(stimulate (Hebbianlink (Hebbianlink x y) (Hebbianlink x z)) 2)
 !(stimulate z 1)
-!(getAv z)
 !(WARentCollectionAgent-Run)
-!(getAv (t))
+!(getAv (Hebbianlink x z))
+!(getAv (Hebbianlink (Hebbianlink x y) (Hebbianlink x z)))
 !(getAv x)
 !(getAv y)
 !(getAv z)
-!(getAv (a))
-!(getAv b)
-!(getAv c)
-!(getAv d)
+
+
 
 
 

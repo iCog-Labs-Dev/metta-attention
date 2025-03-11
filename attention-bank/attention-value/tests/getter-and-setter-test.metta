@@ -1,89 +1,90 @@
 !(register-module! ../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 
-! (setAv A (200 200 0))
-! (setAv A (400 400 1))
 
-! (setStv A (0.1 0.9))
-! (setStv A (1 0.9))
-
-! (setAv (link a b) (200 200 0))
-! (setStv (link a b) (0.1 0.9))
-! (setAv (C) (400 400 1))
-! (setStv (C) (1 0.9))
-
-! (assertEqual (getStv (C)) (STV 1 0.9))
-! (assertEqual (getAv (C)) (AV 400 400 1))
-
-! (assertEqual (getStv (link a b)) (STV 0.1 0.9))
-! (assertEqual (getAv (link a b)) (AV 200 200 0))
+; Test case 01: testing attention value setter(setAv) function for symbol atom type
+! (setAv A (200 200 0)) ; setting attention value for symbol A
+! (setAv A (400 400 1)) ; changing attention value for symbol A
+! (setAv Cat (400 400 1)) ; 
+! (setAv Animal (400 400 1))
+! (setAv Human (400 400 1))
 
 
+; Test case 02: testing attention value getter(getAv) function for symbol atom type
 
-! (assertEqual (getStv A) (STV 1 0.9))
-! (assertEqual (getAv A) (AV 400 400 1))
-! (assertEqual (getMean A) 1)
-! (assertEqual (getConfidence A) 0.9)
-! (assertEqual (getSTI A) 400)
-! (assertEqual (getLTI A) 400)
-! (assertEqual (getVLTI A) 1)
-
-! (setAv (link (link a c) b) (200 200 0))
-
-! (setAv (link a c) (300 200 0))
-! (setAv a (400 400 1))
-! (setAv b (400 400 1))
-! (setAv c (400 400 1))
-
-! (assertEqual (getAv a) (AV 400 400 1))                ;Should return (400 400 1)
-! (assertEqual (getAv (link a c)) (AV 300 200 0))       ;Should return (300 200 0)
-! (assertEqual (getAv (link (link a c) b)) (AV 200 200 0)) ;Should return (200 200 0)
-! (assertEqual (getAv (link (link a c) b)) (AV 200 200 0));Should return (200 200 0)
-
-! (setAv a (200 200 0))
-! (setAv (link a b) (300 200 0))
-
-! (assertEqual (getAv a) (AV 200 200 0));Should return (200 200 0)
-! (assertEqual (getAv (link a b)) (AV 300 200 0));Should return (300 200 0)
-
-; #######################################################
-
-! (setStv (link (link a c) b) (200 200))
-
-! (setStv (link a c) (300 200))
-! (setStv a (400 400))
-! (setStv b (400 400))
-! (setStv c (400 400))
-
-! (assertEqual (getStv a)  (STV 400 400))                 ;Should return (400 400)
-! (assertEqual (getStv (link a c))  (STV 300 200))        ;Should return (300 200)
-! (assertEqual (getStv (link (link a c) b)) (STV 200 200)) ;Should return (200 200)
-! (assertEqual (getStv (link (link a c) b)) (STV 200 200)) ;Should return (200 200)
-
-! (setStv a (200 200))
-! (setStv (link a b) (300 200))
-
-! (assertEqual (getStv a) (STV 200 200));Should return (200 200)
-! (assertEqual (getStv (link a b)) (STV 300 200)) ;Should return (300 200)
+! (assertEqual (getAv A) (AV 400 400 1)) ; getting attention value for symbol A
+! (assertEqual (getAv Cat) (AV 400 400 1))
+! (assertEqual (getAv Animal) (AV 400 400 1))
+! (assertEqual (getAv Human) (AV 400 400 1))
+! (assertEqual (getAv k) %Undefined%) ; getting attention value for an atom 
+                                      ; that previously not set any attention value return %Undefined%
 
 
-! (setAv (link (link a b) (link c d)) (399 400 1))
-! (assertEqual (getAv (link (link a b) (link c d))) (AV 399 400 1))
-
-! (setStv (link (link a b) (link c d)) (0.1 0.9))
-! (assertEqual (getStv (link (link a b) (link c d))) (STV 0.1 0.9))
-
-! (setAv a (150 400 100))
-! (assertEqual (getAv a) (AV 150 400 100))
-
-! (setStv a (0.1 0.9))
-! (assertEqual (getStv a) (STV 0.1 0.9))
-
-
-! (setStv (a) (0.2 0.9))
-! (assertEqual (getStv (a)) (STV 0.2 0.9))
+; Test case 03: testing attention value setter(setAv) functionfor link/expressions atom type
 
 ! (setAv (a) (397 400 1))
-! (assertEqual (getAv (a)) (AV 397 400 1))
+! (setAv (C) (400 400 1))
+! (setAv (EvaluationLink a b) (300 200 0))
+! (setAv (Hebbianlink Human Cat) (200 200 0))
+! (setAv (Hebbianlink (Hebbianlink Human Cat) Animal) (300 200 0))
+! (setAv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat)) (200 200 0))
 
-! ( assertEqual (getAv k) %Undefined%)
+
+; Test case 04: testing attention value getter(getAv) function for link/expressions atom type
+
+! (assertEqual (getAv (a)) (AV 397 400 1))
+! (assertEqual (getAv (C)) (AV 400 400 1))
+! (assertEqual (getAv (EvaluationLink a b)) (AV 300 200 0))
+! (assertEqual (getAv (Hebbianlink Human Cat)) (AV 200 200 0))
+! (assertEqual (getAv (Hebbianlink (Hebbianlink Human Cat) Animal)) (AV 300 200 0))
+! (assertEqual (getAv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat))) (AV 200 200 0))
+
+
+; Test case 05: testing simple truth value setter functions for symbol atom type
+
+! (setStv A (0.1 0.9))
+! (setStv A (1.0 0.9))
+! (setStv Cat (0.8 0.9))
+! (setStv Animal (0.7 0.8))
+! (setStv Human (0.4 0.3))
+! (setStv Socratus (0.5 0.6))
+
+
+; Test case 06: testing simple truth value getter (getStv) functions for symbol atom type.
+
+! (assertEqual (getStv A) (STV 1.0 0.9))
+! (assertEqual (getStv Cat) (STV 0.8 0.9))
+! (assertEqual (getStv Animal) (STV 0.7 0.8))
+! (assertEqual (getStv Human) (STV 0.4 0.3))
+! (assertEqual (getStv Socratus) (STV 0.5 0.6))
+! (assertEqual (getStv k) %Undefined%)
+
+
+; Test case 07: testing simple truth value setter(setStv) for link/expressions
+
+! (setStv (a) (0.2 0.9))
+! (setStv (C) (1 0.9))
+! (setStv (EvaluationLink a b) (0.1 0.9))
+! (setStv (Hebbianlink Human Cat) (0.3 0.9))
+! (setStv (Hebbianlink (Hebbianlink Cat Human) Animal) (0.5 0.6))
+! (setStv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat)) (0.1 0.9))
+
+
+; Test case 08: testing simple truth value getter functions for link/expressions atom type
+
+! (assertEqual (getStv (a)) (STV 0.2 0.9))
+! (assertEqual (getStv (C)) (STV 1 0.9))
+! (assertEqual (getStv (EvaluationLink a b)) (STV 0.1 0.9))
+! (assertEqual (getStv (Hebbianlink Human Cat)) (STV 0.3 0.9))
+! (assertEqual (getStv (Hebbianlink (Hebbianlink Cat Human) Animal)) (STV 0.5 0.6))
+! (assertEqual (getStv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat))) (STV 0.1 0.9))
+
+
+; Test case 09: testing mean, confidence, STI, LTI and VLTI getter functions
+
+! (assertEqual (getMean A) 1)
+! (assertEqual (getConfidence (EvaluationLink a b)) 0.9)
+! (assertEqual (getSTI (Hebbianlink Human Cat)) 200)
+! (assertEqual (getLTI (Hebbianlink (Hebbianlink Human Cat) Animal)) 200)
+! (assertEqual (getVLTI (Hebbianlink (Hebbianlink Animal Hebbianlink) (Hebbianlink Animal Cat))) 0)
+

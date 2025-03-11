@@ -29,7 +29,7 @@
         (case (let $a (collapse (let $x (getValueType $pattern) (collapse (superpose $x)))) (index-atom $a 0))
             (( (AV $a $b $c) (AV $a $b $c))
                     ( ( (STV $a $b) (AV $x $y $z)) (AV $x $y $z))
-                    ($else (AV 0 0 0)))
+                    ($else %Undefined%))
         )
         (case (getValueType $pattern)
                 (( (AV $a $b $c) (getValueType $pattern))
@@ -72,7 +72,7 @@
             (case (let $a (collapse (let $x (getValueType $pattern) (collapse (superpose $x)))) (index-atom $a 0))
                 (( (STV $x $y) (STV $x $y) )
                 ( ( (STV $x $y) (AV $a $b $c)) (STV $x $y))
-                ($else (STV 1 0)))
+                ($else %Undefined%))
         )
         (case (getValueType $pattern)
             (
@@ -86,9 +86,36 @@
 
 (: getValueType (-> Atom Type))
 (= (getValueType $pattern) 
-   (let $t (get-type $pattern) (if (== $t %Undefined%) (empty) $t)))
+	(let $a 
+		(collapse (getValueType-helper $pattern))
+		(if (== $a ())
+			%Undefined%
+			(car-atom $a)
+		)
+	)
+)
 
+(: getValueType-helper (-> Atom Type))
+(= (getValueType-helper $pattern) 
+	(let $a 
+		(get-type $pattern) 
+		(unify $a  
+			(AV $sti $lti $vlti) 
+			(AV $sti $lti $vlti)
+			(unify $a
+				(STV $mean $conf)
+				(STV $mean $conf)
+				(unify $a
+					((STV $mean $conf) (AV $sti $lti $vlti))
+					((STV $mean $conf) (AV $sti $lti $vlti))
+					(empty)
+				)
+			)
+		)
+	)
 
+   
+)
 ; getMean retrieves mean from a pattern
 ; i.e !(getMean A)  output: 1 
 
@@ -147,4 +174,32 @@
 
 )
 
+
 (= (getType $pattern) (get-type $pattern))
+
+;;setSTI fnction accepts a pattern/node with an Sti value to replace the original
+;;and set the Sti to the pattern/node.
+; i.e !(setSTI A 500)
+(: setSTI (-> Atom Number Atom)) 
+(= (setSTI $pattern $newSTI)
+    (case (getAv $pattern)
+        ((%Undefined% (setAv $pattern ($newSTI 0 0)))
+        ((AV $sti $lti $vlti) (setAv $pattern ($newSTI $lti $vlti))))
+    )
+)
+(= (globalIncomingSetByType $atom $type)
+	(collapse
+		(superpose   
+			(
+				(match &self (: ($type $b $atom) $a) ($type $b $atom))
+				(match &self (: ($type $atom $b) $a) ($type $atom $b ))
+			)
+    )
+	)
+)
+
+(: removeAtomSelf (-> Atom empty))
+(= (removeAtomSelf $atom) 
+	(remove-atom &self $atom)
+)
+

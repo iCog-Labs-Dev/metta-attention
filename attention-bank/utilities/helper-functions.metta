@@ -227,8 +227,10 @@
               ($processedHead (if (== (get-type $firstElem) Number) 
                                   $rest  ; Remove the number, keep the rest
                                   $head)) ; If not a number, keep the whole expression
-              ($flattenedTail (extractAndFlatten $tail)))
-         (union-atom $processedHead $flattenedTail)))
+              ($flattenedTail (extractAndFlatten $tail))
+        )
+        (union-atom $processedHead $flattenedTail))
+    )
 )
 
 (: collectContents (-> Expression Expression Expression))
@@ -300,4 +302,24 @@
   )
  )
 
-             
+; Description: the function takes a list of atoms and experessions 
+;              and returns a new list wich contatins only symobls
+; params:
+;		$atoms: list of symbols and expressions
+; return: list of symbols
+(: removeLinksfromList (-> List List))
+(= (removeLinksfromList $atoms)
+	(if (== $atoms ())
+		()
+		(let* 
+			(
+				($head (car-atom $atoms))
+				($tail (cdr-atom $atoms))
+			)
+			(if (== (get-metatype $head) Symbol)
+				(concatTuple ($head) (removeLinksfromList $tail))	
+				(removeLinksfromList $tail)
+			)
+		)
+	)
+)
