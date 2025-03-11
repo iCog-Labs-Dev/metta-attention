@@ -1,7 +1,7 @@
 !(bind! &attentionalFocus (new-space))
 (= (AttentionalFocus) &attentionalFocus)
 
-(= (maxAFSize) 100)
+(= (maxAFSize) 3)
 
 ;Function: atomIsInAF
 ;Description: Checks if a given atom is in the attentional focus space.
@@ -251,13 +251,13 @@
            ($filteredAtoms (filter $allAtoms atomIsNotInAF))
        )
        (if (== $filteredAtoms ())
-           %Undefined 
-           (let*
+           %Undefined%
+        (let*
                (
-					($randInt (random-int 0 (size-atom $filteredAtoms)))
-                   	($randomAtom (index-atom $filteredAtoms $randInt))
+                   ($randInt (random-int 0 (size-atom $filteredAtoms)))
+                   ($randomAtom (index-atom $filteredAtoms $randInt))
                )
-               $randomAtom 
+             $randomAtom
            )
        )
    )
@@ -444,9 +444,7 @@
 ;;; Parameters:
 ;;;   $atom: The atom for which to find incoming links.
 ;;; Returns: A list of incoming links.
-
 (: getIncomingSetwithoutType (-> Atom List))
-
 (= (getIncomingSetwithoutType $atom)
     (collapse 
         (superpose   
