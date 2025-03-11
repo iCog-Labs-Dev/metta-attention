@@ -10,6 +10,11 @@
 
 !(import! &self metta-attention:attention:agents:mettaAgents:HebbianCreationAgent:HebbianCreationAgent)
 
+!(stimulate (ASYMMETRIC_HEBBIAN_LINK A B) 200 )
+!(stimulate (ASYMMETRIC_HEBBIAN_LINK A c) 200 )
+!(stimulate (INHERITANCE A D) 100)
+!(stimulate (INHERITANCE D A) 100)
+!(stimulate (ASYMMETRIC_HEBBIAN_LINK B c) 200 )
 
 
 !(add-atom (attentionalFocus) a)
@@ -33,21 +38,17 @@
 !(add-atom (attentionalFocus) (HEBBIAN_LINK e f))
 !(add-atom (attentionalFocus) (HEBBIAN_LINK f g))
 !(add-atom (attentionalFocus) (HEBBIAN_LINK g a))
-!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK z f))
 
+
+
+
+; !(attentionalFocusSize)
+;  !(HebbianCreationAgent-Run)
+
+!( collapse (getSourceNeighborsHelper a ASYMMETRIC_HEBBIAN_LINK True))
+
+; !(match (attentionalFocus) $x $x)
 
 ; !(getAtomList)
-!(attentionalFocusSize)
-!(getRandomAtomInAF)
 
-!(getIncomingSetByType g HEBBIAN_LINK)
-!(getIncomingSet  e HEBBIAN_LINK  )
-!(car-atom (g HebbianLink))
-!( collapse (getSourceNeighbors f ASYMMETRIC_HEBBIAN_LINK True))
-!(collapse (getTargetNeighbors a ASYMMETRIC_HEBBIAN_LINK True))
-
-
- !(HebbianCreationAgent-Run)
-
-
-
+; !(getIncomingSet b ASYMMETRIC_HEBBIAN_LINK)
