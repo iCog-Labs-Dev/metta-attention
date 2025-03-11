@@ -21,8 +21,19 @@
     )
 )
 
-(: getTargetNeighbors (-> Atom Atom Bool Atom))
-(= (getTargetNeighbors $atom $type $match-subtype)
+( = (getTargetNeighbors $atom $type $matchSubType)
+     (collapse (getTargetNeighborsHelper $atom $type $matchSubType))
+     (collapse (getTargetNeighborsHelper $atom $type $matchSubType))
+)
+
+( = (getSourceNeighbors $atom $type $matchSubType)
+    (let $ans (collapse (getSourceNeighborsHelper $atom $type $matchSubType))
+        $ans
+    )
+
+)
+(: getTargetNeighborsHelper (-> Atom Atom Bool Atom))
+(= (getTargetNeighborsHelper $atom $type $match-subtype)
     (if (== $type UNORDERED_LINK)
         ()
         (let*
@@ -43,8 +54,8 @@
     )
 )
 
-(: getSourceNeighbors (-> Atom Atom Bool Atom))
-(= (getSourceNeighbors $atom $type $match-subtype)
+(: getSourceNeighborsHelper (-> Atom Atom Bool Atom))
+(= (getSourceNeighborsHelper $atom $type $match-subtype)
     (if (== $type UNORDERED_LINK)
         ()
         (let*
