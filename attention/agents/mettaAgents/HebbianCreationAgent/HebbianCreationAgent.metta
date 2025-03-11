@@ -2,7 +2,7 @@
 
 
 !(bind! maxLinkNum 0)
-!(bind! localToFarLinks 1) 
+!(bind! localToFarLinks 2) ;This is to be fetched 
 
 
 
@@ -11,132 +11,102 @@
     ; if the attentional focus is empty no work is done
     (if ( == (attentionalFocusSize)  0)
         ("Empty Attentional Focus")
-        ( let* (($source (getRandomAtomInAF)) 
-                ($handleSet (getAtomList))
-                (remove-atom (attentionalFocus) $source) ; to minimize self connection
-                ($sourceAtom (car-atom (cdr-atom $source)))
-                ($existingAsSourceHS (collapse (getSourceNeighbors $sourceAtom ASYMMETRIC_HEBBIAN_LINK True)))
-                ($existingAsTarget (collapse (getTargetNeighbors $sourceAtom ASYMMETRIC_HEBBIAN_LINK True)))
-                ($needToBeSource (getNeedToBeSource $existingAsSourceHS))
-                ($needToBeTarget getNeedToBeTarget  $existingAsTarget)
-        )
-            ( if ( (or ( ( > (size-atom $sourceAtom) 1 ) (==  HEBBIAN_LINK (car-atom ($sourceAtom))) )))
+        (let $source (getRandomAtomInAF)
+            (if  (==  HEBBIAN_LINK (car-atom $source))
                 (empty) ; if already hebbian_link nothing is done
-                ; else
-                    (
-                    (addHebbianSourceRecursively $source $needToBeSource )
-                    (addHebbianTargetRecursively $source $needToBeTarget )
-                    (addFromOutSideAF $source localToFarLinks)
-                    ( $incomingSet (incomingHebbianLinks $source) ) ;add let here 
-                    (if (> (size-atom $incomingSet) maxLinkNum ) 
-                        (removeLinkRecursively (- (size-atom incomingSet) maxLinkNum))
-                        ()
-                    )
-                    )
-            )
-    )    )
-)
+                (
+                    ( let* (
 
-( = (removeLinkRecursively $num)
-    (if ( == $num 0)
-        (empty)
-        (let ($randomAtom (getRandomAtomInAf))
-            (
-                (remove-atom attentionalFocus $randomAtom)
-                (removeLinkRecursively (- $num 1))
+                        ($handleSet (getAtomList))
+                        (remove-atom (attentionalFocus) $source) ; to minimize self connection
+                        ($sourceAndTarget (cdr-atom $source))
+                        ($sourceAtom (car-atom $sourceAndTarget))
+                        ($existingAsSourceHS (collapse (getTargetNeighbors $sourceAtom ASYMMETRIC_HEBBIAN_LINK True)))
+                        ($existingAsTarget (collapse (getSourceNeighbors $sourceAtom ASYMMETRIC_HEBBIAN_LINK True)))
+                        ($needToBeSource ( setDifference (attentionalFocus) $existingAsSourceHS) )
+                        ($needToBeTarget  (setDifference (attentionalFocus) $existingAsTarget))
+                        ($count (size-atom $needToBeTarget ))
+                        ($farLinks (/ $count localToFarLinks ))
+                        ( $incomingSet (incomingHebbianLinks $source))
+                        )
 
+                        (
+                        (addHebbian $source (superpose $needToBeSource))
+                        (addHebbian $source (superpose $needToBeTarget))
+                        (addFromOutSideAF $source $farLinks)
+                        (if (> (size-atom $incomingSet) maxLinkNum )
+                            (removeLinkRecursively (- (size-atom $incomingSet) maxLinkNum))
+                            (empty)
+                        )
+                        )
+                    )
+                )
             )
         )
-
-
     )
 )
 
 
+( = (removeLinkRecursively $num)
+    (if ( (or (== $num 0) (== 0 (attentionalFocusSize))))
+        (empty)
+        (let ($randomAtom (getRandomAtomInAf))
+            (
+                (remove-atom (attentionalFocus) $randomAtom)
+                (removeLinkRecursively (- $num 1))
 
-
-( = (getNeedToBeSource $list)
-    (setDifference (attentionalFocus) $list)
-
-
+            )
+        )
+        )
 )
 
-( = (getNeedToBeTarget  $list)
 
-    (setDifference  (attentionalFocus) $list)
-)
+
+
 
 
 ; return the atoms that are in the attentional focus but not in the list 
 ( = (setDifference  $IncomingList)
-   
-    (let $atomList getAtomList 
+    (let $atomList (getAtomList)
         (subtraction-atom $atomList $incomingList )
     )
 )
 
 
 
-( = (addHebbianSourceRecursively $source  $needToBeSource)
-    (if ( == $needToBeSource ())
+
+
+
+( = (addFromOutSideAF  $source $farLinks)
+    (if ( == $farLinks 0 )
         (empty)
-        (
-            (addHebbian $source (car-atom $needToBeSource))
-            (addHebbianSourceRecursively $source (cdr-atom $needToBeSource))
-
-        )
-    )
-
-)
-
-( = (addHebbianTargetRecursively $source $needToBeTarget)
-    (if (== $needToBeTarget ())
-    (empty)
-    (addHebbian $source (car-atom $needToBeTarget)
-    (addHebbianTargetRecursively $source (cdr-atom $needToBeTarget))
-    )
-    )
-
-)
-
-
-
-
-
-( = (addFromOutSideAF  $source $localToFarLinks)
-    (if ( == $localToFarLinks 0 )
-        ()
         (let ($target getRandomAtomNotInAF)
-            (if ( == (car-atom $target) ASYMMETRIC_HEBBIAN_LINK)
-                (addHebbian $source $target )
-                 ()
+            (if ( (or (== () $target) ( == (car-atom $target) HEBBIAN_LINK)))
+                (empty)
+                (
+                    (if atomIsInAF (ASYMMETRIC_HEBBIAN_LINK $source $target) ;If the link exists dont add it again 
+                        (empty)
+                        (
+                            (addHebbian $source $target )
+                        )
+                    )
+                )
             )
         )
     )
-
-)
-
-
-( = (incomingHebbianLinks $source )
-    (let $atomList (getAtomList)
-        (filterHibbianLinks $atomList)
-
-    )
-
-
 )
 
 
 
-(= (filterHebbianLinks $list)
-    (if (== $list ())
-        ()  ; Base case: return empty list if input is empty
-        (let (($head (car-atom $list))
-              ($tail (cdr-atom $list)))
-            (if (match &attentionalFocus (ASYMMETRIC_HEBBIAN_LINK $source $target) $source) ;this will return non-deterministic many values right? 
-                ( (list $source $target) (filterHebbianLinks $tail)) ; Keep valid links. use concat tuple
-                (filterHebbianLinks $tail)  ; Skip invalid links
-            )
+
+
+(= (incomingHebbianLinks $source)
+    (let* (
+        ($hebbianLinkType (getIncomingSetByType $source  HEBBIAN_LINK ))
+        ($asymmetricHebbianLinkType (getIncomingSetByType $source ASYMMETRIC_HEBBIAN_LINK) )
+        )
+        (
+            (concatTuple $hebbianLinkType $asymmetricHebbianLinkType)
         )
     )
 )
@@ -145,19 +115,9 @@
 ( = (addHebbian $source $target)
     (let ($link (ASYMMETRIC_HEBBIAN_LINK $source $target) )
         (
-        (addLink $link)
-        (createTv $link 0.5 0.1)
-
+        (add-atom (attentionalFocus) $link)
+        (setStv $link 0.5 0.1)
         )
     )
-
-)
-
-( = (addLink $link)
-    (add-atom (attentionalFocus) $atom)
-)
-
-( = (createTv $link $v1 $v2)
-    (setStv $link $v1 $v2 )
 
 )
