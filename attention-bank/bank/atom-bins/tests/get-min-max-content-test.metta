@@ -1,4 +1,3 @@
-
 !(register-module! ../../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
@@ -14,6 +13,11 @@
 ; Ensure getSize returns 0 for bins that don't exist
 !(assertEqual (binSize) 0)
 
+!(setAv Human (0.0 0.0 0.0))
+!(setAv Dog (0.0 0.0 0.0))
+!(setAv Cat (0.0 0.0 0.0))
+!(setAv Animal (0.0 0.0 0.0))
+!(setAv Mother (0.0 0.0 0.0))
 ; Setup: Insert initial atoms into different bins
 !(insertAtom 1 Human)
 !(insertAtom 2 Dog)
@@ -27,6 +31,9 @@
 !(assertEqual (getMaxContent) (Mother))
 !(assertEqual (getMinContent) (Human))
 
+!(setAv (EvaluationLink Dog Cat) (0.0 0.0 0.0))
+!(setAv (Hebbianlink (Hebbianlink Human Cat) Animal) (0.0 0.0 0.0))
+!(setAv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother)) (0.0 0.0 0.0))
 ; Adding more atoms with expressions and links
 !(insertAtom 60 (EvaluationLink Dog Cat))
 !(insertAtom 70 (Hebbianlink (Hebbianlink Human Cat) Animal))
@@ -36,11 +43,12 @@
 
 ; Expected: Max bin to be 90 =  (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother))
 
-!(assertEqual (getMaxContent) (collapse(Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother))))
+!(assertEqual (getMaxContent) (collapse (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother))))
 
 ; Test Case 05: getMinContent for Multiple Min Bins
 ; Adding "Father" to bin 1 should update getMinContent
 ; Insert another atom in bin 1 and ensure both "Human" and "Father" are returned
+!(setAv Father (0 0 0))
 !(insertAtom 1 Father)
 
 ;Test with Symbol Atom Type
@@ -49,6 +57,8 @@
 ; Test Case 06: Testing getSize Function
 ; Ensure getSize returns correct atom count in bins
 ; Expected: Bin 1 has 3 atoms, Bin 2 has 2 atoms, Bin 50 has 1 atoms, Bin 90 has 1 atom
+!(setAv Humaner (0.0 0.0 0.0))
+!(setAv Doger (0.0 0.0 0.0))
 !(insertAtom 1 Humaner)
 !(insertAtom 2 Doger)
 !(assertEqual (getSize 1) 3)
