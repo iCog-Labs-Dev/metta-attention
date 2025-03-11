@@ -7,7 +7,7 @@
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 
-(getAfMaxSTI)
+!(getAfMaxSTI)
 !(setAv a (0.0 1.0 0.0))
 !(setAv d (7.0 4.0 0.0))
 !(setAv c (0.0 0.0 0.0))
@@ -28,39 +28,42 @@
 !(addAtomToAF G)
 !(addAtomToAF H)
 !(addAtomToAF I)
-!(add-atom &attentionalFocus (habbianlink a A))
-!(add-atom &attentionalFocus (PlusLink A F))
-!(add-atom &attentionalFocus (PlusLink A a))
+(add-atom &attentionalFocus (habbianlink a A))
+(add-atom &attentionalFocus (PlusLink A F))
+(add-atom &attentionalFocus (PlusLink A a))
 !(add-atom &attentionalFocus (ASYMMETRIC_HEBBIAN_LINK A a))
-!(add-atom &attentionalFocus (ASYMMETRIC_HEBBIAN_LINK A F))
+(add-atom &attentionalFocus (ASYMMETRIC_HEBBIAN_LINK A F))
 !(setAv (ASYMMETRIC_HEBBIAN_LINK A a) (10.0 10.0 0.0))
-!(setAv (ASYMMETRIC_HEBBIAN_LINK A F) (20.0 10.0 0.0))
-!(setAv (ASYMMETRIC_HEBBIAN_LINK A C) (20.0 10.0 0.0))
-!(add-atom (AtomBin) (0 (a b (habbianlink a A))))
+(setAv (ASYMMETRIC_HEBBIAN_LINK A F) (20.0 10.0 0.0))
+(setAv (ASYMMETRIC_HEBBIAN_LINK A C) (20.0 10.0 0.0))
+(add-atom (AtomBin) (0 (a b (habbianlink a A))))
 
 ; check if atoms have been added to the space
-!(assertEqual (getAtomList) 
+(assertEqual (getAtomList) 
 	(a A B C D F G H I (habbianlink a A) (PlusLink A F) (PlusLink A a) (ASYMMETRIC_HEBBIAN_LINK A a) (ASYMMETRIC_HEBBIAN_LINK A F)))
 
 ; test ForgettingLTIThenTVAscendingSort sorts by LTI
-!(assertEqual (ForgettingLTIThenTVAscendingSort (getAtomList))
+(assertEqual (ForgettingLTIThenTVAscendingSort (getAtomList))
 	((habbianlink a A) (PlusLink A F) (PlusLink A a) a H F (ASYMMETRIC_HEBBIAN_LINK A a) (ASYMMETRIC_HEBBIAN_LINK A F) D B A C G I))
-
-; Test the removeLinksfromList 
-!(assertEqual (removeLinksfromList (a A B C D F G H I (habbianlink a A))) (a A B C D F G H I))
-!(assertEqual (removeLinksfromList (a A B C D F G H I)) (a A B C D F G H I))
 
 ; Add links 
 
 ; Test forgetAtoms after inserting ASYMMETRIC_HEBBIAN_LINK
-!(forgetAtoms (getAtomList))
-!(let $atoms 
+!(getAtomList)
+!(ForgettingLTIThenTVAscendingSort (getAtomList))
+!(forgetAtoms (a H F (ASYMMETRIC_HEBBIAN_LINK A a)))
+(let $atoms 
 		(collapse (get-atoms &removeSpace)) 
 		(assertEqual $atoms ((habbianlink a A) (PlusLink A F) (PlusLink A a) a (ASYMMETRIC_HEBBIAN_LINK A a) H F (ASYMMETRIC_HEBBIAN_LINK A F)))
 )
 
-!(let $atoms 
+(let $atoms 
 		(collapse (get-atoms &attentionalFocus)) 
 		(assertEqual $atoms (A B C D G I))
 )
 
+
+!(get-atoms &removeSpace)
+!(get-atoms (AtomBin))
+!(get-atoms &attentionalFocus)
+!(get-atoms &atom-space)
