@@ -1,4 +1,3 @@
-
 !(register-module! ../../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
@@ -77,4 +76,3 @@
 ; Expected: sumSizes(1 2) should return 5, sumSizes(70 60 90) should return 3
 !(assertEqual (sumSizes (1 2)) 5)
 !(assertEqual (sumSizes (70 60 90 )) 3)
-
