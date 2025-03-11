@@ -2,9 +2,8 @@
 !(register-module! ../../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
-
+!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
-
 
 ; Test Case 01: Testing Empty AtomBin
 ; Ensure getMaxContent and getMinContent return empty lists when no atoms are present
@@ -67,5 +66,4 @@
 ; Expected: sumSizes(1 2) should return 5, sumSizes(70 60 90) should return 3
 !(assertEqual (sumSizes (1 2)) 5)
 !(assertEqual (sumSizes (70 60 90 )) 3)
-
 

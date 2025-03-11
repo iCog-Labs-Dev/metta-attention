@@ -31,3 +31,4 @@
 !(add-atom (attentionalFocus) (HEBBIAN_LINK g a))
 
 !(HebbianUpdatingAgent-Run)
+
