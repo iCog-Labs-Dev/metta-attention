@@ -1,3 +1,5 @@
+!(bind! &atom-space (new-space))
+
 ; set_av function accepts a pattern/node with the attention values
 ; and set the attention value to the pattern/node.
 ;
@@ -5,17 +7,17 @@
 (: setAv (-> Atom (Number Number Number) Atom))
 (= (setAv $pattern ($sti $lti $vlti))
     (if (== (collapse (getValueType $pattern)) ())
-        (add-atom &self (: $pattern (AV $sti $lti $vlti)))
+        (add-atom &atom-space (: $pattern (AV $sti $lti $vlti)))
         (let* (
                 ( $stv (getStv $pattern))
-                ( $_ (let $x (collapse (match &self (: $pattern $_) (: $pattern $_)))
+                ( $_ (let $x (collapse (match &atom-space (: $pattern $_) (: $pattern $_)))
                         (if (== $x ())
                             ()
-                            (let $y (car-atom $x) (remove-atom &self $y))
+                            (let $y (car-atom $x) (remove-atom &atom-space $y))
                             ))))
             (if (== $stv %Undefined%); 
-                (add-atom &self (: $pattern (AV $sti $lti $vlti)))
-                (add-atom &self (: $pattern ($stv (AV $sti $lti $vlti)))))))
+                (add-atom &atom-space (: $pattern (AV $sti $lti $vlti)))
+                (add-atom &atom-space (: $pattern ($stv (AV $sti $lti $vlti)))))))
 )
 
  ; getAv function accepts a pattern/node and returns the attention
@@ -48,16 +50,16 @@
  (: setStv (-> Atom (Number Number) Atom))
 (= (setStv $pattern ($mean $conf))
     (if (== (collapse (getValueType $pattern)) ())
-        (add-atom &self (: $pattern (STV $mean $conf)))
+        (add-atom &atom-space (: $pattern (STV $mean $conf)))
         (let* ( ( $av (getAv $pattern))
-                ($_ (let $x (collapse (match &self (: $pattern $_) (: $pattern $_)))
+                ($_ (let $x (collapse (match &atom-space (: $pattern $_) (: $pattern $_)))
                         (if (== $x ())
                             ()
-                            (let $y (car-atom $x) (remove-atom &self $y))
+                            (let $y (car-atom $x) (remove-atom &atom-space $y))
                             ))))
             (if (== $av %Undefined%)
-                (add-atom &self (: $pattern (STV $mean $conf)))
-                (add-atom &self (: $pattern ( (STV $mean $conf) $av)))))
+                (add-atom &atom-space (: $pattern (STV $mean $conf)))
+                (add-atom &atom-space (: $pattern ( (STV $mean $conf) $av)))))
     )
 )
 
@@ -98,7 +100,7 @@
 (: getValueType-helper (-> Atom Type))
 (= (getValueType-helper $pattern) 
 	(let $a 
-		(get-type $pattern) 
+		(get-type-space &atom-space $pattern) 
 		(unify $a  
 			(AV $sti $lti $vlti) 
 			(AV $sti $lti $vlti)
@@ -189,15 +191,20 @@
 	(collapse
 		(superpose   
 			(
-				(match &self (: ($type $b $atom) $a) ($type $b $atom))
-				(match &self (: ($type $atom $b) $a) ($type $atom $b ))
+				(match &atom-space (: ($type $b $atom) $a) ($type $b $atom))
+				(match &atom-space (: ($type $atom $b) $a) ($type $atom $b ))
 			)
     )
 	)
 )
 
-(: removeAtomSelf (-> Atom empty))
-(= (removeAtomSelf $atom) 
-	(remove-atom &self $atom)
+(: removeAtomSpace (-> Atom empty))
+(= (removeAtomSpace $atom) 
+	(remove-atom &atom-space $atom)
+)
+
+(: AtomSpace ( -> Grounding:space))
+(= (AtomSpace)
+	(&atom-space)
 )
 
