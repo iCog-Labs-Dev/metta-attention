@@ -1,7 +1,7 @@
 !(bind! &attentionalFocus (new-space))
 (= (AttentionalFocus) &attentionalFocus)
 
-(= (maxAFSize) 3)
+(= (maxAFSize) 100)
 
 ;Function: atomIsInAF
 ;Description: Checks if a given atom is in the attentional focus space.

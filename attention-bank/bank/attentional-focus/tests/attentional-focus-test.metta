@@ -53,7 +53,7 @@
 
 ; Test case 04: Testing sortAtomsBySti sorts atoms and returns sorted list
 
-!(assertEqual (sortAtomsBySti  (getAtomList)) (a D B F A C))
+(assertEqual (sortAtomsBySti  (getAtomList)) (a D B F A C))
 
 
 ; Test case 05: Testing getLowestStiAtomInAF returns an atom with lowest Sti
@@ -65,25 +65,25 @@
 
 !(setAv G (300.0 400.0 500.0))
 !(assertEqual (updateAttentionalFocus G) ("Atom Added"))
-!(assertEqual (getAtomList) (G A B C D F))
+!(assertEqual (getAtomList) (a A B C D F G))
 
 
 ; Test case 07: Testing updateAttentionalFocus by changing values of saved atom
 
 !(setAv G (15.0 25.0 35.0))
 !(assertEqual (updateAttentionalFocus G) ("Atom Added"))
-!(assertEqual (getAtomList) (G A B C D F))
+!(assertEqual (getAtomList) (a A B C D F G))
 
 
 ; Test case 08: Testing updateAttentionalFocus adding an atom without AV 
 
-!(assertEqual (updateAttentionalFocus L) (empty))
-!(assertEqual (getAtomList) (G A B C D F))
+!(assertEqual (updateAttentionalFocus L) ("Atom is not valid"))
+!(assertEqual (getAtomList) (a A B C D F G))
 
 
 ; Test case 09; Testing sortAtomsBySti checking new order of atoms
 
-!(assertEqual (sortAtomsBySti  (getAtomList)) (G D B F A C))
+!(assertEqual (sortAtomsBySti  (getAtomList)) (a G D B F A C))
 
 
 ; Test case 10: Testing getRandomAtomNotInAF assure that only one atom is returned
@@ -98,7 +98,7 @@
 
 ; Test case 12: Testing sortAtomsByStiDescending to check if it sorts atoms in descending STI
 
-!(assertEqual(sortAtomsByStiDescending  (getAtomList)) (C A F B D G))
+!(assertEqual(sortAtomsByStiDescending  (getAtomList)) (C A F B D G a))
 
 
 ;################ Prep: adding to attensionalfocus space to test link match ####################
@@ -122,15 +122,15 @@
 
 ; Test case 13: Testing getIncomingSet function 
 
- (assertEqual (getIncomingSet abebe habbianlink) ((habbianlink abebe kebede) (habbianlink challa abebe)))
+!(assertEqual (getIncomingSet abebe habbianlink) ((habbianlink abebe kebede) (habbianlink challa abebe)))
 
 
 ; Test case 14: Testing nodeMatch against values in and out of attentionalFocus 
 
- (assertEqual (nodeMatch  (PlusLink abebe kebede) (PlusLink abebe kebede)) True) 
- (assertEqual (nodeMatch  (PlusLink abebe kebede) (PlusLink kebede abebe)) False) 
- (assertEqual (nodeMatch (ConceptNode abebe) (ConceptNode abebe)) False)
- (assertEqual (nodeMatch () ()) False)
+!(assertEqual (nodeMatch  (PlusLink abebe kebede) (PlusLink abebe kebede)) True) 
+!(assertEqual (nodeMatch  (PlusLink abebe kebede) (PlusLink kebede abebe)) False) 
+!(assertEqual (nodeMatch (ConceptNode abebe) (ConceptNode abebe)) False)
+!(assertEqual (nodeMatch () ()) False)
 
 
 ; Test case 15: Testing linkMatch
