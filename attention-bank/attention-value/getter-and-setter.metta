@@ -113,6 +113,8 @@
 			)
 		)
 	)
+
+   
 )
 ; getMean retrieves mean from a pattern
 ; i.e !(getMean A)  output: 1 

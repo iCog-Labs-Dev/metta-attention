@@ -1,38 +1,69 @@
+
 !(register-module! ../../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 
-;################### Prep: insert atoms to the atomBin ########################
-!(add-atom &atombin (1 (a Cat)))
-!(add-atom &atombin (2 (d)))
-!(add-atom &atombin (3 (c Human)))
-!(add-atom &atombin (17 (s c)))
-!(add-atom &atombin (18 (g j (Hebbianlink (Hebbianlink Human Cat) Animal))))
-!(add-atom &atombin (37 (f h j k (EvaluationLink a b))))
+; Test Case 01: Testing Empty AtomBin
+; Ensure getMaxContent and getMinContent return empty lists when no atoms are present
+; !(assertEqual (getMaxContent) ())
+; !(assertEqual (getMinContent) ())
 
-;################# Testing ##################################
+; Test Case 02: getSize for a Non-Existent Bin
+; Ensure getSize returns 0 for bins that don't exist
+!(assertEqual (binSize) 0)
 
-; Test case 01: Testing getMaxContent asserting it returns bin with least bin index
-! (assertEqual (getMaxContent) (f h j k (EvaluationLink a b)))
+; Setup: Insert initial atoms into different bins
+!(insertAtom 1 Human)
+!(insertAtom 2 Dog)
+!(insertAtom 3 Cat)
+!(insertAtom 5 Animal)
+!(insertAtom 50 Mother)
 
-; Test case 02: Testing getMinContent asserting it returns bin with greatest bin index
-! (assertEqual (getMinContent) (a Cat))
+; Test Case 03: Testing getMaxContent and getMinContent with Initial Data
+; Ensure they return correct values when bins are populated
+; Expected: Max bin (50) = Mother, Min bin (1) = Human
+!(assertEqual (getMaxContent) (Mother))
+!(assertEqual (getMinContent) (Human))
 
-; Test case 03: Testing getMinContent asserting it changes with inserAtom function
-! (setAv d (1.0 2.0 0.0))
-! (insertAtom 1 d)
-! (assertEqual (getMinContent) (d a Cat))
+; Adding more atoms with expressions and links
+!(insertAtom 60 (EvaluationLink Dog Cat))
+!(insertAtom 70 (Hebbianlink (Hebbianlink Human Cat) Animal))
+!(insertAtom 90 (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother)))
 
-; Test case 04: Testing getSize asserting it returns number of atoms in bin
-! (assertEqual (getSize 1) 3)
-! (assertEqual (getSize 17) 2)
-! (assertEqual (getSize 37) 5)
+; Test Case 04: Adding Atom to Max Bin
 
-; Test case 05: Testing binSize asserting it returns the total number of atoms in atombins
-! (assertEqual (binSize) 16)
+; Expected: Max bin to be 90 =  (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother))
 
-; Test case 07: Testing binSize asserting it returns a differnet numbe after removeAtom
-! (removeAtom 1 d)
-! (assertEqual (binSize) 15)
+!(assertEqual (getMaxContent) (collapse(Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother))))
+
+; Test Case 05: getMinContent for Multiple Min Bins
+; Adding "Father" to bin 1 should update getMinContent
+; Insert another atom in bin 1 and ensure both "Human" and "Father" are returned
+!(insertAtom 1 Father)
+
+;Test with Symbol Atom Type
+!(assertEqual (getMinContent) (Father Human))
+
+; Test Case 06: Testing getSize Function
+; Ensure getSize returns correct atom count in bins
+; Expected: Bin 1 has 3 atoms, Bin 2 has 2 atoms, Bin 50 has 1 atoms, Bin 90 has 1 atom
+!(insertAtom 1 Humaner)
+!(insertAtom 2 Doger)
+!(assertEqual (getSize 1) 3)
+!(assertEqual (getSize 2) 2)
+!(assertEqual (getSize 50) 1)
+!(assertEqual (getSize 90) 1)
+
+; Test Case 07: Testing binSize Function
+; Ensure binSize correctly returns the total number of atoms across all bins
+; Expected: Total atoms = 11
+!(assertEqual (binSize) 11)
+
+; Test Case 08: Testing sumSizes Function
+; Ensure sumSizes correctly sums atoms in specified bins
+; Expected: sumSizes(1 2) should return 5, sumSizes(70 60 90) should return 3
+!(assertEqual (sumSizes (1 2)) 5)
+!(assertEqual (sumSizes (70 60 90 )) 3)
+

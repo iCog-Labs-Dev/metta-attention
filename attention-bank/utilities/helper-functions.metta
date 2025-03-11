@@ -220,19 +220,17 @@
 (= (extractAndFlatten $expr)
    (if (== $expr ())
        ()
-       (let* 
-			(
-				($head (car-atom $expr))
-              	($tail (cdr-atom $expr))
-				($firstElem (car-atom $head))
-              	($rest (cdr-atom $head))
-              	($processedHead 
-					(if (== (get-type $firstElem) Number) 
-                    	$rest  ; Remove the number, keep the rest
-                        $head)) ; If not a number, keep the whole expression
-              	($flattenedTail (extractAndFlatten $tail))
-			)
-         (union-atom $processedHead $flattenedTail)))
+       (let* (($head (car-atom $expr))
+              ($tail (cdr-atom $expr))
+              ($firstElem (car-atom $head))
+              ($rest (cdr-atom $head))
+              ($processedHead (if (== (get-type $firstElem) Number) 
+                                  $rest  ; Remove the number, keep the rest
+                                  $head)) ; If not a number, keep the whole expression
+              ($flattenedTail (extractAndFlatten $tail))
+        )
+        (union-atom $processedHead $flattenedTail))
+    )
 )
 
 (: collectContents (-> Expression Expression Expression))

@@ -87,3 +87,4 @@
 ! (assertEqual (getSTI (Hebbianlink Human Cat)) 200)
 ! (assertEqual (getLTI (Hebbianlink (Hebbianlink Human Cat) Animal)) 200)
 ! (assertEqual (getVLTI (Hebbianlink (Hebbianlink Animal Hebbianlink) (Hebbianlink Animal Cat))) 0)
+
