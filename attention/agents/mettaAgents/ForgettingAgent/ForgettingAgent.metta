@@ -189,7 +189,7 @@
 			(() (extractAtomRecursive $niset))
 			(() (remove-atom (AttentionalFocus) $head))
 			($bin (importanceBin (getSTI $head)))
-			($val (removeAtomBin $head $bin))
+			($_ (removeAtom $bin $head))
 			(() (removeTypeSpace $head))
 
 		)
@@ -210,10 +210,10 @@
 			(
 				($head (car-atom $atoms))
 				($tail (cdr-atom $atoms))
-				(() (remove-atom (AttentionalFocus) $head))
 				(() (add-atom &removeSpace $head))
+				(() (remove-atom (AttentionalFocus) $head))
 				($bin (importanceBin (getSTI $head)))
-				($val (removeAtomBin $head $bin))
+				($_ (removeAtom $bin $head))
 				(() (removeTypeSpace $head))
 
 			)
@@ -221,27 +221,3 @@
 		)
 	)
 )
-
-; Description: function to check if atom is present in bin before attemping to remove
-; params:
-;	$head: atom to be searched inside the atom bin
-;	$bin: calculated bin of the atom
-; return: None	
-(: removeAtomBin (-> Atom Number empty))
-(= (removeAtomBin $head $bin)
-	(let*
-		(
-			($bins (match (AtomBin) ($bin $x) $x))
-			($isPresent (contains $bins a))
-		)
-		(if $isPresent 
-			()
-			(removeAtom $bin $head)
-		)
-	)
-)
-
-
-
-
-

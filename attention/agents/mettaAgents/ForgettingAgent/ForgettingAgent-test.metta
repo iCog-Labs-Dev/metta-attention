@@ -34,12 +34,13 @@
 !(addAtomToAF G)
 !(addAtomToAF H)
 !(addAtomToAF I)
-(addAtomToAF (habbianlink a A))
+!(addAtomToAF (habbianlink a A))
 !(addAtomToAF (PlusLink A F))
-(addAtomToAF (PlusLink A a))
-(addAtomToAF (ASYMMETRIC_HEBBIAN_LINK A a))
-(addAtomToAF (ASYMMETRIC_HEBBIAN_LINK A F))
-!(add-atom (AtomBin) (0 (a b (habbianlink a A))))
+!(addAtomToAF (PlusLink A a))
+!(addAtomToAF (ASYMMETRIC_HEBBIAN_LINK A a))
+!(addAtomToAF (ASYMMETRIC_HEBBIAN_LINK A F))
+!(add-atom (AtomBin) (0 (a b H)))
+!(add-atom (AtomBin) (19.0 ((habbianlink a A))))
 
 ; check if atoms have been added to the space
 (assertEqual (getAtomList) 
@@ -47,28 +48,18 @@
 
 ; test ForgettingLTIThenTVAscendingSort sorts by LTI
 (assertEqual (ForgettingLTIThenTVAscendingSort (getAtomList))
-	((habbianlink a A) (PlusLink A F) (PlusLink A a) a H F (ASYMMETRIC_HEBBIAN_LINK A a) (ASYMMETRIC_HEBBIAN_LINK A F) D B A C G I))
+	(a H (PlusLink A F) F (habbianlink a A) (PlusLink A a) (ASYMMETRIC_HEBBIAN_LINK A a) (ASYMMETRIC_HEBBIAN_LINK A F) D B A C G I))
 
 ; Add links 
 
 ; Test forgetAtoms after inserting ASYMMETRIC_HEBBIAN_LINK
-!(getAtomList)
-(get-atoms &attentionalFocus)
-!(ForgettingLTIThenTVAscendingSort (getAtomList))
-!(forgetAtoms (getAtomList))
+!(assertEqual (forgetAtoms (getAtomList)) ())
 (let $atoms 
 		(collapse (get-atoms &removeSpace)) 
-		(assertEqual $atoms ((habbianlink a A) (PlusLink A F) (PlusLink A a) a (ASYMMETRIC_HEBBIAN_LINK A a) H F (ASYMMETRIC_HEBBIAN_LINK A F)))
+		(assertEqual $atoms (H (PlusLink A F) F (ASYMMETRIC_HEBBIAN_LINK A F)))
 )
 
 (let $atoms 
 		(collapse (get-atoms &attentionalFocus)) 
 		(assertEqual $atoms (A B C D G I))
 )
-
-
-!(get-atoms &removeSpace)
-!(get-atoms &typeSpace)
-!(get-atoms &attentionalFocus)
-!(get-atoms (AtomBin))
-

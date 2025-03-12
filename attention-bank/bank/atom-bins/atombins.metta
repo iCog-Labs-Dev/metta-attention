@@ -70,7 +70,7 @@
 
 (: removeAtom (-> Number Atom empty))
 (= (removeAtom $bin_index $atom)
-   (if (== (getType $atom) %Undefined%)
+   (if (== (getValueType $atom) %Undefined%)
       ("Atom is not valid") ; Validate type
       (let $bin_contents (collapse (match &atombin ($bin_index $contents) $contents))
          (if(== $bin_contents ())
