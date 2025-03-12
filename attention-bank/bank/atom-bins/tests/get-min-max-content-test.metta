@@ -1,4 +1,4 @@
-!(register-module! ../../../../../metta-attention)
+!(register-module! ../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
@@ -13,13 +13,6 @@
 ; Ensure getSize returns 0 for bins that don't exist
 !(assertEqual (binSize) 0)
 
-<<<<<<< HEAD
-!(setAv Human (0.0 0.0 0.0))
-!(setAv Dog (0.0 0.0 0.0))
-!(setAv Cat (0.0 0.0 0.0))
-!(setAv Animal (0.0 0.0 0.0))
-!(setAv Mother (0.0 0.0 0.0))
-=======
 ; Setup: setAv values to atoms
 !(setAv Human (100.0 100.0 1.0))
 !(setAv Dog (200.0 200.0 1.0))
@@ -27,7 +20,6 @@
 !(setAv Animal (400.0 400.0 1.0))
 !(setAv Mother (500.0 500.0 1.0))
 
->>>>>>> dev
 ; Setup: Insert initial atoms into different bins
 !(insertAtom 1 Human)
 !(insertAtom 2 Dog)
@@ -41,17 +33,11 @@
 !(assertEqual (getMaxContent) (Mother))
 !(assertEqual (getMinContent) (Human))
 
-<<<<<<< HEAD
-!(setAv (EvaluationLink Dog Cat) (0.0 0.0 0.0))
-!(setAv (Hebbianlink (Hebbianlink Human Cat) Animal) (0.0 0.0 0.0))
-!(setAv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother)) (0.0 0.0 0.0))
-=======
 ; SetUp: setAv values to atoms
 !(setAv (EvaluationLink Dog Cat) (110.0 110.0 1.0))
 !(setAv (Hebbianlink (Hebbianlink Human Cat) Animal) (120.0 120.0 1.0))
 !(setAv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother)) (130.0 130.0 1.0))
 
->>>>>>> dev
 ; Adding more atoms with expressions and links
 !(insertAtom 60 (EvaluationLink Dog Cat))
 !(insertAtom 70 (Hebbianlink (Hebbianlink Human Cat) Animal))
