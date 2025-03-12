@@ -1,3 +1,4 @@
+!(bind! &typeSpace (new-space))
 ; set_av function accepts a pattern/node with the attention values
 ; and set the attention value to the pattern/node.
 ;
@@ -5,17 +6,17 @@
 (: setAv (-> Atom (Number Number Number) Atom))
 (= (setAv $pattern ($sti $lti $vlti))
     (if (== (collapse (getValueType $pattern)) ())
-        (add-atom &self (: $pattern (AV $sti $lti $vlti)))
+        (add-atom &typeSpace (: $pattern (AV $sti $lti $vlti)))
         (let* (
                 ( $stv (getStv $pattern))
-                ( $_ (let $x (collapse (match &self (: $pattern $_) (: $pattern $_)))
+                ( $_ (let $x (collapse (match &typeSpace (: $pattern $_) (: $pattern $_)))
                         (if (== $x ())
                             ()
-                            (let $y (car-atom $x) (remove-atom &self $y))
+                            (let $y (car-atom $x) (remove-atom &typeSpace $y))
                             ))))
             (if (== $stv %Undefined%); 
-                (add-atom &self (: $pattern (AV $sti $lti $vlti)))
-                (add-atom &self (: $pattern ($stv (AV $sti $lti $vlti)))))))
+                (add-atom &typeSpace (: $pattern (AV $sti $lti $vlti)))
+                (add-atom &typeSpace (: $pattern ($stv (AV $sti $lti $vlti)))))))
 )
 
  ; getAv function accepts a pattern/node and returns the attention
@@ -29,7 +30,7 @@
         (case (let $a (collapse (let $x (getValueType $pattern) (collapse (superpose $x)))) (index-atom $a 0))
             (( (AV $a $b $c) (AV $a $b $c))
                     ( ( (STV $a $b) (AV $x $y $z)) (AV $x $y $z))
-                    ($else (AV 0 0 0)))
+                    ($else %Undefined%))
         )
         (case (getValueType $pattern)
                 (( (AV $a $b $c) (getValueType $pattern))
@@ -48,16 +49,16 @@
  (: setStv (-> Atom (Number Number) Atom))
 (= (setStv $pattern ($mean $conf))
     (if (== (collapse (getValueType $pattern)) ())
-        (add-atom &self (: $pattern (STV $mean $conf)))
+        (add-atom &typeSpace (: $pattern (STV $mean $conf)))
         (let* ( ( $av (getAv $pattern))
-                ($_ (let $x (collapse (match &self (: $pattern $_) (: $pattern $_)))
+                ($_ (let $x (collapse (match &typeSpace (: $pattern $_) (: $pattern $_)))
                         (if (== $x ())
                             ()
-                            (let $y (car-atom $x) (remove-atom &self $y))
+                            (let $y (car-atom $x) (remove-atom &typeSpace $y))
                             ))))
             (if (== $av %Undefined%)
-                (add-atom &self (: $pattern (STV $mean $conf)))
-                (add-atom &self (: $pattern ( (STV $mean $conf) $av)))))
+                (add-atom &typeSpace (: $pattern (STV $mean $conf)))
+                (add-atom &typeSpace (: $pattern ( (STV $mean $conf) $av)))))
     )
 )
 
@@ -72,7 +73,7 @@
             (case (let $a (collapse (let $x (getValueType $pattern) (collapse (superpose $x)))) (index-atom $a 0))
                 (( (STV $x $y) (STV $x $y) )
                 ( ( (STV $x $y) (AV $a $b $c)) (STV $x $y))
-                ($else (STV 1 0)))
+                ($else %Undefined%))
         )
         (case (getValueType $pattern)
             (
@@ -83,36 +84,37 @@
     )
 )
 
-
 (: getValueType (-> Atom Type))
 (= (getValueType $pattern) 
-   (let $t (get-type $pattern) (if (== $t %Undefined%) (empty) $t))
+	(let $a 
+		(collapse (getValueType-helper $pattern))
+		(if (== $a ())
+			%Undefined%
+			(car-atom $a)
+		)
+	)
 )
 
-(: getValueTypes (-> Atom Type))
-(= (getValueTypes $pattern) 
-   (if (== (get-metatype $pattern) Expression)
-        (let $a 
-			(collapse 
-				(let $x 
-					(let $t 
-						(get-type $pattern) 
-							(if (== $t %Undefined%) 
-								(empty) 
-								$t
-							)
-					) 
-					(collapse (superpose $x))
+(: getValueType-helper (-> Atom Type))
+(= (getValueType-helper $pattern) 
+	(let $a 
+		(get-type-space &typeSpace $pattern) 
+		(unify $a  
+			(AV $sti $lti $vlti) 
+			(AV $sti $lti $vlti)
+			(unify $a
+				(STV $mean $conf)
+				(STV $mean $conf)
+				(unify $a
+					((STV $mean $conf) (AV $sti $lti $vlti))
+					((STV $mean $conf) (AV $sti $lti $vlti))
+					(empty)
 				)
-			) 
-        	(if (> (size-atom $a) 1) 
-				(index-atom $a 1) 
-				%Undefined%
 			)
 		)
-        (let $t (get-type $pattern) (if (== $t %Undefined%) (empty) $t))
-    )
+	)
 )
+
 ; getMean retrieves mean from a pattern
 ; i.e !(getMean A)  output: 1 
 
@@ -172,7 +174,7 @@
 )
 
 
-(= (getType $pattern) (get-type $pattern))
+(= (getType $pattern) (get-type-space &typeSpace $pattern))
 
 ;;setSTI fnction accepts a pattern/node with an Sti value to replace the original
 ;;and set the Sti to the pattern/node.
@@ -188,15 +190,36 @@
 	(collapse
 		(superpose   
 			(
-				(match &self (: ($type $b $atom) $a) ($type $b $atom))
-				(match &self (: ($type $atom $b) $a) ($type $atom $b ))
+				(match &typeSpace (: ($type $b $atom) $a) ($type $b $atom))
+				(match &typeSpace (: ($type $atom $b) $a) ($type $atom $b ))
 			)
     )
 	)
 )
 
-(: removeAtomSelf (-> Atom empty))
-(= (removeAtomSelf $atom) 
-	(remove-atom &self $atom)
+(= (globalIncomingSetwithoutType $atom)
+    (collapse 
+        (superpose   
+            (
+				(match &typeSpace (: ($type $b $atom) $a) ($type $b $atom))
+				(match &typeSpace (: ($type $atom $b) $a) ($type $atom $b ))
+            )
+        )  
+    )
 )
 
+(: removeTypeSpace (-> Atom empty))
+(= (removeTypeSpace $atom) 
+	(let $a 
+		(getValueType $atom)
+		(if (== $a %Undefined%)
+			()
+			(remove-atom &typeSpace (: $atom $a))
+		)
+	)
+)
+
+(: TypeSpace ( -> Grounding:space))
+(= (TypeSpace)
+	(&typeSpace)
+)

@@ -1,7 +1,7 @@
 !(bind! &attentionalFocus (new-space))
 (= (AttentionalFocus) &attentionalFocus)
 
-(= (maxAFSize) 3)
+(= (maxAFSize) 100)
 
 ;Function: atomIsInAF
 ;Description: Checks if a given atom is in the attentional focus space.
@@ -38,7 +38,7 @@
 ;Returns: A message indicating success or failure.
 (: addAtomToAF (-> Atom Symbol))
 (= (addAtomToAF $atom)
-   (if (== (getType $atom) %Undefined%)
+   (if (== (getValueType $atom) %Undefined%)
        ("Atom is not valid")
        (let()
          (add-atom &attentionalFocus $atom)
@@ -446,7 +446,6 @@
 ;;; Returns: A list of incoming links.
 
 (: getIncomingSetwithoutType (-> Atom List))
-
 (= (getIncomingSetwithoutType $atom)
     (collapse 
         (superpose   

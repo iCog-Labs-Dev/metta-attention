@@ -103,23 +103,22 @@
 				($head (car-atom $sortedatoms))
 				($tail (cdr-atom $sortedatoms))
 				($isValid (atomBelowForgetThreshold $head $removalAmount $count))
-				($iset (getIncomingSetByType $head ASYMMETRIC_HEBBIAN_LINK))
-				($niset (getIncomingSetwithoutType $head))
+				($iset (incomingSetType $head ASYMMETRIC_HEBBIAN_LINK))
+				($niset (incomingSetUntyped $head))
 			)
 			(if $isValid
 				(if (== (size-atom $iset) (size-atom $niset))
 					(let*
 						(
 							($size (size-atom $niset))
-							(() (add-atom &removeSpace $head))
 							(() (globalRemoveAtom $head $niset))
 							($newCount (+ (+ 1 $count ) $size))
 						)
-						(check_ThenRemoveAtom $tail $removalAmount $newCount)
+						(checkThenRemoveAtom $tail $removalAmount $newCount)
 					)
 					(checkThenRemoveAtom $tail $removalAmount $count)
 				)
-				(here)
+				()
 			)
 		)
 	)
@@ -143,7 +142,7 @@
 	)
 )
 
-: Description: a function to find incoming set from both attentioanl focus and self of getter and setter spaces
+: Description: a function to find incoming set from both attentioanl focus and typeSpace.
 ; params:
 ;		$atom: atom whose incoming set is to be searched
 ;		$type: type of the link of the returned incoming set
@@ -152,8 +151,24 @@
 (= (incomingSetType $atom $type)
 	(let* 
 		(
-			($selfiset (globalIncomingSetByType  $atom $type))
+			($selfiset (globalIncomingSetByType $atom $type))
 			($attiset (getIncomingSetByType $atom $type))
+			($union (union-atom $selfiset $attiset))
+		)
+		(unique-atom $union)
+	)
+)
+
+: Description: a function to find incoming set from both attentioanl focus and self typeSpace.
+; params:
+;		$atom: atom whose incoming set is to be searched
+; return: all set of incoiming sets not specifc of types
+(: incomingSetType (-> Atom Atom List))
+(= (incomingSetUntyped $atom)
+	(let* 
+		(
+			($selfiset (globalIncomingSetwithoutType $atom))
+			($attiset (getIncomingSetwithoutType $atom))
 			($union (union-atom $selfiset $attiset))
 		)
 		(unique-atom $union)
@@ -170,7 +185,13 @@
 	(let*
 		(
 			(() (setAv $head (0.0 0.0 0.0)))
+			(() (add-atom &removeSpace $head))
 			(() (extractAtomRecursive $niset))
+			(() (remove-atom (AttentionalFocus) $head))
+			($bin (importanceBin (getSTI $head)))
+			($val (removeAtomBin $head $bin))
+			(() (removeTypeSpace $head))
+
 		)
 		()
 	)
@@ -193,7 +214,7 @@
 				(() (add-atom &removeSpace $head))
 				($bin (importanceBin (getSTI $head)))
 				($val (removeAtomBin $head $bin))
-				(() (removeAtomSelf $head))
+				(() (removeTypeSpace $head))
 
 			)
 			(extractAtomRecursive $tail)
@@ -211,9 +232,9 @@
 	(let*
 		(
 			($bins (match (AtomBin) ($bin $x) $x))
-			($intersection (intersection-atom $bins ($head)))
+			($isPresent (contains $bins a))
 		)
-		(if (== $intersection ())
+		(if $isPresent 
 			()
 			(removeAtom $bin $head)
 		)

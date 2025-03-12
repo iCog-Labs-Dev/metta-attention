@@ -19,6 +19,12 @@
 !(setAv G (300.0 400.0 0.0))
 !(setAv H (15.0 1.0 0.0))
 !(setAv I (500.0 600.0 0.0))
+!(setAv (ASYMMETRIC_HEBBIAN_LINK A a) (10.0 10.0 0.0))
+!(setAv (ASYMMETRIC_HEBBIAN_LINK A F) (20.0 10.0 0.0))
+!(setAv (ASYMMETRIC_HEBBIAN_LINK A C) (20.0 10.0 0.0))
+!(setAv (habbianlink a A) (21.0 10.0 0.0))
+!(setAv (PlusLink A F) (22.0 2.0 0.0))
+!(setAv (PlusLink A a) (23.0 10.0 0.0))
 !(addAtomToAF a)
 !(addAtomToAF A)
 !(addAtomToAF B)
@@ -28,15 +34,12 @@
 !(addAtomToAF G)
 !(addAtomToAF H)
 !(addAtomToAF I)
-(add-atom &attentionalFocus (habbianlink a A))
-(add-atom &attentionalFocus (PlusLink A F))
-(add-atom &attentionalFocus (PlusLink A a))
-!(add-atom &attentionalFocus (ASYMMETRIC_HEBBIAN_LINK A a))
-(add-atom &attentionalFocus (ASYMMETRIC_HEBBIAN_LINK A F))
-!(setAv (ASYMMETRIC_HEBBIAN_LINK A a) (10.0 10.0 0.0))
-(setAv (ASYMMETRIC_HEBBIAN_LINK A F) (20.0 10.0 0.0))
-(setAv (ASYMMETRIC_HEBBIAN_LINK A C) (20.0 10.0 0.0))
-(add-atom (AtomBin) (0 (a b (habbianlink a A))))
+(addAtomToAF (habbianlink a A))
+!(addAtomToAF (PlusLink A F))
+(addAtomToAF (PlusLink A a))
+(addAtomToAF (ASYMMETRIC_HEBBIAN_LINK A a))
+(addAtomToAF (ASYMMETRIC_HEBBIAN_LINK A F))
+!(add-atom (AtomBin) (0 (a b (habbianlink a A))))
 
 ; check if atoms have been added to the space
 (assertEqual (getAtomList) 
@@ -50,8 +53,9 @@
 
 ; Test forgetAtoms after inserting ASYMMETRIC_HEBBIAN_LINK
 !(getAtomList)
+(get-atoms &attentionalFocus)
 !(ForgettingLTIThenTVAscendingSort (getAtomList))
-!(forgetAtoms (a H F (ASYMMETRIC_HEBBIAN_LINK A a)))
+!(forgetAtoms (getAtomList))
 (let $atoms 
 		(collapse (get-atoms &removeSpace)) 
 		(assertEqual $atoms ((habbianlink a A) (PlusLink A F) (PlusLink A a) a (ASYMMETRIC_HEBBIAN_LINK A a) H F (ASYMMETRIC_HEBBIAN_LINK A F)))
@@ -64,6 +68,7 @@
 
 
 !(get-atoms &removeSpace)
-!(get-atoms (AtomBin))
+!(get-atoms &typeSpace)
 !(get-atoms &attentionalFocus)
-!(get-atoms &atom-space)
+!(get-atoms (AtomBin))
+
