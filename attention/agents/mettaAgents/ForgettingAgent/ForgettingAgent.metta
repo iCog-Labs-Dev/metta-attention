@@ -134,7 +134,7 @@
 			(() (setAv $head (0.0 0.0 0.0)))
 			(() (extractAtomRecursive $niset))
 			(() (remove-atom (AttentionalFocus) $head))
-			(() (removeAtomSelf $head))
+			(() (removeTypeSpace $head))
 		)
 		()
 	)
