@@ -9,8 +9,6 @@
 (: selectTargets (-> Atom))
 (= (selectTargets)
     (collapse (getRandomAtomNotInAF))
-    
-      
 )
 
 ; Function: collectRent
@@ -22,9 +20,9 @@
 (: collectRent (-> Atom empty))
 (= (collectRent $newtarget)
    (if (== $newtarget ())
-       (empty)  
-       
-       (let* (
+       (empty)
+       (let*
+            (
                ($target (car-atom $newtarget))
                ($sti (getSTI $target))
                ($lti (getLTI $target))
@@ -40,9 +38,7 @@
                ($newsti (- $sti $stiRent))
                ($newlti (- $lti $ltiRent))
                ($newvlti (getVLTI $target))
-               
-
-             )
+            )
             ((setAv $target ($newsti $newlti $newvlti))
             (updateImportance (AtomBinInfo)  $target $sti $newsti)
             (updateBin $target))
@@ -50,14 +46,11 @@
    )
 )
 
-
-(= (WARentCollectionAgent-Run) 
+(= (WARentCollectionAgent-Run)
    (let $res (selectTargets)
         (if (== $res ())
             (empty)
             (collectRent $res)
-    
-    
         )
     )
 )
