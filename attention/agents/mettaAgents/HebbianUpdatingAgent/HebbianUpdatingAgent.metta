@@ -1,6 +1,13 @@
 !(bind! tcDecayRate 0.1)
 !(bind! DEFAULT_K 800)
 
+;;; Function: HebbianUpdatingAgent-Run
+;;; Description: Main Function to run the Hebbian Updating Agent.
+;;; Parameters: None
+;;; Returns: update the Hebbian link.
+;;; Example: (HebbianUpdatingAgent-Run)
+;;;          Returns: update STV for the Hebbian link between A and some atom
+
 (: HebbianUpdatingAgent-Run (-> Atom))
 (= (HebbianUpdatingAgent-Run)
     (let $atoms (getAtomList)
@@ -17,25 +24,35 @@
     )
 )
 
+;;; Function: updateHebbianLinks
+;;; Description: Updates the weight of incoming Hebbian links to a given atom.
+;;; Parameters:
+;;;   $source: The source atom for which to update the Hebbian link.
+;;; Returns: update the Hebbian link.
+;;; Example: (updateHebbianLinks A)
+;;;          Returns: updates STV for the Hebbian link between A and some atom
+
 (: updateHebbianLinks (-> Atom Atom))
 (= (updateHebbianLinks $source)
     (let*
         (
-            ($link (let $decomposed (getIncomingSetByType $source ASYMMETRIC_HEBBIAN_LINK ) (superpose $decomposed)))
-            ($outgoing (getOutGoingAtoms $link))
+            ($iset (getIncomingSetByType $source ASYMMETRIC_HEBBIAN_LINK))
+            ($link (if (== $iset ()) () (superpose $iset)))
+            ($outgoing (if (== $link ()) () (getOutGoingAtoms $link)))
+            ($head (if (== $outgoing ()) () (car-atom $outgoing)))
         )
         (if (not (== $outgoing ()))
             (let*
                 (
                     ($result
-                        (if (== $source (car-atom $outgoing))
+                        (if (== $source $head)
                             (let*
                                 (
                                     ($new-tc (targetConjunction $outgoing))
                                     (($STV $old-tc $conf) (getStv $link))
                                     ($tc (+ (* tcDecayRate $new-tc) (* (- 1.0 tcDecayRate) $old-tc)))
                                     ($create-tv ($tc 0.1))
-                                    ($new-tv (mergecalculation $create-tv ($old-tc $conf) PLN_BOOK_REVISION))
+                                    ($new-tv (mergeCalculation $create-tv ($old-tc $conf) PLN_BOOK_REVISION))
                                 )
                                     (setStv $link $new-tv)
                             )
@@ -50,6 +67,14 @@
     )
 )
 
+;;; Function: getOutGoingAtoms
+;;; Description: Retrieves the outgoing atoms of a given link.
+;;; Parameters:
+;;;   $link: The link for which to find outgoing atoms.
+;;; Returns: A list of outgoing atoms.
+;;; Example: (getOutGoingAtoms (LINK A B))
+;;;          Returns (A B)
+
 (: getOutGoingAtoms (-> Atom Atom))
 (= (getOutGoingAtoms $link)
     (if (== (size-atom $link) 3)
@@ -57,6 +82,14 @@
         ()
     )
 )
+
+;;; Function: targetConjunction
+;;; Description: Calculates the target conjunction of a given link.
+;;; Parameters:
+;;;   $outgoing: The outgoing atoms for which to calculate the target conjunction.
+;;; Returns: The target conjunction of the outgoing atoms.
+;;; Example: (targetConjunction (A B))
+;;;          Returns Number
 
 (: targetConjunction (-> Atom Number))
 (= (targetConjunction $outgoing)
@@ -72,10 +105,18 @@
     )
 )
 
-;;tobe checked the calculation need to be the same as the
-;; c++ test I tested
-(: mergecalculation (-> STV STV Symbol STV))
-(= (mergecalculation $stv1 $stv2 $formula-to-use)
+;;; Function: mergeCalculation
+;;; Description: Merges two STVs using a given formula.
+;;; Parameters:
+;;;   $stv1: The first STV to merge.
+;;;   $stv2: The second STV to merge.
+;;;   $formula-to-use: The formula to use for merging the STVs.
+;;; Returns: The merged STV.
+;;; Example: (mergeCalculation (STV 0.1 0.9) (STV 0.3 0.9) PLN_BOOK_REVISION)
+;;;          Returns (STV 0.0105976 0.9)
+
+(: mergeCalculation (-> STV STV Symbol STV))
+(= (mergeCalculation $stv1 $stv2 $formula-to-use)
     (case $formula-to-use
         (
             (PLN_BOOK_REVISION
@@ -99,6 +140,15 @@
         )
     )
 )
+
+;;; Function: higherConfidenceMerge
+;;; Description: Merges two STVs by selecting the one with the higher confidence.
+;;; Parameters:
+;;;   $stv1: The first STV to merge.
+;;;   $stv2: The second STV to merge.
+;;; Returns: The STV with the higher confidence.
+;;; Example: (higherConfidenceMerge (STV 0.1 0.8) (STV 0.3 0.9))
+;;;          Returns (STV 0.3 0.9)
 
 (: higherConfidenceMerge (-> STV STV STV))
 (= (higherConfidenceMerge $stv1 $stv2)

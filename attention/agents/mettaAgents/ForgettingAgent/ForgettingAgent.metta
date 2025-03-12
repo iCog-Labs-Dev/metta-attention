@@ -12,7 +12,7 @@
 ; return: false if any of the condition in the descripton return false
 (: lessThanLtiThenTV (-> Atom Atom Bool))
 (= (lessThanLtiThenTV $elem $pivot)
-    (if (or (== $elem ()) (== $pivot ())) 
+    (if (or (== $elem ()) (== $pivot ()))
 		False
 		(if (== (getLTI $elem) (getLTI $pivot))
 			(< (getMean $elem) (getMean $pivot))
@@ -22,14 +22,14 @@
 )
 
 ; Description: takes two atoms and returns false if either is empty, if pivot has lower lti,
-;			   if lit equal return false if pivot has lower mean 
-; params: 
+;			   if lit equal return false if pivot has lower mean
+; params:
 ; 		$elem: an atom to be compared
 ;		$pivot: an atom to be compared
 ; return: true if all conditions in descripton are fulfilled
 (: greaterThanLtiThenTV (-> Atom Atom Bool))
 (= (greaterThanLtiThenTV $elem $pivot)
-	(if (or (== $elem ()) (== $pivot ())) 
+	(if (or (== $elem ()) (== $pivot ()))
 		False
 		(if (== (getLTI $elem) (getLTI $pivot))
 			(>= (getMean $elem) (getMean $pivot))
@@ -56,7 +56,7 @@
 				($greater (binaryFilter greaterThanLtiThenTV $pivot $tail))
                 ($sortedLesser (ForgettingLTIThenTVAscendingSort $lesser))
                 ($sortedGreater (ForgettingLTIThenTVAscendingSort $greater))
-			)	
+			)
            (concatTuple $sortedLesser (cons-atom $pivot $sortedGreater))
 		)
 	)
@@ -68,7 +68,7 @@
 ;		$atoms: a List of unsorted atoms
 ;       $removalAmount: the amount of atoms to be removed
 ; return: None
-(= (forgetHelper $atoms $removalAmount) 
+(= (forgetHelper $atoms $removalAmount)
 	(if (== $atoms ())
 		()
 		(let*
@@ -77,13 +77,12 @@
 				($sortedatoms (ForgettingLTIThenTVAscendingSort $atoms))
 			)
 			(checkThenRemoveAtom $sortedatoms $removalAmount $count)
-		
 		)
 	)
 )
 
 ; Description: a function responsible to recursivly check a List of sorted atoms
-;			   and remove atoms that return true from atomBelowForgetThreshold and 
+;			   and remove atoms that return true from atomBelowForgetThreshold and
 ;			   its incoming set does not contatin and ASYMMETRIC_HEBBIAN_LINK
 ; params:
 ; 		 $$sortedatoms: a List of sorted atoms sorted in accordance with ForgettingLTIThenTVAscendingSort
@@ -94,8 +93,8 @@
 (= (checkThenRemoveAtom $sortedatoms $removalAmount $count)
 	(if (== $sortedatoms ())
 		()
-		(let* 
-			(	
+		(let*
+			(
 				($head (car-atom $sortedatoms))
 				($tail (cdr-atom $sortedatoms))
 				($isValid (atomBelowForgetThreshold $head $removalAmount $count))
@@ -127,7 +126,7 @@
 ;	$nsiet: all incoming sets of the atom
 ; return: None
 (: globalRemoveAtom (-> Atom List empty))
-(= (globalRemoveAtom $head $niset) 
+(= (globalRemoveAtom $head $niset)
 	(let*
 		(
 			($bin (importanceBin (getSTI $head)))
@@ -145,7 +144,7 @@
 ; params:
 ;	$head: atom to be searched inside the atom bin
 ;	$bin: calculated bin of the atom
-; return: None	
+; return: None
 (: removeAtomBin (-> Atom Number empty))
 (= (removeAtomBin $head $bin)
 	(let*
@@ -166,9 +165,9 @@
 ; return: None
 ; TODO: might need to convert the input from List of atoms to space
 (= (forgetAtoms $atoms)
-	(let* 
+	(let*
 		(
-			($size (size-atom $atoms)) 
+			($size (size-atom $atoms))
 			($removalAmount (- $size (- (maxSize) (accDivSize))))
 		)
 		(if (< $size (+ (maxSize) (accDivSize)))
@@ -180,13 +179,13 @@
 
 ; Description: a function to check if the an an atom has an LTI lower than treshold
 ;			   and we have not removed atoms above the calculated removal amount
-; parmas: 
+; parmas:
 ; 		 $head: an atom to be checked
 ;        $removalAmount: the amount of atoms to be removed
 ;		 $count: the amount of atoms that have been removed
 ; return: True if atom can be removed else False
 (: atomBelowForgetThreshold (-> Atom Number Number Bool))
-(= (atomBelowForgetThreshold $head $removalAmount $count) 
+(= (atomBelowForgetThreshold $head $removalAmount $count)
 	(if (and (<= (getLTI $head) (forgetThreshold)) (< $count $removalAmount))
 		(if (== (getVLTI $head) 0 ) ; Assumption that AttentionValue::DISPOSABLE resolves to 0 in attention implementation
 			True
@@ -205,7 +204,7 @@
 (= (extractAtomRecursive $atoms)
 	(if (== $atoms ())
 		()
-		(let* 
+		(let*
 			(
 				($head (car-atom $atoms))
 				($tail (cdr-atom $atoms))
@@ -218,14 +217,14 @@
 	)
 )
 
-(: incomingSetType (-> Atom Atom List))
-: Description: a function to find incoming set from both attentioanl focus and self of getter and setter spaces
+; Description: a function to find incoming set from both attentioanl focus and self of getter and setter spaces
 ; params:
 ;		$atom: atom whose incoming set is to be searched
 ;		$type: type of the link of the returned incoming set
 ; return: all set of incoiming sets with matching types
+(: incomingSetType (-> Atom Atom List))
 (= (incomingSetType $atom $type)
-	(let* 
+	(let*
 		(
 			($selfiset (globalIncomingSetByType  $atom $type))
 			($attiset (getIncomingSetByType $atom $type))

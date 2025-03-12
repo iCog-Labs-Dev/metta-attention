@@ -15,16 +15,18 @@ def main():
     print("\nRegistering agents...")
 
     scheduler.register_agent("AFImportanceDiffusionAgent", 
-        lambda: AgentObject(metta=metta, path="./attention/agents/mettaAgents/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent.metta"))
-    
-
+        lambda: AgentObject(metta=metta, path="../metta-attention/attention/agents/mettaAgents/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent-runner.metta"))
+    scheduler.register_agent("WAImportanceDiffusionAgent", 
+            lambda: AgentObject(metta=metta, path="../metta-attention/attention/agents/mettaAgents/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent-runner.metta"))
     scheduler.register_agent("AFRentCollectionAgent", 
-        lambda: AgentObject(metta=metta, path="./metta-attention/attention/agents/mettaAgents/AFRentCollectionAgent/tests/AFRentCollectionAgent-test.metta"))
+        lambda: AgentObject(metta=metta, path="../metta-attention/attention/agents/mettaAgents/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent-runner.metta"))
     scheduler.register_agent("WARentCollectionAgent", 
-        lambda: AgentObject(metta=metta, path="./metta-attention/attention/agents/mettaAgents/WARentCollectionAgent/tests/WARentCollectionAgent-test.metta"))
-    scheduler.register_agent("AFRentCollectionAgent", 
-        lambda: AgentObject(metta=metta, path="./metta-attention/attention/agents/mettaAgents/AFRentCollectionAgent/tests/ForgettingAgent-runner.metta"))
-
+        lambda: AgentObject(metta=metta, path="../metta-attention/attention/agents/mettaAgents/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent-runner.metta"))
+    scheduler.register_agent("HebbianUpdatingAgent", 
+        lambda: AgentObject(metta=metta, path="../metta-attention/attention/agents/mettaAgents/HebbianUpdatingAgent/HebbianUpdatingAgent-runner.metta"))
+    scheduler.register_agent("ForgettingAgent", 
+        lambda: AgentObject(metta=metta, path="../metta-attention/attention/agents/mettaAgents/ForgettingAgent/ForgettingAgent-runner.metta"))
+    
 
     print("\nAgent System Ready!")
 
