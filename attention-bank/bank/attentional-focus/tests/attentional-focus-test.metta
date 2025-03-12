@@ -30,7 +30,13 @@
 !(addAtomToAF F)
 
 ; below two test cases fail due to the use of getType function introducing non-determinism
-(addAtomToAF (EvaluationLink a b))
+
+(: EvaluationLink Atom)
+!(add-atom &atombin (1 (EvaluationLink a b)))
+!(setAv (EvaluationLink a b) (1.0 1.0 1.0))
+
+
+!(addAtomToAF (EvaluationLink a b))
 (addAtomToAF (Hebbianlink (Hebbianlink Cat Human) Animal))
 
 ################### Testing #################################
@@ -38,12 +44,13 @@
 
 ; Test case 01: Testing attentionalFocusSize asserting it returns correct number of atom in focus
 
-!(assertEqual(attentionalFocusSize) 6)
+!(assertEqual(attentionalFocusSize) 7)
 
 
 ; Test case 02: Testing atomIsInAF asserting it returns True for a given atom in AF
 
 !(assertEqual (atomIsInAF C) True)
+!(assertEqual (atomIsInAF (EvaluationLink a b)) True)
 
 
 ; Test case 03: Testin atomIsInAF asserting it return False foor a give atom not in AF
@@ -65,7 +72,7 @@
 
 !(setAv G (300.0 400.0 500.0))
 !(assertEqual (updateAttentionalFocus G) ("Atom Added"))
-!(assertEqual (getAtomList) (a A B C D F G))
+!(assertEqual (getAtomList) (a A B C D F G (EvaluationLink a b)))
 
 
 ; Test case 07: Testing updateAttentionalFocus by changing values of saved atom
