@@ -34,7 +34,6 @@
 (: insertAtom (-> Number Atom empty))
 (= (insertAtom $bin_index $pattern)
    (if (==(getValueType $pattern) %Undefined%)
-
        ("Atom is not valid"); Validate type
        (if (== (collapse (match &atombin ($bin_index $x) $x)) ())
            (let ()
@@ -75,7 +74,7 @@
       ("Atom is not valid") ; Validate type
       (let $bin_contents (collapse (match &atombin ($bin_index $contents) $contents))
          (if(== $bin_contents ())
-            ("Bin is emptty") ; Bin is empty, nothing to remove
+            ("Bin is empty") ; Bin is empty, nothing to remove
             (let $updated_contents (remove_atom_helper $atom (car-atom $bin_contents))
                   (match &atombin ($bin_index $x)
                      (let*

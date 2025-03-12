@@ -13,11 +13,21 @@
 ; Ensure getSize returns 0 for bins that don't exist
 !(assertEqual (binSize) 0)
 
+<<<<<<< HEAD
 !(setAv Human (0.0 0.0 0.0))
 !(setAv Dog (0.0 0.0 0.0))
 !(setAv Cat (0.0 0.0 0.0))
 !(setAv Animal (0.0 0.0 0.0))
 !(setAv Mother (0.0 0.0 0.0))
+=======
+; Setup: setAv values to atoms
+!(setAv Human (100.0 100.0 1.0))
+!(setAv Dog (200.0 200.0 1.0))
+!(setAv Cat (300.0 300.0 1.0))
+!(setAv Animal (400.0 400.0 1.0))
+!(setAv Mother (500.0 500.0 1.0))
+
+>>>>>>> dev
 ; Setup: Insert initial atoms into different bins
 !(insertAtom 1 Human)
 !(insertAtom 2 Dog)
@@ -31,9 +41,17 @@
 !(assertEqual (getMaxContent) (Mother))
 !(assertEqual (getMinContent) (Human))
 
+<<<<<<< HEAD
 !(setAv (EvaluationLink Dog Cat) (0.0 0.0 0.0))
 !(setAv (Hebbianlink (Hebbianlink Human Cat) Animal) (0.0 0.0 0.0))
 !(setAv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother)) (0.0 0.0 0.0))
+=======
+; SetUp: setAv values to atoms
+!(setAv (EvaluationLink Dog Cat) (110.0 110.0 1.0))
+!(setAv (Hebbianlink (Hebbianlink Human Cat) Animal) (120.0 120.0 1.0))
+!(setAv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother)) (130.0 130.0 1.0))
+
+>>>>>>> dev
 ; Adding more atoms with expressions and links
 !(insertAtom 60 (EvaluationLink Dog Cat))
 !(insertAtom 70 (Hebbianlink (Hebbianlink Human Cat) Animal))
@@ -48,7 +66,7 @@
 ; Test Case 05: getMinContent for Multiple Min Bins
 ; Adding "Father" to bin 1 should update getMinContent
 ; Insert another atom in bin 1 and ensure both "Human" and "Father" are returned
-!(setAv Father (0 0 0))
+!(setAv Father (210.0 210.0 1.0))
 !(insertAtom 1 Father)
 
 ;Test with Symbol Atom Type
@@ -57,8 +75,8 @@
 ; Test Case 06: Testing getSize Function
 ; Ensure getSize returns correct atom count in bins
 ; Expected: Bin 1 has 3 atoms, Bin 2 has 2 atoms, Bin 50 has 1 atoms, Bin 90 has 1 atom
-!(setAv Humaner (0.0 0.0 0.0))
-!(setAv Doger (0.0 0.0 0.0))
+!(setAv Humaner (220.0 220.0 1.0))
+!(setAv Doger (230.0 230.0 1.0))
 !(insertAtom 1 Humaner)
 !(insertAtom 2 Doger)
 !(assertEqual (getSize 1) 3)
