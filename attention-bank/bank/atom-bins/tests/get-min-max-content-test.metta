@@ -1,4 +1,4 @@
-!(register-module! ../../../../metta-attention)
+!(register-module! ../../../../../metta-attention) 
 !(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
@@ -6,8 +6,8 @@
 
 ; Test Case 01: Testing Empty AtomBin
 ; Ensure getMaxContent and getMinContent return empty lists when no atoms are present
-; !(assertEqual (getMaxContent) ())
-; !(assertEqual (getMinContent) ())
+ ;!(assertEqual (getMaxContent) ())
+ ;!(assertEqual (getMinContent) ())
 
 ; Test Case 02: getSize for a Non-Existent Bin
 ; Ensure getSize returns 0 for bins that don't exist
