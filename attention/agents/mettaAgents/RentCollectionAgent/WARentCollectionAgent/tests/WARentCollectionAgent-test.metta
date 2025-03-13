@@ -1,4 +1,4 @@
-;!(register-module! ../../../../../../../metta-attention)
+!(register-module! ../../../../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
@@ -13,7 +13,7 @@
 
 
 ;;inorder to see the rent collection in action,we have to decrease the size of the attentional focus 
-;;run it with cognitive controller because it depends on time passed since last renet collected on that atom
+;;run it with cognitive controller because it depends on time passed since last rent collected on that atom
 ;;i have tested with that and it works fine
 !(setAv x (200.0 200.0 0.0))
 !(setAv y (200.0 200.0 0.0))
