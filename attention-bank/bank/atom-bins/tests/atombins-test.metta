@@ -1,14 +1,11 @@
 !(register-module! ../../../../../metta-attention)
-
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
-
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
-
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
-
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
+
 !(add-atom &atombin (1 (a)))
 !(add-atom &atombin (2 (d)))
 !(add-atom &atombin (17 (s c)))
@@ -36,7 +33,7 @@
 !(assertEqual (getContentIf 1 pred 0 10 (collapseAtomBin &atombin)()) (a))
 !(assertEqual (getContent 2 (collapseAtomBin &atombin) (a b)) (a b d))
 !(assertEqual (getContent 1 (collapseAtomBin &atombin) ()) (a))
-!(== (getAv E) %Undefined%)
+(== (getAv E) %Undefined%)
 !(insertAtom  45 E)
 !(assertEqual (match &atombin (45 $x) $x) (E)) 
 !(setAv G (200 200 0))
