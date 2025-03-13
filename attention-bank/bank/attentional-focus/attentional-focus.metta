@@ -460,3 +460,11 @@
 (= (attentionalFocus)
     &attentionalFocus
 )
+
+(: removeAtomAttentionalfocus (-> atom empty))
+(= (removeAtomAttentionalfocus $atom)
+	(if (atomIsInAF $atom)
+		(remove-atom &attentionalFocus $atom)
+		()
+	)
+)

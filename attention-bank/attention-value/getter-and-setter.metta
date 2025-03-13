@@ -223,3 +223,24 @@
 (= (TypeSpace)
 	(&typeSpace)
 )
+
+(: getAtomsInTypeSpace-helper (-> List))
+(= (getAtomsInTypeSpace-helper) 
+	(let $a 
+		(get-atoms &typeSpace)
+		(unify $a
+			(: $pattern $x)
+			$pattern
+			(empty)
+		)
+	)
+)
+
+; Description : getAtomsInTypeSpace is a function that returns a list of patterns in typespace
+; params:
+;	None
+; return: List of patterns in the typeSpace without thier types in and is more deterministic than matching
+(: getAtomsInTypeSpace (-> List))
+(= (getAtomsInTypeSpace) 
+	(collapse (getAtomsInTypeSpace-helper))
+)

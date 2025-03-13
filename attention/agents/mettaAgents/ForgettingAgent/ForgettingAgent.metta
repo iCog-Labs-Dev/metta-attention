@@ -4,26 +4,24 @@
 (= (maxSize) 2) ; constant set in line 63 opencog/attention/ForgettingAgent.cc
 (= (accDivSize) 1) ;  constant set in line 64 opencog/attention/ForgettingAgent.cc
 
-; Description: a function to remove atoms that have low LTI values
+; Description: a function to remove atoms that have low LTI values from the typeSpace
 ; params:
-;		 $atoms: List of atoms from a space
+;		None
 ; return: None
 ; TODO: might need to convert the input from List of atoms to space
-(= (forgetAtoms $atoms)
-	(if (== $atoms ())
-		()
-		(let* 
-			(
-				($count 0)
-				($size (size-atom $atoms)) 
-				($removalAmount (- $size (- (maxSize) (accDivSize))))
-				($sortedatoms (ForgettingLTIThenTVAscendingSort $atoms))
-					
-			)
-			(if (< $size (+ (maxSize) (accDivSize)))
-				()
-				(checkThenRemoveAtom $sortedatoms $removalAmount $count)
-			)
+(= (forgettingAgent-Run)
+	(let* 
+		(
+			($atoms (getAtomsInTypeSpace))
+			($count 0)
+			($size (size-atom $atoms)) 
+			($removalAmount (- $size (- (maxSize) (accDivSize))))
+			($sortedatoms (ForgettingLTIThenTVAscendingSort $atoms))
+				
+		)
+		(if (< $size (+ (maxSize) (accDivSize)))
+			()
+			(checkThenRemoveAtom $sortedatoms $removalAmount $count)
 		)
 	)
 )
@@ -187,7 +185,7 @@
 			(() (setAv $head (0.0 0.0 0.0)))
 			(() (add-atom &removeSpace $head))
 			(() (extractAtomRecursive $niset))
-			(() (remove-atom (AttentionalFocus) $head))
+			(() (removeAtomAttentionalfocus $head))
 			($bin (importanceBin (getSTI $head)))
 			($_ (removeAtom $bin $head))
 			(() (removeTypeSpace $head))
@@ -201,21 +199,20 @@
 ;			   it takes a list of incoming set of an atoms and moves it to a new space
 ; params:
 ;		$atoms: List of incoming atoms of an atom
-: return: None
+; return: None
 (: extractAtomRecursive (-> List empty))
 (= (extractAtomRecursive $atoms)
 	(if (== $atoms ())
 		()
-		(let* 
+		(let*
 			(
 				($head (car-atom $atoms))
 				($tail (cdr-atom $atoms))
 				(() (add-atom &removeSpace $head))
-				(() (remove-atom (AttentionalFocus) $head))
 				($bin (importanceBin (getSTI $head)))
 				($_ (removeAtom $bin $head))
+				(() (removeAtomAttentionalfocus $head))
 				(() (removeTypeSpace $head))
-
 			)
 			(extractAtomRecursive $tail)
 		)
