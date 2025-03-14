@@ -2,7 +2,7 @@
 ; this function take atoms from atombin space and return atoms found inside the largest bin index
 ; it uses Max helper function to get the largest bin index then it returns the atom found in that bin index
 
-
+(: getMaxContent (-> List))
 (= (getMaxContent)
     (let* (
         ($atombin (AtomBin))
@@ -24,7 +24,7 @@
 ; this function take atoms from atombin space and return atoms found inside the smallest bin index
 ; it uses Min helper function to get the smallest bin index then it returns the atom found in that bin index
 
-
+(: getMinContent (-> List))
 (= (getMinContent)
     (let* (
         ($atombin (AtomBin))
