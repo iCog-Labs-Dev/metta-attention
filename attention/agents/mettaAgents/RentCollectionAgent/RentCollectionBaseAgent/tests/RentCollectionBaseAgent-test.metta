@@ -11,6 +11,6 @@
 )
 
 !(assertEqual (calculateLtiRent (getAttentionParam StartingAtomLtiRent)) 2.0)
-!(assertEqual  (calculateStiRent 4.0) 8.0)
+!(assertEqual (calculateStiRent 4.0) 8.0)
 !(assertEqual (calculateLtiRent 4.0) 8.0)
 

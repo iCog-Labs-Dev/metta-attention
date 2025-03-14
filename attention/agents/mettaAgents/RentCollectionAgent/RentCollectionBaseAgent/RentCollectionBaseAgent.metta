@@ -6,13 +6,13 @@
 (: calculateStiRent (->  Number Number))
 (= (calculateStiRent $STIAtomRent)
    (let*
-       (
+      (
          ($funds (getAttentionBank  fundsSTI))
          ($targetSTI (getAttentionParam TargetStiFunds))
          ($stiFundsBuffer (getAttentionParam StiFundsBuffer))
          ($diff (- $targetSTI $funds))
-       )
-       (if  (<= $diff 0)
+      )
+      (if  (<= $diff 0)
             0.0
             (let*
                   (
@@ -21,8 +21,8 @@
                      ($maxDiffr (max-atom ($minDiffr -0.99)))
                      ($res (+ $STIAtomRent (* $STIAtomRent $maxDiffr)))
                   )
-            $res
-         )
+                  $res
+            )
       )
    )
 )
@@ -42,16 +42,16 @@
          ($diff (- $targetLTI $funds))
       )
       (if (<= $diff 0)
-          0.0
-          (let*
+            0.0
+            (let*
                (
                   ($ndiff (/ $diff $ltiFundsBuffer))
                   ($minDiffr (min-atom ($ndiff 1.0)))
                   ($maxDiffr (max-atom ($minDiffr -1.0)))
                   ($res (+ $LTIAtomRent (* $LTIAtomRent $maxDiffr)))
                )
-               $res
-         )
+                  $res
+            )
       )
    )
 )
