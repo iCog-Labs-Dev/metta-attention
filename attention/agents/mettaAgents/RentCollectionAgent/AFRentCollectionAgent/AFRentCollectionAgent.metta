@@ -35,8 +35,10 @@
           ($multiplier (/ $updateFreq 1000000))
       )
       (if (match &timer (firstTime $x) $x)
-          ((setFirstTime False)
-           (setLastUpdate $currentTime))
+          (
+            (setFirstTime False)
+            (setLastUpdate $currentTime)
+          )
           (if (< $elapsedTime $timeThreshold)
               (empty)
               (let*
@@ -44,8 +46,10 @@
                     ($w (* $elapsedTime $multiplier))
                     ($lists (superpose $targetSet))
                   )
-                  ((applyRent $w $lists)
-                   (setLastUpdate (timeTime)))
+                  (
+                    (applyRent $w $lists)
+                    (setLastUpdate (timeTime))
+                  )
               )
           )
       )
@@ -86,11 +90,13 @@
 ; Returns: None.
 (: setLastUpdate (-> Number empty))
 (= (setLastUpdate $time)
-  ((match  &timer (lastUpdate $x)
+  ( (match  &timer (lastUpdate $x)
                   (let ()
                         (remove-atom &timer (lastUpdate $x))
-                        (add-atom &timer  (lastUpdate $time)))
-  ))
+                        (add-atom &timer  (lastUpdate $time))
+                  )
+    )
+  )
 )
 
 ; Function: setFirstTime
@@ -98,13 +104,16 @@
 ; Parameters:
 ;   - $flag: Boolean value to update firstTime.
 ; Returns: None.
-;(: setFirstTime (-> Bool empty))
+(: setFirstTime (-> Bool empty))
 (= (setFirstTime $flag)
-  ((match  &timer (firstTime $x)
+  (
+    (match  &timer (firstTime $x)
                   (let ()
                     (remove-atom  &timer (firstTime $x))
-                    (add-atom  &timer (firstTime $flag)))
-  ))
+                    (add-atom  &timer (firstTime $flag))
+                  )
+    )
+  )
 )
 
 (= (AFRentCollectionAgent-run)
