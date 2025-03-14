@@ -1,4 +1,5 @@
 !(bind! &typeSpace (new-space))
+
 ; set_av function accepts a pattern/node with the attention values
 ; and set the attention value to the pattern/node.
 ;

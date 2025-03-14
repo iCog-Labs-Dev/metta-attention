@@ -84,7 +84,7 @@
 ; return: false if any of the condition in the descripton return false
 (: lessThanLtiThenTV (-> Atom Atom Bool))
 (= (lessThanLtiThenTV $elem $pivot)
-    (if (or (== $elem ()) (== $pivot ())) 
+    (if (or (== $elem ()) (== $pivot ()))
 		False
 		(if (== (getLTI $elem) (getLTI $pivot))
 			(< (getMean $elem) (getMean $pivot))
@@ -94,14 +94,14 @@
 )
 
 ; Description: takes two atoms and returns false if either is empty, if pivot has lower lti,
-;			   if lit equal return false if pivot has lower mean 
-; params: 
+;			   if lit equal return false if pivot has lower mean
+; params:
 ; 		$elem: an atom to be compared
 ;		$pivot: an atom to be compared
 ; return: true if all conditions in descripton are fulfilled
 (: greaterThanLtiThenTV (-> Atom Atom Bool))
 (= (greaterThanLtiThenTV $elem $pivot)
-	(if (or (== $elem ()) (== $pivot ())) 
+	(if (or (== $elem ()) (== $pivot ()))
 		False
 		(if (== (getLTI $elem) (getLTI $pivot))
 			(>= (getMean $elem) (getMean $pivot))
@@ -122,8 +122,8 @@
 (= (checkThenRemoveAtom $sortedatoms $removalAmount $count)
 	(if (== $sortedatoms ())
 		()
-		(let* 
-			(	
+		(let*
+			(
 				($head (car-atom $sortedatoms))
 				($tail (cdr-atom $sortedatoms))
 				($iset (incomingSetType $head ASYMMETRIC_HEBBIAN_LINK))
@@ -149,7 +149,7 @@
 
 ; Description: a function to check if the an an atom has an LTI lower than treshold
 ;			   and we have not removed atoms above the calculated removal amount
-; parmas: 
+; parmas:
 ; 		 $head: an atom to be checked
 ;        $removalAmount: the amount of atoms to be removed
 ;		 $count: the amount of atoms that have been removed
