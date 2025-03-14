@@ -221,8 +221,10 @@
 
 (: TypeSpace ( -> Grounding:space))
 (= (TypeSpace)
-	(&typeSpace)
+	&typeSpace
 )
+
+
 
 (: getAtomsInTypeSpace-helper (-> List))
 (= (getAtomsInTypeSpace-helper) 

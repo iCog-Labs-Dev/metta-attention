@@ -9,8 +9,10 @@
 
 !(getAfMaxSTI)
 !(setAv a (0.0 1.0 0.0))
-!(setAv d (7.0 4.0 0.0))
+!(setAv b (7.0 4.0 0.0))
 !(setAv c (0.0 0.0 0.0))
+!(setStv d (0.1 0.2))
+!(setStv e (0.2 0.3))
 !(setAv A (100.0 200.0 0.0))
 !(setAv B (50.0 150.0 0.0))
 !(setAv C (200.0 300.0 0.0))
@@ -44,23 +46,26 @@
 
 ; check if atoms have been added to the space
 !(assertEqual (getAtomsInTypeSpace) 
-	(a d c A B C D F G H I (ASYMMETRIC_HEBBIAN_LINK A a) (ASYMMETRIC_HEBBIAN_LINK A F) (ASYMMETRIC_HEBBIAN_LINK A C) (habbianlink a A) (PlusLink A F) (PlusLink A a)))
+	(a b c d e A B C D F G H I (ASYMMETRIC_HEBBIAN_LINK A a) (ASYMMETRIC_HEBBIAN_LINK A F) (ASYMMETRIC_HEBBIAN_LINK A C) (habbianlink a A) (PlusLink A F) (PlusLink A a)))
 
 ; test ForgettingLTIThenTVAscendingSort sorts by LTI
 !(assertEqual (ForgettingLTIThenTVAscendingSort (getAtomsInTypeSpace))
-	(c a H (PlusLink A F) F d (ASYMMETRIC_HEBBIAN_LINK A a) (ASYMMETRIC_HEBBIAN_LINK A F) (ASYMMETRIC_HEBBIAN_LINK A C) (habbianlink a A) (PlusLink A a) D B A C G I))
+	(c d e a H (PlusLink A F) F b (ASYMMETRIC_HEBBIAN_LINK A a) (ASYMMETRIC_HEBBIAN_LINK A F) (ASYMMETRIC_HEBBIAN_LINK A C) (habbianlink a A) (PlusLink A a) D B A C G I))
 
+: Test filteredatom
+!(assertEqual (filterByLti (getAtomsInTypeSpace)) (a b c d e F H (PlusLink A F)))
 ; Test forgetAtoms after inserting ASYMMETRIC_HEBBIAN_LINK
 !(assertEqual (forgettingAgent-Run) ())
 !(let $atoms 
 		(collapse (get-atoms &removeSpace)) 
-		(assertEqual $atoms (c H (PlusLink A F) F (ASYMMETRIC_HEBBIAN_LINK A F) d))
+		(assertEqual $atoms (c d e H (PlusLink A F) F (ASYMMETRIC_HEBBIAN_LINK A F) b))
 )
 
 !(let $atoms 
 		(collapse (get-atoms &attentionalFocus)) 
 		(assertEqual $atoms (a A B C D G I (habbianlink a A) (PlusLink A a) (ASYMMETRIC_HEBBIAN_LINK A a)))
 )
+
 
 !(assertEqual
 	(collapse 
@@ -79,3 +84,5 @@
 	)
 	()
 )
+
+

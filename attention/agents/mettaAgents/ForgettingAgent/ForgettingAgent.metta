@@ -12,16 +12,42 @@
 (= (forgettingAgent-Run)
 	(let* 
 		(
-			($atoms (getAtomsInTypeSpace))
 			($count 0)
+			($atoms (getAtomsInTypeSpace))
 			($size (size-atom $atoms)) 
 			($removalAmount (- $size (- (maxSize) (accDivSize))))
-			($sortedatoms (ForgettingLTIThenTVAscendingSort $atoms))
+			($filteredatom (filterByLti $atoms))
+			($sortedatoms (ForgettingLTIThenTVAscendingSort $filteredatom))
 				
 		)
 		(if (< $size (+ (maxSize) (accDivSize)))
 			()
 			(checkThenRemoveAtom $sortedatoms $removalAmount $count)
+		)
+	)
+)
+
+
+; Description : a function to filter atoms that are below a the forgetThreshold
+; params :
+;	$atoms : List of atoms to be filtered
+; return: List of atoms that are below threshold
+(: filterByLti (-> List List))
+(= (filterByLti $atoms)
+	(if (== $atoms ())
+		()
+		(let*
+			(
+				($head (car-atom $atoms))
+				($tail (cdr-atom $atoms))
+			)
+			(if (<= (getLTI $head) (forgetThreshold))
+				(if (== (getVLTI $head) 0)
+					(concatTuple ($head) (filterByLti $tail))
+					(filterByLti $tail)
+				)
+				(filterByLti $tail)
+			)
 		)
 	)
 )
@@ -100,11 +126,10 @@
 			(	
 				($head (car-atom $sortedatoms))
 				($tail (cdr-atom $sortedatoms))
-				($isValid (atomBelowForgetThreshold $head $removalAmount $count))
 				($iset (incomingSetType $head ASYMMETRIC_HEBBIAN_LINK))
 				($niset (incomingSetUntyped $head))
 			)
-			(if $isValid
+			(if (< $count $removalAmount) 
 				(if (== (size-atom $iset) (size-atom $niset))
 					(let*
 						(
@@ -218,3 +243,6 @@
 		)
 	)
 )
+
+
+
