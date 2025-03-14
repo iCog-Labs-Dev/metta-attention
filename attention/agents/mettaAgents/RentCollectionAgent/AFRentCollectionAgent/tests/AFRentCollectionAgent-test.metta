@@ -1,0 +1,29 @@
+!(register-module! ../../../../../../../metta-attention)
+!(import! &self metta-attention:attention-bank:bank:attention-bank)
+!(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
+!(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam)
+!(import! &self metta-attention:attention:agents:mettaAgents:RentCollectionAgent:RentCollectionBaseAgent:RentCollectionBaseAgent)
+!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
+!(import! &self metta-attention:attention:agents:mettaAgents:RentCollectionAgent:AFRentCollectionAgent:AFRentCollectionAgent)
+
+
+!(setAv (a) (200.0 200.0 0.0))
+!(setAv b (200.0 200.0 0.0))
+!(setAv c (200.0 200.0 0.0))
+!(setAv d (200.0 200.0 0.0))
+!(stimulate (a) 2)
+!(stimulate b 2)
+!(stimulate c 2)
+!(stimulate d 2)
+!(AFRentCollectionAgent-run)
+!(getAv (a))
+!(getAv b)
+!(getAv c)
+!(getAv d)
+!(getAv (t))
+!(getAv x)
+!(getAv y)
+!(getAv z)
+
+
+
