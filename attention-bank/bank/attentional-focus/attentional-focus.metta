@@ -170,17 +170,12 @@
 
 ;gets the maximum STI value in the attentional focus
 
-;(: getAfMaxSTIHelper (-> List Atom Number Atom))
-(= (getAfMaxSTIHelper $atoms $maxAtom $maxSTI)
-    (if (== $atoms ())
-        $maxSTI
-        (let* (
-            ($current (car-atom $atoms))
-            ($sti (getSTI $current))
-            ($newMaxAtom (if (> $sti $maxSTI) $current $maxAtom))
-            ($newMaxSTI (if (> $sti $maxSTI) $sti $maxSTI))
-        )
-        (getAfMaxSTIHelper (cdr-atom $atoms) $newMaxAtom $newMaxSTI))
+(: getAfMaxSTIHelper (-> Expression Expression))
+(= (getAfMaxSTIHelper $atoms)
+    (let* (
+        ($vals (getSTI (superpose $atoms)))
+    )
+    $vals
     )
 )
 
@@ -189,7 +184,12 @@
     (let $atoms (getAtomList)
         (if (== $atoms ())
             0.0
-            (getAfMaxSTIHelper $atoms (car-atom $atoms) (getSTI (car-atom $atoms)))
+            (let* (
+                ($stiValues (collapse (getAfMaxSTIHelper $atoms)))
+                ($maxSTI (max-atom $stiValues))
+            )
+            $maxSTI
+            )
         )
     )
 )
