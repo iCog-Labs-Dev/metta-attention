@@ -288,22 +288,20 @@
 ;;; Parameters:
 ;;;   $incoming_set: A list of incoming links to filter.
 ;;; Returns: A new list containing only the links that are in the AF.
-
 (: filterLinksInAF (-> List List))
 (= (filterLinksInAF $incoming_set)
-    (if (== $incoming_set ())
-        ()
-        (let* (
-              ($head (car-atom $incoming_set))
-              ($tail (cdr-atom $incoming_set))
-              ($filtered_head 
-                    (if (atomIsInAF $head)
-                        $head
-                        ()
-                    ))
-               )
-               
-            (concatTuple ($filtered_head) (filterLinksInAF $tail))
+    (let $atoms (collapse (filterLinksInAFHelper $incoming_set))
+        $atoms
+    )
+)
+; function filterLinksInAFHelper
+; return list of atom that is not in AF
+(: filterLinksInAFHelper (-> List List))
+(= (filterLinksInAFHelper $incoming_set)
+    (let $atom (superpose $incoming_set)
+        (if (atomIsInAF $atom)
+            $atom
+            (emtpy)
         )
     )
 )
