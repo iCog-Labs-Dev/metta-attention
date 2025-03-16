@@ -192,4 +192,4 @@
 
 ;Test case 20: Testing filterLinksInAF method
 
-!(assertEqual (filterLinksInAF ((Hebbianlink (Hebbianlink Cat Human) Animal) (Hebbianlink (Hebbianlink Cat Human) Dog) (EvaluationLink a b))) ((Hebbianlink (Hebbianlink Cat Human) Animal) () (EvaluationLink a b)))
+!(assertEqual (filterLinksInAF ((Hebbianlink (Hebbianlink Cat Human) Animal) (Hebbianlink (Hebbianlink Cat Human) Dog) (EvaluationLink a b))) ((Hebbianlink (Hebbianlink Cat Human) Animal) (emtpy) (EvaluationLink a b)))
