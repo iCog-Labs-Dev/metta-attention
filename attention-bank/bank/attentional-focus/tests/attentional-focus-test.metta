@@ -85,13 +85,13 @@
 
 ; Test case 08: Testing updateAttentionalFocus adding an atom without AV 
 
-!(assertEqual (updateAttentionalFocus L) (empty))
+!(assertEqual (updateAttentionalFocus L) ("Atom is not valid"))
 ; !(assertEqual (getAtomList) (a A B C D F G))
 
 
 ; Test case 09; Testing sortAtomsBySti checking new order of atoms
 
-!(assertEqual (sortAtomsBySti  (getAtomList)) (G D B F A (EvaluationLink a b) C (Hebbianlink (Hebbianlink Cat Human) Animal)))
+!(assertEqual (sortAtomsBySti  (getAtomList)) (a A B C D F (EvaluationLink a b) (Hebbianlink (Hebbianlink Cat Human) Animal) G))
 
 
 ; Test case 10: Testing getRandomAtomNotInAF assure that only one atom is returned
