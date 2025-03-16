@@ -6,7 +6,7 @@
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
-!(import! &self metta-attention:attention:agents:mettaAgents:ImportanceDiffusionAgent:Neighbors)
+!(import! &self metta-attention:attention:agents:mettaAgents:Neighbors)
 
 !(import! &self metta-attention:attention:agents:mettaAgents:HebbianCreationAgent:HebbianCreationAgent)
 
