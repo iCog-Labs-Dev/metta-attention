@@ -107,7 +107,7 @@
 
 ; Test case 12: Testing sortAtomsByStiDescending to check if it sorts atoms in descending STI
 
-!(assertEqual(sortAtomsByStiDescending  (getAtomList)) ((Hebbianlink (Hebbianlink Cat Human) Animal) C (EvaluationLink a b) A F B D G))
+!(assertEqual(sortAtomsByStiDescending  (getAtomList)) ((Hebbianlink (Hebbianlink Cat Human) Animal) C (EvaluationLink a b) A F B D G a))
 
 
 ;################ Prep: adding to attensionalfocus space to test link match ####################
