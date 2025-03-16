@@ -33,7 +33,7 @@
 ;         or an error message if the atom is invalid.
 (: insertAtom (-> Number Atom empty))
 (= (insertAtom $bin_index $pattern)
-   (if (==(getType $pattern) %Undefined%)
+   (if (==(getValueType $pattern) %Undefined%)
        ("Atom is not valid"); Validate type
        (if (== (collapse (match &atombin ($bin_index $x) $x)) ())
            (let ()
@@ -70,11 +70,11 @@
 
 (: removeAtom (-> Number Atom empty))
 (= (removeAtom $bin_index $atom)
-   (if (== (getType $atom) %Undefined%)
+   (if (== (getValueType $atom) %Undefined%)
       ("Atom is not valid") ; Validate type
       (let $bin_contents (collapse (match &atombin ($bin_index $contents) $contents))
          (if(== $bin_contents ())
-            ("Bin is emptty") ; Bin is empty, nothing to remove
+            ("Bin is empty") ; Bin is empty, nothing to remove
             (let $updated_contents (remove_atom_helper $atom (car-atom $bin_contents))
                   (match &atombin ($bin_index $x)
                      (let*
@@ -131,7 +131,7 @@
    (
     let*(
          ($handleSetSeq (collapseAtomBin &atombin))
-         ($filteredOutput (filter $handleSetSeq notEmpty ()))
+         ($filteredOutput (filter $handleSetSeq notEmpty))
         )
     (if(== $filteredOutput ()) ;check if all bins in atom bins are empty
       empty
@@ -175,12 +175,16 @@
    &atombin
 )
 
- (= (getAtomsInBins)
-      (let* (($atombin (AtomBin))
-        ($allAtoms  (collapse (match $atombin ($x $y) $y)))
-        ($flatten (extractAndFlatten $allAtoms)))
+(= (getAtomsInBins)
+	( let* 
+		(
+			($atombin (AtomBin))
+	        ($allAtoms  (collapse (match $atombin ($x $y) $y)))
+    	    ($flatten (extractAndFlatten $allAtoms))
+		)
         $flatten
         
         
-        ))
+	)
+)
 

@@ -1,7 +1,7 @@
 !(bind! &attentionalFocus (new-space))
 (= (AttentionalFocus) &attentionalFocus)
 
-(= (maxAFSize) 3)
+(= (maxAFSize) 100)
 
 ;Function: atomIsInAF
 ;Description: Checks if a given atom is in the attentional focus space.
@@ -38,7 +38,7 @@
 ;Returns: A message indicating success or failure.
 (: addAtomToAF (-> Atom Symbol))
 (= (addAtomToAF $atom)
-   (if (== (getType $atom) %Undefined%)
+   (if (== (getValueType $atom) %Undefined%)
        ("Atom is not valid")
        (let()
          (add-atom &attentionalFocus $atom)
@@ -170,17 +170,12 @@
 
 ;gets the maximum STI value in the attentional focus
 
-;(: getAfMaxSTIHelper (-> List Atom Number Atom))
-(= (getAfMaxSTIHelper $atoms $maxAtom $maxSTI)
-    (if (== $atoms ())
-        $maxSTI
-        (let* (
-            ($current (car-atom $atoms))
-            ($sti (getSTI $current))
-            ($newMaxAtom (if (> $sti $maxSTI) $current $maxAtom))
-            ($newMaxSTI (if (> $sti $maxSTI) $sti $maxSTI))
-        )
-        (getAfMaxSTIHelper (cdr-atom $atoms) $newMaxAtom $newMaxSTI))
+(: getAfMaxSTIHelper (-> Expression Expression))
+(= (getAfMaxSTIHelper $atoms)
+    (let* (
+        ($vals (getSTI (superpose $atoms)))
+    )
+    $vals
     )
 )
 
@@ -189,7 +184,12 @@
     (let $atoms (getAtomList)
         (if (== $atoms ())
             0.0
-            (getAfMaxSTIHelper $atoms (car-atom $atoms) (getSTI (car-atom $atoms)))
+            (let* (
+                ($stiValues (collapse (getAfMaxSTIHelper $atoms)))
+                ($maxSTI (max-atom $stiValues))
+            )
+            $maxSTI
+            )
         )
     )
 )
@@ -247,19 +247,17 @@
 (= (getRandomAtomNotInAF)
    (let*
        (
-        ($atomsInBins (getAtomsInBins))
-        ($filteredAtoms (filter $atomsInBins atomIsNotInAF))
+           ($allAtoms  (getAtomsInBins))
+           ($filteredAtoms (filter $allAtoms atomIsNotInAF))
        )
        (if (== $filteredAtoms ())
            %Undefined%
         (let*
                (
-
                    ($randInt (random-int 0 (size-atom $filteredAtoms)))
                    ($randomAtom (index-atom $filteredAtoms $randInt))
                )
              $randomAtom
-
            )
        )
    )
@@ -290,22 +288,20 @@
 ;;; Parameters:
 ;;;   $incoming_set: A list of incoming links to filter.
 ;;; Returns: A new list containing only the links that are in the AF.
-
 (: filterLinksInAF (-> List List))
 (= (filterLinksInAF $incoming_set)
-    (if (== $incoming_set ())
-        ()
-        (let* (
-              ($head (car-atom $incoming_set))
-              ($tail (cdr-atom $incoming_set))
-              ($filtered_head 
-                    (if (atomIsInAF $head)
-                        $head
-                        ()
-                    ))
-               )
-               
-            (concatTuple ($filtered_head) (filterLinksInAF $tail))
+    (let $atoms (collapse (filterLinksInAFHelper $incoming_set))
+        $atoms
+    )
+)
+; function filterLinksInAFHelper
+; return list of atom that is not in AF
+(: filterLinksInAFHelper (-> List List))
+(= (filterLinksInAFHelper $incoming_set)
+    (let $atom (superpose $incoming_set)
+        (if (atomIsInAF $atom)
+            $atom
+            (emtpy)
         )
     )
 )
@@ -333,7 +329,6 @@
 
 ;This function simply matches if two nodes are equal and they are in AF
 (:nodeMatch (-> Atom Atom Bool))
-
 (= (nodeMatch $node1 $node2)
     (if (and (== $node1 $node2) (atomIsInAF $node2))
         True
@@ -368,9 +363,12 @@
  ;; this Function is copied from the pattern minor project found at https://github.com/iCog-Labs-Dev/hyperon-miner/blob/experiments/experiments/utils/common-utils.metta
 
 
-(= (getArity Nil ) 0 )
 (= (getArity $pattern)
-    (- (tupleCount $pattern) 1) )
+	(if (== $pattern ())
+		0
+	    (- (tupleCount $pattern) 1)
+	) 
+)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -444,9 +442,7 @@
 ;;; Parameters:
 ;;;   $atom: The atom for which to find incoming links.
 ;;; Returns: A list of incoming links.
-
 (: getIncomingSetwithoutType (-> Atom List))
-
 (= (getIncomingSetwithoutType $atom)
     (collapse
         (superpose
@@ -477,4 +473,5 @@
 (= (attentionalFocus)
     &attentionalFocus
 )
+
 

@@ -227,8 +227,10 @@
               ($processedHead (if (== (get-type $firstElem) Number) 
                                   $rest  ; Remove the number, keep the rest
                                   $head)) ; If not a number, keep the whole expression
-              ($flattenedTail (extractAndFlatten $tail)))
-         (union-atom $processedHead $flattenedTail)))
+              ($flattenedTail (extractAndFlatten $tail))
+        )
+        (union-atom $processedHead $flattenedTail))
+    )
 )
 
 (: collectContents (-> Expression Expression Expression))
