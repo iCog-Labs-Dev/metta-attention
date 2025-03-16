@@ -91,7 +91,7 @@
 
 ; Test case 09; Testing sortAtomsBySti checking new order of atoms
 
-!(assertEqual (sortAtomsBySti  (getAtomList)) (a A B C D F (EvaluationLink a b) (Hebbianlink (Hebbianlink Cat Human) Animal) G))
+!(assertEqual (sortAtomsBySti  (getAtomList)) (a G D B F A (EvaluationLink a b) C (Hebbianlink (Hebbianlink Cat Human) Animal)))
 
 
 ; Test case 10: Testing getRandomAtomNotInAF assure that only one atom is returned
