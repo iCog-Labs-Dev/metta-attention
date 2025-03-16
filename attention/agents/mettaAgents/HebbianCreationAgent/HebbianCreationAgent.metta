@@ -1,6 +1,7 @@
 !(bind! maxLinkNum 0) ; The maximum amount of links that can be created from a single atom
 !(bind! localToFarLinks 2) ; Ratio of local links to far links
 
+
 ; Function: HebbianCreationAgent-Run
 ; Description: This function creates Hebbian links between atoms in the attentional focus.
 ; It also creates links between atoms in the attentional focus and atoms outside the attentional focus.
