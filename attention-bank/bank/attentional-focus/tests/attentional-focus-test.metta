@@ -121,7 +121,6 @@
 
 
 ; Test case 13: Testing getIncomingSet function 
-
 !(assertEqual (getIncomingSet abebe habbianlink) ((habbianlink abebe kebede) (habbianlink challa abebe)))
 
 
