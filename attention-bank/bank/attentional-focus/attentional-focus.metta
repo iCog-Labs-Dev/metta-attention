@@ -170,17 +170,12 @@
 
 ;gets the maximum STI value in the attentional focus
 
-;(: getAfMaxSTIHelper (-> List Atom Number Atom))
-(= (getAfMaxSTIHelper $atoms $maxAtom $maxSTI)
-    (if (== $atoms ())
-        $maxSTI
-        (let* (
-            ($current (car-atom $atoms))
-            ($sti (getSTI $current))
-            ($newMaxAtom (if (> $sti $maxSTI) $current $maxAtom))
-            ($newMaxSTI (if (> $sti $maxSTI) $sti $maxSTI))
-        )
-        (getAfMaxSTIHelper (cdr-atom $atoms) $newMaxAtom $newMaxSTI))
+(: getAfMaxSTIHelper (-> Expression Expression))
+(= (getAfMaxSTIHelper $atoms)
+    (let* (
+        ($vals (getSTI (superpose $atoms)))
+    )
+    $vals
     )
 )
 
@@ -189,7 +184,12 @@
     (let $atoms (getAtomList)
         (if (== $atoms ())
             0.0
-            (getAfMaxSTIHelper $atoms (car-atom $atoms) (getSTI (car-atom $atoms)))
+            (let* (
+                ($stiValues (collapse (getAfMaxSTIHelper $atoms)))
+                ($maxSTI (max-atom $stiValues))
+            )
+            $maxSTI
+            )
         )
     )
 )
@@ -288,22 +288,20 @@
 ;;; Parameters:
 ;;;   $incoming_set: A list of incoming links to filter.
 ;;; Returns: A new list containing only the links that are in the AF.
-
 (: filterLinksInAF (-> List List))
 (= (filterLinksInAF $incoming_set)
-    (if (== $incoming_set ())
-        ()
-        (let* (
-              ($head (car-atom $incoming_set))
-              ($tail (cdr-atom $incoming_set))
-              ($filtered_head 
-                    (if (atomIsInAF $head)
-                        $head
-                        ()
-                    ))
-               )
-               
-            (concatTuple ($filtered_head) (filterLinksInAF $tail))
+    (let $atoms (collapse (filterLinksInAFHelper $incoming_set))
+        $atoms
+    )
+)
+; function filterLinksInAFHelper
+; return list of atom that is not in AF
+(: filterLinksInAFHelper (-> List List))
+(= (filterLinksInAFHelper $incoming_set)
+    (let $atom (superpose $incoming_set)
+        (if (atomIsInAF $atom)
+            $atom
+            (emtpy)
         )
     )
 )
