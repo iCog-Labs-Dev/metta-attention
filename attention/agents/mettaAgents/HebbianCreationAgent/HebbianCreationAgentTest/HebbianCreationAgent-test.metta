@@ -39,7 +39,7 @@
 
 !(addFromOutSideAF A 1) ; If farlinks is 1, one link should be added, increasing the attentional focus size by 1
 
-!(assertEqual (attentionalFocusSize) 5)
+!(assertEqual (attentionalFocusSize) 5) ; add hebbian and addFromOutSideAF should increase the attentional focus size by 1 each 
 
 
 
@@ -67,6 +67,6 @@
 
 !(HebbianCreationAgent-Run)
 
-!(attentionalFocusSize)
+!(attentionalFocusSize) ;Check if more Hebbian links are created 
 
 
