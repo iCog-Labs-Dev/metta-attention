@@ -10,20 +10,39 @@
 
 !(import! &self metta-attention:attention:agents:mettaAgents:HebbianCreationAgent:HebbianCreationAgent)
 
-!(stimulate (ASYMMETRIC_HEBBIAN_LINK A B) 200 )
-!(stimulate (ASYMMETRIC_HEBBIAN_LINK A c) 200 )
-!(stimulate (INHERITANCE A D) 100)
-!(stimulate (INHERITANCE D A) 100)
-!(stimulate (ASYMMETRIC_HEBBIAN_LINK B c) 200 )
+
+; add two atoms to the attentional focus
+!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK source target2))
+!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK abebe source))
+
+!(setAv ATOMFROMBINS (0 0 0))  ; set the attention value of the atom to 0
+!(insertAtom 1 ATOMFROMBINS) ; insert the atom into the atom bins of index 1 
+
+!(assertEqual (getSourceAtom (HEBBIAN_LINK a b)) a) ; source atom is the second atom from the left
+
+!(assertEqual (setDifference  ((ASYMMETRIC_HEBBIAN_LINK source target2))) ((ASYMMETRIC_HEBBIAN_LINK abebe source)) ) ;atoms that are in the attentional focus but not in the incoming list
 
 
-!(add-atom (attentionalFocus) a)
-!(add-atom (attentionalFocus) b)
-!(add-atom (attentionalFocus) c)
-!(add-atom (attentionalFocus) d)
-!(add-atom (attentionalFocus) e)
-!(add-atom (attentionalFocus) f)
-!(add-atom (attentionalFocus) g)
+!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK source1 target))
+!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK source2 target))
+!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK source target1))
+
+!(assertEqual (removeLinkRecursively 0) ()) ; If num is 0, nothing should be removed
+!(removeLinkRecursively 2) ; Two links are removed from the attetnional focus
+
+!(assertEqual (attentionalFocusSize) 3)
+
+!(addHebbian source3 target3)
+!(assertEqual (atomIsInAF (ASYMMETRIC_HEBBIAN_LINK source3 target3 ) ) True)
+
+!(assertEqual (addFromOutSideAF A 0) ()) ; If farlinks is 0, nothing should be added
+
+!(addFromOutSideAF A 1) ; If farlinks is 1, one link should be added, increasing the attentional focus size by 1
+
+!(assertEqual (attentionalFocusSize) 5)
+
+
+
 !(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK a b))
 !(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK b c))
 !(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK c d))
@@ -31,6 +50,13 @@
 !(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK e f))
 !(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK f g))
 !(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK g a))
+!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK g b))
+
+!(add-atom (attentionalFocus) target1)
+!(add-atom (attentionalFocus) target2)
+!(add-atom (attentionalFocus) source1)
+!(add-atom (attentionalFocus) source2)
+
 !(add-atom (attentionalFocus) (HEBBIAN_LINK a b))
 !(add-atom (attentionalFocus) (HEBBIAN_LINK b c))
 !(add-atom (attentionalFocus) (HEBBIAN_LINK c d))
@@ -39,16 +65,8 @@
 !(add-atom (attentionalFocus) (HEBBIAN_LINK f g))
 !(add-atom (attentionalFocus) (HEBBIAN_LINK g a))
 
+!(HebbianCreationAgent-Run)
+
+!(attentionalFocusSize)
 
 
-
-; !(attentionalFocusSize)
-;  !(HebbianCreationAgent-Run)
-
-!( collapse (getSourceNeighborsHelper a ASYMMETRIC_HEBBIAN_LINK True))
-
-; !(match (attentionalFocus) $x $x)
-
-; !(getAtomList)
-
-; !(getIncomingSet b ASYMMETRIC_HEBBIAN_LINK)

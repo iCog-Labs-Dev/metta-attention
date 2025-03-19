@@ -21,57 +21,67 @@
     )
 )
 
-( = (getTargetNeighbors $atom $type $matchSubType)
-     (collapse (getTargetNeighborsHelper $atom $type $matchSubType))
-     (collapse (getTargetNeighborsHelper $atom $type $matchSubType))
-)
-
-( = (getSourceNeighbors $atom $type $matchSubType)
-    (let $ans (collapse (getSourceNeighborsHelper $atom $type $matchSubType))
-        $ans
-    )
-
-)
-(: getTargetNeighborsHelper (-> Atom Atom Bool Atom))
-(= (getTargetNeighborsHelper $atom $type $match-subtype)
+(= (getSourceNeighbors $source $type)
     (if (== $type UNORDERED_LINK)
         ()
         (let*
             (
-                (($link $source $target) (let $tmp (getIncomingSet $atom $type) (superpose $tmp)))
-                ($answer
-                    (if (== $link $type)
-                        (if (== $source $atom)
-                            $target
-                            (empty)
-                        )
-                        (empty)
-                    )
-                )
+                ($incomingSet (getIncomingSet $source $type))
+                ($sourceNeighbors (getSourceNeighborRecursively $incomingSet $source $type))
             )
-            $answer
+        $sourceNeighbors
         )
     )
 )
 
-(: getSourceNeighborsHelper (-> Atom Atom Bool Atom))
-(= (getSourceNeighborsHelper $atom $type $match-subtype)
+(= (getSourceNeighborRecursively $incomingSet $source $type)
+    (if (== () $incomingSet)
+        ()
+        (concatTuple ((getSourceNeighbor  (car-atom $incomingSet) $source $type)) (getSourceNeighborRecursively (cdr-atom $incomingSet) $source $type) )
+    )
+)
+
+(= (getSourceNeighbor $atom $source $type )
+    (let ($link $newSource $target) $atom
+        (if (== $link $type)
+            (if (not (== $newSource $source))
+                $newSource
+                ()
+            )
+            ()
+        )
+    )
+)
+
+
+(= (getTargetNeighbors $source $type)
     (if (== $type UNORDERED_LINK)
         ()
         (let*
             (
-                (($link $source $target) (let $tmp (getIncomingSet $atom $type) (superpose $tmp)))
-                ( $answer
-                    (if (== $link $type)
-                        (if (not (== $source $atom))
-                            $source
-                            (empty)
-                        )
-                        (empty)
-                    )
-                )
+                ($incomingSet (getIncomingSet $source $type))
+                ($sourceNeighbors (getTargetNeighborRecursively $incomingSet $source $type))
             )
-             $answer
+        $sourceNeighbors
+        )
+    )
+)
+
+(= (getTargetNeighborRecursively $incomingSet $source $type)
+    (if (== () $incomingSet)
+        ()
+        (concatTuple ((getTargetNeighbor  (car-atom $incomingSet) $source $type)) (getTargetNeighborRecursively (cdr-atom $incomingSet) $source $type) )
+    )
+)
+
+(= (getTargetNeighbor $atom $source $type )
+    (let ($link $newSource $target) $atom
+        (if (== $link $type)
+            (if (not (== $target $source))
+                $target
+                ()
+            )
+            ()
         )
     )
 )
