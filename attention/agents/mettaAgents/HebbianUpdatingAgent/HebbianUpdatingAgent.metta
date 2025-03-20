@@ -13,7 +13,7 @@
     (let $atoms (getAtomList)
         (if (== $atoms ())
             ()
-            (let*
+            (getRandomAtomNotInAFlet*
                 (
                     ($random (random-int 0 (size-atom $atoms)))
                     ($source (index-atom $atoms $random))

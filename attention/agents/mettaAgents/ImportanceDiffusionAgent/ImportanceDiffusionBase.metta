@@ -1,11 +1,11 @@
-!(bind! maxSpreadPercentage 0.1)
-!(bind! hebbianMaxAllocationPercentage 1)
+!(bind! maxSpreadPercentage 0.4)
+!(bind! hebbianMaxAllocationPercentage 0.05)
 
 (= (diffuseAtom $atom $space $AForWA)
     (let*
         (
             ($incidentAtoms (collapse (incidentAtoms $atom $space)))
-            ($filtered (collapse (filteredIncidentAtoms (superpose $incidentAtoms))))
+            ; ($filtered (collapse (removeHebbianLinks (superpose $incidentAtoms))))
             ($iset (getIncomingSet $atom ASYMMETRIC_HEBBIAN_LINK) )
             ($hebbianAdjacentAtoms (collapse (hebbianAdjacentAtoms $iset $atom)))
             ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAtoms)))
@@ -41,25 +41,37 @@
     (let*
         (
             ($incomingSet (getAllIncomingSets $atom $space))
-            ($outgoingSet
-                (unify $atom ($link $source $target)
-                    (getOutGoingAtoms $atom)
-                    ()
+            ($filtered
+                (if (== (car-atom $incomingSet) ASYMMETRIC_HEBBIAN_LINK)
+                    (empty)
+                    (if (== (car-atom $incomingSet) HEBBIAN_LINK)
+                        (empty)
+                        $incomingSet
+                    )
                 )
             )
-            ($joinSet (concatTuple $incomingSet $outgoingSet))
-            ($decomposed (superpose $joinSet))
+            ; ($outgoingSet
+            ;     (unify $atom ($link $source $target)
+            ;         (getOutGoingAtoms $atom)
+            ;         ()
+            ;     )
+            ; )
+            ; ($joinSet ($incomingSet $outgoingSet))
+            ; ($decomposed (superpose $joinSet))
         )
-        $decomposed
+        $filtered
     )
 )
 
-(: filteredIncidentAtoms (-> Atom Atom))
-(= (filteredIncidentAtoms $atom)
+(: removeHebbianLinks (-> Atom Atom))
+(= (removeHebbianLinks $atom)
     (if (== (get-metatype $atom) Expression)
         (if (== (car-atom $atom) ASYMMETRIC_HEBBIAN_LINK)
-            ()
-            $atom
+            (empty)
+            (if (== (car-atom $atom) HEBBIAN_LINK)
+                (empty)
+               (wth $atom)
+            )
         )
         $atom
     )
@@ -167,11 +179,19 @@
 (= (diffusionSourceVector $space)
     (let*
         (
-            ($atoms (match $space $x $x))
-            ($result
-                    (unify $atoms (ASYMMETRIC_HEBBIAN_LINK $a $b) (empty) $atoms))
+            ($atoms (collapse (let $temp (match $space $x $x)
+                (if (== (get-metatype $temp) Expression)
+                    (if (== (car-atom $temp) ASYMMETRIC_HEBBIAN_LINK) 
+                        (empty)
+                        (if (== (car-atom $temp) HEBBIAN_LINK)
+                            (empty)
+                            $temp
+                        )
+                    )
+                 $temp))))
+            ($sorted (sortAtomsBySti $atoms))
         )
-        $result
+        $sorted
     )
 )
 
@@ -199,20 +219,24 @@
 
 (: getAllIncomingSets (-> Atom Grounded List))
 (= (getAllIncomingSets $atom $space)
-    (collapse
-        (superpose
-            (
-                (match $space ($type $atom $b) ($type $atom $b))
-                (match $space ($type $b $atom) ($type $b $atom))
+    (let*
+        (
+            ($allAtoms (superpose (getAtomsInBins)))
+            ($filtered
+                (if (or (unify ($type $atom $target) $allAtoms True False) (unify ($type $source $atom) $allAtoms True False))
+                    $filtered
+                    (empty)
+                )
             )
         )
+        $filtered
     )
 )
 
 (: spreadImportance (-> Grounded Empty))
 (= (spreadImportance $space)
-    (let $diffusionSourceVector (collapse (diffusionSourceVector $space))
-        (helper-loop $diffusionSourceVector $space)
+    (let $diffusionSourceVector (diffusionSourceVector $space)
+        (diffuseAtom (superpose $diffusionSourceVector) $space AF)
     )
 )
 
@@ -225,13 +249,6 @@
                 (diffuseAtom $target $space WA)
             )
         )
-    )
-)
-
-(= (helper-loop $diffusionSourceVector $space)
-    (if (== $diffusionSourceVector ())
-        ()
-        ((diffuseAtom (car-atom $diffusionSourceVector) $space AF) (helper-loop (cdr-atom $diffusionSourceVector) $space))
     )
 )
 
