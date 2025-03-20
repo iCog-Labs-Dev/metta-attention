@@ -54,11 +54,22 @@
 
 : Test filteredatom
 !(assertEqual (filterByLti (getAtomsInTypeSpace)) (a b c d e F H (PlusLink A F)))
-; Test forgetAtoms after inserting ASYMMETRIC_HEBBIAN_LINK
+
 !(assertEqual (forgettingAgent-Run) ())
 !(let $atoms 
-		(collapse (get-atoms &removeSpace)) 
-		(assertEqual $atoms (c d e H (PlusLink A F) F (ASYMMETRIC_HEBBIAN_LINK A F) b))
+	(collapse (get-atoms &removeSpace)) 
+	(assertEqual $atoms 
+		(
+			(: c ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
+			(: d ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
+			(: e ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
+			(: H ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
+			(: (PlusLink A F) ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
+			(: F ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
+			(: (ASYMMETRIC_HEBBIAN_LINK A F) ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
+			(: b ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
+		)
+	)
 )
 
 !(let $atoms 
@@ -66,23 +77,12 @@
 		(assertEqual $atoms (a A B C D G I (habbianlink a A) (PlusLink A a) (ASYMMETRIC_HEBBIAN_LINK A a)))
 )
 
-
-!(assertEqual
-	(collapse 
-		(intersection 
-			(get-atoms &removeSpace) 
-			(let $a
-				(get-atoms &typeSpace)
-				(unify 
-					$a
-					(: $pattern $x)
-					$pattern
-					(empty)
-				)
-			)
-		)
+!(let*
+	(
+		($rmvspace (getAtomsInRemoveSpace))	
+		($typspace (getAtomsInTypeSpace))
 	)
-	()
+	(intersection-atom $typspace $rmvspace)
 )
 
 
