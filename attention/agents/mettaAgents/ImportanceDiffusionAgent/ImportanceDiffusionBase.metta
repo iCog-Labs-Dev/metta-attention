@@ -5,10 +5,15 @@
     (let*
         (
             ($incidentAtoms (collapse (incidentAtoms $atom $space)))
-            ; ($filtered (collapse (removeHebbianLinks (superpose $incidentAtoms))))
+            ($oset (if (== (get-metatype $atom) Expression)
+                        (getOutGoingAtoms $atom)
+                        ()
+                    )
+            )
+            ($incidentAndoset (concatTuple $incidentAtoms $oset))
             ($iset (getIncomingSet $atom ASYMMETRIC_HEBBIAN_LINK) )
             ($hebbianAdjacentAtoms (collapse (hebbianAdjacentAtoms $iset $atom)))
-            ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAtoms)))
+            ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAndoset)))
             ($probabilityVectorHebbianAjacent (collapse (probabilityVectorHebbianAjacent $atom $hebbianAdjacentAtoms)))
             ($combProbabilityVector (combineIncidentAdjacentVectors $probabilityVectorIncident $probabilityVectorHebbianAjacent))
             ($totaldiffusionAmount (if (== $AForWA AF)
@@ -50,14 +55,6 @@
                     )
                 )
             )
-            ; ($outgoingSet
-            ;     (unify $atom ($link $source $target)
-            ;         (getOutGoingAtoms $atom)
-            ;         ()
-            ;     )
-            ; )
-            ; ($joinSet ($incomingSet $outgoingSet))
-            ; ($decomposed (superpose $joinSet))
         )
         $filtered
     )
@@ -188,7 +185,8 @@
                             $temp
                         )
                     )
-                 $temp))))
+                    $temp
+                ))))
             ($sorted (sortAtomsBySti $atoms))
         )
         $sorted
@@ -199,10 +197,20 @@
     (let*
         (
             ($atoms (getRandomAtomNotInAF))
-            ((if (== $atoms ())
-                ()
-                ($result
-                    (unify $atoms (ASYMMETRIC_HEBBIAN_LINK $a $b) (empty) $atoms)))
+            ($result
+                (if (== $atoms ())
+                    ()
+                    (if (== (get-metatype $atoms) Expression)
+                            (if (== (car-atom $atoms) ASYMMETRIC_HEBBIAN_LINK)
+                                (empty)
+                                (if (== (car-atom $atoms) HEBBIAN_LINK)
+                                    (empty)
+                                    $atoms
+                                )
+                            )
+                            $atoms
+                    )
+                )
             )
         )
         $result
@@ -217,19 +225,32 @@
     )
 )
 
+;; This should be the correct logic getALlIncomingSets not from AF
+
+; (: getAllIncomingSets (-> Atom Grounded List))
+; (= (getAllIncomingSets $atom $space)
+;     (let*
+;         (
+;             ($allAtoms (superpose (getAtomsInBins)))
+;             ($filtered
+;                 (if (or (unify ($type $atom $target) $allAtoms True False) (unify ($type $source $atom) $allAtoms True False))
+;                     $filtered
+;                     (empty)
+;                 )
+;             )
+;         )
+;         $filtered
+;     )
+; )
+
+;Simulation Temporary
 (: getAllIncomingSets (-> Atom Grounded List))
 (= (getAllIncomingSets $atom $space)
-    (let*
+    (superpose
         (
-            ($allAtoms (superpose (getAtomsInBins)))
-            ($filtered
-                (if (or (unify ($type $atom $target) $allAtoms True False) (unify ($type $source $atom) $allAtoms True False))
-                    $filtered
-                    (empty)
-                )
-            )
+            (match $space ($type $atom $x) ($type $atom $x))
+            (match $space ($type $x $atom) ($type $x $atom))
         )
-        $filtered
     )
 )
 
