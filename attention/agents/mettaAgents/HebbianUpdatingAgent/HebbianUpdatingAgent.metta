@@ -101,7 +101,7 @@
             ($conj (+ (* $normsti_i $normsti_j) (* (- $normsti_j $normsti_i) (abs-math (- $normsti_j $normsti_i)))))
             ($ret_conj (/ (+ $conj 1.0) 2.0))
         )
-            $normsti_i
+            $ret_conj
     )
 )
 

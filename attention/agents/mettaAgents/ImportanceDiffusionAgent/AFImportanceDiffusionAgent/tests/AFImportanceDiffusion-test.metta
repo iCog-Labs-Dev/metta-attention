@@ -8,6 +8,8 @@
 !(import! &self metta-attention:attention:agents:mettaAgents:Neighbors)
 !(import! &self metta-attention:attention:agents:mettaAgents:ImportanceDiffusionAgent:ImportanceDiffusionBase)
 
+;;This are the same tests as the c++
+
 ;########################## Stimlating atoms so that they enter AF #############################
 !(stimulate source 500)
 !(stimulate target1 400)
@@ -18,20 +20,20 @@
 !(stimulate target6 0)
 
 ;########################## Creating links between atoms #############################
-!(add-atom (attentionalFocus) (HEBBIAN_LINK source target1))
-!(add-atom (attentionalFocus) (HEBBIAN_LINK source target2))
-!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK source target3))
+!(setStv (HEBBIAN_LINK source target1) (0 1))
+!(setStv (HEBBIAN_LINK source target2) (0 1))
+!(setStv (ASYMMETRIC_HEBBIAN_LINK source target3) (0 1))
 
-!(add-atom (attentionalFocus) (INHERITANCE_LINK target3 source))
-!(add-atom (attentionalFocus) (INHERITANCE_LINK source target4))
-!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK target1 target2))
+!(setStv (INHERITANCE_LINK target3 source) (0 1))
+!(setStv (INHERITANCE_LINK source target4) (0 1))
+!(setStv (ASYMMETRIC_HEBBIAN_LINK target1 target2) (0 1))
 
-!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK target2 target3))
-!(add-atom (attentionalFocus) (INHERITANCE_LINK source target5))
-!(add-atom (attentionalFocus) (INHERITANCE_LINK source target6))
+!(setStv (ASYMMETRIC_HEBBIAN_LINK target2 target3) (0 1))
+!(setStv (INHERITANCE_LINK source target5) (0 1))
+!(setStv (INHERITANCE_LINK source target6) (0 1))
 
 ;########################## Running the AF Importance Diffusion Agent #############################
-!(AFImportanceDiffusionAgent-Run (attentionalFocus))
+!(AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace))
 
 ;########################## Testing the STI values #############################
 !(assertEqual (getSTI source) 6000.0)
