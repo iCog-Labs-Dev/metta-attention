@@ -45,6 +45,19 @@
    )
 )
 
+
+(= (addLinkToAF $link $space)
+
+    (let* (($get-link (get-type-space $space $link)))
+            (if (== $get-link (%Undefined%))
+                ("Atom is not valid")
+                (let()
+                    (add-atom &attentionalFocus $get-link) ;TODO: pass &attentionalFocus as parameter to hide implicit dependence and avoid side effects.
+                    ("Atom Added")
+                )
+            )
+   )
+)
 ;Function: getAtomList
 ;Description: Retrieves a list of all atoms currently in attentional focus space.
 ;Parameters: None.

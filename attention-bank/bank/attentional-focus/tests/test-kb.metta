@@ -13,3 +13,7 @@
 (: ChallaAbebe (createLink challa abebe habbianlink))
 (: AbebeKebede (createLink abebe kebede PlusLink))
 
+(: createLink (-> $source $target $type ($source $target)))
+(: link_ak (createLink abebe kebede HabbianLink))
+(: link_ca (createLink challa abebe PlusLink))
+
