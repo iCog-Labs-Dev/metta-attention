@@ -45,19 +45,22 @@
    )
 )
 
-
+;; This function attempts to add a link to the attentional focus if it exists in the given space.
+;; It first checks whether the link is a valid atom in the specified space.
+;; If the link is undefined, it returns an error message; otherwise, it adds the atom and confirms success.
 (= (addLinkToAF $link $space)
 
     (let* (($get-link (get-type-space $space $link)))
             (if (== $get-link (%Undefined%))
                 ("Atom is not valid")
                 (let()
-                    (add-atom &attentionalFocus $get-link) ;TODO: pass &attentionalFocus as parameter to hide implicit dependence and avoid side effects.
+                    (add-atom &attentionalFocus $get-link) 
                     ("Atom Added")
                 )
             )
    )
 )
+
 ;Function: getAtomList
 ;Description: Retrieves a list of all atoms currently in attentional focus space.
 ;Parameters: None.
