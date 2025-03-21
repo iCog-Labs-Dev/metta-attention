@@ -41,14 +41,10 @@
 
 !(assertEqual(getAfMaxSTI &test-kb) 600.0)
 
-!(let $link (get-type-space &test-kb ChallaAbebe) (add-atom &attentionalFocus $link))
-!(let $linkTwo (get-type-space &test-kb AbebeKebede) (add-atom &attentionalFocus $linkTwo))
-
+!(addLinkToAF ChallaAbebe &test-kb)
+!(addLinkToAF AbebeKebede &test-kb)
 ! (assertEqual (getIncomingSet abebe habbianlink) ((createLink challa abebe habbianlink)))
 ! (assertEqual (nodeMatch (ConceptNode abebe) (ConceptNode abebe)) False) ;False snce (ConceptNode abebe) is not in the attentional focus
-
-!(assertEqual (linkMatch (get-type-space &test-kb ChallaAbebe) (get-type-space &test-kb ChallaAbebe)) True)
-
 
 !(add-atom &attentionalFocus ( CHOICE_LINK A B))
 !(add-atom &attentionalFocus ( ORLink A B))
