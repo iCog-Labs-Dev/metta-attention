@@ -158,6 +158,11 @@
     )
 )
 
+;Function: getLowestStiAtomInAF
+;Description: Goes through the AF and returns the Atom with the lowest Sti
+;Parameters: None
+;Returns: An Atom that has the lowerst sti in attentional focus.
+
 (: getLowestStiAtomInAF (-> Atom))
 (= (getLowestStiAtomInAF)
     (let $atoms (getAtomList)
@@ -178,6 +183,11 @@
     $vals
     )
 )
+
+;Function: getAfMaxSTI
+;Description: Goes through the AF and returns the highest Sti
+;Parameters: None
+;Returns: An Atom that has the highest sti in attentional focus.
 
 (: getAfMaxSTI (-> Number))
 (= (getAfMaxSTI)
