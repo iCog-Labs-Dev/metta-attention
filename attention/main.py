@@ -10,22 +10,23 @@ def main():
     metta = MeTTa()
 
     scheduler = ParallelScheduler(metta)
-
+    base_path = os.path.dirname(os.path.abspath(__file__))
     # Register agents
     print("\nRegistering agents...")
 
+    
     scheduler.register_agent("AFImportanceDiffusionAgent", 
-        lambda: AgentObject(metta=metta, path="../metta-attention/attention/agents/mettaAgents/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent-runner.metta"))
+        lambda: AgentObject(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent-runner.metta")))
     scheduler.register_agent("WAImportanceDiffusionAgent", 
-            lambda: AgentObject(metta=metta, path="../metta-attention/attention/agents/mettaAgents/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent-runner.metta"))
+        lambda: AgentObject(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent-runner.metta")))
     scheduler.register_agent("AFRentCollectionAgent", 
-        lambda: AgentObject(metta=metta, path="../metta-attention/attention/agents/mettaAgents/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent-runner.metta"))
+        lambda: AgentObject(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent-runner.metta")))
     scheduler.register_agent("WARentCollectionAgent", 
-        lambda: AgentObject(metta=metta, path="../metta-attention/attention/agents/mettaAgents/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent-runner.metta"))
+        lambda: AgentObject(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent-runner.metta")))
     scheduler.register_agent("HebbianUpdatingAgent", 
-        lambda: AgentObject(metta=metta, path="../metta-attention/attention/agents/mettaAgents/HebbianUpdatingAgent/HebbianUpdatingAgent-runner.metta"))
+        lambda: AgentObject(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/HebbianUpdatingAgent/HebbianUpdatingAgent-runner.metta")))
     scheduler.register_agent("ForgettingAgent", 
-        lambda: AgentObject(metta=metta, path="../metta-attention/attention/agents/mettaAgents/ForgettingAgent/ForgettingAgent-runner.metta"))
+        lambda: AgentObject(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/ForgettingAgent/ForgettingAgent-runner.metta")))
     
 
     print("\nAgent System Ready!")
