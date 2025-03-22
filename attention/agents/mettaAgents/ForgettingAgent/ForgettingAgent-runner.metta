@@ -6,4 +6,4 @@
 !(import! &self attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self attention-bank:bank:importance-index:importance-index)
 
-!(forgetAtoms (getAtomList))
+!(forgettingAgent-Run)
