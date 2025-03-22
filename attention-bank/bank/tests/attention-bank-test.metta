@@ -9,14 +9,15 @@
 
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
+!(import! &self metta-attention:attention-bank:utilities:recentVal)
 
 ; Example usage to compute STI and LTI wages
 !(assertEqual (calculateSTIWage) 20.0)
 !(assertEqual (calculateLTIWage) 20.0)
 
-(add-atom &atombin (1 (x)))
-(add-atom &atombin (10 (y)))
-(add-atom &atombin (18 (z)))
+; !(add-atom &atombin (1 (x)))
+; !(add-atom &atombin (10 (y)))
+; !(add-atom &atombin (18 (z)))
 ; Initial AttentionValues
 !(setAv x (200.0 200.0 0.0))
 !(setAv y (200.0 200.0 0.0))

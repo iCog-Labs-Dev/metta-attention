@@ -4,21 +4,17 @@
 ;;; Function: HebbianUpdatingAgent-Run
 ;;; Description: Main Function to run the Hebbian Updating Agent.
 ;;; Parameters: None
-;;; Returns: update the Hebbian link.
+;;; Returns: update the Hebbian link of Randomly selected atom.
 ;;; Example: (HebbianUpdatingAgent-Run)
 ;;;          Returns: update STV for the Hebbian link between A and some atom
 
-(: HebbianUpdatingAgent-Run (-> Atom))
-(= (HebbianUpdatingAgent-Run)
+(: HebbianUpdatingAgent-Run (-> Grounded Atom))
+(= (HebbianUpdatingAgent-Run $space)
     (let $atoms (getAtomList)
         (if (== $atoms ())
             ()
-            (getRandomAtomNotInAFlet*
-                (
-                    ($random (random-int 0 (size-atom $atoms)))
-                    ($source (index-atom $atoms $random))
-                )
-                (updateHebbianLinks $source)
+            (let $randomAtom (getRandomAtomNotInAF)
+                (updateHebbianLinks $randomAtom $space)
             )
         )
     )
@@ -32,13 +28,19 @@
 ;;; Example: (updateHebbianLinks A)
 ;;;          Returns: updates STV for the Hebbian link between A and some atom
 
-(: updateHebbianLinks (-> Atom Atom))
-(= (updateHebbianLinks $source)
+(: updateHebbianLinks (-> Atom Grounded Atom))
+(= (updateHebbianLinks $source $space)
     (let*
         (
-            ($iset (getIncomingSetByType $source ASYMMETRIC_HEBBIAN_LINK))
-            ($link (if (== $iset ()) () (superpose $iset)))
-            ($outgoing (if (== $link ()) () (getOutGoingAtoms $link)))
+            ($iset
+                (let $temp (getAllIncomingSetsForHUAgent $source $space)
+                    (if (== (car-atom $temp) ASYMMETRIC_HEBBIAN_LINK)
+                        $temp
+                        (empty)
+                    )
+                )
+            )
+            ($outgoing (getOutGoingAtoms $iset))
             ($head (if (== $outgoing ()) () (car-atom $outgoing)))
         )
         (if (not (== $outgoing ()))
@@ -49,14 +51,14 @@
                             (let*
                                 (
                                     ($new-tc (targetConjunction $outgoing))
-                                    (($STV $old-tc $conf) (getStv $link))
+                                    (($STV $old-tc $conf) (getStv $iset))
                                     ($tc (+ (* tcDecayRate $new-tc) (* (- 1.0 tcDecayRate) $old-tc)))
                                     ($create-tv ($tc 0.1))
                                     ($new-tv (mergeCalculation $create-tv ($old-tc $conf) PLN_BOOK_REVISION))
                                 )
-                                    (setStv $link $new-tv)
+                                    (setStv $iset $new-tv)
                             )
-                            ("Source != $Outgoing Source")
+                            ($source "!=" $head)
                         )
                     )
                 )
@@ -160,6 +162,21 @@
         (if (> $conf2 $conf1)
             $stv2
             $stv1
+        )
+    )
+)
+
+;; This function will return the incoming set of an atom
+;; Parameters $atom: The atom that will be used to find the incoming set
+;;            $type: The type that will be used to find the incoming set
+;; Return : The incoming set of the atom
+
+(: getAllIncomingSetsForHUAgent (-> Atom Grounded List))
+(= (getAllIncomingSetsForHUAgent $atom $space)
+    (superpose
+        (
+            (match $space (: ($type $atom $x) $AV) ($type $atom $x))
+            (match $space (: ($type $x $atom) $AV) ($type $x $atom))
         )
     )
 )

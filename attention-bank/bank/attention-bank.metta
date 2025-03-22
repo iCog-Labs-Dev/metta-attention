@@ -87,10 +87,11 @@
            ($fundsLTI (match  &space  (fundsLTI $x) $x))
            ($newstifund (+ $fundsSTI $stiDiff))
            ($newltifund (+ $fundsLTI $ltiDiff))
+           ($changeAv (attentionValueChanged $pattern $newstifund $newltifund $new-av))
            ($res (updateImportance $space $pattern $sti $new-sti))
 		   ($changeAv (attentionValueChanged $pattern $newstifund $newltifund $new-av))
          )
-		 $changeAv
+         $changeAv
    )
 )
 
@@ -116,8 +117,9 @@
          ($res (setAv $pattern $newAv))
          ($oldSTIFund (match &space (fundsSTI $fundsSTI) $fundsSTI))
          ($oldLTIFund (match &space (fundsLTI $fundsLTI) $fundsLTI))
-         ($one (updateLTIFunds $oldLTIFund $newLTIFund))
-         ($two (updateSTIFunds $oldSTIFund $newSTIFund))
+         ($1 (updateLTIFunds $oldLTIFund $newLTIFund))
+         ($2 (updateSTIFunds $oldSTIFund $newSTIFund))
+         ($3 (updateAttentionalFocus $pattern))
          ($atombin (AtomBin))
          ($r (update $atombin))
          ($three (updateAttentionalFocus $pattern))
