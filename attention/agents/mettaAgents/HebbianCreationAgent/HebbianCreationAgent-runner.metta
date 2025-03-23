@@ -11,4 +11,4 @@
 
 
 
-!(HebbianCreationAgent-Run)
+!(HebbianCreationAgent-Run (TypeSpace) (attentionalFocus))
