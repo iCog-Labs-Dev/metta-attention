@@ -7,4 +7,4 @@
 !(import! &self attention:agents:mettaAgents:Neighbors)
 !(import! &self attention:agents:mettaAgents:ImportanceDiffusionAgent:ImportanceDiffusionBase)
 
-!(AFImportanceDiffusionAgent-Run (attentionalFocus))
+!(AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace))

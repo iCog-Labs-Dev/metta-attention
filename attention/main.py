@@ -25,6 +25,8 @@ def main():
         lambda: AgentObject(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent-runner.metta")))
     scheduler.register_agent("HebbianUpdatingAgent", 
         lambda: AgentObject(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/HebbianUpdatingAgent/HebbianUpdatingAgent-runner.metta")))
+    scheduler.register_agent("HebbianCreationAgent", 
+        lambda: AgentObject(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/HebbianCreationAgent/HebbianCreationAgent-runner.metta")))
     scheduler.register_agent("ForgettingAgent", 
         lambda: AgentObject(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/ForgettingAgent/ForgettingAgent-runner.metta")))
     
