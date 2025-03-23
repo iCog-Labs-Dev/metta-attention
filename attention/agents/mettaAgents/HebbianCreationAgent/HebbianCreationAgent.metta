@@ -1,29 +1,28 @@
-
-
-
-!(bind! maxLinkNum 4) ; The maximum amount of links that can be created from a single atom
-!(bind! localToFarLinks 2) ;Ratio of local links to far links
+!(bind! maxLinkNum 300) ; The maximum amount of links that can be created from a single atom
+!(bind! localToFarLinks 10) ;Ratio of local links to far links
 
 ;Function: HebbianCreationAgent-Run
 ;Description: This function creates hebbian links between atoms in the attentional focus. It also creates links between atoms in the attentional focus and atoms outside the attentional focus. The number of links created between atoms in the attentional focus and atoms outside the attentional focus is determined by the localToFarLinks ratio. The function also removes links from the attentional focus if the number of incoming links exceeds the maxLinkNum.
 ;Parameters: None.
 ;Returns: empty
 
-(:HebbianCreationAgent-Run(-> empty))
-( = (HebbianCreationAgent-Run)
+(: HebbianCreationAgent-Run(-> Grounded Grounded empty))
+(= (HebbianCreationAgent-Run $space $space2)
     ; if the attentional focus is empty no work is done
     (if ( == (attentionalFocusSize)  0)
         ("Empty Attentional Focus")
         (let $source (getRandomAtomInAF)
-            (if  (==  HEBBIAN_LINK (car-atom $source)) ;;if symbol error
+            (if  (unify (get-metatype $source) Expression (==  HEBBIAN_LINK (car-atom $source)) False) ;;if symbol error
                 ("source is a hebbian link") ; if already hebbian_link nothing is done
                 (
                     (let*
                         (
-                            (($link $sourceAtom $targetAtom) $source) ;need to remove hebbian link from attentional focus
-                            ($x (let $temp (remove-atom (attentionalFocus) $source) ())) ; to minimize self connection
-                            ($existingAsSourceHS  (getTargetNeighbors $sourceAtom ASYMMETRIC_HEBBIAN_LINK)) ;;need to check if we should use source or sourceAtom
-                            ($existingAsTarget  (getSourceNeighbors $sourceAtom ASYMMETRIC_HEBBIAN_LINK))
+                            ($removeHebbian (let $temp (removeHebbianLinksfromAF (collapse (match $space2 (HEBBIAN_LINK $a $b) (HEBBIAN_LINK $a $b)))) ()))
+                            ($removeSource
+                                (let $temp2 
+                                    (remove-atom (attentionalFocus) $source) ())) ; to minimize self connection
+                            ($existingAsSourceHS  (getTargetNeighbors $source ASYMMETRIC_HEBBIAN_LINK $space)) ;;need to check if we should use source or sourceAtom
+                            ($existingAsTarget  (getSourceNeighbors $source ASYMMETRIC_HEBBIAN_LINK $space))
                             ($needToBeSource ( setDifference $existingAsSourceHS) )
                             ($needToBeTarget  (setDifference $existingAsTarget))
                             ($count (size-atom $needToBeTarget ))
@@ -45,6 +44,21 @@
         )
     )
 )
+
+;;Function: removeHebbianLinksfromAF
+;;Description: removes Hebbian Links from the AF
+;;Parameters: Atom
+;;Return: Empty
+
+; (: removeHebbianLinksfromAF (-> Link Empty))
+(= (removeHebbianLinksfromAF $links)
+    (if (== $links ())
+        ()
+        (let $superposed (superpose $links) 
+            (remove-atom (attentionalFocus) $superposed))
+    )
+)
+
 
 ;Function: getSourceAtom
 ;Description: returns the source atom of a link
@@ -141,7 +155,7 @@
 ;Returns: empty
 
 (: addHebbian (-> Atom Atom Empty))
-( = (addHebbian $source $target)
+(= (addHebbian $source $target)
     (if ( == (get-metatype $target) Symbol)
         (let*
             (

@@ -21,12 +21,12 @@
     )
 )
 
-(= (getSourceNeighbors $source $type)
+(= (getSourceNeighbors $source $type $space)
     (if (== $type UNORDERED_LINK)
         ()
         (let*
             (
-                ($incomingSet (getIncomingSet $source $type))
+                ($incomingSet (getAllIncomingSetsForHCA $source $space))
                 ($sourceNeighbors (getSourceNeighborRecursively $incomingSet $source $type))
             )
         $sourceNeighbors
@@ -53,13 +53,12 @@
     )
 )
 
-
-(= (getTargetNeighbors $source $type)
+(= (getTargetNeighbors $source $type $space)
     (if (== $type UNORDERED_LINK)
         ()
         (let*
             (
-                ($incomingSet (getIncomingSet $source $type))
+                ($incomingSet (getAllIncomingSetsForHCA $source $space))
                 ($sourceNeighbors (getTargetNeighborRecursively $incomingSet $source $type))
             )
         $sourceNeighbors
@@ -82,6 +81,19 @@
                 ()
             )
             ()
+        )
+    )
+)
+
+
+(: getAllIncomingSetsForHCA (-> Atom Grounded List))
+(= (getAllIncomingSetsForHCA $atom $space)
+    (collapse
+        (superpose
+            (
+                (match $space (: ($type $atom $b) $Value) ($type $atom $b))
+                (match $space (: ($type $b $atom) $Value) ($type $b $atom))
+            )
         )
     )
 )
