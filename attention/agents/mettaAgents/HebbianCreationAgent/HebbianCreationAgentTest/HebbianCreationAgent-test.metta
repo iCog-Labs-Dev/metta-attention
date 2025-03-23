@@ -65,7 +65,7 @@
 !(add-atom (attentionalFocus) (HEBBIAN_LINK f g))
 !(add-atom (attentionalFocus) (HEBBIAN_LINK g a))
 
-!(HebbianCreationAgent-Run)
+!(HebbianCreationAgent-Run (TypeSpace) (attentionalFocus))
 
 !(attentionalFocusSize) ;Check if more Hebbian links are created 
 
