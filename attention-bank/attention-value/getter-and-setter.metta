@@ -249,8 +249,8 @@
 	(remove-atom &typeSpace $atom)
 )
 
-(: TypeSpace ( -> Grounding:space))
+(: TypeSpace (-> Grounded))
 (= (TypeSpace)
-	(&typeSpace)
+	&typeSpace
 )
 
