@@ -454,8 +454,8 @@
 ;;; Returns: A list of incoming links.
 (: getIncomingSetwithoutType (-> Atom List))
 (= (getIncomingSetwithoutType $atom)
-    (collapse 
-        (superpose   
+    (collapse
+        (superpose
             (
                 (match &attentionalFocus ($type $atom $b) ($type $atom $b))
                 (match &attentionalFocus  ($type $b $atom) ($type $b $atom))
@@ -464,6 +464,24 @@
     )
 )
 
+
+
+( = (getRandomAtomInAF)
+    (if  (== (attentionalFocusSize) 0)
+        ("AF is Empty")
+        ;else
+        ( let*( ($randomNumber (random-int 0 (attentionalFocusSize) ))
+            ($atoms (getAtomList))
+            ($randomAtom (index-atom $atoms $randomNumber))
+            )
+        $randomAtom
+        )
+    )
+)
+
+
 (= (attentionalFocus)
     &attentionalFocus
 )
+
+
