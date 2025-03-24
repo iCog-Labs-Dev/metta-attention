@@ -36,7 +36,7 @@
            ($newstifund (+ $fundsSTI $stiDiff))
            ($newltifund (+ $fundsLTI $ltiDiff))
            ($updateimpo (updateImportance (AtomBin) $pattern $oldSTI $sti))  ; Update importance
-           ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter
+          ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter
     )
             ()
     )

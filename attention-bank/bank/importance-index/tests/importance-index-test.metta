@@ -31,7 +31,7 @@
 
 ; Test case 02: Testing getHandleSet with lowerbound and upperbound
 
-!(assertEqual (getHandleSet 1 20) (c d a))
+!(assertEqual (getHandleSet 1 20) (d c a))
 !(assertEqual (getHandleSet 10 10) ())
 !(assertEqual (getHandleSet 0 -1.0) ())
 

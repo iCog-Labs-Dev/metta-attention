@@ -42,7 +42,7 @@
 
 ; Test case 01: Testing attentionalFocusSize asserting it returns correct number of atom in focus
 
-!(assertEqual(attentionalFocusSize) 8)
+!(assertEqual(attentionalFocusSize) 18)
 
 
 ; Test case 02: Testing atomIsInAF asserting it returns True for a given atom in AF
@@ -63,7 +63,7 @@
 
 ; Test case 04: Testing sortAtomsBySti sorts atoms and returns sorted list
 
-!(assertEqual (sortAtomsBySti  (getAtomList)) (a D B F A (EvaluationLink a b) C (Hebbianlink (Hebbianlink Cat Human) Animal)))
+!(assertEqual (sortAtomsBySti  (getAtomList)) (c a a d D D B B F F A A (EvaluationLink a b) (EvaluationLink a b) C C (Hebbianlink (Hebbianlink Cat Human) Animal) (Hebbianlink (Hebbianlink Cat Human) Animal)))
 
 ; Test case 05: Testing getLowestStiAtomInAF returns an atom with lowest Sti
 
@@ -74,14 +74,14 @@
 
 !(setAv G (300.0 400.0 500.0))
 !(assertEqual (updateAttentionalFocus G) ("Atom Added"))
-!(assertEqual (getAtomList) (a A B C D F (EvaluationLink a b) (Hebbianlink (Hebbianlink Cat Human) Animal) G))
+!(assertEqual (getAtomList) (a d c A B C D F a A B C D F (EvaluationLink a b) (Hebbianlink (Hebbianlink Cat Human) Animal) (EvaluationLink a b) (Hebbianlink (Hebbianlink Cat Human) Animal) G))
 
 
 ; Test case 07: Testing updateAttentionalFocus by changing values of saved atom
 
 !(setAv G (15.0 25.0 35.0))
 !(assertEqual (updateAttentionalFocus G) ("Atom Added"))
-!(assertEqual (getAtomList) (a A B C D F (EvaluationLink a b) (Hebbianlink (Hebbianlink Cat Human) Animal) G))
+!(assertEqual (getAtomList) (a d c A B C D F a A B C D F (EvaluationLink a b) (Hebbianlink (Hebbianlink Cat Human) Animal) (EvaluationLink a b) (Hebbianlink (Hebbianlink Cat Human) Animal) G))
 
 ; Test case 08: Testing updateAttentionalFocus adding an atom without AV 
 
@@ -91,7 +91,7 @@
 
 ; Test case 09; Testing sortAtomsBySti checking new order of atoms
 
-!(assertEqual (sortAtomsBySti  (getAtomList)) (a G D B F A (EvaluationLink a b) C (Hebbianlink (Hebbianlink Cat Human) Animal)))
+!(assertEqual (sortAtomsBySti  (getAtomList)) (c a a d G D D B B F F A A (EvaluationLink a b) (EvaluationLink a b) C C (Hebbianlink (Hebbianlink Cat Human) Animal) (Hebbianlink (Hebbianlink Cat Human) Animal)))
 
 
 ; Test case 10: Testing getRandomAtomNotInAF assure that only one atom is returned
@@ -107,7 +107,7 @@
 
 ; Test case 12: Testing sortAtomsByStiDescending to check if it sorts atoms in descending STI
 
-!(assertEqual(sortAtomsByStiDescending  (getAtomList)) ((Hebbianlink (Hebbianlink Cat Human) Animal) C (EvaluationLink a b) A F B D G a))
+!(assertEqual(sortAtomsByStiDescending  (getAtomList)) ((Hebbianlink (Hebbianlink Cat Human) Animal) (Hebbianlink (Hebbianlink Cat Human) Animal) C C (EvaluationLink a b) (EvaluationLink a b) A A F F B B D D G d a a c))
 
 
 ;################ Prep: adding to attensionalfocus space to test link match ####################
