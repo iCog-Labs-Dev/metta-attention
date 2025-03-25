@@ -82,7 +82,7 @@
 (: update (-> hyperon::space::DynSpace Atom))
 (= (update $space)
     (let* (
-            ($nums (collapse (match $space ($x $y) $x)))
+            ; ($nums (collapse (match $space ($x $y) $x)))
             ($vals (collapseAtomBin $space))
             ($filteredVals (filter $vals notEmpty))
             ($collectedContents (collectContents $filteredVals ()))

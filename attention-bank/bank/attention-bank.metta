@@ -110,7 +110,7 @@
    (let* (
           ($updateLti (bankUpdater fundsLTI $newltifund))
           ($updateSti  (bankUpdater fundsSTI $newstifund))
-          ($_ (updateAttentionalFocus $pattern))
+          ($attentional(updateAttentionalFocus $pattern))
           ($atombin (AtomBin))
           ($r (update $atombin))
          )
