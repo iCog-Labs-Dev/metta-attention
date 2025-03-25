@@ -10,7 +10,7 @@
     (let* (
         ($oldSTI (getSTI $pattern))
         ($oldLTI (getLTI $pattern))
-        ($res (if (== (collapse (getValueType $pattern)) ())
+        ($res (if (== (getValueType $pattern) %Undefined%)
                    (add-atom &typeSpace (: $pattern (AV $sti $lti $vlti)))
                    (let* (
                            ($stv (getStv $pattern))
@@ -72,7 +72,7 @@
 
  (: setStv (-> Atom (Number Number) Atom))
 (= (setStv $pattern ($mean $conf))
-    (if (== (collapse (getValueType $pattern)) ())
+    (if (== (getValueType $pattern) %Undefined%)
         (add-atom &typeSpace (: $pattern (STV $mean $conf)))
         (let* ( ( $av (getAv $pattern))
                 ($_ (let $x (collapse (match &typeSpace (: $pattern $_) (: $pattern $_)))
