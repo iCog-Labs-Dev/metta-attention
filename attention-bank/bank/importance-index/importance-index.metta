@@ -94,6 +94,7 @@
             (updateGlobalMaxAndMinSTI $max $max)
             (updateGlobalMaxAndMinSTI $min $max)
           )
+        
     )
 )
 

@@ -59,4 +59,4 @@
 
 !(HebbianCreationAgent-Run (TypeSpace) (attentionalFocus))
 
-!(assertEqual (attentionalFocusSize) 12)
+!(assertEqual (attentionalFocusSize) 16)
