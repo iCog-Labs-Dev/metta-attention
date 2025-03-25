@@ -1,7 +1,6 @@
 !(register-module! ../../../../../metta-attention) 
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
-
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)

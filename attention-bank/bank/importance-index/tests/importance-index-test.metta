@@ -1,5 +1,6 @@
 !(register-module! ../../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
+!(import! &self metta-attention:attention-bank:utilities:recentVal)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
@@ -42,8 +43,7 @@
 
 
 ; Test cases 04: Testing stimulate that need to be refactored
-
-!(stimulate x 1.5)
+!(assertEqual (stimulate x 1.5) ("Updated"))
 
 ; Test case 05: Testing updateImportance updates the importance of an atom
 

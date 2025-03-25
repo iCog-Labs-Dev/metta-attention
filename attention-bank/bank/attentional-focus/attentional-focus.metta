@@ -234,14 +234,13 @@
            (if (< $currentSize $maxSize)
                ; Case 2: AF is not full, add the new atom
                (addAtomToAF $atom)
-
                (let $lowestAtom (getLowestStiAtomInAF) ; Only compute if needed
                     (if (> $sti (getSTI $lowestAtom))  ; Case 3: Replace if better
                         (let ()
                             (remove-atom &attentionalFocus $lowestAtom)
                             (addAtomToAF $atom)
                         )
-                        (empty) ; Case 4: Atom not added
+                        () ; Case 4: Atom not added
                     )
                )
            )
@@ -482,6 +481,15 @@
 
 (= (attentionalFocus)
     &attentionalFocus
+)
+
+
+(: removeAtomAttentionalfocus (-> atom empty))
+(= (removeAtomAttentionalfocus $atom)
+	(if (atomIsInAF $atom)
+		(remove-atom &attentionalFocus $atom)
+		()
+	)
 )
 
 

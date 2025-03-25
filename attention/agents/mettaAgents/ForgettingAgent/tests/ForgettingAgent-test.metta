@@ -7,10 +7,12 @@
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 
-(getAfMaxSTI)
+!(getAfMaxSTI)
 !(setAv a (0.0 1.0 0.0))
-!(setAv d (7.0 4.0 0.0))
+!(setAv b (7.0 4.0 0.0))
 !(setAv c (0.0 0.0 0.0))
+!(setStv d (0.1 0.2))
+!(setStv e (0.2 0.3))
 !(setAv A (100.0 200.0 0.0))
 !(setAv B (50.0 150.0 0.0))
 !(setAv C (200.0 300.0 0.0))
@@ -54,4 +56,13 @@
 		(collapse (get-atoms &attentionalFocus)) 
 		(assertEqual $atoms (A B C D G I (ASYMMETRIC_HEBBIAN_LINK A C)))
 )
+
+!(let*
+	(
+		($rmvspace (getAtomsInRemoveSpace))	
+		($typspace (getAtomsInTypeSpace))
+	)
+	(intersection-atom $typspace $rmvspace)
+)
+
 
