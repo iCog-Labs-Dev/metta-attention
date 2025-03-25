@@ -22,7 +22,7 @@
 !(stimulate target2 100)
 
 ;################ Running the HebbianUpdatingAgent ####################
-!(HebbianUpdatingAgent-Run (TypeSpace))
+!(updateHebbianLinks target2 (TypeSpace))
 
 ; ;################ Testing ####################
 !(assertEqual (getAv source) (AV 4000.0 4000.0 0))

@@ -3,7 +3,7 @@
 (= (AttentionalFocus) &attentionalFocus)
 (= (newAtomInAV) &newAtomInAV)
 
-(= (maxAFSize) 2)
+(= (maxAFSize) 100)
 
 ;Function: atomIsInAF
 ;Description: Checks if a given atom is in the attentional focus space.
