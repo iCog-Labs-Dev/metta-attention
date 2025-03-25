@@ -6,13 +6,20 @@
 ;Parameters: None.
 ;Returns: empty
 
-(: HebbianCreationAgent-Run(-> Grounded Grounded empty))
-(= (HebbianCreationAgent-Run $space $space2)
+(: HebbianCreationAgent-Run(-> Grounded Grounded Grounded empty))
+(= (HebbianCreationAgent-Run $space $space2 $space3)
     ; if the attentional focus is empty no work is done
     (if ( == (attentionalFocusSize)  0)
         ("Empty Attentional Focus")
-        (let $source (let $afAtoms (getAtomList) (superpose $afAtoms)) ;;THIS SHOULD BE A QUEUE OTHERWISE IT THE AGENT WILL BE MESSY
-            (if  (unify (get-metatype $source) Expression (==  HEBBIAN_LINK (car-atom $source)) False) ;;if symbol error
+        (let $source 
+                    (let*
+                        (
+                            ($afAtoms (getNewAtomInAVList))
+                            ($rm (collapse (removeAtomFromNewAVList (superpose $afAtoms) $space3)))
+                        )
+                            (superpose $afAtoms)
+                    ) 
+            (if  (unify (get-metatype $source) Expression (==  HEBBIAN_LINK (car-atom $source)) False)
                 ("source is a hebbian link") ; if already hebbian_link nothing is done
                 (
                     (let*
@@ -160,4 +167,8 @@
     (let $link (ASYMMETRIC_HEBBIAN_LINK $source $target)
         (setStv $link (0.5 0.1))
     )
+)
+
+(= (removeAtomFromNewAVList $atom $space)
+    (remove-atom $space $atom)
 )
