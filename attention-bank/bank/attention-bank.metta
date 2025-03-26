@@ -84,10 +84,11 @@
            ($fundsLTI (match &space (fundsLTI $x) $x))
            ($newstifund (+ $fundsSTI $stiDiff))
            ($newltifund (+ $fundsLTI $ltiDiff))
-           ($res (updateImportance &space $pattern $sti $new-sti))
            ($updateAv (setAv $pattern $new-av))
+           
+          
          )
-         (attentionValueChanged $pattern $newstifund $newltifund)
+         ("Updated")
    )
 )
 
