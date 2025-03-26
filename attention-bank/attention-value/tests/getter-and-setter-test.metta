@@ -1,5 +1,13 @@
 !(register-module! ../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
+!(import! &self metta-attention:attention-bank:bank:attention-bank)
+!(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
+!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
+
+!(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
+
+!(import! &self metta-attention:attention-bank:utilities:helper-functions)
+!(import! &self metta-attention:attention-bank:utilities:recentVal)
 
 
 ; Test case 01: testing attention value setter(setAv) function for symbol atom type
@@ -87,3 +95,12 @@
 ! (assertEqual (getSTI (Hebbianlink Human Cat)) 200)
 ! (assertEqual (getLTI (Hebbianlink (Hebbianlink Human Cat) Animal)) 200)
 ! (assertEqual (getVLTI (Hebbianlink (Hebbianlink Animal Hebbianlink) (Hebbianlink Animal Cat))) 0)
+
+
+!(setSTI l 100.0)
+!(setLTI l 100.0)
+!(setVLTI l 100.0)
+!(getAttentionBank fundsSTI)
+!(getAttentionBank fundsSTI)
+!(getAtomList)
+!(collapse(get-atoms (AtomBin)))

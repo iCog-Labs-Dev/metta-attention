@@ -87,8 +87,9 @@
            ($fundsLTI (match  &space  (fundsLTI $x) $x))
            ($newstifund (+ $fundsSTI $stiDiff))
            ($newltifund (+ $fundsLTI $ltiDiff))
+           ($res (setAv $pattern $newAv))
            ($res (updateImportance $space $pattern $sti $new-sti))
-		   ($changeAv (attentionValueChanged $pattern $newstifund $newltifund $new-av))
+		   ($changeAv (attentionValueChanged $pattern $newstifund $newltifund))
          )
 		 $changeAv
    )
@@ -110,10 +111,10 @@
 ;Returns: The result of updating the AtomBin.
 
 
-(: attentionValueChanged (-> Atom Number Number AttentionValue empty))
-(= (attentionValueChanged $pattern $newSTIFund $newLTIFund $newAv)
+(: attentionValueChanged (-> Atom Number Number empty))
+(= (attentionValueChanged $pattern $newSTIFund $newLTIFund)
    (let*(
-         ($res (setAv $pattern $newAv))
+        
          ($oldSTIFund (match &space (fundsSTI $fundsSTI) $fundsSTI))
          ($oldLTIFund (match &space (fundsLTI $fundsLTI) $fundsLTI))
          ($one (updateLTIFunds $oldLTIFund $newLTIFund))
