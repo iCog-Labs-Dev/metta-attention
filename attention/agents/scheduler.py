@@ -50,4 +50,4 @@ class ParallelScheduler:
                     concurrent.futures.wait(futures)
 
         except KeyboardInterrupt:
-            print("\nReceived interrupt signal. Stopping agents...")
+           print("\nReceived interrupt signal. Stopping agents...")

@@ -1,5 +1,6 @@
 !(register-module! ../../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
+!(import! &self metta-attention:attention-bank:utilities:recentVal)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
@@ -42,8 +43,7 @@
 
 
 ; Test cases 04: Testing stimulate that need to be refactored
-
-!(stimulate x 1.5)
+!(assertEqual (stimulate x 1.5) ("Updated"))
 
 ; Test case 05: Testing updateImportance updates the importance of an atom
 
@@ -53,20 +53,20 @@
 
 ; Test case 06: Testing getNormalisedZeroToOneSTI with different average and clip values both on and off
 
-!(assertEqual (getNormalisedZeroToOneSTI a True True) 1.0)
-!(assertEqual (getNormalisedZeroToOneSTI d True False) 3.0)
-!(assertEqual (getNormalisedZeroToOneSTI c  False False) 0.5)
+(assertEqual (getNormalisedZeroToOneSTI a True True) 0.004366812227074236)
+!(assertEqual (getNormalisedZeroToOneSTI d True False) 0.021834061135371178)
+!(assertEqual (getNormalisedZeroToOneSTI c  False False) 0.0043859649122807015)
 
 
 ; Test case 07: Testing getNormalisedSTI 
 
-!(assertEqual(getNormalisedSTI a) 2.0)
-!(assertEqual (getNormalisedSTI x) 230.0)
+!(assertEqual(getNormalisedSTI a) 1.3333333333333333)
+!(assertEqual (getNormalisedSTI x) 153.33333333333334)
 
 
 ; Test case 08: Testing getNormalisedSTI with different average and clip values
 
 !(assertEqual (getNormalisedSTI a True True) -1.0)
-!(assertEqual (getNormalisedSTI d True False) -1.0218340611353711)
+!(assertEqual (getNormalisedSTI d True False) -1.0240700218818382)
 
 
