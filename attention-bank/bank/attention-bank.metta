@@ -114,7 +114,7 @@
           ($atombin (AtomBin))
           ($r (update $atombin))
          )
-           ()
+           ("Updated")
    )
 )
 
