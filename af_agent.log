@@ -1,0 +1,8 @@
+2025-03-26 23:09:30,659 - INFO - Starting ParallelScheduler
+2025-03-26 23:09:30,659 - INFO - Registered agent: AFImportanceDiffusionAgent
+2025-03-26 23:09:30,659 - INFO - Registered agent: WAImportanceDiffusionAgent
+2025-03-26 23:09:30,659 - INFO - Registered agent: AFRentCollectionAgent
+2025-03-26 23:09:30,659 - INFO - Registered agent: WARentCollectionAgent
+2025-03-26 23:09:30,659 - INFO - Registered agent: HebbianUpdatingAgent
+2025-03-26 23:09:30,659 - INFO - Registered agent: ForgettingAgent
+2025-03-26 23:09:30,660 - INFO - Starting continuous agent execution...
