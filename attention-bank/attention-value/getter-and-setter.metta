@@ -85,7 +85,6 @@
     )
 )
 
-
 (: getValueType (-> Atom Type))
 (= (getValueType $pattern) 
 	(let $a 
@@ -115,9 +114,8 @@
 			)
 		)
 	)
-
-   
 )
+
 ; getMean retrieves mean from a pattern
 ; i.e !(getMean A)  output: 1 
 
@@ -177,7 +175,7 @@
 )
 
 
-(= (getType $pattern) (get-type $pattern))
+(= (getType $pattern) (get-type-space &typeSpace $pattern))
 
 ;;setSTI fnction accepts a pattern/node with an Sti value to replace the original
 ;;and set the Sti to the pattern/node.
@@ -200,13 +198,52 @@
 	)
 )
 
-(: removeTypeSpace (-> Atom empty))
-(= (removeTypeSpace $atom) 
-	(remove-atom &typeSpace $atom)
+(= (globalIncomingSetwithoutType $atom)
+    (collapse 
+        (superpose   
+            (
+				(match &typeSpace (: ($type $b $atom) $a) ($type $b $atom))
+				(match &typeSpace (: ($type $atom $b) $a) ($type $atom $b ))
+            )
+        )  
+    )
 )
 
-(: TypeSpace (-> Grounded))
+(: removeTypeSpace (-> Atom empty))
+(= (removeTypeSpace $atom) 
+	(let $a 
+		(getValueType $atom)
+		(if (== $a %Undefined%)
+			()
+			(remove-atom &typeSpace (: $atom $a))
+		)
+	)
+)
+
+; (: TypeSpace (-> Grounded))
 (= (TypeSpace)
 	&typeSpace
 )
 
+
+
+(: getAtomsInTypeSpace-helper (-> List))
+(= (getAtomsInTypeSpace-helper) 
+	(let $a 
+		(get-atoms &typeSpace)
+		(unify $a
+			(: $pattern $x)
+			$pattern
+			(empty)
+		)
+	)
+)
+
+; Description : getAtomsInTypeSpace is a function that returns a list of patterns in typespace
+; params:
+;	None
+; return: List of patterns in the typeSpace without thier types in and is more deterministic than matching
+(: getAtomsInTypeSpace (-> List))
+(= (getAtomsInTypeSpace) 
+	(collapse (getAtomsInTypeSpace-helper))
+)
