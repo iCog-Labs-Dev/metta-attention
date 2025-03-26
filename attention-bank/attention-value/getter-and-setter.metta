@@ -8,8 +8,8 @@
 (: setAv (-> Atom (Number Number Number) Atom))
 (= (setAv $pattern ($sti $lti $vlti))
     (let* (
-        ($oldSTI (getSTI $pattern))
-        ($oldLTI (getLTI $pattern))
+        ; ($oldSTI (getSTI $pattern))
+        ; ($oldLTI (getLTI $pattern))
         ($res (if (== (getValueType $pattern) %Undefined)
                    (add-atom &typeSpace (: $pattern (AV $sti $lti $vlti)))
                    (let* (
@@ -29,14 +29,14 @@
                 )
            )
           
-           ($stiDiff (- $oldSTI $sti))
-           ($ltiDiff (-  $oldLTI $lti))
-           ($fundsSTI (getAttentionBank fundsSTI))
-           ($fundsLTI (getAttentionBank fundsLTI))
-           ($newstifund (+ $fundsSTI $stiDiff))
-           ($newltifund (+ $fundsLTI $ltiDiff))
-           ($updateimpo (updateImportance (AtomBin) $pattern $oldSTI $sti))  ; Update importance
-          ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter
+        ;    ($stiDiff (- $oldSTI $sti))
+        ;    ($ltiDiff (-  $oldLTI $lti))
+        ;    ($fundsSTI (getAttentionBank fundsSTI))
+        ;    ($fundsLTI (getAttentionBank fundsLTI))
+        ;    ($newstifund (+ $fundsSTI $stiDiff))
+        ;    ($newltifund (+ $fundsLTI $ltiDiff))
+        ;    ($updateimpo (updateImportance (AtomBin) $pattern $oldSTI $sti))  ; Update importance
+        ;   ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter
     )
             ()
     )
@@ -205,22 +205,52 @@
 ; i.e !(setSTI A 500)
 (: setSTI (-> Atom Number Atom)) 
 (= (setSTI $pattern $newSTI)
-    (case (getAv $pattern)
+  (let* (
+    ($oldSTI (getSTI $pattern))
+    ($oldLTI (getLTI $pattern))
+    ($res (case (getAv $pattern)
         ((%Undefined% (setAv $pattern ($newSTI 0 0)))
         ((AV $sti $lti $vlti) (setAv $pattern ($newSTI $lti $vlti))))
-    )
+    ))
+    ($stiDiff (- $oldSTI $newSTI))
+    ($ltiDiff (-  $oldLTI $oldLTI))
+    ($fundsSTI (getAttentionBank fundsSTI))
+    ($fundsLTI (getAttentionBank fundsLTI))
+    ($newstifund (+ $fundsSTI $stiDiff))
+    ($newltifund (+ $fundsLTI $ltiDiff))
+    ($updateimpo (updateImportance (AtomBin) $pattern $oldSTI $newSTI))  ; Update importance
+    ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter
+    
+  )
+  ()
+  
+  )
 )
 ;;setLTI fnction accepts a pattern/node with an Lti value to replace the original
 ;;and set the Lti to the pattern/node.
 ; i.e !(setLTI A 500)
 (: setLTI (-> Atom Number Atom)) 
 (= (setLTI $pattern $newLTI)
-    (case (getAv $pattern)
-        ((%Undefined% (setAv $pattern  (0 $newLTI 0)))
+  (let* (
+    ($oldSTI (getSTI $pattern))
+    ($oldLTI (getLTI $pattern))
+    ($res (case (getAv $pattern)
+        ((%Undefined% (setAv $pattern ($newSTI 0 0)))
         ((AV $sti $lti $vlti) (setAv $pattern ($sti $newLTI $vlti))))
-    )
+    ))
+    ($stiDiff (- $oldSTI $oldSTI))
+    ($ltiDiff (-  $oldLTI $newLTI))
+    ($fundsSTI (getAttentionBank fundsSTI))
+    ($fundsLTI (getAttentionBank fundsLTI))
+    ($newstifund (+ $fundsSTI $stiDiff))
+    ($newltifund (+ $fundsLTI $ltiDiff))
+    ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter
+    
+  )
+  ()
+  
+  )
 )
-
 ;;setVLTI fnction accepts a pattern/node with an VLti value to replace the original
 ;;and set the VLti to the pattern/node.
 ; i.e !(setVLTI A 500)
