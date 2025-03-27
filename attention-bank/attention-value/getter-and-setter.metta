@@ -264,7 +264,7 @@
 	)
 )
 
-(: TypeSpace (-> Grounded))
+; (: TypeSpace (-> Grounded))
 (= (TypeSpace)
 	&typeSpace
 )

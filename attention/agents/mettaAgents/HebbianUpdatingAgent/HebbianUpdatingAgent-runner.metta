@@ -7,4 +7,4 @@
 !(import! &self attention-bank:utilities:recentVal)
 !(import! &self attention:agents:mettaAgents:HebbianUpdatingAgent:HebbianUpdatingAgent)
 
-!(HebbianUpdatingAgent-Run)
+!(HebbianUpdatingAgent-Run (TypeSpace))
