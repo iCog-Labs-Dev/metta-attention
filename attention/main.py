@@ -137,8 +137,8 @@ def main():
         print(f"\nError: {e}")
     finally:
         server_socket.close() #close the socket
-        for client_thread in client_threads:
-            client_thread.join()
+        # for client_thread in client_threads:
+        #     client_thread.join()
 
     print("System stopped. Goodbye!")
 
