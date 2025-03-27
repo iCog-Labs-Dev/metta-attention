@@ -6,18 +6,39 @@
 ; i.e !(set_av A (399 400 1))
 (: setAv (-> Atom (Number Number Number) Atom))
 (= (setAv $pattern ($sti $lti $vlti))
-    (if (== (collapse (getValueType $pattern)) ())
-        (add-atom &typeSpace (: $pattern (AV $sti $lti $vlti)))
-        (let* (
-                ( $stv (getStv $pattern))
-                ( $_ (let $x (collapse (match &typeSpace (: $pattern $_) (: $pattern $_)))
-                        (if (== $x ())
-                            ()
-                            (let $y (car-atom $x) (remove-atom &typeSpace $y))
-                            ))))
-            (if (== $stv %Undefined%); 
-                (add-atom &typeSpace (: $pattern (AV $sti $lti $vlti)))
-                (add-atom &typeSpace (: $pattern ($stv (AV $sti $lti $vlti)))))))
+    (let* (
+        ($oldSTI (getSTI $pattern))
+        ($oldLTI (getLTI $pattern))
+        ($res (if (== (getValueType $pattern) %Undefined)
+                   (add-atom &typeSpace (: $pattern (AV $sti $lti $vlti)))
+                   (let* (
+                           ($stv (getStv $pattern))
+                           ($_ (let $x (collapse (match &typeSpace (: $pattern $_) (: $pattern $_)))
+                                   (if (== $x ())
+                                       ()
+                                       (let $y (car-atom $x) (remove-atom &typeSpace $y))
+                                   )
+                               )
+                           )
+                         )
+                      (if (== $stv %Undefined%)
+                          (add-atom &typeSpace (: $pattern (AV $sti $lti $vlti)))
+                          (add-atom &typeSpace (: $pattern ($stv (AV $sti $lti $vlti)))))
+                   )
+                )
+           )
+          
+           ($stiDiff (- $oldSTI $sti))
+           ($ltiDiff (-  $oldLTI $lti))
+           ($fundsSTI (getAttentionBank fundsSTI))
+           ($fundsLTI (getAttentionBank fundsLTI))
+           ($newstifund (+ $fundsSTI $stiDiff))
+           ($newltifund (+ $fundsLTI $ltiDiff))
+           ($updateimpo (updateImportance (AtomBin) $pattern $oldSTI $sti))  ; Update importance
+          ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter
+    )
+            ()
+    )
 )
 
  ; getAv function accepts a pattern/node and returns the attention
