@@ -53,7 +53,7 @@
 
 ; Test case 06: Testing getNormalisedZeroToOneSTI with different average and clip values both on and off
 
-(assertEqual (getNormalisedZeroToOneSTI a True True) 0.004366812227074236)
+!(assertEqual (getNormalisedZeroToOneSTI a True True) 0.004366812227074236)
 !(assertEqual (getNormalisedZeroToOneSTI d True False) 0.021834061135371178)
 !(assertEqual (getNormalisedZeroToOneSTI c  False False) 0.0043859649122807015)
 
