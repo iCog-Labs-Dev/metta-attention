@@ -81,7 +81,7 @@ def main():
     data_file = os.path.join(base_path, "data/adagram_sm_links.metta")
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(('localhost', 5000))
+    server_socket.bind(('localhost', 5001))
     server_socket.listen(5) # Allow 5 pending connections
 
     scheduler = ParallelScheduler(metta)
@@ -103,8 +103,8 @@ def main():
         lambda: AgentObject(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent-runner.metta")))
     scheduler.register_agent("HebbianUpdatingAgent",
         lambda: AgentObject(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/HebbianUpdatingAgent/HebbianUpdatingAgent-runner.metta")))
-    scheduler.register_agent("ForgettingAgent",
-        lambda: AgentObject(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/ForgettingAgent/ForgettingAgent-runner.metta")))
+    # scheduler.register_agent("ForgettingAgent",
+    #     lambda: AgentObject(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/ForgettingAgent/ForgettingAgent-runner.metta")))
 
 
     print("\nAgent System Ready!")

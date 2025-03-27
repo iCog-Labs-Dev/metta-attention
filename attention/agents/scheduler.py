@@ -45,7 +45,7 @@ class ParallelScheduler:
         """Logs the attentionalFocus state of the AFImportanceDiffusionAgent."""
         try:
             # Execute MeTTa command to get attentionalFocus state
-            results = agent._metta.run("!(match (attentionalFocus) $x $x)")
+            results = agent._metta.run("!((match (attentionalFocus) $x $x)  (get-atoms (TypeSpace)))")
             af_state = results[0] if results else "No attentionalFocus found"
             logging.info(f"AFImportanceDiffusionAgent attentionalFocus: {af_state}")
             print(f"AFImportanceDiffusionAgent attentionalFocus: {af_state}")
