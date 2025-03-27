@@ -40,7 +40,8 @@
 !(assertEqual (match &space (fundsLTI $x) $x) 99330.0)
 
 ; Check the  attentional focus  is updated  when an atom is stimulated
-!(assertEqual (getAtomList) (x))
+
 !(stimulate y 2)
-!(getAtomsInBins)
-!(assertEqual (getAtomList) (x y))
+!(assertEqual (getAtomsInBins) ((45.0 (z)) (47.0 (y)) (49.0 (x))))
+!(assertEqual (getAtomList) (x y z))
+
