@@ -7,7 +7,7 @@ import time
 import queue #Import the queue
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from hyperon import MeTTa, E, SymbolAtom
+from hyperon import MeTTa, E, SymbolAtom, S
 from agents.scheduler import ParallelScheduler
 from agents.agent_base import AgentObject
 
@@ -33,9 +33,9 @@ class SocketHandler: #No longer a thread
                     agent = self.scheduler.get_or_create_agent(agent_id)
                     if agent:
                         # Generate MeTTa command dynamically from the pattern array
-                        pattern_str = " ".join(str(atom) for atom in pattern)  # Convert list to space-separated string
-                        pattern_str = "(" + pattern_str + ")"  # Enclose in parentheses
-                        metta_command = f"!(stimulate (superpose {pattern_str}) {stimulus})"
+                        # pattern_str = " ".join(str(atom) for atom in pattern)  # Convert list to space-separated string
+                        # pattern_str = "(" + pattern_str + ")"  # Enclose in parentheses
+                        metta_command = f'!(stimulate {S(pattern[0])} {stimulus})'
                         print(f"Executing MeTTa command: {metta_command}")
 
                         results = agent._metta.run(metta_command)  # Execute MeTTa command
@@ -81,7 +81,7 @@ def main():
     data_file = os.path.join(base_path, "data/adagram_sm_links.metta")
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(('localhost', 5001))
+    server_socket.bind(('localhost', 5000))
     server_socket.listen(5) # Allow 5 pending connections
 
     scheduler = ParallelScheduler(metta)
@@ -103,6 +103,8 @@ def main():
         lambda: AgentObject(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent-runner.metta")))
     scheduler.register_agent("HebbianUpdatingAgent",
         lambda: AgentObject(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/HebbianUpdatingAgent/HebbianUpdatingAgent-runner.metta")))
+    scheduler.register_agent("HebbianCreationAgent",
+        lambda: AgentObject(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/HebbianCreationAgent/HebbianCreationAgent-runner.metta")))
     # scheduler.register_agent("ForgettingAgent",
     #     lambda: AgentObject(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/ForgettingAgent/ForgettingAgent-runner.metta")))
 

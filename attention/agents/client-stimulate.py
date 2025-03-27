@@ -19,20 +19,20 @@ def send_stimulus(host, port, agent_id, pattern, stimulus):
 
 if __name__ == "__main__":
     host = "localhost"
-    port = 5001  # Ensure this matches the server port
+    port = 5000  # Ensure this matches the server port
     agent_id = "AFImportanceDiffusionAgent"  # Must match the agent ID in main.py
 
     # List of atom patterns to send
     patterns = [
     # Insect-related terms
-    [ "ant", "ants", "aphid"],
+    [ "ant"], ["ants"], ["aphid"],
     
     # Poison-related terms
-   ["abamectin", "acetamiprid", "alachlor"]
+   ["abamectin"], ["acetamiprid"], ["alachlor"]
 ]
 
 
-    stimulus_value = 2  # Example stimulus (can be modified per pattern)
+    stimulus_value = 500  # Example stimulus (can be modified per pattern)
 
     for pattern in patterns:
         print(f"Sending pattern: {pattern}")

@@ -48,7 +48,7 @@ class ParallelScheduler:
             results = agent._metta.run("!((match (attentionalFocus) $x $x)  (get-atoms (TypeSpace)))")
             af_state = results[0] if results else "No attentionalFocus found"
             logging.info(f"AFImportanceDiffusionAgent attentionalFocus: {af_state}")
-            print(f"AFImportanceDiffusionAgent attentionalFocus: {af_state}")
+            # print(f"AFImportanceDiffusionAgent attentionalFocus: {af_state}")
         except Exception as e:
             logging.error(f"Error logging attentionalFocus: {e}")
             print(f"Error logging attentionalFocus: {e}")
