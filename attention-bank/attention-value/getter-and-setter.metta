@@ -9,6 +9,7 @@
     (let* (
         ($oldSTI (getSTI $pattern))
         ($oldLTI (getLTI $pattern))
+        ($updateimpo (updateImportance (AtomBin) $pattern $oldSTI $sti))
         ($res (if (== (getValueType $pattern) %Undefined)
                    (add-atom &typeSpace (: $pattern (AV $sti $lti $vlti)))
                    (let* (
@@ -34,7 +35,7 @@
            ($fundsLTI (getAttentionBank fundsLTI))
            ($newstifund (+ $fundsSTI $stiDiff))
            ($newltifund (+ $fundsLTI $ltiDiff))
-           ($updateimpo (updateImportance (AtomBin) $pattern $oldSTI $sti))  ; Update importance
+            
           ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter
     )
             ()
