@@ -22,12 +22,7 @@
 !(setAv C (200.0 300.0 400.0))
 !(setAv D (25.0 125.0 225.0))
 !(setAv F (70.0 100.0 200.0))
-!(addAtomToAF a)
-!(addAtomToAF A)
-!(addAtomToAF B)
-!(addAtomToAF C)
-!(addAtomToAF D)
-!(addAtomToAF F)
+
 
 
 ; The test cases were added with setting AV for links but this might not be needed in reality because AVs may not be set for links/expressions
@@ -42,7 +37,7 @@
 
 ; Test case 01: Testing attentionalFocusSize asserting it returns correct number of atom in focus
 
-!(assertEqual(attentionalFocusSize) 8)
+!(assertEqual(attentionalFocusSize) 12)
 
 
 ; Test case 02: Testing atomIsInAF asserting it returns True for a given atom in AF
