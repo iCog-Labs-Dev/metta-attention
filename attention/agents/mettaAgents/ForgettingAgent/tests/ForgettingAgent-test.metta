@@ -45,18 +45,17 @@
 !(let $atoms 
 	(collapse (get-atoms &removeSpace)) 
 	(assertEqual $atoms 
-			(
-				(: c ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
-				(: d ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
-				(: e ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
-				(: H ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
-				(: (PlusLink A F) ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
-				(: F ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
-				(: (ASYMMETRIC_HEBBIAN_LINK A F) ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
-				(: b ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
-				(: F ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
-				(: b ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
-			)
+						(
+							(: c ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
+    						(: d ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
+							(: e ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
+							(: H ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 	
+							(: (PlusLink A F) ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
+							(: F ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
+							(: (ASYMMETRIC_HEBBIAN_LINK A F) ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
+							(: b ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
+							
+						)
 	)
 )
 
