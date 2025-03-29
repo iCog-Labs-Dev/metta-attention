@@ -17,7 +17,7 @@
 ; Initial AttentionValues
 !(setAv x (200.0 200.0 0.0))
 !(setAv y (200.0 200.0 0.0))
-!(setAv z (200.0 200.0 0.0))
+!(setAv z (200.0 200.0 1.0))
 
 
 ; Stimulate the atom with a stimulus of 1.5
