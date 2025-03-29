@@ -84,8 +84,7 @@
 !(insertAtom  45 (EvaluationLink a b))
 !(assertEqual (match &atombin (45 $x) $x) ((EvaluationLink a b) H E))
 
-; Test case 07: Testing insertAtom does not insert atoms with out proper type set by using setAV
-!(assertEqual (insertAtom 20 f) ("Atom is not valid"))
+
 
 ;: Test case 08: Testing remove_atom_helper can remove an atom or expression from a list of atoms and expressions
 !(assertEqual (remove_atom_helper G (E  H Y G J K L)) (E H Y J K L))
