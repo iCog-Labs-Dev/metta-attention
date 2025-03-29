@@ -35,11 +35,10 @@
            ($fundsLTI (getAttentionBank fundsLTI))
            ($newstifund (+ $fundsSTI $stiDiff))
            ($newltifund (+ $fundsLTI $ltiDiff))
-            
-          ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter
+           ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter
     )
-            ()
-    )
+    ()
+)
 )
 
  ; getAv function accepts a pattern/node and returns the attention

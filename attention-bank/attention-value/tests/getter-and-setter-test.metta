@@ -12,7 +12,7 @@
 !(assertEqual (getAttentionBank fundsSTI) 100000)
 !(assertEqual (getAttentionBank fundsLTI) 100000)
 !(setAv A (200 200 0)) 
-!(setAv A (400 400 1)) 
+!(setAv A (400 400 0)) 
 !(setAv Cat (400 400 1))  
 !(setAv Animal (400 400 1))
 !(setAv Human (400 400 1))
@@ -22,7 +22,7 @@
 !(assertEqual (getAtomList) (A Cat Animal Human))
 ; Test case 02: testing attention value getter(getAv) function for symbol atom type
 
-! (assertEqual (getAv A) (AV 400 400 1)) ; getting attention value for symbol A
+! (assertEqual (getAv A) (AV 400 400 0)) ; getting attention value for symbol A
 ! (assertEqual (getAv Cat) (AV 400 400 1))
 ! (assertEqual (getAv Animal) (AV 400 400 1))
 ! (assertEqual (getAv Human) (AV 400 400 1))

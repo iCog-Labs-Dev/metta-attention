@@ -19,6 +19,7 @@
 !(setAv y (200.0 200.0 0.0))
 !(setAv z (200.0 200.0 0.0))
 
+
 ; Stimulate the atom with a stimulus of 1.5
 !(stimulate x 1.5)
 
