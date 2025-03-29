@@ -37,7 +37,7 @@
            ($newltifund (+ $fundsLTI $ltiDiff))
            ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter
     )
-    ()
+   ()
 )
 )
 

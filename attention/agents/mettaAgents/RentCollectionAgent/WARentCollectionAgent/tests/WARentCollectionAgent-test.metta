@@ -24,9 +24,9 @@
 ;; Sleep for the computed time to match C++ behavior
 !((py-atom time.sleep) (/ 1.0 5.0))
 !(WARentCollectionAgent-Run)
-!(collapse (getRandomAtomNotInAF))
+!(getSTI(Hebbianlink a b)) 
 !(getSTI (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 
-! (getSTI b)
+!(getSTI b)
 !(getSTI c)
 !(getSTI d)
 !(getLTI (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)))
