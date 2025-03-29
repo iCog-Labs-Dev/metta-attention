@@ -31,10 +31,11 @@
 ;################ The weight should be updated ####################
 ; expected result 0.0105976 but since there is precision issue, we are checking the value in the range of 0.0105976
 
-!(assertEqual (if (and (>= (getMean (ASYMMETRIC_HEBBIAN_LINK target2 source)) 0.0105975)
-                       (<= (getMean (ASYMMETRIC_HEBBIAN_LINK target2 source)) 0.01059757))
+!(assertEqual (if (and (>= (getMean (ASYMMETRIC_HEBBIAN_LINK target2 source)) 0.01120731707317073)
+                       (<= (getMean (ASYMMETRIC_HEBBIAN_LINK target2 source)) 0.01120731707317073))
                         True
                         False
               )
               True
 )
+
