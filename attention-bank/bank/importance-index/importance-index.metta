@@ -138,7 +138,7 @@
    
       
 
-     (if (or (== $res1 ("Atom is not valid")) (== $res1 ("Bin is empty")))
+     (if (or (== $res1 ("Atom already exists")) (== $res1 ("Bin is empty")))
        False
        (== (collapse(index-atom $res2 0)) ("Atom Inserted"))
       )

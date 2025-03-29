@@ -36,8 +36,7 @@
             )
             (
                 (setAv $target ($newsti $newlti $newvlti))
-                (updateImportance (AtomBinInfo)  $target $sti $newsti)
-                (updateBin $target)
+               
             )
         )
    )

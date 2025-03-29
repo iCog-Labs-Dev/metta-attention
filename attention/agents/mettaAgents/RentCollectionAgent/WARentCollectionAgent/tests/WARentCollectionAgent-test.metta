@@ -15,22 +15,24 @@
 ;;inorder to see the rent collection in action,we have to decrease the size of the attentional focus 
 ;;run it with cognitive controller because it depends on time passed since last rent collected on that atom
 ;;i have tested with that and it works fine
-!(setAv x (200.0 200.0 0.0))
-!(setAv y (200.0 200.0 0.0))
-!(setAv z (200.0 200.0 0.0))
-!(setAv (Hebbianlink x z) (200.0 200.0 0.0))
-!(setAv (Hebbianlink (Hebbianlink x y) (Hebbianlink x z))(200.0 200.0 0.0))
-!(stimulate (Hebbianlink x z) 2)
-!(stimulate x 2)
-!(stimulate y 2)
-!(stimulate (Hebbianlink (Hebbianlink x y) (Hebbianlink x z)) 2)
-!(stimulate z 1)
+!(setAv b (50000.0 50000.0 0.0))
+!(setAv c (20000.0 20000.0 0.0))
+!(setAv d (29000.0 29000.0 0.0))
+!(setAv (Hebbianlink a b) (400.0 400.0 0.0))
+!(setAv (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)) (400.0 400.0 0.0))
 !(WARentCollectionAgent-Run)
-!(getAv (Hebbianlink x z))
-!(getAv (Hebbianlink (Hebbianlink x y) (Hebbianlink x z)))
-!(getAv x)
-!(getAv y)
-!(getAv z)
+;; Sleep for the computed time to match C++ behavior
+!((py-atom time.sleep) (/ 1.0 5.0))
+!(WARentCollectionAgent-Run)
+!(getSTI(Hebbianlink a b)) 
+!(getSTI (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 
+!(getSTI b)
+!(getSTI c)
+!(getSTI d)
+!(getLTI (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)))
+!(getLTI b)
+!(getLTI c)
+!(getLTI d)
 
 
 

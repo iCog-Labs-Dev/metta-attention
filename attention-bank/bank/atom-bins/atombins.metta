@@ -33,9 +33,7 @@
 ;         or an error message if the atom is invalid.
 (: insertAtom (-> Number Atom empty))
 (= (insertAtom $bin_index $pattern)
-   (if (==(getValueType $pattern) %Undefined%)
-       ("Atom is not valid"); Validate type
-       (if (== (collapse (match &atombin ($bin_index $x) $x)) ())
+  (if (== (collapse (match &atombin ($bin_index $x) $x)) ())
            (let ()
                (add-atom &atombin ($bin_index ($pattern))) ; Insert new bin
                ("Atom Inserted")
@@ -44,17 +42,17 @@
                (if (== (contains $x $pattern) True)  ; Check for duplicates
                    ("Atom already exists")  ; Do not insert duplicate
                    (let* (
-                        ($_ (remove-atom &atombin ($bin_index $x)))  ; Remove old bin
+                        ($atomremove(remove-atom &atombin ($bin_index $x)))  ; Remove old bin
                         ($updated (cons-atom $pattern $x))  ; Add new atom
-                        ($_ (add-atom &atombin ($bin_index $updated))) ; Update bin
+                        ($atomadded (add-atom &atombin ($bin_index $updated))) ; Update bin
                     )
                     ("Atom Inserted")
                    )
                )
            )
-    )
    )
 )
+
 
 ;Function: removeAtom
 ;Description: Removes a specified atom from a given bin from &atombin space.
@@ -79,8 +77,8 @@
                   (match &atombin ($bin_index $x)
                      (let*
                        (
-                          ($_ (remove-atom &atombin ($bin_index $x)))
-                          ($_ (add-atom &atombin ($bin_index $updated_contents)))
+                          ($atomremove (remove-atom &atombin ($bin_index $x)))
+                          ($atomadded (add-atom &atombin ($bin_index $updated_contents)))
                         )
                       ("Atom Removed")
                      )
@@ -176,6 +174,10 @@
 )
 
 (= (getAtomsInBins)
+	(collapse (get-atoms &atombin))
+)
+
+(= (getAllAtomsInBins)
 	( let* 
 		(
 			($atombin (AtomBin))
@@ -187,4 +189,3 @@
         
 	)
 )
-
