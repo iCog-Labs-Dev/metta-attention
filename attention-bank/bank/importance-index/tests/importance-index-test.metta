@@ -10,7 +10,7 @@
 
 
 ;For Testing the update, getMaxSTI, getMinSTI
-###################### Prep: adding atoms to the atom bin #####################
+;###################### Prep: adding atoms to the atom bin #####################
 !(setAv a (2.0 2.0 2.0))
 !(setAv d (4.0 2.0 2.0))
 !(setAv c (3.0 2.0 2.0))
@@ -20,7 +20,7 @@
 !(add-atom &atombin (10 (d)))
 !(add-atom &atombin (18 (c)))
 
-########################### Testing ###########################################
+;########################### Testing ###########################################
 
 ; Test case 01: Testing importanceBin with different number values
 

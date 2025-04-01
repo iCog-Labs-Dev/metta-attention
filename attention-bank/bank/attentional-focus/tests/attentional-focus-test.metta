@@ -6,7 +6,7 @@
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 
-##################### Prep: inserting Atoms in attentional focus ####################
+; ##################### Prep: inserting Atoms in attentional focus ####################
 ; Test attentional focus
 !(setAv a (1.0 0.0 0.0))
 !(setAv d (7.0 4.0 0.0))
@@ -22,7 +22,7 @@
 !(setAv (Hebbianlink (Hebbianlink Cat Human) Animal) (200.0 250.0 280.0))
 
 
-################### Testing #################################
+; ################### Testing #################################
 
 
 ; Test case 01: Testing attentionalFocusSize asserting it returns correct number of atom in focus
@@ -111,7 +111,7 @@
 !(add-atom &attentionalFocus (SCOPE_LINK $z $w))
 
 
-########################### Testing ##################################
+; ########################### Testing ##################################
 
 
 ; Test case 13: Testing getIncomingSet function 
