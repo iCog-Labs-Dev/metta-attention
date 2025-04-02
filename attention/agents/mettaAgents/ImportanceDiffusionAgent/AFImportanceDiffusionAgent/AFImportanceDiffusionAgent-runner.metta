@@ -5,6 +5,7 @@
 !(import! &self attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self attention-bank:bank:importance-index:importance-index)
 !(import! &self attention:agents:mettaAgents:Neighbors)
-!(import! &self attention:agents:mettaAgents:ImportanceDiffusionAgent:ImportanceDiffusionBase)
+!(import! &self attention:agents:mettaAgents:ImportanceDiffusionAgent:ImportanceDiffusionBase:ImportanceDiffusionBase)
+!(import! &self attention:agents:mettaAgents:ImportanceDiffusionAgent:AFImportanceDiffusionAgent:AFImportanceDiffusionAgent)
 
-!(AFImportanceDiffusionAgent-Run (attentionalFocus))
+!(AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace))

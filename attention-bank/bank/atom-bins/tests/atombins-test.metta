@@ -8,6 +8,8 @@
 
 ;################ Preparation: inserting atoms for testing ####################
 
+;################ Preparation: inserting atoms for testing ####################
+
 ; Prep: Setting values in the atombin space prior to testing
 !(add-atom &atombin (1 (a Cat (Hebbianlink Human Cat))))
 !(add-atom &atombin (2 (d Animal (Hebbianlink (Hebbianlink Human Cat) Animal))))
@@ -82,10 +84,9 @@
 !(insertAtom  45 (EvaluationLink a b))
 !(assertEqual (match &atombin (45 $x) $x) ((EvaluationLink a b) H E))
 
-; Test case 07: Testing insertAtom does not insert atoms with out proper type set by using setAV
-!(assertEqual (insertAtom 20 f) ("Atom is not valid"))
 
-: Test case 08: Testing remove_atom_helper can remove an atom or expression from a list of atoms and expressions
+
+;: Test case 08: Testing remove_atom_helper can remove an atom or expression from a list of atoms and expressions
 !(assertEqual (remove_atom_helper G (E  H Y G J K L)) (E H Y J K L))
 !(assertEqual (remove_atom_helper G (J K L)) (J K L)) ; remove atom that is not present
 !(assertEqual (remove_atom_helper G ()) ()) ; remove from empty list

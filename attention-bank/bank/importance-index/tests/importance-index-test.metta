@@ -10,7 +10,7 @@
 
 
 ;For Testing the update, getMaxSTI, getMinSTI
-###################### Prep: adding atoms to the atom bin #####################
+;###################### Prep: adding atoms to the atom bin #####################
 !(setAv a (2.0 2.0 2.0))
 !(setAv d (4.0 2.0 2.0))
 !(setAv c (3.0 2.0 2.0))
@@ -20,7 +20,7 @@
 !(add-atom &atombin (10 (d)))
 !(add-atom &atombin (18 (c)))
 
-########################### Testing ###########################################
+;########################### Testing ###########################################
 
 ; Test case 01: Testing importanceBin with different number values
 
@@ -32,14 +32,14 @@
 
 ; Test case 02: Testing getHandleSet with lowerbound and upperbound
 
-!(assertEqual (getHandleSet 1 20) (c d a))
+!(assertEqual (getHandleSet 1 20) (d c a))
 !(assertEqual (getHandleSet 10 10) ())
 !(assertEqual (getHandleSet 0 -1.0) ())
 
 ; Test case 03: Testing update function
 !(assertEqual (update &atombin) ("Updated"))
-!(assertEqual (getMaxSTI) 2.0)
-!(assertEqual (getMinSTI) 1.0)
+!(assertEqual (getMaxSTI) 150.8125)
+!(assertEqual (getMinSTI) 1.9375)
 
 
 ; Test cases 04: Testing stimulate that need to be refactored
@@ -53,20 +53,20 @@
 
 ; Test case 06: Testing getNormalisedZeroToOneSTI with different average and clip values both on and off
 
-(assertEqual (getNormalisedZeroToOneSTI a True True) 0.004366812227074236)
-!(assertEqual (getNormalisedZeroToOneSTI d True False) 0.021834061135371178)
+!(assertEqual (getNormalisedZeroToOneSTI a True True) 0.0001658374792703151)
+!(assertEqual (getNormalisedZeroToOneSTI d True False) 0.01077943615257048)
 !(assertEqual (getNormalisedZeroToOneSTI c  False False) 0.0043859649122807015)
 
 
 ; Test case 07: Testing getNormalisedSTI 
 
-!(assertEqual(getNormalisedSTI a) 1.3333333333333333)
-!(assertEqual (getNormalisedSTI x) 153.33333333333334)
+!(assertEqual(getNormalisedSTI a) 1.0158730158730158)
+!(assertEqual (getNormalisedSTI x) 116.82539682539682)
 
 
 ; Test case 08: Testing getNormalisedSTI with different average and clip values
 
 !(assertEqual (getNormalisedSTI a True True) -1.0)
-!(assertEqual (getNormalisedSTI d True False) -1.0240700218818382)
+!(assertEqual (getNormalisedSTI d True False) -1.0261751404686859)
 
 

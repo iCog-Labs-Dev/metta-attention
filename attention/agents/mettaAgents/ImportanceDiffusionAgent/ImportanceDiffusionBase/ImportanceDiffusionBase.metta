@@ -1,17 +1,33 @@
-!(bind! maxSpreadPercentage 0.1)
-!(bind! hebbianMaxAllocationPercentage 1)
+!(bind! hebbianMaxAllocationPercentage 0.05)
 
-(= (diffuseAtom $atom $space)
+;; This function is the main function that will be called to start the diffusion process
+;; It will get the diffusion source vector and then call the diffuseAtom function
+;; Parameters $atom: The atom that will be diffused
+;;            $space: The space that incomingSets will be taken from
+;;            $AForWA: a flag if the calculation to use is for AF or WA
+;; Return : trades sti value from source to target
+
+; (: diffuseAtom (-> Atom Grounded Symbol Atom))
+(= (diffuseAtom $atom $space $AForWA)
     (let*
         (
             ($incidentAtoms (collapse (incidentAtoms $atom $space)))
-            ($filtered (collapse (filteredIncidentAtoms (superpose $incidentAtoms))))
+            ($oset (if (== (get-metatype $atom) Expression)
+                        (getOutGoingAtoms $atom)
+                        ()
+                    )
+            )
+            ($incidentAndoset (concatTuple $incidentAtoms $oset))
             ($iset (getIncomingSet $atom ASYMMETRIC_HEBBIAN_LINK) )
             ($hebbianAdjacentAtoms (collapse (hebbianAdjacentAtoms $iset $atom)))
-            ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAtoms)))
+            ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAndoset)))
             ($probabilityVectorHebbianAjacent (collapse (probabilityVectorHebbianAjacent $atom $hebbianAdjacentAtoms)))
             ($combProbabilityVector (combineIncidentAdjacentVectors $probabilityVectorIncident $probabilityVectorHebbianAjacent))
-            ($totaldiffusionAmount (calculateDiffusionAmount $atom)) ; Why shouldn't this be at the top weird
+            ($totaldiffusionAmount (if (== $AForWA AF)
+                                       (calculateDiffusionAmount $atom)
+                                       (calculateDiffusionAmountWA $atom)
+                                    )
+            )
             (($atomToReceive $stiGiven)
                     (if (== $totaldiffusionAmount 0)
                         (() 0)
@@ -32,39 +48,43 @@
     )
 )
 
+;; This function will return the incident atoms of a given atom
+;; Parameters $atom: The atom that will be used to find incident atoms
+;;            $space: The space that incomingSets will be taken from
+;; Return : The incident atoms of the given atom
+
 (: incidentAtoms (-> Atom Grounded Atom))
 (= (incidentAtoms $atom $space)
     (let*
         (
             ($incomingSet (getAllIncomingSets $atom $space))
-            ($outgoingSet
-                (unify $atom ($link $source $target)
-                    (getOutGoingAtoms $atom)
-                    ()
+            ($filtered
+                (if (== (car-atom $incomingSet) ASYMMETRIC_HEBBIAN_LINK)
+                    (empty)
+                    (if (== (car-atom $incomingSet) HEBBIAN_LINK)
+                        (empty)
+                        $incomingSet
+                    )
                 )
             )
-            ($joinSet (concatTuple $incomingSet $outgoingSet))
-            ($decomposed (superpose $joinSet))
         )
-        $decomposed
+        $filtered
     )
 )
 
-(: filteredIncidentAtoms (-> Atom Atom))
-(= (filteredIncidentAtoms $atom)
-    (if (== (get-metatype $atom) Expression)
-        (if (== (car-atom $atom) ASYMMETRIC_HEBBIAN_LINK)
-            ()
-            $atom
-        )
-        $atom
-    )
-)
+;; This function will return the hebbian adjacent atoms of a given atom
+;; Parameters $iset: The incoming set that will be used to find hebbian adjacent atoms
+;;            $atom: The atom that will be used to find hebbian adjacent atoms
+;; Return : The hebbian adjacent atoms of the given atom
 
 (: hebbianAdjacentAtoms (-> Atom Atom Atom))
 (= (hebbianAdjacentAtoms $iset $atom)
     (getTargetNeighborsAFI (superpose $iset) $atom ASYMMETRIC_HEBBIAN_LINK True)
 )
+
+;; This function will return the probability vector(tuple) of the incident atoms
+;; Parameters $incidentAtoms: The incident atoms that will be used to find the probability vector(tuple)
+;; Return : The probability vector(tuple) of the incident atoms
 
 (: probabilityVectorIncident (-> Atom Atom))
 (= (probabilityVectorIncident $incidentAtoms)
@@ -76,6 +96,11 @@
         $result
     )
 )
+
+;; This function will return the probability vector(tuple) of the hebbian adjacent atoms
+;; Parameters $atom: The atom that will be used to find the probability vector(tuple)
+;;            $hebbianAdjacentAtoms: The hebbian adjacent atoms that will be used to find the probability vector(tuple)
+;; Return : The probability vector(tuple) of the hebbian adjacent atoms
 
 (: probabilityVectorHebbianAjacent (-> Atom Atom Atom))
 (= (probabilityVectorHebbianAjacent $atom $hebbianAdjacentAtoms)
@@ -90,6 +115,11 @@
         ($target $diffusionAmount)
     )
 )
+
+;; This function will combine the incident and hebbian adjacent vectors(tuple)
+;; Parameters $incidentVector: The incident vector that will be used to combine
+;;            $adjacentVector: The adjacent vector that will be used to combine
+;; Return : The combined vector(tuple)
 
 (: combineIncidentAdjacentVectors (-> Atom Atom Atom))
 (= (combineIncidentAdjacentVectors $incidentVector $adjacentVector)
@@ -108,6 +138,11 @@
     )
 )
 
+;; This function will return the hebbian proportion of the STI
+;; Parameters $adjacentVector: The hebbian adjacent vector that will be used to find the hebbian proportion of the STI
+;;            $hebbianMaximumLinkAllocation: The maximum link allocation
+;; Return : The hebbian proportion of the STI
+
 (: hebbianProportionSTI (-> Atom Number Atom))
 (= (hebbianProportionSTI $adjacentVector $hebbianMaximumLinkAllocation)
     (let*
@@ -118,9 +153,14 @@
             ($habbeanDiffusionUsed $secondA)
 
         )
-            ($habbeanDiffusionUsed $resultone)
+        ($habbeanDiffusionUsed $resultone)
     )
 )
+
+;; This function will return the incident proportion of the STI
+;; Parameters $incidentVector: The incident vector that will be used to find the incident proportion of the STI
+;;            $hebbianDiffusionUsed: The hebbian diffusion used sofar
+;; Return : The incident proportion of the STI
 
 (: incidentProportionSTI (-> Atom Number Atom))
 (= (incidentProportionSTI $incidentVector $hebbianDiffusionUsed )
@@ -134,6 +174,11 @@
     )
 )
 
+;; This function will return the hebbian diffusion used sofar
+;; Parameters $expr: The expression that will be used to find the hebbian diffusion used sofar
+;; Return : The hebbian diffusion used sofar
+
+(: hebbianDiffusionUsed (-> Atom Number))
 (= (hebbianDiffusionUsed $expr)
     (if (== $expr ())
         0
@@ -141,12 +186,21 @@
     )
 )
 
+;; This function will extract the map from the hebbian proportion of the STI
+;; Parameters $expr: The expression that will be used to extract the map
+;; Return : The map from the hebbian proportion of the STI
+
+(: extractMap (-> Atom Atom))
 (= (extractMap $expr)
     (if (== $expr ())
         ()
         (concatTuple (let $t (car-atom $expr) (cdr-atom $t)) (extractMap (cdr-atom $expr)))
     )
 )
+
+;; This function will calculate the hebbian diffusion percentation of link
+;; Parameters $link: The link that will be used to calculate the hebbian diffusion percentation
+;; Return : The hebbian diffusion percentation of the link
 
 (: calculateHebbianDiffusionPercentation (-> Atom Number))
 (= (calculateHebbianDiffusionPercentation $link)
@@ -159,28 +213,9 @@
     )
 )
 
-(: diffusionSourceVector (-> Grounded Atom))
-(= (diffusionSourceVector $space)
-    (let*
-        (
-            ($atoms (match $space $x $x))
-            ($result
-                    (unify $atoms (ASYMMETRIC_HEBBIAN_LINK $a $b) (empty) $atoms))
-        )
-        $result
-    )
-)
-
-; (= (diffusionSourceVectorWA $space)
-;     (let*
-;         (
-;             ($atoms (getRandomAtomNotInAF))
-;             ($result
-;                     (unify $atoms (ASYMMETRIC_HEBBIAN_LINK $a $b) (empty) $atoms))
-;         )
-;         $result
-;     )
-; )
+;; This function will return the outgoing atoms of Link
+;; Parameters $link: The link that will be used to find the outgoing atoms
+;; Return : The outgoing atoms of the link
 
 (: getOutGoingAtoms (-> Atom Atom))
 (= (getOutGoingAtoms $link)
@@ -190,41 +225,26 @@
     )
 )
 
+;; This function will return the incoming set of an atom
+;; Parameters $atom: The atom that will be used to find the incoming set
+;;            $type: The type that will be used to find the incoming set
+;; Return : The incoming set of the atom
+
 (: getAllIncomingSets (-> Atom Grounded List))
 (= (getAllIncomingSets $atom $space)
-    (collapse
-        (superpose
-            (
-                (match $space ($type $atom $b) ($type $atom $b))
-                (match $space ($type $b $atom) ($type $b $atom))
-            )
+    (superpose
+        (
+            (match $space (: ($type $atom $x) $AV) ($type $atom $x))
+            (match $space (: ($type $x $atom) $AV) ($type $x $atom))
         )
     )
 )
 
-(: spreadImportance (-> Grounded Empty))
-(= (spreadImportance $space)
-    (let $diffusionSourceVector (collapse (diffusionSourceVector $space))
-        (helper-loop $diffusionSourceVector $space)
-    )
-)
-
-(= (helper-loop $diffusionSourceVector $space)
-    (if (== $diffusionSourceVector ())
-        ()
-        ((diffuseAtom (car-atom $diffusionSourceVector) $space) (helper-loop (cdr-atom $diffusionSourceVector) $space))
-    )
-)
-
-(: calculateDiffusionAmount (-> Atom Number))
-(= (calculateDiffusionAmount $atom)
-    (* (getSTI $atom) maxSpreadPercentage)
-)
-
-; (= (calculateDiffusionAmountWA $atom)
-;     ("To be implemented")
-; )
-
+;; This function will trade STI between source and starget, deducting the value from source and adding it to target
+;; Parameters $source: The source atom that will will be used to trade STI
+;;            $target: The target atom that will will be used to trade STI
+;;            $value: The value that will be used to trade STI
+;; Return : The STI value of source and target
 
 (: tradeSti (-> Atom Atom Number %Undefined%))
 (= (tradeSti $source $target $value)
@@ -239,13 +259,4 @@
             )
         ()
     )
-)
-
-(: AFImportanceDiffusionAgent-Run (-> Grounded Empty))
-(= (AFImportanceDiffusionAgent-Run $space)
-    (spreadImportance $space)
-)
-
-(= (WAImportanceDiffusionAgent-Run $space)
-    ("To be implemented")
 )

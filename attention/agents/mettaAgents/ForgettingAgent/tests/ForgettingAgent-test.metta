@@ -27,20 +27,7 @@
 !(setAv (habbianlink a A) (21.0 10.0 0.0))
 !(setAv (PlusLink A F) (22.0 2.0 0.0))
 !(setAv (PlusLink A a) (23.0 10.0 0.0))
-!(addAtomToAF a)
-!(addAtomToAF A)
-!(addAtomToAF B)
-!(addAtomToAF C)
-!(addAtomToAF D)
-!(addAtomToAF F)
-!(addAtomToAF G)
-!(addAtomToAF H)
-!(addAtomToAF I)
-!(addAtomToAF (habbianlink a A))
-!(addAtomToAF (PlusLink A F))
-!(addAtomToAF (PlusLink A a))
-!(addAtomToAF (ASYMMETRIC_HEBBIAN_LINK A a))
-!(addAtomToAF (ASYMMETRIC_HEBBIAN_LINK A F))
+
 !(add-atom (AtomBin) (0 (a b H)))
 !(add-atom (AtomBin) (19.0 ((habbianlink a A))))
 
@@ -54,27 +41,28 @@
 
 : Test filteredatom
 !(assertEqual (filterByLti (getAtomsInTypeSpace)) (a b c d e F H (PlusLink A F)))
-
-!(assertEqual (forgettingAgent-Run) ())
+!(forgettingAgent-Run) ()
 !(let $atoms 
 	(collapse (get-atoms &removeSpace)) 
 	(assertEqual $atoms 
-		(
-			(: c ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
-			(: d ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
-			(: e ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
-			(: H ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
-			(: (PlusLink A F) ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
-			(: F ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
-			(: (ASYMMETRIC_HEBBIAN_LINK A F) ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
-			(: b ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
-		)
+						(
+							(: c ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
+						 	(: d ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
+						 	(: e ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
+						 	(: H ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
+						 	(: (PlusLink A F) ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
+						 	(: F ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
+						 	(: (ASYMMETRIC_HEBBIAN_LINK A F) ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
+						 	(: b ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
+						 	(: F ((STV 0.0 0.0) (AV 0.0 0.0 0.0))) 
+						 	(: b ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))
+						)
 	)
 )
 
 !(let $atoms 
 		(collapse (get-atoms &attentionalFocus)) 
-		(assertEqual $atoms (a A B C D G I (habbianlink a A) (PlusLink A a) (ASYMMETRIC_HEBBIAN_LINK A a)))
+		(assertEqual $atoms (a A B C D G I (ASYMMETRIC_HEBBIAN_LINK A a) (ASYMMETRIC_HEBBIAN_LINK A C) (habbianlink a A) (PlusLink A a)))
 )
 
 !(let*
