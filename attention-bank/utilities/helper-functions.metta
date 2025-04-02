@@ -1,20 +1,30 @@
-(: filter (-> Expression (-> $t Bool) Expression))
+(: filter (-> Expression (-> $st Bool) Expression))
 (= (filter $list $predicate)
-   (if (== $list ())
-    ()
-    (let*
-      (
-          ($head (car-atom $list))
-          ($tail (cdr-atom $list))
-          ($res ($predicate $head))
-          ($filteredTail (filter $tail $predicate))
-      )
-      (if $res
-          (cons-atom $head $filteredTail)
-          $filteredTail
-        )
-      )
+   (let* (
+    ($atoms (collapse (filterHelper $list $predicate)))
+    ($val (collapse (removeEmpty $atoms)))
+    
    )
+   $val
+   )
+)
+(= (removeEmpty $list)
+  (let $atom (superpose $list)
+  (if (== $atom ())
+    (empty)
+    $atom
+  ))
+)
+(= (filterHelper $list $predicate)
+  (let* (
+    ($atom (superpose $list))
+    ($check ($predicate $atom))    
+  )
+    (if $check
+      $atom
+      ()
+    )
+  )
 )
 
 (: customFilter (-> Expression (-> Symbol Number Number Bool) Number Number Expression))
@@ -63,6 +73,7 @@
 )
 ;TODO: Figure out why when types are added to this function, It returns []
 ;(: valuesAtIndex (-> Number $list_t $list_t))
+; (: valuesAtIndex (-> Number $list_t $list_t))
 (= (valuesAtIndex $i $handleSetSeq)
    (if(== $handleSetSeq ())
      ()
@@ -80,7 +91,6 @@
   )
 )
 
-
  
 ; Recursive helper to calculate the group index
 (= (findGroup $imp $sum $i)
@@ -89,6 +99,7 @@
       (findGroup $imp (+ $sum (pow-math 2 $i)) (+ $i 1))
    )
 )
+
 
 ;a function to find the ceil
 (: ceil (-> Number Number))
@@ -142,17 +153,23 @@
     )
 )
 
+
 (: flatten (-> Expression Expression))
 (= (flatten $expr)
-   (if (== $expr ()) 
-       () 
-       (let* (($head (car-atom $expr))
-              ($tail (cdr-atom $expr))
-              ($flattened-head (if (== (get-metatype $head) Expression)
-                                   (flatten $head)
-                                   (cons-atom $head ())))
-              ($flattened-tail (flatten $tail)))
-         (union-atom $flattened-head $flattened-tail)))
+   (
+    let $atoms (collapse (flattenHelper $expr))
+    $atoms
+   )
+)
+(: flattenHelper (-> Expression Expression))
+(= (flattenHelper $expr)
+  (let* (
+    ($atom (superpose $expr))
+    ($flattened-head (superpose $atom)
+    )
+  )
+  $flattened-head
+  )
 )
 
 
@@ -256,61 +273,29 @@
 ; a function that find the maximum STI value of the  given atoms
 (: findMaxSTI (-> Expression Number))
 (= (findMaxSTI $list)
-	(if (== $list ())
-		0
-		(let* 
-			(
-				($atom (car-atom $list))
-				($max (getSTI $atom))
-				($rest (cdr-atom $list))
-			)
-			(if (== $rest ())
-			  $max
-			  (let* (
-				($nextTop (car-atom $rest))
-				($secondMax (getSTI $nextTop))
-				($tail (cdr-atom $rest))
-				($mergeList (cons-atom $atom $tail))
-				)
-				(if (> $max $secondMax)
-				  (findMaxSTI $mergeList)
-				  (findMaxSTI $rest)
-				)
-			  )
-			)
-		)
-	)
+  (let $STIVals (collapse (findMaxSTIHelper $list))
+  (max-atom $STIVals)
+  )
 )
-
+(: findMaxSTIHelper (-> Expression Number))
+(= (findMaxSTIHelper $list)
+  (let $atom (superpose $list)
+  (getSTI $atom)
+  )
+)
 ; a function that find the minimum STI value of the  given atoms
 (: findMinSTI (-> Expression Number))
 (= (findMinSTI $list)
-	(if (== $list ())
-		0
-		(let* 
-			(
-				($atom (car-atom $list))
-				($max (getSTI $atom))
-				($rest (cdr-atom $list))
-			)
-			(if (== $rest ())
-				$max
-				(let* 
-					(
-						($nextTop (car-atom $rest))
-						($secondMax (getSTI $nextTop))
-						($tail (cdr-atom $rest))
-						($mergeList (cons-atom $atom $tail))
-					)
-					(if (< $max $secondMax)
-						(findMinSTI $mergeList)
-						(findMinSTI $rest)
-					)
-				)
-			)
-		)
-	)
+  (let $STIVals (collapse (findMinSTIHelper $list))
+  (min-atom $STIVals)
+  )
  )
+ (: findMinSTIHelper (-> Expression Number))
+(= (findMinSTIHelper $list)
+  (let $atom (superpose $list)
+  (getSTI $atom)
+  )
+)
 
 ; Description: the function takes a list of atoms and experessions 
 ;              and returns a new list wich contatins only symobls
