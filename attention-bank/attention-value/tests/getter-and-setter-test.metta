@@ -1,18 +1,28 @@
 !(register-module! ../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
+!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
+!(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
+!(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
+!(import! &self metta-attention:attention-bank:utilities:helper-functions)
+!(import! &self metta-attention:attention-bank:bank:attention-bank)
 
 
-; Test case 01: testing attention value setter(setAv) function for symbol atom type
-! (setAv A (200 200 0)) ; setting attention value for symbol A
-! (setAv A (400 400 1)) ; changing attention value for symbol A
-! (setAv Cat (400 400 1)) ; 
-! (setAv Animal (400 400 1))
-! (setAv Human (400 400 1))
-
-
+; Test case 01: testing attention value setter(setAv) function for symbol atom type and 
+;testing that atoms are inserted to atombins and attentional focus space when av is set to them
+!(assertEqual (getAttentionBank fundsSTI) 100000)
+!(assertEqual (getAttentionBank fundsLTI) 100000)
+!(setAv A (200 200 0)) 
+!(setAv A (400 400 0)) 
+!(setAv Cat (400 400 1))  
+!(setAv Animal (400 400 1))
+!(setAv Human (400 400 1))
+!(assertEqual (getAttentionBank fundsSTI) 98400)
+!(assertEqual (getAttentionBank fundsLTI) 98400)
+!(assertEqual (getAtomsInBins) ((45.0 ()) (53.0 (Human Animal Cat A))))
+!(assertEqual (getAtomList) (A Cat Animal Human))
 ; Test case 02: testing attention value getter(getAv) function for symbol atom type
 
-! (assertEqual (getAv A) (AV 400 400 1)) ; getting attention value for symbol A
+! (assertEqual (getAv A) (AV 400 400 0)) ; getting attention value for symbol A
 ! (assertEqual (getAv Cat) (AV 400 400 1))
 ! (assertEqual (getAv Animal) (AV 400 400 1))
 ! (assertEqual (getAv Human) (AV 400 400 1))
@@ -87,3 +97,13 @@
 ! (assertEqual (getSTI (Hebbianlink Human Cat)) 200)
 ! (assertEqual (getLTI (Hebbianlink (Hebbianlink Human Cat) Animal)) 200)
 ! (assertEqual (getVLTI (Hebbianlink (Hebbianlink Animal Hebbianlink) (Hebbianlink Animal Cat))) 0)
+
+; Test case 10:testing setSTI,setLTI,setVLTI functions and the dereasing the global parameters
+;(funsSTI and fundsLTI) for every av the is given to the atoms
+!(setSTI k 200)
+!(setLTI k 200)
+!(setVLTI k 200)
+!(assertEqual(getAv k) (AV 200 200 200))
+!(assertEqual (getAttentionBank fundsSTI) 96403)
+!(assertEqual (getAttentionBank fundsLTI) 96600)
+
