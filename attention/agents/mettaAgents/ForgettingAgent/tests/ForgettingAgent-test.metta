@@ -11,79 +11,44 @@
 !(stimulate b 0)
 !(stimulate c 0.2)
 !(stimulate d 2)
-(stimulate e 5)
-(stimulate A 3)
+!(stimulate e 5)
+!(stimulate A 3)
 !(stimulate B 0.3)
-(stimulate C 10)
-(stimulate D 7)
+!(stimulate C 10)
+!(stimulate D 7)
 !(stimulate F 0.12)
-(stimulate G 17)
-(stimulate H 18)
-(stimulate I 12)
-(stimulate (ASYMMETRIC_HEBBIAN_LINK A a) 12)
-(stimulate (ASYMMETRIC_HEBBIAN_LINK A F) 2)
-(stimulate (ASYMMETRIC_HEBBIAN_LINK A C) 13)
-(stimulate (habbianlink a A) 8)
+!(stimulate G 17)
+!(stimulate H 18)
+!(stimulate I 12)
+!(stimulate (ASYMMETRIC_HEBBIAN_LINK A a) 12)
+!(stimulate (ASYMMETRIC_HEBBIAN_LINK A F) 2)
+!(stimulate (ASYMMETRIC_HEBBIAN_LINK A C) 13)
+!(stimulate (habbianlink a A) 8)
 !(stimulate (PlusLink A F) 0.1)
-(stimulate (PlusLink A a) 10)
+!(stimulate (PlusLink A a) 10)
 
 ; check if atoms have been added to the space
-(assertEqual (let $a (collapseBin (AtomBin)) (size-atom $a)) 17)
+!(assertEqual (let $a (collapseBin (AtomBin)) (size-atom $a)) 17)
 
 ; test ForgettingLTIThenTVAscendingSort sorts by LTI
-(assertEqual (ForgettingLTIThenTVAscendingSort (collapseBin (AtomBin)))
+!(assertEqual (ForgettingLTIThenTVAscendingSort (collapseBin (AtomBin)))
 	((PlusLink A F) F c B (ASYMMETRIC_HEBBIAN_LINK A F) d A e D (habbianlink a A) (PlusLink A a) C (ASYMMETRIC_HEBBIAN_LINK A a) I (ASYMMETRIC_HEBBIAN_LINK A C) G H))
 
 : Test filteredatom
-(assertEqual (let $a (filterByLti (collapseBin (AtomBin))) (size-atom $a)) 3)
-(forgettingAgent-Run (AtomBin))
-
-(let $atoms (collapse (get-atoms &removeSpace)) $atoms)
-
+!(assertEqual (let $a (filterByLti (collapseBin (AtomBin))) (size-atom $a)) 3)
+!(forgettingAgent-Run (AtomBin))
 
 (let $atoms 
 		(collapse (get-atoms &attentionalFocus)) 
-		(assertEqual $atoms (a A B C D G I (ASYMMETRIC_HEBBIAN_LINK A a) (ASYMMETRIC_HEBBIAN_LINK A C) (habbianlink a A) (PlusLink A a)))
+		(assertEqual $atoms (a d e A B C D G I (ASYMMETRIC_HEBBIAN_LINK A a) (ASYMMETRIC_HEBBIAN_LINK A C) (habbianlink a A) (PlusLink A a)))
 )
 
-(assertEqual (let $atoms (collapse (get-atoms &attentionalFocus)) (size-atom $atoms)) 15) 
-(let*
+!(assertEqual (let $atoms (collapse (get-atoms &attentionalFocus)) (size-atom $atoms)) 15) 
+!(let*
 	(
 		($rmvspace (getAtomsInRemoveSpace))	
 		($typspace (getAtomsInTypeSpace))
 	)
 	(intersection-atom $typspace $rmvspace)
 )
-
-(collapse
-    (let*
-        (
-            ($vals (match (AtomBin) ($x $y) $y))
-            ($a (superpose $vals))
-            ($b (if (<= (getLTI $a) (forgetThreshold))
-                    (if (== (getVLTI $a) 0)
-                        $a
-                        (empty)
-                    )
-                    (empty)
-                )
-            )
-        )
-        $b
-    )
-)
-
-(let*
-    (
-        ($count 0)
-        ($atoms (collapseBin (AtomBin)))
-        ($size (size-atom $atoms)) 
-        ($removalAmount (- $size (- (maxSize) (accDivSize))))
-        ($filteredatom (filterByLti $atoms))
-    )
-    $filteredatom
-)
-
-!(getAv a)
-!(collapseBin (AtomBin))
 
