@@ -216,23 +216,6 @@
    )
 )
 
-(: extractAndFlatten (-> Expression Expression))
-(= (extractAndFlatten $expr)
-   (if (== $expr ())
-       ()
-       (let* (($head (car-atom $expr))
-              ($tail (cdr-atom $expr))
-              ($firstElem (car-atom $head))
-              ($rest (cdr-atom $head))
-              ($processedHead (if (== (get-type $firstElem) Number) 
-                                  $rest  ; Remove the number, keep the rest
-                                  $head)) ; If not a number, keep the whole expression
-              ($flattenedTail (extractAndFlatten $tail))
-        )
-        (union-atom $processedHead $flattenedTail))
-    )
-)
-
 (: collectContents (-> Expression Expression Expression))
 (= (collectContents $list $acc)
    (if(== $list ())
@@ -256,80 +239,50 @@
 ; a function that find the maximum STI value of the  given atoms
 (: findMaxSTI (-> Expression Number))
 (= (findMaxSTI $list)
-	(if (== $list ())
-		0
-		(let* 
-			(
-				($atom (car-atom $list))
-				($max (getSTI $atom))
-				($rest (cdr-atom $list))
-			)
-			(if (== $rest ())
-			  $max
-			  (let* (
-				($nextTop (car-atom $rest))
-				($secondMax (getSTI $nextTop))
-				($tail (cdr-atom $rest))
-				($mergeList (cons-atom $atom $tail))
-				)
-				(if (> $max $secondMax)
-				  (findMaxSTI $mergeList)
-				  (findMaxSTI $rest)
-				)
-			  )
-			)
-		)
-	)
+  (let* (
+    ($atom (car-atom $list))
+    ($max (getSTI $atom))
+    ($rest (cdr-atom $list))
+    )
+    (if (== $rest ())
+      $max
+      (let* (
+        ($nextTop (car-atom $rest))
+        ($secondMax (getSTI $nextTop))
+        ($tail (cdr-atom $rest))
+        ($mergeList (cons-atom $atom $tail))
+        )
+        (if (> $max $secondMax)
+          (findMaxSTI $mergeList)
+          (findMaxSTI $rest)
+        )
+      )
+    )
+  )
 )
-
 ; a function that find the minimum STI value of the  given atoms
 (: findMinSTI (-> Expression Number))
 (= (findMinSTI $list)
-	(if (== $list ())
-		0
-		(let* 
-			(
-				($atom (car-atom $list))
-				($max (getSTI $atom))
-				($rest (cdr-atom $list))
-			)
-			(if (== $rest ())
-				$max
-				(let* 
-					(
-						($nextTop (car-atom $rest))
-						($secondMax (getSTI $nextTop))
-						($tail (cdr-atom $rest))
-						($mergeList (cons-atom $atom $tail))
-					)
-					(if (< $max $secondMax)
-						(findMinSTI $mergeList)
-						(findMinSTI $rest)
-					)
-				)
-			)
-		)
-	)
+  (let* (
+    ($atom (car-atom $list))
+    ($max (getSTI $atom))
+    ($rest (cdr-atom $list))
+    )
+    (if (== $rest ())
+      $max
+      (let* (
+        ($nextTop (car-atom $rest))
+        ($secondMax (getSTI $nextTop))
+        ($tail (cdr-atom $rest))
+        ($mergeList (cons-atom $atom $tail))
+        )
+        (if (< $max $secondMax)
+          (findMinSTI $mergeList)
+          (findMinSTI $rest)
+        )
+      )
+    )
+  )
  )
 
-; Description: the function takes a list of atoms and experessions 
-;              and returns a new list wich contatins only symobls
-; params:
-;		$atoms: list of symbols and expressions
-; return: list of symbols
-(: removeLinksfromList (-> List List))
-(= (removeLinksfromList $atoms)
-	(if (== $atoms ())
-		()
-		(let* 
-			(
-				($head (car-atom $atoms))
-				($tail (cdr-atom $atoms))
-			)
-			(if (== (get-metatype $head) Symbol)
-				(concatTuple ($head) (removeLinksfromList $tail))	
-				(removeLinksfromList $tail)
-			)
-		)
-	)
-)
+             
