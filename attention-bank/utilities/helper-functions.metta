@@ -256,57 +256,61 @@
 ; a function that find the maximum STI value of the  given atoms
 (: findMaxSTI (-> Expression Number))
 (= (findMaxSTI $list)
-(if (== $list ())
-  0.0
-  (let* (
-    ($atom (car-atom $list))
-    ($max (getSTI $atom))
-    ($rest (cdr-atom $list))
-    )
-    (if (== $rest ())
-      $max
-      (let* (
-        ($nextTop (car-atom $rest))
-        ($secondMax (getSTI $nextTop))
-        ($tail (cdr-atom $rest))
-        ($mergeList (cons-atom $atom $tail))
-        )
-        (if (> $max $secondMax)
-          (findMaxSTI $mergeList)
-          (findMaxSTI $rest)
-        )
-      )
-    )
-  )
+
+	(if (== $list ())
+		0
+		(let* 
+			(
+				($atom (car-atom $list))
+				($max (getSTI $atom))
+				($rest (cdr-atom $list))
+			)
+			(if (== $rest ())
+			  $max
+			  (let* (
+				($nextTop (car-atom $rest))
+				($secondMax (getSTI $nextTop))
+				($tail (cdr-atom $rest))
+				($mergeList (cons-atom $atom $tail))
+				)
+				(if (> $max $secondMax)
+				  (findMaxSTI $mergeList)
+				  (findMaxSTI $rest)
+				)
+			  )
+			)
+		)
+	)
 )
 
-)
 ; a function that find the minimum STI value of the  given atoms
 (: findMinSTI (-> Expression Number))
 (= (findMinSTI $list)
-(if (== $list ())
-  0.0
-  (let* (
-    ($atom (car-atom $list))
-    ($max (getSTI $atom))
-    ($rest (cdr-atom $list))
-    )
-    (if (== $rest ())
-      $max
-      (let* (
-        ($nextTop (car-atom $rest))
-        ($secondMax (getSTI $nextTop))
-        ($tail (cdr-atom $rest))
-        ($mergeList (cons-atom $atom $tail))
-        )
-        (if (< $max $secondMax)
-          (findMinSTI $mergeList)
-          (findMinSTI $rest)
+	(if (== $list ())
+        0
+		(let* 
+			(
+				($atom (car-atom $list))
+				($max (getSTI $atom))
+				($rest (cdr-atom $list))
+			)
+			(if (== $rest ())
+				$max
+				(let* 
+					(
+						($nextTop (car-atom $rest))
+						($secondMax (getSTI $nextTop))
+						($tail (cdr-atom $rest))
+						($mergeList (cons-atom $atom $tail))
+					)
+					(if (< $max $secondMax)
+						(findMinSTI $mergeList)
+						(findMinSTI $rest)
+					)
         )
       )
     )
   )
-)
 )
 
 ; Description: the function takes a list of atoms and experessions 

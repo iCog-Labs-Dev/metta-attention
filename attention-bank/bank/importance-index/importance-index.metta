@@ -82,7 +82,7 @@
 (: update (-> hyperon::space::DynSpace Atom))
 (= (update $space)
     (let* (
-            ($nums (collapse (match $space ($x $y) $x)))
+            ; ($nums (collapse (match $space ($x $y) $x)))
             ($vals (collapseAtomBin $space))
             ($filteredVals (filter $vals notEmpty))
             ($collectedContents (collectContents $filteredVals ()))
@@ -120,17 +120,20 @@
 
 (: updateImportance (-> hyperon::space::DynSpace Atom Number Number Atom))
 (= (updateImportance $space $atom $oldSTI $newSTI)
-    (let* (
+    (let* 
+        (
             ($oldBin (importanceBin $oldSTI))
-            ($newBin (importanceBin $newSTI)))
-        (if (== $oldBin $newBin)
-            ()
-            (let $result (relocateAtom $oldBin $newBin $atom)
-              (if $result ("Importance Updated") ("Importance Not Updated"))
+            ($newBin (importanceBin $newSTI))
+            ($relocate 
+                (let $result 
+                    (relocateAtom $oldBin $newBin $atom)
+                    (if $result ("Importance Updated") ("Importance Not Updated")))
             )
         )
+        $relocate
     )
 )
+
 
 (: relocateAtom (-> Number Number Symbol Bool))
 (= (relocateAtom $oldBin $newBin $atom)
@@ -139,7 +142,7 @@
    
       
 
-     (if (or (== $res1 ("Atom is not valid")) (== $res1 ("Bin is empty")))
+     (if (or (== $res1 ("Atom already exists")) (== $res1 ("Bin is empty")))
        False
        (== (collapse(index-atom $res2 0)) ("Atom Inserted"))
       )
