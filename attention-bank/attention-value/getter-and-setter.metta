@@ -55,7 +55,7 @@
                     ($else %Undefined%))
         )
         (case (getValueType $pattern)
-                (( (AV $a $b $c) (getValueType $pattern))
+                (( (AV $a $b $c) (AV $a $b $c))
                     ( ( (STV $a $b) (AV $x $y $z)) (AV $x $y $z))
                     ($else %Undefined%)))
     )
