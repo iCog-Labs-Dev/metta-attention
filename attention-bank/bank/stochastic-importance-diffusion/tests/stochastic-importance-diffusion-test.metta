@@ -35,6 +35,6 @@
 !(assertEqual (> (diffusedValue a 0.5) 0.5) True) 
 !(assertEqual (diffusedValue a 1) 0) ;after on round the sti value 1 will have decreased by the decay rate=1 therefore, output becomes 0
 
-!(=(timeer)((timeTime) (get-atoms &atomBinInfo)))
+
 
 

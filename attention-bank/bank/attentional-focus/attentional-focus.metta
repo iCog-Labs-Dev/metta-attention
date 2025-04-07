@@ -1,5 +1,7 @@
 !(bind! &attentionalFocus (new-space))
+!(bind! &newAtomInAV (new-space))
 (= (AttentionalFocus) &attentionalFocus)
+(= (newAtomInAV) &newAtomInAV)
 
 (= (maxAFSize) 100)
 
@@ -40,10 +42,13 @@
 (= (addAtomToAF $atom)
    (if (== (getValueType $atom) %Undefined%)
        ("Atom is not valid")
-       (let()
-         (add-atom &attentionalFocus $atom)
-         ("Atom Added")
-       )
+       (let* 
+            (
+                (() (add-atom &attentionalFocus $atom))
+                (() (add-atom &newAtomInAV $atom))
+            )
+            ("Atom Added")
+        )
    )
 )
 
@@ -51,9 +56,18 @@
 ;Description: Retrieves a list of all atoms currently in attentional focus space.
 ;Parameters: None.
 ;Returns: A list of atoms in attentional focus space.
-(: getAtomList(->Symbol))
+(: getAtomList(-> Symbol))
 (= (getAtomList)
    (collapse (get-atoms &attentionalFocus))
+)
+
+;Function: getNewAtomInAVList
+;Description: Retrieves a list of all atoms currently in the newAtomInAV space.
+;Parameters: None.
+;Returns: A list of atoms in newAtomInAV space.
+(: getNewAtomInAVList(-> Symbol))
+(= (getNewAtomInAVList)
+   (collapse (get-atoms &newAtomInAV))
 )
 
 ;Function: attentionalFocusSize
@@ -234,14 +248,13 @@
            (if (< $currentSize $maxSize)
                ; Case 2: AF is not full, add the new atom
                (addAtomToAF $atom)
-
                (let $lowestAtom (getLowestStiAtomInAF) ; Only compute if needed
                     (if (> $sti (getSTI $lowestAtom))  ; Case 3: Replace if better
                         (let ()
                             (remove-atom &attentionalFocus $lowestAtom)
                             (addAtomToAF $atom)
                         )
-                        (empty) ; Case 4: Atom not added
+                        () ; Case 4: Atom not added
                     )
                )
            )
@@ -257,7 +270,7 @@
 (= (getRandomAtomNotInAF)
    (let*
        (
-           ($allAtoms  (getAtomsInBins))
+           ($allAtoms  (getAllAtomsInBins))
            ($filteredAtoms (filter $allAtoms atomIsNotInAF))
        )
        (if (== $filteredAtoms ())
@@ -482,6 +495,15 @@
 
 (= (attentionalFocus)
     &attentionalFocus
+)
+
+
+(: removeAtomAttentionalfocus (-> atom empty))
+(= (removeAtomAttentionalfocus $atom)
+	(if (atomIsInAF $atom)
+		(remove-atom &attentionalFocus $atom)
+		()
+	)
 )
 
 

@@ -7,35 +7,35 @@
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
 !(import! &self metta-attention:attention:agents:mettaAgents:HebbianUpdatingAgent:HebbianUpdatingAgent)
+!(import! &self metta-attention:attention-bank:utilities:recentVal)
 
 ;################ Prep: giving (source and target1) atoms mean and confidence ####################
 !(setStv source (0.1 0.9))
 !(setStv target1 (0.3 0.9))
 
-;################ Prep: setting up Hebbian link between source and target1 ####################
-!(setStv (ASYMMETRIC_HEBBIAN_LINK source target1) (0.01 0.9))
+;################ Prep: setting up Hebbian link between target2 and source ####################
+!(setStv (ASYMMETRIC_HEBBIAN_LINK target2 source) (0.01 0.9))
 
-;################ Prep: stimulating source and target1 atoms to add them into AF ####################
+;################ Prep: stimulating source, target1 and target2 atoms to add them into AF ####################
 !(stimulate source 200)
 !(stimulate target1 200)
-
-;################ Prep: adding the link into AF so that its weight could be updated through the agent ####################
-!(add-atom (attentionalFocus) (ASYMMETRIC_HEBBIAN_LINK source target1))
+!(stimulate target2 100)
 
 ;################ Running the HebbianUpdatingAgent ####################
-!(HebbianUpdatingAgent-Run)
+!(updateHebbianLinks target2 (TypeSpace))
 
-;################ Testing ####################
+; ;################ Testing ####################
 !(assertEqual (getAv source) (AV 4000.0 4000.0 0))
 !(assertEqual (getAv target1) (AV 4000.0 4000.0 0))
 
 ;################ The weight should be updated ####################
 ; expected result 0.0105976 but since there is precision issue, we are checking the value in the range of 0.0105976
 
-!(assertEqual (if (and (>= (getMean (ASYMMETRIC_HEBBIAN_LINK source target1)) 0.009)
-                       (<= (getMean (ASYMMETRIC_HEBBIAN_LINK source target1)) 0.011))
+!(assertEqual (if (and (>= (getMean (ASYMMETRIC_HEBBIAN_LINK target2 source)) 0.01120731707317073)
+                       (<= (getMean (ASYMMETRIC_HEBBIAN_LINK target2 source)) 0.01120731707317073))
                         True
                         False
               )
               True
 )
+
