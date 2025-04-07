@@ -72,3 +72,16 @@
 )
 
 !(assertEqual (collapse ("After The Hebbian Creation " (get-atoms (newAtomInAV)))) ())
+
+!(stimulate aliveee 200)
+
+!(assertEqual (attentionalFocusSize) 6)
+
+!(HebbianCreationAgent-Run (TypeSpace) (attentionalFocus) (newAtomInAV))
+
+!(assertEqual   
+    (let $atoms (collapse 
+                    (match (TypeSpace) (: (ASYMMETRIC_HEBBIAN_LINK $x $y) $value) 
+                            (ASYMMETRIC_HEBBIAN_LINK $x $y))) (size-atom $atoms))
+    30
+)
