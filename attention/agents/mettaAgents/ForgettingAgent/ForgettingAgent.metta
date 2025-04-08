@@ -14,11 +14,11 @@
 ;		None
 ; return: None
 ; TODO: might need to convert the input from List of atoms to space
-(= (forgettingAgent-Run)
+(= (forgettingAgent-Run $space)
 	(let* 
 		(
 			($count 0)
-			($atoms (getAtomsInTypeSpace))
+			($atoms (collapseBin $space))
 			($size (size-atom $atoms)) 
 			($removalAmount (- $size (- (maxSize) (accDivSize))))
 			($filteredatom (filterByLti $atoms))
@@ -32,6 +32,9 @@
 	)
 )
 
+(= (collapseBin $space)
+	(collapse (let $a (match $space ($x $y) $y) (superpose $a)))
+)
 
 ; Description : a function to filter atoms that are below a the forgetThreshold
 ; params :
