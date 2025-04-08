@@ -12,9 +12,10 @@
 ;################ Prep: giving (source and target1) atoms mean and confidence ####################
 !(setStv source (0.1 0.9))
 !(setStv target1 (0.3 0.9))
+!(setStv target2 (0.7 0.9))
 
 ;################ Prep: setting up Hebbian link between target2 and source ####################
-!(setStv (ASYMMETRIC_HEBBIAN_LINK target2 source) (0.01 0.9))
+!(setStv (ASYMMETRIC_HEBBIAN_LINK source target2) (0.01 0.9))
 
 ;################ Prep: stimulating source, target1 and target2 atoms to add them into AF ####################
 !(stimulate source 200)
