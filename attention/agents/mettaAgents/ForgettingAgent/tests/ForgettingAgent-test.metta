@@ -28,6 +28,7 @@
 !(stimulate (PlusLink A a) 10)
 
 ; check if atoms have been added to the space
+
 !(assertEqual (let $a (collapseBin (AtomBin)) (size-atom $a)) 19)
 
 ; test ForgettingLTIThenTVAscendingSort sorts by LTI
@@ -36,6 +37,7 @@
 
 : Test filteredatom
 !(assertEqual (let $a (filterByLti (collapseBin (AtomBin))) (size-atom $a)) 5)
+
 !(forgettingAgent-Run (AtomBin))
 
 (let $atoms 
@@ -43,7 +45,9 @@
 		(assertEqual $atoms (a d e A B C D G I (ASYMMETRIC_HEBBIAN_LINK A a) (ASYMMETRIC_HEBBIAN_LINK A C) (habbianlink a A) (PlusLink A a)))
 )
 
+
 !(assertEqual (let $atoms (collapse (get-atoms &attentionalFocus)) (size-atom $atoms)) 14) 
+
 !(let*
 	(
 		($rmvspace (getAtomsInRemoveSpace))	
