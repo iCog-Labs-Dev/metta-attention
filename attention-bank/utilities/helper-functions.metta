@@ -256,7 +256,6 @@
 ; a function that find the maximum STI value of the  given atoms
 (: findMaxSTI (-> Expression Number))
 (= (findMaxSTI $list)
-
 	(if (== $list ())
 		0
 		(let* 
@@ -287,7 +286,7 @@
 (: findMinSTI (-> Expression Number))
 (= (findMinSTI $list)
 	(if (== $list ())
-        0
+		0
 		(let* 
 			(
 				($atom (car-atom $list))
@@ -307,11 +306,11 @@
 						(findMinSTI $mergeList)
 						(findMinSTI $rest)
 					)
-        )
-      )
-    )
-  )
-)
+				)
+			)
+		)
+	)
+ )
 
 ; Description: the function takes a list of atoms and experessions 
 ;              and returns a new list wich contatins only symobls
