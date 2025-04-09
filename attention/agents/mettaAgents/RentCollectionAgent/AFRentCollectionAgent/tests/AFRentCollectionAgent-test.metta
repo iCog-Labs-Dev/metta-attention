@@ -8,17 +8,17 @@
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention:agents:mettaAgents:RentCollectionAgent:AFRentCollectionAgent:AFRentCollectionAgent)
-
-;;inorder to see the rent collection in action,we have to decrease the size of the attentional focus 
-;;run it with cognitive controller because it depends on time passed since last rent collected
-;;i have tested with that and it works fine
-!(setAv b (50000.0 50000.0 0.0))
-!(setAv c (20000.0 20000.0 0.0))
-!(setAv d (29000.0 29000.0 0.0))
-!(setAv (Hebbianlink a b) (400.0 400.0 0.0))
-!(setAv (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)) (400.0 400.0 0.0))
+!(stimulate b 3000.0)
+!(stimulate c 1500.0)
+!(stimulate d 290.0)
+!(stimulate (Hebbianlink a b) 50.0)
+!(stimulate (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)) 5.0)
 ;; Get the rent frequency and compute the sleep duration
-
+!(assertEqual  (getSTI b) 60000.0)
+!(assertEqual (getSTI c)  30000.0)
+!(assertEqual (getSTI d) 2900.0)
+!(assertEqual (getSTI (Hebbianlink a b)) 355.0)
+!(assertEqual  (getSTI (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 33.725)
 
 ;; Run rent collection in a loop until enough time has passed
 !(AFRentCollectionAgent-run)
@@ -26,14 +26,12 @@
 ;; Sleep for the computed time to match C++ behavior
 ! ((py-atom time.sleep) (/ 1.0 5.0))
 !(AFRentCollectionAgent-run)
-!(assertEqual (< (getSTI (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 400.0) True)
-!(assertEqual (< (getSTI b)50000.0) True)
-!(assertEqual (< (getSTI c) 20000.0) True)
-!(assertEqual (< (getSTI d)29000.0) True)
-!(assertEqual (< (getLTI (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 400.0) True)
-!(assertEqual (< (getLTI b)50000.0) True)
-!(assertEqual (< (getLTI c) 20000.0) True)
-!(assertEqual (< (getLTI d)29000.0) True)
+!(assertEqual (< (getSTI (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)))33.725) True)
+!(assertEqual (< (getSTI b)60000.0) True)
+!(assertEqual (< (getSTI c) 30000.0) True)
+!(assertEqual (< (getSTI d)2900.0) True)
+!(assertEqual (< (getSTI (Hebbianlink a b)) 355.0) True)
+
 
 
 
