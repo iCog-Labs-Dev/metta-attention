@@ -10,11 +10,11 @@
 
 !(add-atom &recentVal (value_min 0))
 !(add-atom &recentVal (recent_min 0.0))
-!(add-atom &recentVal (decay_min 0.5))
+!(add-atom &recentVal (decay_min 1))
 
 !(add-atom &recentVal (value_max 0))
 !(add-atom &recentVal (recent_max 0.0))
-!(add-atom &recentVal (decay_max 0.5))
+!(add-atom &recentVal (decay_max 1))
 
 (: RecentVal (-> Grounded))
 (= (RecentVal) &recentVal)
