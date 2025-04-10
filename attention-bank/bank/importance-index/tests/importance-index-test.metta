@@ -1,4 +1,5 @@
 !(register-module! ../../../../../metta-attention)
+!(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
@@ -11,6 +12,7 @@
 
 ;For Testing the update, getMaxSTI, getMinSTI
 ;###################### Prep: adding atoms to the atom bin #####################
+!(trunc-math 2.7)
 !(setAv a (2.0 2.0 2.0))
 !(setAv d (4.0 2.0 2.0))
 !(setAv c (3.0 2.0 2.0))
