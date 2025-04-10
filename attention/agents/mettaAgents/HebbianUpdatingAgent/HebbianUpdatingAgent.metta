@@ -51,8 +51,10 @@
                             (let*
                                 (
                                     ($new-tc (targetConjunction $outgoing))
+                                    (() (println! ("tc value for " $temp " is "  $tc)))
                                     (($STV $old-tc $conf) (getStv $iset))
                                     ($tc (+ (* tcDecayRate $new-tc) (* (- 1.0 tcDecayRate) $old-tc)))
+                                    (() (println! ("tc value for " $temp " is "  $tc)))
                                     ($create-tv ($tc 0.1))
                                     ($new-tv (mergeCalculation $create-tv ($old-tc $conf) PLN_BOOK_REVISION))
                                 )
