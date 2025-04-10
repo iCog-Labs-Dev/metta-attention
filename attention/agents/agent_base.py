@@ -46,47 +46,6 @@ class StreamMethod(threading.Thread):
 
 class AgentObject:
 
-    '''
-    The base agent object class, which purpose is twofold.
-    1) It allows using Metta scripts as agents.
-    2) Python classes inherited from it, can be used for
-       creating agents in metta (almost) without additional
-       boilerplate code.
-    These two purposes are combined in one base class, so one
-    can inherit from it and add functionality, which will be
-    shared between Python and Metta agents (as how it happens
-    in Metta-motto)
-    '''
-    _name = None
-
-    @classmethod
-    def get_agent_atom(cls, metta, *args, unwrap=True):
-        # metta and unwrap are not passed to __init__, because
-        # they are needed only for __metta_call__, so children
-        # classes do not need to pass them to super().__init__
-        if unwrap:
-            # a hacky way to unwrap args
-            agent_atom = OperationObject("_", cls).execute(*args)[0]
-            agent = agent_atom.get_object().content
-        else:
-            agent = cls(*args)
-        if hasattr(agent, '_metta') and agent._metta is not None:
-            raise RuntimeError(f"MeTTa is already defined for {agent}")
-        agent._metta = metta
-        agent._unwrap = unwrap
-        return [OperationAtom(cls.name(),
-            lambda *agent_args: agent.__metta_call__(*agent_args), unwrap=False)]
-
-    @classmethod
-    def agent_creator_atom(cls, metta=None, unwrap=True):
-        return OperationAtom(cls.name()+'-agent',
-            lambda *args: cls.get_agent_atom(metta, *args, unwrap=unwrap),
-            unwrap=False)
-
-    @classmethod
-    def name(cls):
-        return cls._name if cls._name is not None else str(cls)
-
     def _try_unwrap(self, val):
         if val is None or isinstance(val, str):
             return val
@@ -147,35 +106,6 @@ class AgentObject:
             self._metta.run(self._code) if isinstance(self._code, str) else \
                 self._metta.space().add_atom(self._code)
 
-    def __call__(self, atom):
-        if self._unwrap or self._metta is None:
-            raise NotImplementedError(
-                f"__call__ for {self.__class__.__name__} should be defined"
-            )
-        return self._metta.evaluate_atom(atom)
-
-    def is_daemon(self):
-        return hasattr(self, 'daemon') and self.daemon is True
-
-    def __metta_call__(self, *args):
-        call = True
-        method = self.__call__
-        if len(args) > 0 and isinstance(args[0], SymbolAtom):
-            n = args[0].get_name()
-            if n[0] == '.' and hasattr(self, n[1:]):
-                method = getattr(self, n[1:])
-                args = args[1:]
-                call = False
-        if self._unwrap:
-            method = OperationObject(f"{method}", method).execute
-        st = StreamMethod(method, args)
-        st.start()
-        # We don't return the stream here; otherwise it will be consumed immediately.
-        # If the agent itself would be StreamMethod, its results could be accessbile.
-        # Here, they are lost (TODO?).
-        if call and self.is_daemon():
-            return [E()]
-        return st
     def run(self):
         """Runs the agent by executing the loaded MeTTa script."""
         if self._code is None:

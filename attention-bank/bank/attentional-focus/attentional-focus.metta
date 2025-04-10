@@ -1,6 +1,8 @@
 !(bind! &attentionalFocus (new-space))
 !(bind! &newAtomInAV (new-space))
-(= (AttentionalFocus) &attentionalFocus)
+(= (attentionalFocus)
+    &attentionalFocus
+)
 (= (newAtomInAV) &newAtomInAV)
 
 (= (maxAFSize) 100)
@@ -159,18 +161,18 @@
 )
 
 
-(= (getLowestStiAtomInAFHelper $atoms $minAtom $minSTI)
-    (if (== $atoms ())
-        $minAtom
-        (let* (
-            ($current (car-atom $atoms))
-            ($sti (getSTI $current))
-            ($newMinAtom (if (< $sti $minSTI) $current $minAtom))
-            ($newMinSTI (if (< $sti $minSTI) $sti $minSTI))
-        )
-        (getLowestStiAtomInAFHelper (cdr-atom $atoms) $newMinAtom $newMinSTI))
-    )
-)
+; (= (getLowestStiAtomInAFHelper $atoms $minAtom $minSTI) ;; Need to be optimized
+;     (if (== $atoms ())
+;         $minAtom
+;         (let* (
+;             ($current (car-atom $atoms))
+;             ($sti (getSTI $current))
+;             ($newMinAtom (if (< $sti $minSTI) $current $minAtom))
+;             ($newMinSTI (if (< $sti $minSTI) $sti $minSTI))
+;         )
+;         (getLowestStiAtomInAFHelper (cdr-atom $atoms) $newMinAtom $newMinSTI))
+;     )
+; )
 
 ;Function: getLowestStiAtomInAF
 ;Description: Goes through the AF and returns the Atom with the lowest Sti
@@ -182,9 +184,23 @@
     (let $atoms (getAtomList)
         (if (== $atoms ())
             ()
-            (getLowestStiAtomInAFHelper $atoms (car-atom $atoms) (getSTI (car-atom $atoms)))
+            ; (getLowestStiAtomInAFHelper $atoms (car-atom $atoms) (getSTI (car-atom $atoms)))
+            (let* 
+                (
+                    ($stiValuesAndAtom (collapse (extractAtomValue (superpose $atoms))))
+                    ($stiValues (collapse (let $temp (superpose $stiValuesAndAtom) (index-atom $temp 0))))
+                    ($minSti (min-atom $stiValues))
+                    ($minAtom (let $temp (superpose $stiValuesAndAtom) 
+                                    (unify ($minSti $atom) $temp $atom (empty))))
+                )
+                    $minAtom
+            )
         )
     )
+)
+
+(= (extractAtomValue $atom)
+    ((getSTI $atom) $atom)
 )
 
 ;gets the maximum STI value in the attentional focus
@@ -490,11 +506,6 @@
         $randomAtom
         )
     )
-)
-
-
-(= (attentionalFocus)
-    &attentionalFocus
 )
 
 
