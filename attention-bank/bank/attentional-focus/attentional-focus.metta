@@ -3,7 +3,7 @@
 (= (AttentionalFocus) &attentionalFocus)
 (= (newAtomInAV) &newAtomInAV)
 
-(= (maxAFSize) 100)
+(= (maxAFSize) 1000)
 
 ;Function: atomIsInAF
 ;Description: Checks if a given atom is in the attentional focus space.
@@ -233,7 +233,7 @@
 (= (updateAttentionalFocus $atom)
    (let*
        (
-           ($maxSize (maxAFSize)) 
+           ($maxSize (getAttentionParam MAX_AF_SIZE)) 
            ($sti (getSTI $atom)) 
            ($currentSize (attentionalFocusSize)) 
            ($isInAF (atomIsInAF $atom)) ; Check if atom is already in AF

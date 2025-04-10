@@ -1,4 +1,5 @@
 !(register-module! ../../../../../metta-attention)
+!(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
@@ -16,7 +17,7 @@
 !(setAv C (200.0 300.0 400.0))
 !(setAv D (25.0 125.0 225.0))
 !(setAv F (70.0 100.0 200.0))
-
+!(getAttentionParam MAX_AF_SIZE)
 ; The test cases were added with setting AV for links but this might not be needed in reality because AVs may not be set for links/expressions
 !(setAv (EvaluationLink a b) (100.0 100.0 100.0))
 !(setAv (Hebbianlink (Hebbianlink Cat Human) Animal) (200.0 250.0 280.0))
