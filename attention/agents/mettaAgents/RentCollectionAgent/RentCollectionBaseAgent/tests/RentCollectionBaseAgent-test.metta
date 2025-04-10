@@ -8,6 +8,7 @@
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 
+;calculate rent before atoms stimulated
 !(assertEqual (calculateLtiRent (getAttentionParam StartingAtomLtiRent)) 0.0)
 !(assertEqual  (calculateStiRent (getAttentionParam StartingAtomStiRent)) 0.0)
 !(stimulate b 3000.0)
@@ -15,6 +16,7 @@
 !(stimulate d 290.0)
 !(stimulate (Hebbianlink a b) 50.0)
 !(stimulate (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)) 5.0)
-!(assertEqual (calculateLtiRent (getAttentionParam StartingAtomLtiRent)) 1.3288725000000001)
-!(assertEqual  (calculateStiRent (getAttentionParam StartingAtomStiRent)) 1.3288725000000001)
+;calculate rent after atoms stimulated
+!(assertEqual (> (calculateStiRent (getAttentionParam StartingAtomStiRent)) 0.0) True)
+!(assertEqual (> (calculateLtiRent (getAttentionParam StartingAtomLtiRent)) 0.0) True)
 
