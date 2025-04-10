@@ -240,9 +240,13 @@
                            $value
                      )
             )
+             (() (println! ("maxSTI " $maxSTI)))
+             (() (println! ("minSTI " $minSTI)))
+             (() (println! ("Value " $clippedValue)))
            
        )
        $clippedValue
+
    )
 )
 ;Function: getNormalisedSTI (Single Argument)

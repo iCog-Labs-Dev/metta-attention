@@ -44,6 +44,7 @@
       True
       False)
   True)
+! (getMean (ASYMMETRIC_HEBBIAN_LINK source target1))
 
 !(assertEqual 
   (if (and (>= (getMean (ASYMMETRIC_HEBBIAN_LINK source target2)) 0.010861742058695056)
@@ -51,21 +52,21 @@
       True
       False)
   True)
-
+! (getMean (ASYMMETRIC_HEBBIAN_LINK source target2))
 !(assertEqual 
   (if (and (>= (getMean (ASYMMETRIC_HEBBIAN_LINK source target3)) 0.011188841539602402)
            (<= (getMean (ASYMMETRIC_HEBBIAN_LINK source target3)) 0.011188841539602402))
       True
       False)
   True)
-
+! (getMean (ASYMMETRIC_HEBBIAN_LINK source target3))
 !(assertEqual 
   (if (and (>= (getMean (ASYMMETRIC_HEBBIAN_LINK source target4)) 0.011201158561981287)
            (<= (getMean (ASYMMETRIC_HEBBIAN_LINK source target4)) 0.011201158561981287))
       True
       False)
   True)
-
+! (getMean (ASYMMETRIC_HEBBIAN_LINK source target4))
 ; Reverse links
 !(assertEqual 
   (if (and (>= (getMean (ASYMMETRIC_HEBBIAN_LINK target1 source)) 0.01)
@@ -73,24 +74,25 @@
       True
       False)
   True)
-
+! (getMean (ASYMMETRIC_HEBBIAN_LINK target1 source))
 !(assertEqual 
   (if (and (>= (getMean (ASYMMETRIC_HEBBIAN_LINK target2 source)) 0.01)
            (<= (getMean (ASYMMETRIC_HEBBIAN_LINK target2 source)) 0.01))
       True
       False)
   True)
-
+! (getMean (ASYMMETRIC_HEBBIAN_LINK target2 source))
 !(assertEqual 
   (if (and (>= (getMean (ASYMMETRIC_HEBBIAN_LINK target3 source)) 0.01)
            (<= (getMean (ASYMMETRIC_HEBBIAN_LINK target3 source)) 0.01))
       True
       False)
   True)
-
+! (getMean (ASYMMETRIC_HEBBIAN_LINK target3 source))
 !(assertEqual 
   (if (and (>= (getMean (ASYMMETRIC_HEBBIAN_LINK target4 source)) 0.01)
            (<= (getMean (ASYMMETRIC_HEBBIAN_LINK target4 source)) 0.01))
       True
       False)
   True)
+! (getMean (ASYMMETRIC_HEBBIAN_LINK target4 source))
