@@ -68,7 +68,6 @@ def load_data_into_agent(agent, data_file_path):
             results = agent._metta.run(data)
             response = str(results) if results else "No Result"
             print(response)
-        print(f"Data loaded successfully into {agent.name()}'s atomspace from {data_file_path}")
     except FileNotFoundError:
         print(f"Error: Data file not found at {data_file_path}")
     except Exception as e:

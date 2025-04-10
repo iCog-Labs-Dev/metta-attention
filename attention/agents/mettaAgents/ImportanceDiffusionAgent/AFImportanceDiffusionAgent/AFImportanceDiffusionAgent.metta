@@ -10,7 +10,7 @@
         (
             ($atoms (collapse (let $temp (match $space $x $x)
                 (if (== (get-metatype $temp) Expression)
-                    (if (== (car-atom $temp) ASYMMETRIC_HEBBIAN_LINK) 
+                    (if (== (car-atom $temp) ASYMMETRIC_HEBBIAN_LINK)  ;; Needs to be removed
                         (empty)
                         (if (== (car-atom $temp) HEBBIAN_LINK)
                             (empty)
@@ -19,7 +19,7 @@
                     )
                     $temp
                 ))))
-            ($sorted (sortAtomsBySti $atoms))
+            ($sorted (sortAtomsBySti $atoms)) ;; there needs to be a better way
         )
         $sorted
     )
