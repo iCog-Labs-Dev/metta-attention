@@ -14,7 +14,7 @@
 
 !(add-atom &recentVal (value_max 0))
 !(add-atom &recentVal (recent_max 0.0))
-!(add-atom &recentVal (decay_max 1))
+!(add-atom &recentVal (decay_max 1)) ; in c++ this is 0.5 
 
 (: RecentVal (-> Grounded))
 (= (RecentVal) &recentVal)
