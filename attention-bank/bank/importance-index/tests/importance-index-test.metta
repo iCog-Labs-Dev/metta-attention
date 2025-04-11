@@ -12,7 +12,7 @@
 ;For Testing the update, getMaxSTI, getMinSTI
 ;###################### Prep: adding atoms to the atom bin #####################
 !(setAv a (2.0 2.0 2.0))
-!(setAv d (4.0 2.0 2.0)(car-atom $rest)
+!(setAv d (4.0 2.0 2.0))
 !(setAv c (3.0 2.0 2.0))
 !(setAv x (200.0 200.0 0.0))
 
