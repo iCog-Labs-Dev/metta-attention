@@ -50,7 +50,7 @@
 (: getAv (-> Atom AV))
 (= (getAv $pattern)
     (if (== (get-metatype $pattern) Expression)
-        (case (let $a (collapse (let $x (getValueType $pattern) (collapse (superpose $x)))) (index-atom $a 0))
+        (case (getValueType $pattern)
             (( (AV $a $b $c) (AV $a $b $c))
                     ( ( (STV $a $b) (AV $x $y $z)) (AV $x $y $z))
                     ($else %Undefined%))
