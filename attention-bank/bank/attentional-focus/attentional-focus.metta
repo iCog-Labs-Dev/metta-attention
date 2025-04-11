@@ -274,7 +274,7 @@
            ($filteredAtoms (filter $allAtoms atomIsNotInAF))
        )
        (if (== $filteredAtoms ())
-           %Undefined%
+           (empty)
         (let*
                (
                    ($randInt (random-int 0 (size-atom $filteredAtoms)))
@@ -477,8 +477,6 @@
     )
 )
 
-
-
 ( = (getRandomAtomInAF)
     (if  (== (attentionalFocusSize) 0)
         ("AF is Empty")
@@ -492,11 +490,9 @@
     )
 )
 
-
 (= (attentionalFocus)
     &attentionalFocus
 )
-
 
 (: removeAtomAttentionalfocus (-> atom empty))
 (= (removeAtomAttentionalfocus $atom)
