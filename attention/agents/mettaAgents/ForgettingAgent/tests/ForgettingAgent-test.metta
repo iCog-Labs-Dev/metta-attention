@@ -44,6 +44,7 @@
 )
 
 !(assertEqual (let $atoms (collapse (get-atoms &attentionalFocus)) (size-atom $atoms)) 14) 
+
 !(let*
 	(
 		($rmvspace (getAtomsInRemoveSpace))	
