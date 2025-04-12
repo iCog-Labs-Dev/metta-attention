@@ -43,6 +43,10 @@
 ; Check the  attentional focus  is updated  when an atom is stimulated
 
 !(stimulate y 2)
-!(assertEqual (getAtomsInBins) ((45.0 (z)) (47.0 (y)) (49.0 (x))))
-!(assertEqual (getAtomList) (x y z))
+
+; Check new Atom is added to bin 0
+!(stimulate w 0)
+
+!(assertEqual (getAtomsInBins) ((45.0 (z)) (47.0 (y)) (49.0 (x)) (0.0 (w))))
+!(assertEqual (getAtomList) (x y z w))
 
