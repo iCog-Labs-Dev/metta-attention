@@ -209,6 +209,7 @@
         ((AV $sti $lti $vlti) (setAv $pattern ($newSTI $lti $vlti))))
     )
 )
+
 ;;setLTI fnction accepts a pattern/node with an Lti value to replace the original
 ;;and set the Lti to the pattern/node.
 ; i.e !(setLTI A 500)
@@ -230,27 +231,7 @@
         ((AV $sti $lti $vlti) (setAv $pattern ($sti $lti $newVLTI))))
     )
 )
-;;setLTI fnction accepts a pattern/node with an Lti value to replace the original
-;;and set the Lti to the pattern/node.
-; i.e !(setLTI A 500)
-(: setLTI (-> Atom Number Atom)) 
-(= (setLTI $pattern $newLTI)
-    (case (getAv $pattern)
-        ((%Undefined% (setAv $pattern  (0 $newLTI 0)))
-        ((AV $sti $lti $vlti) (setAv $pattern ($sti $newLTI $vlti))))
-    )
-)
 
-;;setVLTI fnction accepts a pattern/node with an VLti value to replace the original
-;;and set the VLti to the pattern/node.
-; i.e !(setVLTI A 500)
-(: setVLTI (-> Atom Number Atom)) 
-(= (setVLTI $pattern $newVLTI)
-    (case (getAv $pattern)
-        ((%Undefined% (setAv $pattern  (0 0 $newVLTI)))
-        ((AV $sti $lti $vlti) (setAv $pattern ($sti $lti $newVLTI))))
-    )
-)
 (= (globalIncomingSetByType $atom $type)
 	(collapse
 		(superpose   
