@@ -35,8 +35,8 @@
 
 ;########################## Running the AF Importance Diffusion Agent #############################
 !(AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace))
-
 ;########################## Testing the STI values #############################
+
 !(assertEqual (getSTI source) 6000.0)
 !(assertEqual (getSTI target1) 8000.0)
 !(assertEqual (getSTI target2) 8000.0)
@@ -54,3 +54,26 @@
 !(assertEqual (getSTI (INHERITANCE_LINK source target6)) 1000.0)
 !(assertEqual (getSTI (INHERITANCE_LINK target3 source)) 4200.0)
 !(assertEqual (getSTI (ASYMMETRIC_HEBBIAN_LINK target2 target3)) 0)
+
+; For time purpose commented the below since meTTa is currently slow
+
+; ;########################## Running the AF Importance Diffusion Agent #############################
+; !(AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace))
+; ;########################## Testing the STI values #############################
+; !(assertEqual (getSTI source) 6320.0)
+; !(assertEqual (getSTI target1) 8000.0)
+; !(assertEqual (getSTI target2) 8000.0)
+; !(assertEqual (getSTI target3) 3720.0)
+; !(assertEqual (getSTI target4) 3720.0)
+; !(assertEqual (getSTI target5) 3720.0)
+; !(assertEqual (getSTI target6) 200.0)
+
+; !(assertEqual (getSTI (HEBBIAN_LINK source target1)) 0)
+; !(assertEqual (getSTI (HEBBIAN_LINK source target2)) 0)
+; !(assertEqual (getSTI (ASYMMETRIC_HEBBIAN_LINK source target3)) 0)
+; !(assertEqual (getSTI (INHERITANCE_LINK source target4)) 5040.0)
+; !(assertEqual (getSTI (ASYMMETRIC_HEBBIAN_LINK target1 target2)) 0)
+; !(assertEqual (getSTI (INHERITANCE_LINK source target5)) 5040.0)
+; !(assertEqual (getSTI (INHERITANCE_LINK source target6)) 1200.0)
+; !(assertEqual (getSTI (INHERITANCE_LINK target3 source)) 5040.0)
+; !(assertEqual (getSTI (ASYMMETRIC_HEBBIAN_LINK target2 target3)) 0)

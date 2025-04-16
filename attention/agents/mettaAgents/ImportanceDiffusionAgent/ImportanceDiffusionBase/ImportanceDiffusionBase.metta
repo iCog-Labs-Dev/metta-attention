@@ -41,10 +41,7 @@
                     )
             )
         )
-        (if (== $atomToReceive ())
-            ()
-            (tradeSti $atom $atomToReceive $stiGiven)
-        )
+        ($atom $atomToReceive $stiGiven)
     )
 )
 

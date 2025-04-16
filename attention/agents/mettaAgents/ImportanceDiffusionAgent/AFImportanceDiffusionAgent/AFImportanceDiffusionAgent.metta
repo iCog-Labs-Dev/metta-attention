@@ -19,9 +19,8 @@
                     )
                     $temp
                 ))))
-            ($sorted (sortAtomsBySti $atoms)) ;; there needs to be a better way
         )
-        $sorted
+        $atoms
     )
 )
 
@@ -43,7 +42,10 @@
 (: spreadImportance (-> Grounded Grounded Empty))
 (= (spreadImportance $space $space2)
     (let $diffusionSourceVector (diffusionSourceVector $space)
-        (diffuseAtom (superpose $diffusionSourceVector) $space2 AF)
+        (let ($atom $atomToReceive $stiGiven)
+            (diffuseAtom (superpose $diffusionSourceVector) $space2 AF)
+                (tradeSti $atom $atomToReceive $stiGiven)
+            )
     )
 )
 
