@@ -41,17 +41,32 @@ class ParallelScheduler:
         
         return self.agent_instances[agent_id]
 
-    def log_af_state(self, agent: AgentObject):
+    def log_af_state(self, agent: AgentObject, agent_id: str):
         """Logs the attentionalFocus state of the AFImportanceDiffusionAgent."""
+#        try:
+#            # Execute MeTTa command to get attentionalFocus state
+#            af_state = results[0] if results else "No attentionalFocus found"
+#            logging.info(f"AFImportanceDiffusionAgent attentionalFocus: {af_state}")
+#            # print(f"AFImportanceDiffusionAgent attentionalFocus: {af_state}")
+
+        commands = {
+                        "HebbianCreationAgent": "!(hello)",
+                        "AFImportanceDiffusionAgent": "!(hello)",
+                        "WAImportanceDiffusionAgent": "!(hello)",
+                        "AFRentCollectionAgent": "!(hello)",
+                        "WARentCollectionAgent": "!(hello)",
+                        "HebbianUpdatingAgent": "!(hello)",
+                    }
         try:
-            # Execute MeTTa command to get attentionalFocus state
-            results = agent._metta.run("!((match (attentionalFocus) $x $x)  (get-atoms (TypeSpace)))")
-            af_state = results[0] if results else "No attentionalFocus found"
-            logging.info(f"AFImportanceDiffusionAgent attentionalFocus: {af_state}")
-            # print(f"AFImportanceDiffusionAgent attentionalFocus: {af_state}")
+            agent.run()
+            results = agent._metta.run(commands[agent_id])
+            af_state = results[0] if results else "No result"
+            logging.info(f"{agent_id} state {af_state}")
         except Exception as e:
             logging.error(f"Error logging attentionalFocus: {e}")
             print(f"Error logging attentionalFocus: {e}")
+        
+        
 
     def run_continuously(self):
         """ Run all agents continuously in parallel without stopping """
@@ -70,15 +85,17 @@ class ParallelScheduler:
                     for agent_id in self.agent_creators:
                         agent = self.get_or_create_agent(agent_id)  # Use persistent agent
                         if agent:
-                            futures.append(executor.submit(agent.run))
+                            futures.append(executor.submit(self.log_af_state(agent, agent_id)))
 
                     # Wait for all agents to complete before starting the next iteration
                     concurrent.futures.wait(futures)
 
                     # Log attentionalFocus state for the AF agent
-                    af_agent = self.get_or_create_agent(self.af_agent_id) #get agent AF
-                    if af_agent:
-                        self.log_af_state(af_agent)
+                    # af_agent = self.get_or_create_agent(self.af_agent_id) #get agent AF
+                    # if af_agent:
+                    #     self.log_af_state(af_agent)
+                    # print(f"83 agent_creators {self.agent_creators}")
+                    # print(f"84 agent_instances {self.agent_instances}")
 
 
         except KeyboardInterrupt:
