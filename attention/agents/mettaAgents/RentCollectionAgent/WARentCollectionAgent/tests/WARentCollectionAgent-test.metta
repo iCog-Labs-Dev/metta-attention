@@ -10,29 +10,28 @@
 !(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention:agents:mettaAgents:RentCollectionAgent:WARentCollectionAgent:WARentCollectionAgent)
-
-
-;;inorder to see the rent collection in action,we have to decrease the size of the attentional focus 
-;;run it with cognitive controller because it depends on time passed since last rent collected on that atom
-;;i have tested with that and it works fine
-!(setAv b (50000.0 50000.0 0.0))
-!(setAv c (20000.0 20000.0 0.0))
-!(setAv d (29000.0 29000.0 0.0))
-!(setAv (Hebbianlink a b) (400.0 400.0 0.0))
-!(setAv (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)) (400.0 400.0 0.0))
+;lower max AFsize for testing
+!(updateAttentionParam MAX_AF_SIZE 4)
+!(assertEqual (getAttentionParam MAX_AF_SIZE) 4)
+!(stimulate b 3000.0)
+!(stimulate c 1500.0)
+!(stimulate d 290.0)
+!(stimulate (Hebbianlink a b) 50.0)
+!(stimulate (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)) 5.0)
+!(assertEqual  (getSTI b) 60000.0)
+!(assertEqual (getSTI c)  30000.0)
+!(assertEqual (getSTI d) 2900.0)
+!(assertEqual (getSTI (Hebbianlink a b)) 355.0)
+!(assertEqual  (getSTI (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 33.725)
 !(WARentCollectionAgent-Run)
-;; Sleep for the computed time to match C++ behavior
+; Sleep for the computed time to match C++ behavior
 !((py-atom time.sleep) (/ 1.0 5.0))
 !(WARentCollectionAgent-Run)
-!(getSTI(Hebbianlink a b)) 
-!(getSTI (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 
-!(getSTI b)
-!(getSTI c)
-!(getSTI d)
-!(getLTI (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)))
-!(getLTI b)
-!(getLTI c)
-!(getLTI d)
+!(assertEqual (< (getSTI (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 33.725) True) ;must have lower sti
+!(assertEqual  (getSTI b) 60000.0)
+!(assertEqual (getSTI c)  30000.0)
+!(assertEqual (getSTI d) 2900.0)
+!(assertEqual (getSTI (Hebbianlink a b)) 355.0)
 
 
 
