@@ -12,7 +12,7 @@
 ; Parameters:
 ;   - $target: The selected atom.
 ; Returns: None.
-(: collectRent (-> Atom empty))
+;(: collectRent (-> Atom empty))
 (= (collectRent $newtarget)
    (if (== $newtarget ())
         (empty)
@@ -22,6 +22,7 @@
                ($sti (getSTI $target))
                ($lti (getLTI $target))
                ($elapsedTime (elapsedTime $target))
+               ($out (println! (elapsed $elapsedTime)))
                ($stiAtomRent (getAttentionParam StartingAtomStiRent))
                ($ltiAtomRent (getAttentionParam StartingAtomLtiRent))
                ($scaledSTIRent (* $stiAtomRent $elapsedTime))
@@ -35,7 +36,7 @@
                ($newvlti (getVLTI $target))
             )
             (
-                (setAv $target ($newsti $newlti $newvlti))
+               (setAv $target ($newsti $newlti $newvlti))
                
             )
         )
@@ -50,4 +51,3 @@
         )
     )
 )
-

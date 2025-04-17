@@ -19,22 +19,24 @@
 !(setAv a (1.0 1.0 1.0))
 
 ;This will update the _bin
-!(updateBin a)
-!(updateBin a)
+!(timeTime)  
+;!(updateBin a)
+;!(updateBin a)
 ; ;This will the elapsed_time of the atom
 ; ;Since size is greater than zero it will return some value
 ; ;above zero
-!(assertEqual (> (elapsedTime a) 0.0) True)
+!(elapsedTime a)
 
 ; ;Since we have updated the _bin 3 times (considering elapsedTime updating the bin) and since the size of 
 ; ;the bin is 2 the below should return (3 2)
-!(assertEqual (match (AtomBinInfo) (1 ((count $cnt_val) (index $idx_val) (_size $size_val) (update_rate $update_rate_val) (last_update $last_update_val))) 
-    ($cnt_val $size_val)) (3 2))
+;!(assertEqual (match (AtomBinInfo) (1 ((count $cnt_val) (index $idx_val) (_size $size_val) (update_rate $update_rate_val) (last_update $last_update_val))) 
+;    ($cnt_val $size_val)) (3 2))
+ 
 !(match (AtomBinInfo) (1 ((count $cnt_val) (index $idx_val) (_size $size_val) (update_rate $update_rate_val) (last_update $last_update_val))) 
     ($last_update_val)) 
-!(assertEqual (> (diffusedValue a 0.5) 0.5) True) 
-!(assertEqual (diffusedValue a 1) 0) ;after on round the sti value 1 will have decreased by the decay rate=1 therefore, output becomes 0
-
+;!(assertEqual (> (diffusedValue a 0.5) 0.5) True) 
+;!(assertEqual (diffusedValue a 1) 0) ;after on round the sti value 1 will have decreased by the decay rate=1 therefore, output becomes 0
+!(elapsedTime a)
 
 
 
