@@ -94,6 +94,7 @@
             (updateGlobalMaxAndMinSTI $max $max)
             (updateGlobalMaxAndMinSTI $min $max)
           )
+        
     )
 )
 
@@ -119,17 +120,20 @@
 
 (: updateImportance (-> hyperon::space::DynSpace Atom Number Number Atom))
 (= (updateImportance $space $atom $oldSTI $newSTI)
-    (let* (
+    (let* 
+        (
             ($oldBin (importanceBin $oldSTI))
-            ($newBin (importanceBin $newSTI)))
-        (if (== $oldBin $newBin)
-            ()
-            (let $result (relocateAtom $oldBin $newBin $atom)
-              (if $result ("Importance Updated") ("Importance Not Updated"))
+            ($newBin (importanceBin $newSTI))
+            ($relocate 
+                (let $result 
+                    (relocateAtom $oldBin $newBin $atom)
+                    (if $result ("Importance Updated") ("Importance Not Updated")))
             )
         )
+        $relocate
     )
 )
+
 
 (: relocateAtom (-> Number Number Symbol Bool))
 (= (relocateAtom $oldBin $newBin $atom)

@@ -4,6 +4,7 @@
 ; and set the attention value to the pattern/node.
 ;
 ; i.e !(set_av A (399 400 1))
+
 (: setAv (-> Atom (Number Number Number) Atom))
 (= (setAv $pattern ($sti $lti $vlti))
     (let* (
@@ -49,7 +50,7 @@
 (: getAv (-> Atom AV))
 (= (getAv $pattern)
     (if (== (get-metatype $pattern) Expression)
-        (case (let $a (collapse (let $x (getValueType $pattern) (collapse (superpose $x)))) (index-atom $a 0))
+        (case (getValueType $pattern)
             (( (AV $a $b $c) (AV $a $b $c))
                     ( ( (STV $a $b) (AV $x $y $z)) (AV $x $y $z))
                     ($else %Undefined%))
@@ -70,7 +71,7 @@
 
  (: setStv (-> Atom (Number Number) Atom))
 (= (setStv $pattern ($mean $conf))
-    (if (== (collapse (getValueType $pattern)) ())
+    (if (== (getValueType $pattern) %Undefined%)
         (add-atom &typeSpace (: $pattern (STV $mean $conf)))
         (let* ( ( $av (getAv $pattern))
                 ($_ (let $x (collapse (match &typeSpace (: $pattern $_) (: $pattern $_)))
@@ -208,6 +209,7 @@
         ((AV $sti $lti $vlti) (setAv $pattern ($newSTI $lti $vlti))))
     )
 )
+
 ;;setLTI fnction accepts a pattern/node with an Lti value to replace the original
 ;;and set the Lti to the pattern/node.
 ; i.e !(setLTI A 500)
@@ -229,6 +231,7 @@
         ((AV $sti $lti $vlti) (setAv $pattern ($sti $lti $newVLTI))))
     )
 )
+
 (= (globalIncomingSetByType $atom $type)
 	(collapse
 		(superpose   

@@ -1,6 +1,7 @@
 !(register-module! ../../../../../../metta-attention)
 !(import! &self metta-attention:attention:agents:mettaAgents:ForgettingAgent:ForgettingAgent)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
+!(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
@@ -79,6 +80,8 @@
 ; stv &av, lit < 5, source < 5, target < 5, link lti above source & target lti
 !(stimulate (SYMMETRIC_HEBBIAN_LINK M N) 0.2)
 
+
+
 !(forgettingAgent-Run (AtomBin))
 
 !(asserEqual 
@@ -93,4 +96,5 @@
 )
 
 !(assertEqual (let $a (getAtomsInRemoveSpace) (size-atom $a)) 13)
+
 
