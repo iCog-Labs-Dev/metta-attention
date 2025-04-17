@@ -81,12 +81,15 @@
 
 !(forgettingAgent-Run (AtomBin))
 
-!(let*
-	(
-		($rmvspace (getAtomsInRemoveSpace))	
-		($typspace (getAtomsInTypeSpace))
-	)
-	(intersection-atom $typspace $rmvspace)
+!(asserEqual 
+    (let*
+        (
+            ($rmvspace (getAtomsInRemoveSpace))	
+            ($typspace (getAtomsInTypeSpace))
+        )
+        (intersection-atom $typspace $rmvspace)
+    ) 
+    ()
 )
 
 !(assertEqual (let $a (getAtomsInRemoveSpace) (size-atom $a)) 13)
