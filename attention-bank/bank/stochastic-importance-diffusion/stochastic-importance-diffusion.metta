@@ -4,6 +4,10 @@
 ! (bind! timeTime (py-dot time-mod time (-> Number)))
 ! (timeTime)
 
+!(bind! &startTime (new-space))
+;!(bind! time (timeTime))
+!(add-atom &startTime  (firstTime  (timeTime)))
+
 ;The udate_bin function receives an atom and updates this values
 ; struct DiffusionRecordBin {
 ;             unsigned int count = 0; // Number of atoms diffused.
@@ -25,12 +29,12 @@
     (let* (
             ($index (importanceBin (getSTI $atom)))
             ($it (collapse (match &atomBinInfo ($index $_) $index)))
-            ($current (timeTime))
+            ($firstTime   (match  &startTime  (firstTime $x) $x))
           )
         (if (== $it ($index))
             (updateExistingBin $index)
             (add-atom &atomBinInfo 
-                ($index ((count 1) (index $index) (_size (getSize $index)) (update_rate (/ 1 (timeTime)) ) (last_update $current)) )
+                ($index ((count 1) (index $index) (_size (getSize $index)) (update_rate (/ 1 (- (timeTime) $firstTime))) (last_update (timeTime))))
             )
         )
     )
@@ -43,15 +47,12 @@
                 (let () (remove-atom &atomBinInfo ($index $info))
                     $info))
             (let* (
-                   
                     ($count (+ $cntVal 1))
                     ($newSec (- (timeTime) $lastUpdateVal))
                     ($newUpdateRate (/ $count $newSec))
-                    ($newSize (getSize $index))
-                    ($current (timeTime))
-                    )
+                    ($newSize (getSize $index)))
                     (add-atom &atomBinInfo 
-                        ($index ((count $count) (index $index) (_size $newSize) (update_rate $newUpdateRate) (last_update $current))))
+                        ($index ((count $count) (index $index) (_size $newSize) (update_rate $newUpdateRate) (last_update (timeTime)))))
             )
     )
 )
@@ -65,6 +66,7 @@
             ($index (importanceBin (getSTI $atom)))
             ($averageElapsedTime (calcElapsedTime $index))
             ($res (updateBin $atom))
+            
           )
         $averageElapsedTime
     )
