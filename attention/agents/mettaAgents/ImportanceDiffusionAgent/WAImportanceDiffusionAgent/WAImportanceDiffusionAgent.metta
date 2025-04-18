@@ -7,7 +7,7 @@
 (= (diffusionSourceVectorWA)
     (let*
         (
-            ($atoms (getRandomAtomNotInAF))
+            ($atoms (getRandomAtomInAF))
             ($result
                 (if (== $atoms ())
                     ()
