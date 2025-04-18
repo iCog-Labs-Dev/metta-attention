@@ -12,14 +12,11 @@
                 (if (== $atoms ())
                     ()
                     (if (== (get-metatype $atoms) Expression)
-                            (if (== (car-atom $atoms) ASYMMETRIC_HEBBIAN_LINK)
-                                (empty)
-                                (if (== (car-atom $atoms) HEBBIAN_LINK)
-                                    (empty)
-                                    $atoms
-                                )
-                            )
+                        (if (== (car-atom $atoms) HEBBIAN_LINK)
+                            (empty)
                             $atoms
+                        )
+                        $atoms
                     )
                 )
             )
