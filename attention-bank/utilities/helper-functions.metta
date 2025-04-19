@@ -85,8 +85,8 @@
 ; Recursive helper to calculate the group index
 (= (findGroup $imp $sum $i)
    (if (or (>= $sum $imp) (>= $i (GroupNum)))
-      $i ; Return the group index
-      (findGroup $imp (+ $sum (pow-math 2 $i)) (+ $i 1))
+       $i
+       (findGroup $imp (+ $sum (pow-math 2 $i)) (+ $i 1))
    )
 )
 
@@ -214,6 +214,17 @@
            )
        )
    )
+)
+; Define absolute difference
+(: abs (-> Number Number))
+(= (abs $x)
+    (if (< $x 0) (- 0 $x) $x)
+)
+
+; Define approximate equality
+(: approxEqual (-> Number Number Number Bool))
+(= (approxEqual $a $b $tol)
+    (<= (abs (- $a $b)) $tol)
 )
 
 (: extractAndFlatten (-> Expression Expression))

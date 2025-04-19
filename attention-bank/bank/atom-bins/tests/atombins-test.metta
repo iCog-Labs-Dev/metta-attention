@@ -17,7 +17,7 @@
 !(add-atom &atombin (17 (s c Human (EvaluationLink a b))))
 !(add-atom &atombin (18 (g Dog)))
 !(add-atom &atombin (37 (f h j k (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat)))))
-
+!(trunc-math 50)
 : Prep: Setting Attentionvalue for the below symobls
 !(setAv a (0.0 0.0 0.0))
 !(setAv c (7.0 4.0 0.0))

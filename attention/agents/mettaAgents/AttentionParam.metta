@@ -20,7 +20,6 @@
 !(add-atom &attentionParam  (TARGET_LTI_FUNDS_BUFFER  10000.0))
 !(add-atom &attentionParam  (RENT_TOURNAMENT_SIZE  5.0))
 !(add-atom &attentionParam  (SPREADING_FILTER  (MemberLink (Type "MemberLink"))))
-
 (: getAttentionParam (-> Symbol Number))
 (= (getAttentionParam $param)
    (match &attentionParam ($param $x) $x)
