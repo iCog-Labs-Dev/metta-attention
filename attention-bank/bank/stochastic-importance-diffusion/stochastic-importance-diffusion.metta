@@ -1,4 +1,3 @@
-
 ! (bind! &atomBinInfo (new-space))
 ! (bind! time-mod (py-atom time))
 ! (bind! timeTime (py-dot time-mod time (-> Number)))
