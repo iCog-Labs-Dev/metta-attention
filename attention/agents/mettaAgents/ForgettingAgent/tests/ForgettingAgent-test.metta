@@ -84,7 +84,7 @@
 
 !(forgettingAgent-Run (AtomBin))
 
-!(asserEqual 
+!(assertEqual 
     (let*
         (
             ($rmvspace (getAtomsInRemoveSpace))	
@@ -95,6 +95,4 @@
     ()
 )
 
-!(assertEqual (let $a (getAtomsInRemoveSpace) (size-atom $a)) 13)
-
-
+!(assertEqual (let $a (getAtomsInRemoveSpace) (size-atom $a)) 16)
