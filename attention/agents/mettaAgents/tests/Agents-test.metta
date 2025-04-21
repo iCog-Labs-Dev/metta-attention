@@ -24,6 +24,20 @@
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
 
+(= (test-superpose)
+    (superpose 
+        (
+            (Hebbianupdatingagent (HebbianUpdatingAgent-Run (TypeSpace)))
+            (hebbianupdatingagentrun (HebbianUpdatingAgent-Run (TypeSpace)))
+            (afimportancediffusion (AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace)))
+            (afrentcollection (AFRentCollectionAgent-run))
+            (Warentcollectionagent (WARentCollectionAgent-Run))
+            (waimportancediffusionagent (WAImportanceDiffusionAgent-Run (TypeSpace)))
+            (forgettingagent (forgettingAgent-Run (AtomBin)))
+        )
+    )
+)
+
 !(setStv (SimilarityLink abamectin ants) (0.245 1.0))
 !(setStv (SimilarityLink abamectin ant) (0.049 1.0))
 !(setStv (SimilarityLink abamectin aphid) (0.608 1.0))
@@ -37,56 +51,32 @@
 !(setStv (SimilarityLink abamectin beanpodborers) (0 1.0))
 !(stimulate ants 1)
 
-(superpose 
-    (
-        (HebbianCreationAgent-Run (TypeSpace) (attentionalFocus) (newAtomInAV))
-        (HebbianUpdatingAgent-Run (TypeSpace))
-        (AFRentCollectionAgent-run)
-        (AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace))
-        (WARentCollectionAgent-Run)
-        (WAImportanceDiffusionAgent-Run (TypeSpace))
-        (forgettingAgent-Run (AtomBin))
-    )
-)
+
+!(test-superpose)
+!(println! (typesepace (get-atoms (TypeSpace))))
+!(println! (removespace (getAtomsInRemoveSpace)))
+!(println! (AF (getAtomList)))
+!(println! (Bin (collapseAtomBin (AtomBin))))
 
 
+!(stimulate ant 10)
+!(test-superpose)
+!(println! (typesepace (get-atoms (TypeSpace))))
+!(println! (removespace (getAtomsInRemoveSpace)))
+!(println! (AF (getAtomList)))
+!(println! (Bin (collapseAtomBin (AtomBin))))
 
-!(HebbianCreationAgent-Run (TypeSpace) (attentionalFocus) (newAtomInAV))
-!(HebbianUpdatingAgent-Run (TypeSpace))
-!(AFRentCollectionAgent-run)
-!(AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace))
-!(WARentCollectionAgent-Run)
-!(WAImportanceDiffusionAgent-Run (TypeSpace))
-!(forgettingAgent-Run (AtomBin))
 
-!(getAtomsInTypeSpace)
-!(getAtomsInRemoveSpace)
-!(getAtomList)
-!(collapseAtomBin (AtomBin))
+!(test-superpose)
+!(println! (typesepace (get-atoms (TypeSpace))))
+!(println! (removespace (getAtomsInRemoveSpace)))
+!(println! (AF (getAtomList)))
+!(println! (Bin (collapseAtomBin (AtomBin))))
 
-!(stimulate ant 1)
-(superpose 
-    (
-        (HebbianCreationAgent-Run (TypeSpace) (attentionalFocus) (newAtomInAV))
-        (HebbianUpdatingAgent-Run (TypeSpace))
-        (AFRentCollectionAgent-run)
-        (AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace))
-        (WARentCollectionAgent-Run)
-        (WAImportanceDiffusionAgent-Run (TypeSpace))
-        (forgettingAgent-Run (AtomBin))
-    )
-)
 
-!(HebbianCreationAgent-Run (TypeSpace) (attentionalFocus) (newAtomInAV))
-!(HebbianUpdatingAgent-Run (TypeSpace))
-!(AFRentCollectionAgent-run)
-!(AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace))
-!(WARentCollectionAgent-Run)
-!(WAImportanceDiffusionAgent-Run (TypeSpace))
-!(forgettingAgent-Run (AtomBin))
-
-!(getAtomsInTypeSpace)
-!(getAtomsInRemoveSpace)
-!(getAtomList)
-!(collapseAtomBin (AtomBin))
-
+!(stimulate aphid 2)
+!(test-superpose)
+!(println! (typesepace (get-atoms (TypeSpace))))
+!(println! (removespace (getAtomsInRemoveSpace)))
+!(println! (AF (getAtomList)))
+!(println! (Bin (collapseAtomBin (AtomBin))))
