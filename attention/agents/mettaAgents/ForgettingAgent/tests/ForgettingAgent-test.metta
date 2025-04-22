@@ -8,49 +8,91 @@
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 
-!(stimulate a 0.02)
-!(stimulate b 0)
+; stimualte 0.25 translated to lti 5
+
+!(stimulate a 1)
+!(stimulate b 0.4)
 !(stimulate c 0.2)
-!(stimulate d 2)
-!(stimulate e 5)
-!(stimulate A 3)
-!(stimulate B 0.3)
-!(stimulate C 10)
-!(stimulate D 7)
-!(stimulate F 0.12)
-!(stimulate G 17)
-!(stimulate H 18)
-!(stimulate I 12)
-!(stimulate (ASYMMETRIC_HEBBIAN_LINK A a) 12)
-!(stimulate (ASYMMETRIC_HEBBIAN_LINK A F) 2)
-!(stimulate (ASYMMETRIC_HEBBIAN_LINK A C) 13)
-!(stimulate (habbianlink a A) 8)
-!(stimulate (PlusLink A F) 0.1)
-!(stimulate (PlusLink A a) 10)
+!(stimulate d 0.15)
+!(stimulate e 0.41)
+!(stimulate f 0.62)
+!(stimulate g 0.13)
+!(stimulate h 0.02)
+!(stimulate i 0.43)
+!(stimulate j 0.52)
+!(stimulate k 0.13)
+!(stimulate l 0.02)
+!(stimulate A 1)
+!(stimulate B 0.4)
+!(stimulate C 0.2)
+!(stimulate D 0.15)
+!(stimulate E 0.41)
+!(stimulate F 0.62)
+!(stimulate G 0.13)
+!(stimulate H 0.02)
+!(stimulate I 0.43)
+!(stimulate J 0.52)
+!(stimulate K 0.13)
+!(stimulate L 0.02)
+!(stimulate M 0.1)
+!(stimulate N 0.1)
 
-; check if atoms have been added to the space
-!(assertEqual (let $a (collapseBin (AtomBin)) (size-atom $a)) 19)
+!(stimulate O 0.1)
+!(stimulate o 2.1)
+!(setStv p (0.1 0.2))
 
-; test ForgettingLTIThenTVAscendingSort sorts by LTI
-!(assertEqual (ForgettingLTIThenTVAscendingSort (collapseBin (AtomBin)))
-	(b a (PlusLink A F) F c B (ASYMMETRIC_HEBBIAN_LINK A F) d A e D (habbianlink a A) (PlusLink A a) C (ASYMMETRIC_HEBBIAN_LINK A a) I (ASYMMETRIC_HEBBIAN_LINK A C) G H))
+; only stv, source > 5, target > 5
+!(setStv (ASYMMETRIC_HEBBIAN_LINK a b) (0.5 0.45))
 
-: Test filteredatom
-!(assertEqual (let $a (filterByLti (collapseBin (AtomBin))) (size-atom $a)) 5)
+; only stv, source < 5, target < 5
+!(setStv (ASYMMETRIC_HEBBIAN_LINK c d) (0.4 0.45))
+
+; stv & av, lit > 5, source > 5, target > 5
+!(stimulate (ASYMMETRIC_HEBBIAN_LINK e f) 2)
+
+; stv &av, lit > 5, source < 5, target < 5
+!(stimulate (ASYMMETRIC_HEBBIAN_LINK g h) 13)
+
+; stv & av, lit < 5, source > 5, target > 5
+!(stimulate (ASYMMETRIC_HEBBIAN_LINK i j) 0.2)
+
+; stv &av, lit < 5, source < 5, target < 5
+!(stimulate (ASYMMETRIC_HEBBIAN_LINK k l) 0.1)
+
+; only stv, source > 5, target > 5
+!(setStv (SYMMETRIC_HEBBIAN_LINK A B) (0.5 0.45))
+
+; only stv, source < 5, target < 5
+!(setStv (SYMMETRIC_HEBBIAN_LINK C D) (0.4 0.45))
+
+; stv & av, lit > 5, source > 5, target > 5
+!(stimulate (SYMMETRIC_HEBBIAN_LINK E F) 2)
+
+; stv &av, lit > 5, source < 5, target < 5
+!(stimulate (SYMMETRIC_HEBBIAN_LINK G H) 13)
+
+; stv & av, lit < 5, source > 5, target > 5
+!(stimulate (SYMMETRIC_HEBBIAN_LINK I J) 0.2)
+
+; stv &av, lit < 5, source < 5, target < 5
+!(stimulate (SYMMETRIC_HEBBIAN_LINK K L) 0.1)
+
+; stv &av, lit < 5, source < 5, target < 5, link lti above source & target lti
+!(stimulate (SYMMETRIC_HEBBIAN_LINK M N) 0.2)
+
+
+
 !(forgettingAgent-Run (AtomBin))
 
-(let $atoms 
-		(collapse (get-atoms &attentionalFocus)) 
-		(assertEqual $atoms (a d e A B C D G I (ASYMMETRIC_HEBBIAN_LINK A a) (ASYMMETRIC_HEBBIAN_LINK A C) (habbianlink a A) (PlusLink A a)))
+!(assertEqual 
+    (let*
+        (
+            ($rmvspace (getAtomsInRemoveSpace))	
+            ($typspace (getAtomsInTypeSpace))
+        )
+        (intersection-atom $typspace $rmvspace)
+    ) 
+    ()
 )
 
-!(assertEqual (let $atoms (collapse (get-atoms &attentionalFocus)) (size-atom $atoms)) 14) 
-
-!(let*
-	(
-		($rmvspace (getAtomsInRemoveSpace))	
-		($typspace (getAtomsInTypeSpace))
-	)
-	(intersection-atom $typspace $rmvspace)
-)
-
+!(assertEqual (let $a (getAtomsInRemoveSpace) (size-atom $a)) 16)
