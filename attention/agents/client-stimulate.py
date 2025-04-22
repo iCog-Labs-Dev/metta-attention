@@ -25,10 +25,14 @@ if __name__ == "__main__":
     # List of atom patterns to send
     patterns = [
     # Insect-related terms
-    [ "ant"], ["ants"], ["aphid"],
+    [ "ant"], 
+   # ["ants"], 
+   # ["aphid"],
     
     # Poison-related terms
-   ["abamectin"], ["acetamiprid"], ["alachlor"]
+   # ["aphids"], 
+   # ["acetamiprid"], 
+   ["alachlor"]
 ]
 
 
