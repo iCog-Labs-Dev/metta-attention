@@ -274,7 +274,7 @@
            ($filteredAtoms (filter $allAtoms atomIsNotInAF))
        )
        (if (== $filteredAtoms ())
-           %Undefined%
+          ()
         (let*
                (
                    ($randInt (random-int 0 (size-atom $filteredAtoms)))

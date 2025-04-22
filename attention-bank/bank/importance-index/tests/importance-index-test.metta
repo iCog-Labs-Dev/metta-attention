@@ -12,7 +12,6 @@
 
 ;For Testing the update, getMaxSTI, getMinSTI
 ;###################### Prep: adding atoms to the atom bin #####################
-!(trunc-math 2.7)
 !(setAv a (2.0 2.0 2.0))
 !(setAv d (4.0 2.0 2.0))
 !(setAv c (3.0 2.0 2.0))
@@ -24,12 +23,11 @@
 
 ;########################### Testing ###########################################
 
-; Test case 01: Testing importanceBin with different number values
-
-!(assertEqual (importanceBin -5.0)  0)    ; Should return 0
-!(assertEqual (importanceBin 10.0)   10)   ; Should return 10 (direct assignment)
-!(assertEqual (importanceBin 20.0)  18)    ; Should calculate based on group logic 18
-!(assertEqual (importanceBin 50.0)  29)    ; Should calculate based on group logic 29
+; Test case 01: Testing importanceBin with different number value
+!(assertEqual (importanceBin -5.0)  0.0)    ; Should return 0
+!(assertEqual (importanceBin 10.0)   10.0)   ; Should return 10 (direct assignment)
+!(assertEqual (importanceBin 20.0)  20.0)    ; Should calculate based on group logic 18
+!(assertEqual (importanceBin 50.0) 29.0)    ; Should calculate based on group logic 29
 
 
 ; Test case 02: Testing getHandleSet with lowerbound and upperbound
