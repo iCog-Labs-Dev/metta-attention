@@ -50,7 +50,7 @@
         $impo_int
         (let*
           (
-            ($imp (ceil-math (/ (- $impo_int $groupSize) $groupSize)))
+            ($imp (trunc-math (/ (- $impo_int $groupSize) $groupSize)))
             ($i (findGroup $imp 0 0))
             ($num (- $i 1))
             ($temp (ceil-math (/ $impo_int (pow-math 2 (- $i 1)))))
@@ -63,6 +63,7 @@
     )
   )
 )
+
 
 ;####################### update ##################################
 

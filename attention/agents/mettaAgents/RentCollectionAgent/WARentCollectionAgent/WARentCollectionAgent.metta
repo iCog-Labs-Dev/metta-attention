@@ -3,7 +3,7 @@
 ; Returns: A single atom or an empty result if none is found.
 (: selectTargets (-> Atom))
 (= (selectTargets)
-    (collapse (getRandomAtomNotInAF))
+    (getRandomAtomNotInAF)
 )
 
 ; Function: collectRent
@@ -12,13 +12,13 @@
 ; Parameters:
 ;   - $target: The selected atom.
 ; Returns: None.
-(: collectRent (-> Atom empty))
-(= (collectRent $newtarget)
-   (if (== $newtarget ())
+;(: collectRent (-> Atom empty))
+(= (collectRent $target)
+   (if (== $target ())
         (empty)
         (let*
             (
-               ($target (car-atom $newtarget))
+               
                ($sti (getSTI $target))
                ($lti (getLTI $target))
                ($elapsedTime (elapsedTime $target))
@@ -26,6 +26,8 @@
                ($ltiAtomRent (getAttentionParam StartingAtomLtiRent))
                ($scaledSTIRent (* $stiAtomRent $elapsedTime))
                ($scaledLTIRent (* $ltiAtomRent  $elapsedTime))
+               ($updateScaledSTIRent (updateAttentionParam StartingAtomStiRent $scaledSTIRent))
+               ($updateScaledLTIRent (updateAttentionParam StartingAtomLtiRent $scaledLTIRent))
                ($stistartRent (calculateStiRent $scaledSTIRent))
                ($ltistartRent (calculateLtiRent $scaledLTIRent))
                ($stiRent (min-atom ($stistartRent $sti)))
@@ -35,7 +37,9 @@
                ($newvlti (getVLTI $target))
             )
             (
-                (setAv $target ($newsti $newlti $newvlti))
+
+               (setAv $target ($newsti $newlti $newvlti))
+
                
             )
         )
@@ -50,4 +54,3 @@
         )
     )
 )
-
