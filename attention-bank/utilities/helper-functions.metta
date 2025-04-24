@@ -233,6 +233,7 @@
        ()
        (let* (($head (car-atom $expr))
               ($tail (cdr-atom $expr))
+            
               ($firstElem (car-atom $head))
               ($rest (cdr-atom $head))
               ($processedHead (if (== (get-type $firstElem) Number) 
@@ -292,6 +293,7 @@
 		)
 	)
 )
+
 
 ; a function that find the minimum STI value of the  given atoms
 (: findMinSTI (-> Expression Number))

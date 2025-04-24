@@ -84,8 +84,8 @@
 (= (update $space)
     (let* (
             ($collectedContents (getAllAtomsInBins))
-            ($max (findMaxSTI $collectedContents))
-            ($min (findMinSTI $collectedContents))
+            ($max (getBinMaxSTI $collectedContents))
+            ($min (getBinMinSTI $collectedContents))
             ($exitCondition (> $min $max))
         )
          (if $exitCondition
@@ -94,6 +94,7 @@
           )
     )
 )
+
 
 (= (updateGlobalMaxAndMinSTI $min $max)
     (let*
