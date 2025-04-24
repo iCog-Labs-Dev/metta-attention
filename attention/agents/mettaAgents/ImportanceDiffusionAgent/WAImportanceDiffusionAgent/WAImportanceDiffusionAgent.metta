@@ -1,4 +1,6 @@
 
+!(bind! maxSpreadPercentage 0.4)
+
 ;; This function will return the diffusion source vector (atoms that can be diffused) from WA
 ;; Parameters $space: The space that will be used to find the diffusion source vector
 ;; Return : The diffusion source vector
@@ -12,14 +14,11 @@
                 (if (== $atoms ())
                     ()
                     (if (== (get-metatype $atoms) Expression)
-                            (if (== (car-atom $atoms) ASYMMETRIC_HEBBIAN_LINK)
-                                (empty)
-                                (if (== (car-atom $atoms) HEBBIAN_LINK)
-                                    (empty)
-                                    $atoms
-                                )
-                            )
+                        (if (== (car-atom $atoms) HEBBIAN_LINK)
+                            (empty)
                             $atoms
+                        )
+                        $atoms
                     )
                 )
             )
@@ -38,11 +37,16 @@
         (if (== (size-atom $diffusionSourceVector) 0)
             ()
             (let $target (index-atom $diffusionSourceVector 0)
-                (diffuseAtom $target $space WA)
+                (let ($atom $atomToReceive $stiGiven)
+                        (diffuseAtom $target $space WA)
+                             (tradeSti $atom $atomToReceive $stiGiven)
+                        )
             )
         )
     )
 )
+
+
 
 ;; This function will calculate the diffusion amount for WA
 ;; Parameters $atom: The atom that will be used to calculate the diffusion amount
