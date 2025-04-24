@@ -109,4 +109,3 @@
 !(setAv (Hebbianlink Human Dog) (200 200 0))
 !(insertAtom 45 (Hebbianlink Human Dog))
 !(assertEqual (match &atombin  (45 $x) $x) ((Hebbianlink Human Dog) (EvaluationLink a b) E))
-

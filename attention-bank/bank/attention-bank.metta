@@ -114,7 +114,7 @@
          ($r (update $atombin))
          ($three (updateAttentionalFocus $pattern))
         )
-        $r
+        ()
     )
 )
 

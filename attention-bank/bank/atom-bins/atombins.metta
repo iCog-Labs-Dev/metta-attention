@@ -180,11 +180,11 @@
 (= (getAllAtomsInBins)
 	( let* 
 		(
-			($atombin (AtomBin))
-	        ($allAtoms  (collapse (match $atombin ($x $y) $y)))
-    	    ($flatten (extractAndFlatten $allAtoms))
+			 ($vals (collapseAtomBin (AtomBin)))
+            ($filteredVals (filter $vals notEmpty))
+            ($collectedContents (collectContents $filteredVals ()))
 		)
-        $flatten
+        $collectedContents
         
         
 	)
