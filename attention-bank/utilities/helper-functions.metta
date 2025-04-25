@@ -5,7 +5,7 @@
    )
 )
 
-
+(: notEmpty (-> Expression Expression))
 (= (notEmpty $list)
 
    (collapse 
@@ -286,6 +286,8 @@
 		)
 	)
 )
+
+
 (= (getSTIHelper $atoms)
     (let* (
         ($vals (getSTI (superpose $atoms)))
@@ -293,6 +295,9 @@
     $vals
     )
 )
+
+; a function that find the maximum STI value of the  given atoms
+(: getAllMaxSTI  (-> Expression Number))
 (= (getAllMaxSTI $atoms)
    (if (== $atoms ())
             0.0
@@ -305,7 +310,8 @@
         )
     
 )
-
+; a function that find the minimum STI value of the  given atoms
+(: getAllMinSTI  (-> Expression Number))
 (= (getAllMinSTI $atoms)
     (if (== $atoms ())
             0.0
@@ -317,25 +323,4 @@
             )
         )
     
-)
-; Helper function to get the STI values of all atoms in the attentional focus (AF)
-(= (getSTIHelper $atoms)
-    (let* (
-        ($vals (getSTI (superpose $atoms)))  ; Use superpose to create a nondeterministic result
-    )
-    $vals
-    )
-)
-
-; Function to find the atom with the lowest STI using superpose
-(: getLowestStiAtomInAF (-> Atom))
-(= (getLowestStiAtomInAF)
-    (let* (
-        ($atoms (getAtomList))               ; Get the list of atoms in the AF
-        ($stiValues (collapse (getSTIHelper $atoms)))  ; Get the STI values of all atoms
-        ($minSTI (min-atom $stiValues))      ; Find the minimum STI value
-        ($lowestAtoms (match &self (= (getSTI $_) $minSTI) $_))  ; Match atoms with the minimum STI
-    )
-    (car-atom $lowestAtoms)                 ; Return the first atom with the lowest STI
-    )
 )
