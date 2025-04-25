@@ -25,11 +25,19 @@
 ;          $atom: The atom to check.
 ;Returns: True if the atom is not in attentional focus, otherwise False.
 
-(: atomIsNotInAF (-> Atom Bool))
-(= (atomIsNotInAF $atom)
-   (not (atomIsInAF $atom))
-)
 
+
+(= (atomIsNotInAF $list)
+
+   (collapse 
+        (let $x (superpose $list)
+            (if (atomIsInAF $x) 
+                (empty) 
+                $x
+            )
+        ) 
+   )
+)
 
 ;Function: addAtomToAF
 ;Description:
@@ -187,37 +195,6 @@
     )
 )
 
-;gets the maximum STI value in the attentional focus
-
-(: getAfMaxSTIHelper (-> Expression Expression))
-(= (getAfMaxSTIHelper $atoms)
-    (let* (
-        ($vals (getSTI (superpose $atoms)))
-    )
-    $vals
-    )
-)
-
-;Function: getAfMaxSTI
-;Description: Goes through the AF and returns the highest Sti
-;Parameters: None
-;Returns: An Atom that has the highest sti in attentional focus.
-
-(: getAfMaxSTI (-> Number))
-(= (getAfMaxSTI)
-    (let $atoms (getAtomList)
-        (if (== $atoms ())
-            0.0
-            (let* (
-                ($stiValues (collapse (getAfMaxSTIHelper $atoms)))
-                ($maxSTI (max-atom $stiValues))
-            )
-            $maxSTI
-            )
-        )
-    )
-)
-
 ;the function below updates the attentional focus with a new atom
 ;the RemoveAFSignal() and AddAFSignal() functions have been skipped in this function because it appears to primarily 
 ;serve logging the additional and removal of an atom as i reviewed in the example/AtomSpaceEventSubscribeExample.cc
@@ -233,6 +210,7 @@
 (= (updateAttentionalFocus $atom)
    (let*
        (
+        
            ($maxSize (getAttentionParam MAX_AF_SIZE)) 
            ($sti (getSTI $atom)) 
            ($currentSize (attentionalFocusSize)) 

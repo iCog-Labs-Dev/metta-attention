@@ -88,18 +88,18 @@
 
 
 ;: Test case 08: Testing remove_atom_helper can remove an atom or expression from a list of atoms and expressions
-!(assertEqual (remove_atom_helper G (E  H Y G J K L)) (E H Y J K L))
-!(assertEqual (remove_atom_helper G (J K L)) (J K L)) ; remove atom that is not present
-!(assertEqual (remove_atom_helper G ()) ()) ; remove from empty list
-!(assertEqual (remove_atom_helper G ((Hebbianlink Human Dog) G J K L)) ((Hebbianlink Human Dog) J K L)) ; remove atom from list containing expression
-!(assertEqual (remove_atom_helper  (Hebbianlink Human Dog) ((Hebbianlink Human Dog) G J K L)) (G J K L)) ; remove expression from list containing expression
+!(assertEqual (removehelp G (E  H Y G J K L)) (L K J Y H E))
+!(assertEqual (removehelp G (J K L)) (L K J)) ; remove atom that is not present
+!(assertEqual (removehelp G ()) ()) ; remove from empty list
+!(assertEqual (removehelp G (L K J (Hebbianlink Human Dog))) ((Hebbianlink Human Dog) J K L)) ; remove atom from list containing expression
+!(assertEqual (removehelp (Hebbianlink Human Dog) ((Hebbianlink Human Dog) G J K L)) (L K J G)) ; remove expression from list containing expression
 
 ; Test case 09: Testing removeAtom can remove an Atom from an index in the atomBin
 !(assertEqual (removeAtom  45 H) ("Atom Removed"))
-!(assertEqual (match &atombin  (45 $x) $x) ((EvaluationLink a b) E))
+!(assertEqual (match &atombin  (45 $x) $x) (E (EvaluationLink a b)))
 !(assertEqual (removeAtom 29 c) ("Bin is empty"))
 !(assertEqual (removeAtom 1 a) ("Atom Removed"))
-!(assertEqual (match &atombin  (1 $x) $x) (Cat (Hebbianlink Human Cat)))
+!(assertEqual (match &atombin  (1 $x) $x) ((Hebbianlink Human Cat) Cat))
 !(assertEqual (removeAtom 1 (Hebbianlink Human Dog)) ("Atom Removed"))
 
 ; Test case 10: Testing removeAtom to remove an atom not present in the specified index
@@ -108,4 +108,4 @@
 ; Test case 06: Testing intertAtom with an Expression
 !(setAv (Hebbianlink Human Dog) (200 200 0))
 !(insertAtom 45 (Hebbianlink Human Dog))
-!(assertEqual (match &atombin  (45 $x) $x) ((Hebbianlink Human Dog) (EvaluationLink a b) E))
+!(assertEqual (match &atombin  (45 $x) $x) ((Hebbianlink Human Dog) E (EvaluationLink a b)))

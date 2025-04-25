@@ -1,19 +1,20 @@
-(: filter (-> Expression (-> $t Bool) Expression))
-(= (filter $list $predicate)
-   (if (== $list ())
-    ()
-    (let*
-      (
-          ($head (car-atom $list))
-          ($tail (cdr-atom $list))
-          ($res ($predicate $head))
-          ($filteredTail (filter $tail $predicate))
-      )
-      (if $res
-          (cons-atom $head $filteredTail)
-          $filteredTail
-        )
-      )
+(= (filter $array $func)
+   (if (== $array ())
+       () 
+       ($func $array)
+   )
+)
+
+
+(= (notEmpty $list)
+
+   (collapse 
+        (let $x (superpose $list)
+            (if (== $x ()) 
+                (empty) 
+                $x
+            )
+        ) 
    )
 )
 
@@ -251,7 +252,7 @@
     $acc
     (let*
       (
-        (($index $content) (car-atom $list))
+        ($content (car-atom $list))
         ($tail (cdr-atom $list))
         ($rest (collectContents $tail $acc))
        )
@@ -263,67 +264,6 @@
 ;function to reverse an expression 
 
 (= (reverseExpr $x ) (collapse (union (superpose $x) (superpose ())))) 
-
-
-; a function that find the maximum STI value of the  given atoms
-(: findMaxSTI (-> Expression Number))
-(= (findMaxSTI $list)
-	(if (== $list ())
-		0
-		(let* 
-			(
-				($atom (car-atom $list))
-				($max (getSTI $atom))
-				($rest (cdr-atom $list))
-			)
-			(if (== $rest ())
-			  $max
-			  (let* (
-				($nextTop (car-atom $rest))
-				($secondMax (getSTI $nextTop))
-				($tail (cdr-atom $rest))
-				($mergeList (cons-atom $atom $tail))
-				)
-				(if (> $max $secondMax)
-				  (findMaxSTI $mergeList)
-				  (findMaxSTI $rest)
-				)
-			  )
-			)
-		)
-	)
-)
-
-
-; a function that find the minimum STI value of the  given atoms
-(: findMinSTI (-> Expression Number))
-(= (findMinSTI $list)
-	(if (== $list ())
-		0
-		(let* 
-			(
-				($atom (car-atom $list))
-				($max (getSTI $atom))
-				($rest (cdr-atom $list))
-			)
-			(if (== $rest ())
-				$max
-				(let* 
-					(
-						($nextTop (car-atom $rest))
-						($secondMax (getSTI $nextTop))
-						($tail (cdr-atom $rest))
-						($mergeList (cons-atom $atom $tail))
-					)
-					(if (< $max $secondMax)
-						(findMinSTI $mergeList)
-						(findMinSTI $rest)
-					)
-				)
-			)
-		)
-	)
- )
 
 ; Description: the function takes a list of atoms and experessions 
 ;              and returns a new list wich contatins only symobls
@@ -345,4 +285,57 @@
 			)
 		)
 	)
+)
+(= (getSTIHelper $atoms)
+    (let* (
+        ($vals (getSTI (superpose $atoms)))
+    )
+    $vals
+    )
+)
+(= (getAllMaxSTI $atoms)
+   (if (== $atoms ())
+            0.0
+            (let* (
+                ($stiValues (collapse (getSTIHelper $atoms)))
+                ($maxSTI (max-atom $stiValues))
+            )
+            $maxSTI
+            )
+        )
+    
+)
+
+(= (getAllMinSTI $atoms)
+    (if (== $atoms ())
+            0.0
+            (let* (
+                ($stiValues (collapse (getSTIHelper $atoms)))
+                ($minSTI (min-atom $stiValues))
+            )
+            $minSTI
+            )
+        )
+    
+)
+; Helper function to get the STI values of all atoms in the attentional focus (AF)
+(= (getSTIHelper $atoms)
+    (let* (
+        ($vals (getSTI (superpose $atoms)))  ; Use superpose to create a nondeterministic result
+    )
+    $vals
+    )
+)
+
+; Function to find the atom with the lowest STI using superpose
+(: getLowestStiAtomInAF (-> Atom))
+(= (getLowestStiAtomInAF)
+    (let* (
+        ($atoms (getAtomList))               ; Get the list of atoms in the AF
+        ($stiValues (collapse (getSTIHelper $atoms)))  ; Get the STI values of all atoms
+        ($minSTI (min-atom $stiValues))      ; Find the minimum STI value
+        ($lowestAtoms (match &self (= (getSTI $_) $minSTI) $_))  ; Match atoms with the minimum STI
+    )
+    (car-atom $lowestAtoms)                 ; Return the first atom with the lowest STI
+    )
 )
