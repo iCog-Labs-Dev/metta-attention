@@ -84,8 +84,8 @@
 (= (update $space)
     (let* (
             ($collectedContents (getAllAtomsInBins))
-            ($max (getBinMaxSTI $collectedContents))
-            ($min (getBinMinSTI $collectedContents))
+            ($max (getAllMaxSTI $collectedContents))
+            ($min (getAllMinSTI $collectedContents))
             ($exitCondition (> $min $max))
         )
          (if $exitCondition
@@ -258,8 +258,9 @@
 (= (getNormalisedSTI $atom)
    (let*
        (
+          ($atoms (getAtomList))
            ($s (getSTI $atom))
-           ($afMax (getAfMaxSTI))
+           ($afMax  (getAllMaxSTI $atoms))
            ($normaliser
                (if (> $s $afMax)
                    (getMaxSTI)
@@ -289,8 +290,9 @@
 (= (getNormalisedSTI $atom $average $clip)
    (let*
        (
+           ($atoms (getAtomList))
            ($s (getSTI $atom))
-           ($afMax (getAfMaxSTI)) 
+           ($afMax  (getAllMaxSTI $atoms))
            ($diff (- $s $afMax))
            ($sum (+ $s $afMax)) 
            ($normaliser

@@ -87,7 +87,8 @@
 
 ; Test case 11: Testing getAfMaxSTI, lessthanSti and geraterequalsti to get the updated values
 
-!(assertEqual (getAfMaxSTI) 200.0)
+!(assertEqual (let $atoms (getAtomList)
+(getAllMaxSTI $atoms)) 200.0)
 !(assertEqual (lessThanSti B C) True)
 !(assertEqual (greaterEqualSti B (Hebbianlink (Hebbianlink Cat Human) Animal)) False)
 

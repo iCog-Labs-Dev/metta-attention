@@ -42,7 +42,7 @@
                (if (== (contains $x $pattern) True)  ; Check for duplicates
                    ("Atom already exists")  ; Do not insert duplicate
                    (let* (
-                        ($atomremove(remove-atom &atombin ($bin_index $x)))  ; Remove old bin
+                        ($atomremove (remove-atom &atombin ($bin_index $x)))  ; Remove old bin
                         ($updated (cons-atom $pattern $x))  ; Add new atom
                         ($atomadded (add-atom &atombin ($bin_index $updated))) ; Update bin
                     )
@@ -73,14 +73,14 @@
       (let $bin_contents (collapse (match &atombin ($bin_index $contents) $contents))
          (if(== $bin_contents ())
             ("Bin is empty") ; Bin is empty, nothing to remove
-            (let $updated_contents (remove_atom_helper $atom (car-atom $bin_contents))
+            (let $updated_contents (removehelp $atom (car-atom $bin_contents))
                   (match &atombin ($bin_index $x)
                      (let*
                        (
                           ($atomremove (remove-atom &atombin ($bin_index $x)))
                           ($atomadded (add-atom &atombin ($bin_index $updated_contents)))
                         )
-                      ("Atom Removed")
+                     ("Atom Removed")
                      )
                   )
             
@@ -89,7 +89,17 @@
       )
    )
 )
+(= (removehelp  $atom $list)
 
+   (collapse 
+        (let $x (superpose $list)
+            (if (== $x $atom) 
+                (empty) 
+                $x
+            )
+        ) 
+   )
+)
 ;Function: remove_atom_helper
 ;Description: Recursively removes a specified atom from a list of contents.
 ;             If the atom is found, it is skipped in the resulting list.
@@ -119,16 +129,13 @@
 (: collapseAtomBin (-> Grounded Expression))
 (= (collapseAtomBin $space) (collapse (get-atoms $space)))
 
-;predicate function to check if a list is empty
-(: notEmpty (-> Expression Bool))
-(= (notEmpty ($x $y)) (> (size-atom $y) 0 ))
 
 ;this function randomly selects a bin from atombins and proceeds to randomly choose a single element from selected random bin.
 (: getRandomAtom (-> Symbol))
 (= (getRandomAtom)
    (
     let*(
-         ($handleSetSeq (collapseAtomBin &atombin))
+         ($handleSetSeq (collapse (match (AtomBin) ($x $y) $y)))
          ($filteredOutput (filter $handleSetSeq notEmpty))
         )
     (if(== $filteredOutput ()) ;check if all bins in atom bins are empty
@@ -180,9 +187,9 @@
 (= (getAllAtomsInBins)
 	( let* 
 		(
-			 ($vals (collapseAtomBin (AtomBin)))
-            ($filteredVals (filter $vals notEmpty))
-            ($collectedContents (collectContents $filteredVals ()))
+			($vals (collapse (match (AtomBin) ($x $y) $y)))
+         ($filteredVals (filter $vals notEmpty))
+         ($collectedContents (collectContents $filteredVals ()))
 		)
         $collectedContents
         
