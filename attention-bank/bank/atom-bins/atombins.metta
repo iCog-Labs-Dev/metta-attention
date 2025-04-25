@@ -89,6 +89,15 @@
       )
    )
 )
+
+;Function: removehelp
+;Description: removes a specified atom from a list of contents.
+;             If the atom is found, it is skipped in the resulting list.
+;Parameters:
+;          $atom: The atom to be removed.
+;          $contents: The list of atoms from which to remove the specified atom.
+;Returns: A new list with all occurrences of the specified atom removed.
+(: removehelp (-> Atom List List))
 (= (removehelp  $atom $list)
 
    (collapse 
@@ -100,29 +109,8 @@
         ) 
    )
 )
-;Function: remove_atom_helper
-;Description: Recursively removes a specified atom from a list of contents.
-;             If the atom is found, it is skipped in the resulting list.
-;Parameters:
-;          $atom: The atom to be removed.
-;          $contents: The list of atoms from which to remove the specified atom.
-;Returns: A new list with all occurrences of the specified atom removed.
 
-(: remove_atom_helper (-> Atom List List))
-(= (remove_atom_helper $atom $contents)
-   (if(== $contents ())
-      () ; End of list
-      (let $head (car-atom $contents)
-         (let $tail (cdr-atom $contents)
-            (if(== $head $atom)
-               $tail ; Skip the matching atom
-               (let $rest (remove_atom_helper $atom $tail)
-               (cons-atom $head $rest))
-            )
-         )
-      )
-   )
-)
+
 
 ;An abstraction that simplifies quering an atomspace.
 ;Usage: simply pass the identifier of the atomspace you want.
