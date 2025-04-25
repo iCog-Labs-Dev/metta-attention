@@ -10,18 +10,15 @@
         (
             ($atoms (collapse (let $temp (match $space $x $x)
                 (if (== (get-metatype $temp) Expression)
-                    (if (== (car-atom $temp) ASYMMETRIC_HEBBIAN_LINK) 
+                    (if (== (car-atom $temp) HEBBIAN_LINK)
                         (empty)
-                        (if (== (car-atom $temp) HEBBIAN_LINK)
-                            (empty)
-                            $temp
-                        )
+                        $temp
                     )
                     $temp
+                    
                 ))))
-            ($sorted (sortAtomsBySti $atoms))
         )
-        $sorted
+        $atoms
     )
 )
 
@@ -43,7 +40,10 @@
 (: spreadImportance (-> Grounded Grounded Empty))
 (= (spreadImportance $space $space2)
     (let $diffusionSourceVector (diffusionSourceVector $space)
-        (diffuseAtom (superpose $diffusionSourceVector) $space2 AF)
+        (let ($atom $atomToReceive $stiGiven)
+            (diffuseAtom (superpose $diffusionSourceVector) $space2 AF)
+                (tradeSti $atom $atomToReceive $stiGiven)
+            )
     )
 )
 
@@ -56,4 +56,3 @@
 (= (AFImportanceDiffusionAgent-Run $space $space2)
     (spreadImportance $space $space2)
 )
-
