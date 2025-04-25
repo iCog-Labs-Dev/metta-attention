@@ -20,13 +20,13 @@
 )
 
 ;Function: atomIsNotInAF
-;Description: Checks if a given atom is NOT in the attentional focus.
+;Description: gives list of atoms not in the atentional focus.
 ;Parameters:
-;          $atom: The atom to check.
-;Returns: True if the atom is not in attentional focus, otherwise False.
+;          list of atoms
+;Returns: return list of atoms not in the atentional focus
 
 
-
+(: atomIsNotInAF (-> Expression Expression))
 (= (atomIsNotInAF $list)
 
    (collapse 
