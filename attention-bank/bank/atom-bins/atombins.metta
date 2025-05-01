@@ -42,7 +42,7 @@
                (if (== (contains $x $pattern) True)  ; Check for duplicates
                    ("Atom already exists")  ; Do not insert duplicate
                    (let* (
-                        ($atomremove(remove-atom &atombin ($bin_index $x)))  ; Remove old bin
+                        ($atomremove (remove-atom &atombin ($bin_index $x)))  ; Remove old bin
                         ($updated (cons-atom $pattern $x))  ; Add new atom
                         ($atomadded (add-atom &atombin ($bin_index $updated))) ; Update bin
                     )
@@ -73,14 +73,14 @@
       (let $bin_contents (collapse (match &atombin ($bin_index $contents) $contents))
          (if(== $bin_contents ())
             ("Bin is empty") ; Bin is empty, nothing to remove
-            (let $updated_contents (remove_atom_helper $atom (car-atom $bin_contents))
+            (let $updated_contents (removehelp $atom (car-atom $bin_contents))
                   (match &atombin ($bin_index $x)
                      (let*
                        (
                           ($atomremove (remove-atom &atombin ($bin_index $x)))
                           ($atomadded (add-atom &atombin ($bin_index $updated_contents)))
                         )
-                      ("Atom Removed")
+                     ("Atom Removed")
                      )
                   )
             
@@ -90,45 +90,40 @@
    )
 )
 
-;Function: remove_atom_helper
-;Description: Recursively removes a specified atom from a list of contents.
+;Function: removehelp
+;Description: removes a specified atom from a list of contents.
 ;             If the atom is found, it is skipped in the resulting list.
 ;Parameters:
 ;          $atom: The atom to be removed.
 ;          $contents: The list of atoms from which to remove the specified atom.
 ;Returns: A new list with all occurrences of the specified atom removed.
+(: removehelp (-> Atom List List))
+(= (removehelp  $atom $list)
 
-(: remove_atom_helper (-> Atom List List))
-(= (remove_atom_helper $atom $contents)
-   (if(== $contents ())
-      () ; End of list
-      (let $head (car-atom $contents)
-         (let $tail (cdr-atom $contents)
-            (if(== $head $atom)
-               $tail ; Skip the matching atom
-               (let $rest (remove_atom_helper $atom $tail)
-               (cons-atom $head $rest))
+   (collapse 
+        (let $x (superpose $list)
+            (if (== $x $atom) 
+                (empty) 
+                $x
             )
-         )
-      )
+        ) 
    )
 )
+
+
 
 ;An abstraction that simplifies quering an atomspace.
 ;Usage: simply pass the identifier of the atomspace you want.
 (: collapseAtomBin (-> Grounded Expression))
 (= (collapseAtomBin $space) (collapse (get-atoms $space)))
 
-;predicate function to check if a list is empty
-(: notEmpty (-> Expression Bool))
-(= (notEmpty ($x $y)) (> (size-atom $y) 0 ))
 
 ;this function randomly selects a bin from atombins and proceeds to randomly choose a single element from selected random bin.
 (: getRandomAtom (-> Symbol))
 (= (getRandomAtom)
    (
     let*(
-         ($handleSetSeq (collapseAtomBin &atombin))
+         ($handleSetSeq (collapse (match (AtomBin) ($x $y) $y)))
          ($filteredOutput (filter $handleSetSeq notEmpty))
         )
     (if(== $filteredOutput ()) ;check if all bins in atom bins are empty
@@ -180,11 +175,11 @@
 (= (getAllAtomsInBins)
 	( let* 
 		(
-			($atombin (AtomBin))
-	        ($allAtoms  (collapse (match $atombin ($x $y) $y)))
-    	    ($flatten (extractAndFlatten $allAtoms))
+			($vals (collapse (match (AtomBin) ($x $y) $y)))
+         ($filteredVals (filter $vals notEmpty))
+         ($collectedContents (collectContents $filteredVals ()))
 		)
-        $flatten
+        $collectedContents
         
         
 	)
