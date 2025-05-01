@@ -23,7 +23,7 @@
                ($lti (getLTI $target))
                ($elapsedTime (elapsedTime $target))
                ($stiAtomRent (getAttentionParam StartingAtomStiRent))
-               ($ltiAtomRent (getAttentionParam StartingAtomLtiRent))
+                ($ltiAtomRent (getAttentionParam StartingAtomLtiRent))
                ($scaledSTIRent (* $stiAtomRent $elapsedTime))
                ($scaledLTIRent (* $ltiAtomRent  $elapsedTime))
                ($updateScaledSTIRent (updateAttentionParam StartingAtomStiRent $scaledSTIRent))

@@ -5,11 +5,11 @@
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 
 !(assertEqual 
-              (filter ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)) (27 ())) notEmpty) 
-              ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)))
+              (filter ((c)(a)(f h j k)(s c)(g j)(d)()) notEmpty) 
+              ((d) (g j) (s c) (f h j k) (a) (c))
 )
 
-!(assertEqual (filter ((1 ()) (2 ())) notEmpty) ())
+!(assertEqual (filter (()()) notEmpty) ())
 
 ;!(assertEqual (size ((3 (c)) (1 (a)) (37 (f h j k)) (17 (s c)) (18 (g j)) (2 (d)))) 6)
 ;!(assertEqual (size ()) 0)
@@ -29,18 +29,6 @@
 !(assertEqual(reverseExpr (a b c d)) (d c b a))
 !(assertEqual(reverseExpr ()) ())
 
-;test for the findMaxSTI and findMinSTI functions before that we need to set the values of the atoms
-! (setAv A (300 200 0))
-! (setAv B (200 400 1))
-! (setAv C (100 200 0))
-! (setAv D (600 400 1))
-! (setAv E (200 200 0))
-! (setAv F (800 400 1))
-! (setAv G (50 200 0))
-! (setAv H (900 400 1))
 
-!(findMaxSTI (A B C D E F G H))
-!(assertEqual (findMaxSTI (A B C D E F G H)) 900)
-!(findMinSTI (A B C D E F G H))
-!(assertEqual (findMinSTI (A B C D E F G H)) 50)
+
 

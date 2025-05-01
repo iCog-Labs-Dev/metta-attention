@@ -83,21 +83,18 @@
 (: update (-> hyperon::space::DynSpace Atom))
 (= (update $space)
     (let* (
-            ; ($nums (collapse (match $space ($x $y) $x)))
-            ($vals (collapseAtomBin $space))
-            ($filteredVals (filter $vals notEmpty))
-            ($collectedContents (collectContents $filteredVals ()))
-            ($max (findMaxSTI $collectedContents))
-            ($min (findMinSTI $collectedContents))
+            ($collectedContents (getAllAtomsInBins))
+            ($max (getAllMaxSTI $collectedContents))
+            ($min (getAllMinSTI $collectedContents))
             ($exitCondition (> $min $max))
         )
-        (if $exitCondition
+         (if $exitCondition
             (updateGlobalMaxAndMinSTI $max $max)
             (updateGlobalMaxAndMinSTI $min $max)
           )
-        
     )
 )
+
 
 (= (updateGlobalMaxAndMinSTI $min $max)
     (let*
@@ -261,8 +258,9 @@
 (= (getNormalisedSTI $atom)
    (let*
        (
+          ($atoms (getAtomList))
            ($s (getSTI $atom))
-           ($afMax (getAfMaxSTI))
+           ($afMax  (getAllMaxSTI $atoms))
            ($normaliser
                (if (> $s $afMax)
                    (getMaxSTI)
@@ -292,8 +290,9 @@
 (= (getNormalisedSTI $atom $average $clip)
    (let*
        (
+           ($atoms (getAtomList))
            ($s (getSTI $atom))
-           ($afMax (getAfMaxSTI)) 
+           ($afMax  (getAllMaxSTI $atoms))
            ($diff (- $s $afMax))
            ($sum (+ $s $afMax)) 
            ($normaliser
