@@ -67,18 +67,20 @@
 (= (valuesAtIndex $i $handleSetSeq)
    (if(== $handleSetSeq ())
      ()
-     (let*(
-         (($index $val) (car-atom $handleSetSeq))
-         ($tail (cdr-atom $handleSetSeq))
-         ($newTail (valuesAtIndex $i $tail))
+    (let $seq (collapse (let ($index $val) (superpose $handleSetSeq)
+        (if (== $i $index)
+            $val
+            (empty)
         )
-      (
-      if(== $i $index)
-        $val
-        $newTail
-      )
+     
+        )
+        )
+        (if (== $seq ())
+            ()
+            (car-atom $seq)
+        )
     )
-  )
+   )
 )
 
 
