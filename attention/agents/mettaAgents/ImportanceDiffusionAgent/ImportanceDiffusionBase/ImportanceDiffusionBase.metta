@@ -30,7 +30,7 @@
             )
             (($atomToReceive $stiGiven)
                     (if (== $totaldiffusionAmount 0)
-                        (() 0)
+                        (empty)
                         (let*
                             (
                                 (($first $second) (superpose $combProbabilityVector))
