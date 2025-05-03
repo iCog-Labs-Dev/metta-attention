@@ -78,7 +78,12 @@
                      (let*
                        (
                           ($atomremove (remove-atom &atombin ($bin_index $x)))
-                          ($atomadded (add-atom &atombin ($bin_index $updated_contents)))
+                          ($atomadded 
+                            (if (== $updated_content ())
+                                ()
+                                (add-atom &atombin ($bin_index $updated_contents))
+                            )
+                          )
                         )
                      ("Atom Removed")
                      )
