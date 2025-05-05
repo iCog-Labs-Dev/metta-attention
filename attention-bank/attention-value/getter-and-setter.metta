@@ -292,3 +292,10 @@
 (= (getAtomsInTypeSpace) 
 	(collapse (getAtomsInTypeSpace-helper))
 )
+
+(= (countAtomsInTypeSpace)
+    (let $atoms
+        (getAtomsInTypeSpace)
+        (size-atom $atoms)
+    )
+)
