@@ -19,7 +19,7 @@
 		(
 			($count 0)
 			($atoms (collapseBin $space))
-			($size (size-atom $atoms)) 
+			($size (countAtomsInTypeSpace)) 
 			($removalAmount (- $size (- (maxSize) (accDivSize))))
 			($filteredatom (filterByLti $atoms))
 			($sortedatoms (ForgettingLTIThenTVAscendingSort $filteredatom))
