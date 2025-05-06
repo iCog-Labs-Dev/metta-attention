@@ -245,7 +245,9 @@
 
 (: tradeSti (-> Atom Atom Number %Undefined%))
 (= (tradeSti $source $target $value)
-      (let*
+    (if (or (== $source ()) (== $target ()))
+        ()
+        (let*
             (
                 ($sourceSTI (getSTI $source))
                 ($targetSTI (getSTI $target))
@@ -254,6 +256,7 @@
                 (() (setSTI $target $newTargetSTI))
                 (() (setSTI $source $newSourceSTI))
             )
-        ()
+            ()
+        )
     )
 )
