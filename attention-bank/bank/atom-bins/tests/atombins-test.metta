@@ -14,6 +14,7 @@
 ; Prep: Setting values in the atombin space prior to testing
 !(add-atom &atombin (1 (a Cat (Hebbianlink Human Cat))))
 !(add-atom &atombin (2 (d Animal (Hebbianlink (Hebbianlink Human Cat) Animal))))
+!(add-atom &atombin (3 (m)))
 !(add-atom &atombin (17 (s c Human (EvaluationLink a b))))
 !(add-atom &atombin (18 (g Dog)))
 !(add-atom &atombin (37 (f h j k (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat)))))
@@ -22,6 +23,7 @@
 !(setAv a (0.0 0.0 0.0))
 !(setAv c (7.0 4.0 0.0))
 !(setAv d (0.0 0.0 0.0))
+!(setAv m (3.0 0.0 0.0))
 
 ; Prep: setting Attentionvalue for Symobls with multiple characters
 !(setAv Cat (400 400 1))  
@@ -95,6 +97,8 @@
 !(assertEqual (removehelp (Hebbianlink Human Dog) ((Hebbianlink Human Dog) G J K L)) (L K J G)) ; remove expression from list containing expression
 
 ; Test case 09: Testing removeAtom can remove an Atom from an index in the atomBin
+!(assertEqual (removeAtom 3 m) ("Atom Removed"))
+!(assertEqual (collapse (match &atombin  (3 $x) $x)) ())
 !(assertEqual (removeAtom  45 H) ("Atom Removed"))
 !(assertEqual (match &atombin  (45 $x) $x) (E (EvaluationLink a b)))
 !(assertEqual (removeAtom 29 c) ("Bin is empty"))
