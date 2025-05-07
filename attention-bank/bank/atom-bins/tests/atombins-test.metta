@@ -98,7 +98,7 @@
 
 ; Test case 09: Testing removeAtom can remove an Atom from an index in the atomBin
 !(assertEqual (removeAtom 3 m) ("Atom Removed"))
-!(assertEqual (collapse (match &atombin  (3 $x) $x)) ())
+!(assertEqual (match &atombin  (3 $x) $x) ())
 !(assertEqual (removeAtom  45 H) ("Atom Removed"))
 !(assertEqual (match &atombin  (45 $x) $x) (E (EvaluationLink a b)))
 !(assertEqual (removeAtom 29 c) ("Bin is empty"))
