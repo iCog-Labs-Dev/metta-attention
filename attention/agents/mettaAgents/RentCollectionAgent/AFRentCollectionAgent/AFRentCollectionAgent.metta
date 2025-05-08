@@ -44,6 +44,7 @@
               (let*
                   (
                     ($w (* $elapsedTime $multiplier))
+                    (() (println! ("what is w here" $w)))
                     ($lists (superpose $targetSet))
                   )
                   (

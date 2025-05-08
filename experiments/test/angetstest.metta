@@ -11,9 +11,9 @@
 !(import! &self metta-attention:attention:agents:mettaAgents:HebbianCreationAgent:HebbianCreationAgent)
 
 
-!(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam)
+; !(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam)
 !(import! &self metta-attention:attention:agents:mettaAgents:Neighbors)
-!(import! &self metta-attention:attention:agents:mettaAgents:Runner:runnerDef)
+; !(import! &self metta-attention:attention:agents:mettaAgents:Runner:runnerDef)
 
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
@@ -63,7 +63,7 @@
 !(println! (Bin (collapseAtomBin (AtomBin))))
 (assertEqual (getAtomList) (ants (SimilarityLink abamectin ants)))
 (assertEqual (getAtomsInRemoveSpace) ())
-(assertEqual (getAtomsInRemoveSpace) ())
+; (assertEqual (getAtomsInRemoveSpace) ())
 (assertEqual 
     (let*
         (
