@@ -22,7 +22,7 @@
 !(assertEqual (getSTI d) 2900.0) ; this doesnt make sense. it should be (290*20 = 5800.0)
 ; !(assertEqual (getSTI (Hebbianlink a b)) 355.0)
 ; !(assertEqual  (getSTI (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 33.725)
-! (get-atoms &timer)
+
 ; Run rent collection in a loop until enough time has passed
 !(AFRentCollectionAgent-run)
  
