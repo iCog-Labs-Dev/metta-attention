@@ -26,11 +26,11 @@
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
 
-! (stimulate source 50)
-! (stimulate target1 100)
-! (stimulate target2 150)
-! (stimulate target3 200)
-! (stimulate target4 250)
+! (stimulate source 500)
+! (stimulate target1 1000)
+! (stimulate target2 1000)
+! (stimulate target3 2000)
+! (stimulate target4 2500)
 ! (setStv (INHERITANCE_LINK source target4) (0 1))
 ! (setStv (INHERITANCE_LINK source target3) (0 1))
 
@@ -94,12 +94,12 @@
 !(println! (Bin (collapseAtomBin (AtomBin))))
 ! (getSTI (INHERITANCE_LINK source target4))
 
-; what i dont understand is if Hebbian creation agent and updating agent focus on hebbian link
-   ; and importance diffusion agent dosnt consider any hebbian link whats the point then??
-   ; specially what is the poin of updating mean and confidence by updating agent
-; and why does when atoms diffuse thire value is not decreasing??
 
 ! (AFRentCollectionAgent-run)
+! ((py-atom time.sleep) (/ 1.0 5.0))
+
+!(AFRentCollectionAgent-run)
+
 
 !(println! 
     (AF 
