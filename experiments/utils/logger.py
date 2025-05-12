@@ -18,11 +18,12 @@ def write_to_csv(afatoms, name):
     data = []
 
     for atom in afatoms.get_children():
-        (pattern, sti) = atom.get_children()
-        data.append({"timestamp": datetime.now(), "pattern":pattern, "sti":sti}) 
+        (pattern, av) = atom.get_children()
+        (_, sti, lti, _) = av.get_children()
+        data.append({"timestamp": datetime.now(), "pattern":pattern, "sti":sti, "lti":lti}) 
 
     with open(name.get_name(), 'a') as f:
-        writer = csv.DictWriter(f, fieldnames=["timestamp", "pattern", "sti"])
+        writer = csv.DictWriter(f, fieldnames=["timestamp", "pattern", "sti", "lti"])
 
         if f.tell() == 0:
             writer.writeheader()
