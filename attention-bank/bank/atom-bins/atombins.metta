@@ -79,7 +79,7 @@
                        (
                           ($atomremove (remove-atom &atombin ($bin_index $x)))
                           ($atomadded 
-                            (if (== $updated_content ())
+                            (if (== $updated_contents ())
                                 ()
                                 (add-atom &atombin ($bin_index $updated_contents))
                             )
