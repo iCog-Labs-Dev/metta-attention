@@ -99,7 +99,7 @@
    ; specially what is the poin of updating mean and confidence by updating agent
 ; and why does when atoms diffuse thire value is not decreasing??
 
-! (AFRentCollectionAgent-Run (attentionalFocus) (TypeSpace))
+! (AFRentCollectionAgent-run)
 
 !(println! 
     (AF 
