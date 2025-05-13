@@ -53,7 +53,11 @@
        (let* 
             (
                 (() (add-atom &attentionalFocus $atom))
-                (() (add-atom &newAtomInAV $atom))
+                (() (if (contains (getNewAtomInAVList) $atom)
+                        ()
+                        (add-atom &newAtomInAV $atom)
+                    )
+                )
             )
             ("Atom Added")
         )
@@ -485,3 +489,7 @@
 )
 
 
+;(: removeNewAtomAV (-> atom empty))
+(= (removeNewAtomAV $head)
+    (remove-atom &newAtomInAV $head)
+)
