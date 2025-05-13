@@ -217,12 +217,12 @@
 		(
             (() (refundAV $head))
 			(() (add-atom &removeSpace (: $head ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))))
+            (() (removeNewAtomAV $head))
 			(() (extractAtomRecursive $niset))
 			(() (removeAtomAttentionalfocus $head))
 			($bin (importanceBin (getSTI $head)))
 			($_ (removeAtom $bin $head))
 			(() (removeTypeSpace $head))
-
 		)
 		()
 	)
@@ -247,6 +247,7 @@
 				($_ (removeAtom $bin $head))
 				(() (removeAtomAttentionalfocus $head))
 				(() (removeTypeSpace $head))
+                (() (removeNewAtomAV $head))
 			)
 			(extractAtomRecursive $tail)
 		)
