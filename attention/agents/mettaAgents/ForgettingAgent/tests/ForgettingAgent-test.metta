@@ -85,16 +85,18 @@
 
 !(forgettingAgent-Run (AtomBin))
 
-!(assertEqual 
-    (let*
-        (
-            ($rmvspace (getAtomsInRemoveSpace))	
-            ($typspace (getAtomsInTypeSpace))
-        )
-        (intersection-atom $typspace $rmvspace)
-    ) 
+
+!(let*
+    (
+        ($rmvspace (getAtomsInRemoveSpace))	
+        ($typspace (getAtomsInTypeSpace)) 
+        ($newAtomInAV (getNewAtomInAVList))
+        ($assertTypespace (assertEqual (intersection-atom $typspace $rmvspace) ()))
+        ($assertNewtoAvspace (assertEqual (intersection-atom $newAtomInAV $rmvspace) ()))
+    )
     ()
-)
+) 
+
 !(assertEqual (match &space (fundsSTI $x) $x) 99468.40000000002)
 
 !(assertEqual (let $a (getAtomsInRemoveSpace) (size-atom $a)) 16)
