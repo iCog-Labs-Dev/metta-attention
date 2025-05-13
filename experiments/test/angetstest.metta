@@ -13,7 +13,7 @@
 
 !(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam)
 !(import! &self metta-attention:attention:agents:mettaAgents:Neighbors)
-!(import! &self metta-attention:attention:agents:mettaAgents:Runner:runnerDef)
+!(import! &self metta-attention:experiments:runner-Def)
 
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
@@ -27,7 +27,6 @@
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
 
-!(import! &self metta-attention:experiments:runner-Def)
 
 
 
