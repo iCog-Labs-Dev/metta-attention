@@ -26,13 +26,13 @@
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
 
-! (stimulate source 500)
-! (stimulate target1 1000)
-! (stimulate target2 1000)
-! (stimulate target3 2000)
-! (stimulate target4 2500)
-! (setStv (INHERITANCE_LINK source target4) (0 1))
-! (setStv (INHERITANCE_LINK source target3) (0 1))
+! (stimulate source 50)
+! (stimulate target1 100)
+! (stimulate target2 100)
+! (stimulate target3 200)
+! (stimulate target4 250)
+! (setStv (INHERITANCE_LINK source target4) (0.1 0.9))
+! (setStv (INHERITANCE_LINK source target3) (0.1 0.9))
 
 
 
@@ -53,6 +53,7 @@
 
 !(HebbianCreationAgent-Run (TypeSpace) (attentionalFocus) (newAtomInAV))
 ; !(updateHebbianLinks hello (TypeSpace))
+! (println! ("HebbianCreationAgent output"))
 
 !(println! 
     (AF 
@@ -73,11 +74,13 @@
 ; ! (updateHebbianLinks source (TypeSpace))
 ; ! (updateHebbianLinks target1 (TypeSpace))
 ! (HebbianUpdatingAgent-Run (TypeSpace))
+! (println! ("HebbianUpdatingAgent output"))
 
 !(println! (typesepace (get-atoms (TypeSpace))))
+!(println! (Bin (collapseAtomBin (AtomBin))))
 
 !(AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace))
-
+! (println! ("AFImportanceDiffusionAgent output"))
 !(println! 
     (AF 
         (let*
@@ -92,13 +95,14 @@
 )
 !(println! (typesepace (get-atoms (TypeSpace))))
 !(println! (Bin (collapseAtomBin (AtomBin))))
-! (getSTI (INHERITANCE_LINK source target4))
 
 
 ! (AFRentCollectionAgent-run)
+
 ! ((py-atom time.sleep) (/ 1.0 5.0))
 
 !(AFRentCollectionAgent-run)
+! (println! ("AFRentCollectionAgent output"))
 
 
 !(println! 
@@ -115,6 +119,8 @@
 )
 !(println! (typesepace (get-atoms (TypeSpace))))
 !(println! (Bin (collapseAtomBin (AtomBin))))
+
+
 
 
 

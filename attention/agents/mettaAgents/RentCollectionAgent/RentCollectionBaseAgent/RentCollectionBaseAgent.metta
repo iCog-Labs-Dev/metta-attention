@@ -21,10 +21,12 @@
             (let*
                   (
                      ($ndiff (/ $diff $stiFundsBuffer))
+                     (() (println! ("ndiff: " $ndiff)))
                      ($minDiffr (min-atom ($ndiff 1.0)))
                      ($maxDiffr (max-atom ($minDiffr -0.99)))
                      ($res (+ $STIAtomRent (* $STIAtomRent $maxDiffr)))
                      (() (println! ("STIAtomRent: " $STIAtomRent)))
+                     (() (println! ("result: " $res)))
 
                   )
                   $res
