@@ -99,9 +99,19 @@
 
 ! (AFRentCollectionAgent-run)
 
-! ((py-atom time.sleep) (/ 1.0 5.0))
+! ((py-atom time.sleep) (/ 5.0 5.0))
+
+
+! (AFRentCollectionAgent-run)
+
+! ((py-atom time.sleep) (/ 20.0 5.0))
+
+! (AFRentCollectionAgent-run)
+
+! ((py-atom time.sleep) (/ 30.0 5.0))
 
 !(AFRentCollectionAgent-run)
+
 ! (println! ("AFRentCollectionAgent output"))
 
 

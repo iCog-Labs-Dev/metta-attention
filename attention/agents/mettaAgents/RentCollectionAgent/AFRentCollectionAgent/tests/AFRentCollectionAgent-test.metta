@@ -22,7 +22,7 @@
 !(assertEqual (getSTI d) 2900.0) ; this doesnt make sense. it should be (290*20 = 5800.0)
 ; !(assertEqual (getSTI (Hebbianlink a b)) 355.0)
 ; !(assertEqual  (getSTI (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 33.725)
-
+! (get-atoms &timer)
 ; Run rent collection in a loop until enough time has passed
 !(AFRentCollectionAgent-run)
  
@@ -30,6 +30,18 @@
 ! ((py-atom time.sleep) (/ 1.0 5.0))
 
 !(AFRentCollectionAgent-run)
+! ((py-atom time.sleep) (/ 5.0 5.0))
+
+!(AFRentCollectionAgent-run)
+
+! ((py-atom time.sleep) (/ 20.0 5.0))
+
+!(AFRentCollectionAgent-run)
+
+! ((py-atom time.sleep) (/ 30.0 5.0))
+
+!(AFRentCollectionAgent-run)
+
 
 ;the sti value of the atoms must be lower and Python’s time.time() is only precise up to ~1e-6 or less,
 ;and sleep in MeTTa via Python is also not deterministic.that's why i used the approximation

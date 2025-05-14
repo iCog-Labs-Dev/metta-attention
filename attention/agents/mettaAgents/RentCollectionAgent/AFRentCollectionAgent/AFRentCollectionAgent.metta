@@ -28,10 +28,14 @@
   (let*
       (
           ($currentTime  (timeTime))
+          (() (println! ("current time "$currentTime)))
           ($updateFreq (getAttentionParam AFRentFrequency))
           ($lastUpdate   (match  &timer (lastUpdate $x) $x) )
+          (() (println! ("what is last update " $lastUpdate)))
           ($elapsedTime (* (- $currentTime $lastUpdate) 1000000))
+          (() (println! ("what is elapsed time here" (/ $elapsedTime 1000000))))
           ($timeThreshold (/ 1000000 $updateFreq))
+          (() (println! ("so do we pass the threshold here" $timeThreshold)))
           ($multiplier (/ $updateFreq 1000000))
       )
       (if (match &timer (firstTime $x) $x)
@@ -69,10 +73,12 @@
    (let*
         (
           ($sti (getSTI $atom))
+          (() (println! ("sti of "$atom " is " $sti)))
           ($lti (getLTI $atom))
           ($stiAtomRent (getAttentionParam StartingAtomStiRent))
           ($ltiAtomRent (getAttentionParam StartingAtomLtiRent))
           ($stiRent (* (calculateStiRent $stiAtomRent) $w))
+          (() (println! ("stiRent after multimplication" $stiRent)))
           ($ltiRent (* (calculateLtiRent $ltiAtomRent) $w))
           ($minstiRent (min-atom ($stiRent $sti)))
           ($minltiRent (min-atom ($ltiRent $lti)))
