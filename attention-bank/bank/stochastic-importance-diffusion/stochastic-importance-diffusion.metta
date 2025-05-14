@@ -1,8 +1,11 @@
-
 ! (bind! &atomBinInfo (new-space))
 ! (bind! time-mod (py-atom time))
 ! (bind! timeTime (py-dot time-mod time (-> Number)))
 ! (timeTime)
+
+!(bind! &startTime (new-space))
+;!(bind! time (timeTime))
+!(add-atom &startTime  (firstTime  (timeTime)))
 
 ;The udate_bin function receives an atom and updates this values
 ; struct DiffusionRecordBin {
@@ -25,11 +28,12 @@
     (let* (
             ($index (importanceBin (getSTI $atom)))
             ($it (collapse (match &atomBinInfo ($index $_) $index)))
+            ($firstTime   (match  &startTime  (firstTime $x) $x))
           )
         (if (== $it ($index))
             (updateExistingBin $index)
             (add-atom &atomBinInfo 
-                ($index ((count 1) (index $index) (_size (getSize $index)) (update_rate (/ 1 (timeTime)) ) (last_update (timeTime))) )
+                ($index ((count 1) (index $index) (_size (getSize $index)) (update_rate (/ 1 (- (timeTime) $firstTime))) (last_update (timeTime))))
             )
         )
     )
@@ -61,6 +65,7 @@
             ($index (importanceBin (getSTI $atom)))
             ($averageElapsedTime (calcElapsedTime $index))
             ($res (updateBin $atom))
+            
           )
         $averageElapsedTime
     )
@@ -88,7 +93,7 @@
    (let* (
           ($averageElapsedTime (elapsedTime $atom))
           ($sti (getSTI $atom))
-          ($powerRes (pow (- 1 $decayRate) $averageElapsedTime))
+          ($powerRes (pow-math (- 1 $decayRate) $averageElapsedTime))
         )
         (* $sti $powerRes)
     )

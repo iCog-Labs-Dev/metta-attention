@@ -19,89 +19,117 @@
 ; Function to insert an atom into the specifc bin
 !(bind! &atombin (new-space))
 
+;Function: insertAtom
+;Description: Inserts an atom into the specified bin index within &atombin space.
+;             If the atom's type is undefined(ifthe atom has neither AV nor STV)
+;             , it returns an error message.
+;             If the bin(the index of the bin in which the atom is to be inserted to)is empty, 
+;             it creates a new bin and adds the atom.
+;             Otherwise, it updates the existing bin by adding the new atom.
+;Parameters:
+;         $bin_index: The index of the bin where the atom should be inserted.
+;         $pattern: The atom to be inserted.
+;Returns: A confirmation message ("Atom Inserted") if successful, 
+;         or an error message if the atom is invalid.
 (: insertAtom (-> Number Atom empty))
 (= (insertAtom $bin_index $pattern)
-   (if(== (getType $pattern) %Undefined%)
-      ("Atom is not valid") ; Validate type
-      (if (== (collapse (match &atombin ($bin_index $x) $x)) ())
-         (let () 
-              (add-atom &atombin ($bin_index ($pattern)))
-              ("Atom Inserted")
-           ) ; Insert new bin
-         (match &atombin ($bin_index $x)
-            (let*(
-                ($_ (remove-atom &atombin ($bin_index $x))) ; Update bin
-                ($updated (cons-atom $pattern $x))
-                ($_ (add-atom &atombin ($bin_index $updated)))
+  (if (== (collapse (match &atombin ($bin_index $x) $x)) ())
+           (let ()
+               (add-atom &atombin ($bin_index ($pattern))) ; Insert new bin
+               ("Atom Inserted")
+           )
+           (match &atombin ($bin_index $x)
+               (if (== (contains $x $pattern) True)  ; Check for duplicates
+                   ("Atom already exists")  ; Do not insert duplicate
+                   (let* (
+                        ($atomremove (remove-atom &atombin ($bin_index $x)))  ; Remove old bin
+                        ($updated (cons-atom $pattern $x))  ; Add new atom
+                        ($atomadded (add-atom &atombin ($bin_index $updated))) ; Update bin
+                    )
+                    ("Atom Inserted")
+                   )
                )
-              ("Atom Inserted")
-            )
-         )
-      )
+           )
    )
 )
 
-;Function to remove an atom from a specific bin
+
+;Function: removeAtom
+;Description: Removes a specified atom from a given bin from &atombin space.
+;            If the atom's type is undefined (if the atom has neither AV nor STV), 
+;            it returns an error message.
+;            If the bin is empty, it returns a message indicating that there is nothing to remove.
+;            Otherwise, it updates the bin by removing the specified atom.
+;Parameters:
+;          $bin_index: The index of the bin from which the atom should be removed.
+;          $atom: The atom to be removed.
+;Returns: A confirmation message ("Atom Removed") if successful, 
+;         or an error message if the atom is invalid or the bin is empty.
+
 (: removeAtom (-> Number Atom empty))
 (= (removeAtom $bin_index $atom)
-   (if (== (getType $atom) %Undefined%)
+   (if (== (getValueType $atom) %Undefined%)
       ("Atom is not valid") ; Validate type
       (let $bin_contents (collapse (match &atombin ($bin_index $contents) $contents))
          (if(== $bin_contents ())
             ("Bin is empty") ; Bin is empty, nothing to remove
-            (let $updated_contents (remove_atom_helper $atom (car-atom $bin_contents))
-               ;(if (== $updated_contents ())
-               ;   (remove-atom &atombin ($bin_index $bin_contents)) ; Remove empty bin
+            (let $updated_contents (removehelp $atom (car-atom $bin_contents))
                   (match &atombin ($bin_index $x)
                      (let*
                        (
-                          ($_ (remove-atom &atombin ($bin_index $x)))
-                          ($_ (add-atom &atombin ($bin_index $updated_contents)))
+                          ($atomremove (remove-atom &atombin ($bin_index $x)))
+                          ($atomadded 
+                            (if (== $updated_contents ())
+                                ()
+                                (add-atom &atombin ($bin_index $updated_contents))
+                            )
+                          )
                         )
-                      ("Atom Removed")
+                     ("Atom Removed")
                      )
                   )
-               ;)
+            
             )
          )
       )
    )
 )
 
+;Function: removehelp
+;Description: removes a specified atom from a list of contents.
+;             If the atom is found, it is skipped in the resulting list.
+;Parameters:
+;          $atom: The atom to be removed.
+;          $contents: The list of atoms from which to remove the specified atom.
+;Returns: A new list with all occurrences of the specified atom removed.
+(: removehelp (-> Atom List List))
+(= (removehelp  $atom $list)
 
-; Helper function to remove an atom from a list of contents
-(: remove_atom_helper (-> Atom List List))
-(= (remove_atom_helper $atom $contents)
-   (if(== $contents ())
-      () ; End of list
-      (let $head (car-atom $contents)
-         (let $tail (cdr-atom $contents)
-            (if(== $head $atom)
-               $tail ; Skip the matching atom
-               (let $rest (remove_atom_helper $atom $tail)
-               (cons-atom $head $rest))
+   (collapse 
+        (let $x (superpose $list)
+            (if (== $x $atom) 
+                (empty) 
+                $x
             )
-         )
-      )
+        ) 
    )
 )
+
+
 
 ;An abstraction that simplifies quering an atomspace.
 ;Usage: simply pass the identifier of the atomspace you want.
 (: collapseAtomBin (-> Grounded Expression))
 (= (collapseAtomBin $space) (collapse (get-atoms $space)))
 
-;predicate function to check if a list is empty
-(: notEmpty (-> Expression Bool))
-(= (notEmpty ($x $y)) (> (size $y) 0 ))
 
 ;this function randomly selects a bin from atombins and proceeds to randomly choose a single element from selected random bin.
 (: getRandomAtom (-> Symbol))
 (= (getRandomAtom)
    (
     let*(
-         ($handleSetSeq (collapseAtomBin &atombin))
-         ($filteredOutput (filter $handleSetSeq notEmpty ()))
+         ($handleSetSeq (collapse (match (AtomBin) ($x $y) $y)))
+         ($filteredOutput (filter $handleSetSeq notEmpty))
         )
     (if(== $filteredOutput ()) ;check if all bins in atom bins are empty
       empty
@@ -143,4 +171,21 @@
 
 (= (AtomBin)
    &atombin
+)
+
+(= (getAtomsInBins)
+	(collapse (get-atoms &atombin))
+)
+
+(= (getAllAtomsInBins)
+	( let* 
+		(
+			($vals (collapse (match (AtomBin) ($x $y) $y)))
+         ($filteredVals (filter $vals notEmpty))
+         ($collectedContents (collectContents $filteredVals ()))
+		)
+        $collectedContents
+        
+        
+	)
 )
