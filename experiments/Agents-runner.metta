@@ -26,11 +26,11 @@
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
 
-! (stimulate source 50)
-! (stimulate target1 100)
-! (stimulate target2 100)
-! (stimulate target3 200)
-! (stimulate target4 250)
+! (stimulate source 1500)
+! (stimulate target1 1500)
+! (stimulate target2 1600)
+! (stimulate target4 290)
+
 ! (setStv (INHERITANCE_LINK source target4) (0.1 0.9))
 ! (setStv (INHERITANCE_LINK source target3) (0.1 0.9))
 
@@ -100,7 +100,6 @@
 ! (AFRentCollectionAgent-run)
 
 ! ((py-atom time.sleep) (/ 5.0 5.0))
-
 
 ! (AFRentCollectionAgent-run)
 

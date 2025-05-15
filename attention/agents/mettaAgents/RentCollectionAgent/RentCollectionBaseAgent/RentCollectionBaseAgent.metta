@@ -11,23 +11,15 @@
          ($targetSTI (getAttentionParam TargetStiFunds))
          ($stiFundsBuffer (getAttentionParam StiFundsBuffer))
          ($diff (- $targetSTI $funds))
-         (() (println! ("funds: " $funds)))
-         (() (println! ("targetSTI: " $targetSTI)))
-         (() (println! ("stiFundsBuffer: " $stiFundsBuffer)))
-         (() (println! ("diff: " $diff)))
       )
       (if  (<= $diff 0)
             0.0
             (let*
                   (
                      ($ndiff (/ $diff $stiFundsBuffer))
-                     (() (println! ("ndiff: " $ndiff)))
                      ($minDiffr (min-atom ($ndiff 1.0)))
                      ($maxDiffr (max-atom ($minDiffr -0.99)))
                      ($res (+ $STIAtomRent (* $STIAtomRent $maxDiffr)))
-                     (() (println! ("STIAtomRent: " $STIAtomRent)))
-                     (() (println! ("result: " $res)))
-
                   )
                   $res
             )
