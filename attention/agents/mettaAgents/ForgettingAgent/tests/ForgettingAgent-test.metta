@@ -80,19 +80,23 @@
 ; stv &av, lit < 5, source < 5, target < 5, link lti above source & target lti
 !(stimulate (SYMMETRIC_HEBBIAN_LINK M N) 0.2)
 
+!(assertEqual (match &space (fundsSTI $x) $x) 99174.80000000002)
 
 
 !(forgettingAgent-Run (AtomBin))
 
-!(assertEqual 
-    (let*
-        (
-            ($rmvspace (getAtomsInRemoveSpace))	
-            ($typspace (getAtomsInTypeSpace))
-        )
-        (intersection-atom $typspace $rmvspace)
-    ) 
+
+!(let*
+    (
+        ($rmvspace (getAtomsInRemoveSpace))	
+        ($typspace (getAtomsInTypeSpace)) 
+        ($newAtomInAV (getNewAtomInAVList))
+        ($assertTypespace (assertEqual (intersection-atom $typspace $rmvspace) ()))
+        ($assertNewtoAvspace (assertEqual (intersection-atom $newAtomInAV $rmvspace) ()))
+    )
     ()
-)
+) 
+
+!(assertEqual (match &space (fundsSTI $x) $x) 99468.40000000002)
 
 !(assertEqual (let $a (getAtomsInRemoveSpace) (size-atom $a)) 16)

@@ -19,7 +19,7 @@
 		(
 			($count 0)
 			($atoms (collapseBin $space))
-			($size (size-atom $atoms)) 
+			($size (countAtomsInTypeSpace)) 
 			($removalAmount (- $size (- (maxSize) (accDivSize))))
 			($filteredatom (filterByLti $atoms))
 			($sortedatoms (ForgettingLTIThenTVAscendingSort $filteredatom))
@@ -215,13 +215,14 @@
 (= (globalRemoveAtom $head $niset) 
 	(let*
 		(
+            (() (refundAV $head))
 			(() (add-atom &removeSpace (: $head ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))))
+            (() (removeNewAtomAV $head))
 			(() (extractAtomRecursive $niset))
 			(() (removeAtomAttentionalfocus $head))
 			($bin (importanceBin (getSTI $head)))
 			($_ (removeAtom $bin $head))
 			(() (removeTypeSpace $head))
-
 		)
 		()
 	)
@@ -240,17 +241,30 @@
 			(
 				($head (car-atom $atoms))
 				($tail (cdr-atom $atoms))
+                (() (refundAV $head))
 				(() (add-atom &removeSpace (: $head ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))))
 				($bin (importanceBin (getSTI $head)))
 				($_ (removeAtom $bin $head))
 				(() (removeAtomAttentionalfocus $head))
 				(() (removeTypeSpace $head))
+                (() (removeNewAtomAV $head))
 			)
 			(extractAtomRecursive $tail)
 		)
 	)
 )
 
+; Description: a function that sets atoms STI and LTI to zero prior to removal to insure its funds are returned
+; params:
+;   $atom: atom whose value is set to zero
+; return: empty
+(: refundAV (-> Atom empty))
+(= (refundAV $atom)
+    (if (== (getAv $atom) %Undefined%)
+        ()
+        (setAv $atom (0 0 0))
+    )
+)
 ; Description: a wrapper for getRemoveValueType-helper it collapses the result and retunrs undefined or value type
 ; params:
 ;	$pattern: an atom whose attention and truth value to be searched
