@@ -87,9 +87,21 @@
  
 ; Recursive helper to calculate the group index
 (= (findGroup $imp $sum $i)
-   (if (or (>= $sum $imp) (>= $i (GroupNum)))
-       $i
-       (findGroup $imp (+ $sum (pow-math 2 $i)) (+ $i 1))
+   (if ( <= $imp 0)
+    0
+    (
+        let* (
+            ($num (+ $imp 1))
+            ($log_num (log-math 2 $num))
+            ($int_num (ceil-math $log_num))
+            
+        )
+        
+        (if (<= $int_num (GroupNum))
+            $int_num
+            (GroupNum)
+        )
+    )
    )
 )
 
