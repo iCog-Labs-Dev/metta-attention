@@ -144,10 +144,9 @@
             ($hebbianDiffusionAvailable (* hebbianMaxAllocationPercentage $diffusionAvailable))
             ($hebbianMaximumLinkAllocation (/ $hebbianDiffusionAvailable (size-atom $adjacentVector)))
             ($hebbianProportionSTI (collapse (hebbianProportionSTI $adjacentVector $hebbianMaximumLinkAllocation)))
-            ($resultone (extractMap $hebbianProportionSTI))
             ($hebbianDiffusionUsed (hebbianDiffusionUsed $hebbianProportionSTI))
             ($resulttwo (collapse (incidentProportionSTI $incidentVector $hebbianDiffusionUsed)))
-            ($finalResult (concatTuple $resultone $resulttwo))
+            ($finalResult (concatTuple $hebbianProportionSTI $resulttwo))
         )
         $finalResult
     )
@@ -168,7 +167,7 @@
             ($habbeanDiffusionUsed $secondA)
 
         )
-        ($habbeanDiffusionUsed $resultone)
+        $resultone
     )
 )
 
@@ -197,7 +196,14 @@
 (= (hebbianDiffusionUsed $expr)
     (if (== $expr ())
         0
-        (+ (let $t (car-atom $expr) (car-atom $t)) (hebbianDiffusionUsed (cdr-atom $expr)))
+        (let* 
+            (
+                ($atom (car-atom $expr))
+                (($head $amount) $atom)
+                ($tail (cdr-atom $expr))
+            ) 
+            (+ $amount (hebbianDiffusionUsed $tail))
+        )
     )
 )
 
