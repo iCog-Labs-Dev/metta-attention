@@ -17,9 +17,9 @@
                         ()
                     )
             )
-            ($oset (filteroset $foset))
+            ($oset (collapse (filteroset $foset)))
             ($incidentAndoset (concatTuple $incidentAtoms $oset))
-            ($iset (getIncomingSet $atom ASYMMETRIC_HEBBIAN_LINK) )
+            ($iset (globalIncomingSetByType  $atom ASYMMETRIC_HEBBIAN_LINK) )
             ($hebbianAdjacentAtoms (collapse (hebbianAdjacentAtoms $iset $atom)))
             ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAndoset)))
             ($probabilityVectorHebbianAjacent (collapse (probabilityVectorHebbianAjacent $atom $hebbianAdjacentAtoms)))
@@ -48,8 +48,7 @@
 (= (filteroset $oset) 
     (let* 
         (
-            ($tail (cdr-atom $oset))
-            ($vals (superpose $tail))
+            ($vals (superpose $oset))
             ($type (if (== (get-metatype $vals) Expression)
                         (car-atom $vals)
                         $vals
