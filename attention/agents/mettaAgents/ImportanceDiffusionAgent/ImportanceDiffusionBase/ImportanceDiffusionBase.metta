@@ -215,7 +215,14 @@
 (= (extractMap $expr)
     (if (== $expr ())
         ()
-        (concatTuple (let $t (car-atom $expr) (cdr-atom $t)) (extractMap (cdr-atom $expr)))
+        (let*
+            (
+                (() (println! ($expr)))
+                ($vals (superpose $expr))
+                (($first $second) $vals)
+            )
+            $second
+        )
     )
 )
 
