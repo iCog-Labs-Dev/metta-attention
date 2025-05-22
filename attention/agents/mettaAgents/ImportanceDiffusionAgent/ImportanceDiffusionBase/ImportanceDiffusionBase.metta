@@ -12,11 +12,12 @@
     (let*
         (
             ($incidentAtoms (collapse (incidentAtoms $atom $space)))
-            ($oset (if (== (get-metatype $atom) Expression)
+            ($foset (if (== (get-metatype $atom) Expression)
                         (getOutGoingAtoms $atom)
                         ()
                     )
             )
+            ($oset (filteroset $foset))
             ($incidentAndoset (concatTuple $incidentAtoms $oset))
             ($iset (getIncomingSet $atom ASYMMETRIC_HEBBIAN_LINK) )
             ($hebbianAdjacentAtoms (collapse (hebbianAdjacentAtoms $iset $atom)))
@@ -42,6 +43,23 @@
             )
         )
         ($atom $atomToReceive $stiGiven)
+    )
+)
+(= (filteroset $oset) 
+    (let* 
+        (
+            ($tail (cdr-atom $oset))
+            ($vals (superpose $tail))
+            ($type (if (== (get-metatype $vals) Expression)
+                        (car-atom $vals)
+                        $vals
+                    )
+            )
+        )
+        (if (== $type ASYMMETRIC_HEBBIAN_LINK)
+            ()
+            $type
+        )
     )
 )
 
