@@ -56,7 +56,7 @@
             )
         )
         (if (== $type ASYMMETRIC_HEBBIAN_LINK)
-            ()
+            (empty)
             $type
         )
     )
@@ -216,7 +216,6 @@
         ()
         (let*
             (
-                (() (println! ($expr)))
                 ($vals (superpose $expr))
                 (($first $second) $vals)
             )
