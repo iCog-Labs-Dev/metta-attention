@@ -45,6 +45,11 @@
         ($atom $atomToReceive $stiGiven)
     )
 )
+
+;; This function is used to remove ASYMMETRIC_HEBBIAN_LINK that might be 
+;; in the as an outgoing link (non-deterministic)
+;; Parameters: $oset: outgoing atoms of a link
+;; return: non ASYMMETRIC_HEBBIAN_LINK outgoing atoms (non-deterministic)
 (= (filteroset $oset) 
     (let* 
         (
