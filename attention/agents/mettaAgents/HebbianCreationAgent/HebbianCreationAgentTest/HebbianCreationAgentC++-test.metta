@@ -70,7 +70,7 @@
     (let $atoms (collapse 
                     (match (TypeSpace) (: (ASYMMETRIC_HEBBIAN_LINK $x $y) $value) 
                             (ASYMMETRIC_HEBBIAN_LINK $x $y))) (size-atom $atoms))
-    20
+    12
 )
 
 !(assertEqual (collapse ("After The Hebbian Creation " (get-atoms (newAtomInAV)))) ())
