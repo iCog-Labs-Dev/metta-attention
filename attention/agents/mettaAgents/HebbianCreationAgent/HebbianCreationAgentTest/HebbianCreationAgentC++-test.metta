@@ -10,6 +10,7 @@
 !(import! &self metta-attention:attention:agents:mettaAgents:Neighbors)
 !(import! &self metta-attention:attention:agents:mettaAgents:HebbianCreationAgent:HebbianCreationAgent)
 
+!(updateAttentionParam MAX_AF_SIZE 4)
 !(bind! conf90 900)
 ; Populate the AtomSpace with the example atoms
 
@@ -63,7 +64,7 @@
 
 ;;Confirm that only n*(n-1) = 12 AsymmetricHebbianLinks were formed,
 ;;indicating that none incorrectly include "slimy" nor the dummy atoms
-!(assertEqual (attentionalFocusSize) 5)
+!(assertEqual (attentionalFocusSize) 4)
 
 !(assertEqual   
     (let $atoms (collapse 
