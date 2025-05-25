@@ -44,7 +44,7 @@
                                 (removeLinkRecursively (- (size-atom $incomingSet) maxLinkNum))
                                 ()
                             )
-                            (add-atom $space2 $source)
+                            (updateAttentionalFocus $source False)
                         )
                     )
                 )
