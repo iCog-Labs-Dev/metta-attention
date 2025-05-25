@@ -58,7 +58,7 @@
                         ()
                         (if $new
                             (add-atom &newAtomInAV $atom)
-                            (println! $new)
+                            ()
                         )
                     )
                 )
