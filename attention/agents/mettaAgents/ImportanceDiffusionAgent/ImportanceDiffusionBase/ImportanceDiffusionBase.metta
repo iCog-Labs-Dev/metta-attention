@@ -12,13 +12,14 @@
     (let*
         (
             ($incidentAtoms (collapse (incidentAtoms $atom $space)))
-            ($oset (if (== (get-metatype $atom) Expression)
+            ($foset (if (== (get-metatype $atom) Expression)
                         (getOutGoingAtoms $atom)
                         ()
                     )
             )
+            ($oset (collapse (filteroset $foset)))
             ($incidentAndoset (concatTuple $incidentAtoms $oset))
-            ($iset (getIncomingSet $atom ASYMMETRIC_HEBBIAN_LINK) )
+            ($iset (globalIncomingSetByType  $atom ASYMMETRIC_HEBBIAN_LINK) )
             ($hebbianAdjacentAtoms (collapse (hebbianAdjacentAtoms $iset $atom)))
             ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAndoset)))
             ($probabilityVectorHebbianAjacent (collapse (probabilityVectorHebbianAjacent $atom $hebbianAdjacentAtoms)))
@@ -42,6 +43,27 @@
             )
         )
         ($atom $atomToReceive $stiGiven)
+    )
+)
+
+;; This function is used to remove ASYMMETRIC_HEBBIAN_LINK that might be 
+;; in the as an outgoing link (non-deterministic)
+;; Parameters: $oset: outgoing atoms of a link
+;; return: non ASYMMETRIC_HEBBIAN_LINK outgoing atoms (non-deterministic)
+(= (filteroset $oset) 
+    (let* 
+        (
+            ($vals (superpose $oset))
+            ($type (if (== (get-metatype $vals) Expression)
+                        (car-atom $vals)
+                        $vals
+                    )
+            )
+        )
+        (if (== $type ASYMMETRIC_HEBBIAN_LINK)
+            (empty)
+            $type
+        )
     )
 )
 
@@ -126,10 +148,9 @@
             ($hebbianDiffusionAvailable (* hebbianMaxAllocationPercentage $diffusionAvailable))
             ($hebbianMaximumLinkAllocation (/ $hebbianDiffusionAvailable (size-atom $adjacentVector)))
             ($hebbianProportionSTI (collapse (hebbianProportionSTI $adjacentVector $hebbianMaximumLinkAllocation)))
-            ($resultone (extractMap $hebbianProportionSTI))
             ($hebbianDiffusionUsed (hebbianDiffusionUsed $hebbianProportionSTI))
             ($resulttwo (collapse (incidentProportionSTI $incidentVector $hebbianDiffusionUsed)))
-            ($finalResult (concatTuple $resultone $resulttwo))
+            ($finalResult (concatTuple $hebbianProportionSTI $resulttwo))
         )
         $finalResult
     )
@@ -150,7 +171,7 @@
             ($habbeanDiffusionUsed $secondA)
 
         )
-        ($habbeanDiffusionUsed $resultone)
+        $resultone
     )
 )
 
@@ -179,7 +200,14 @@
 (= (hebbianDiffusionUsed $expr)
     (if (== $expr ())
         0
-        (+ (let $t (car-atom $expr) (car-atom $t)) (hebbianDiffusionUsed (cdr-atom $expr)))
+        (let* 
+            (
+                ($atom (car-atom $expr))
+                (($head $amount) $atom)
+                ($tail (cdr-atom $expr))
+            ) 
+            (+ $amount (hebbianDiffusionUsed $tail))
+        )
     )
 )
 
@@ -191,7 +219,13 @@
 (= (extractMap $expr)
     (if (== $expr ())
         ()
-        (concatTuple (let $t (car-atom $expr) (cdr-atom $t)) (extractMap (cdr-atom $expr)))
+        (let*
+            (
+                ($vals (superpose $expr))
+                (($first $second) $vals)
+            )
+            $second
+        )
     )
 )
 
