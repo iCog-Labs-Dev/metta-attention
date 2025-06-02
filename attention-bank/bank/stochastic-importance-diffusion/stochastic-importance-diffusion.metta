@@ -31,7 +31,6 @@
             (updateExistingBin $index)
             (let* (
                 ($time (timeTime)) 
-                (() (println! ("the difference between the first and the time " (- $time $firstTime))))
             )
                 (add-atom &atomBinInfo 
                     ($index ((count 1) (index $index) (_size (getSize $index)) (update_rate (/ 1 (- $time $firstTime))) (last_update $time)))
@@ -50,9 +49,6 @@
                     ($count (+ $cntVal 1))
                     ($now (timeTime))
                     ($newSec (- $now $lastUpdateVal))
-                    (() (println! ("now is " $now)))
-                    (() (println! ("last update was " $lastUpdateVal)))
-                    (() (println! ("the difference between the last update and now is " $newSec)))
                     ($newUpdateRate (/ $count $newSec))
                     ($newSize (getSize $index)))
                     (add-atom &atomBinInfo 
