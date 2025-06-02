@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import glob
 import os
+import sys
 
 def get_csv_name():
     # Define the directory
@@ -23,14 +24,27 @@ def get_csv_name():
 
 def read_csv():
 
-    file_name = get_csv_name()
+    if len(sys.argv) == 1:
+        file_name = get_csv_name()
+    else:
+        file_name = sys.argv[1]
+
     df = pd.read_csv(file_name, parse_dates=["timestamp"])
 
     # Pivot the data so each pattern is a column and timestamps are the index
     pivot_df = df.pivot(index="timestamp", columns="pattern", values="sti")
 
+    plt.figure(figsize=(12, 6))
+    # Plot each column separately to ensure lines connect properly
+    for column in pivot_df.columns:
+        # Drop NaN values for the current pattern to get clean series
+        series = pivot_df[column].dropna()
+        if not series.empty:  # Only plot if there's data
+            plt.plot(series.index, series.values, marker='o', label=column)
+    print(pivot_df)
+
     # Plot each pattern over time
-    pivot_df.plot(marker='o', figsize=(12, 6))
+    # pivot_df.plot(marker='o', figsize=(12, 6))
     plt.xlabel("Timestamp")
     plt.ylabel("STI")
     plt.title("STI Over Time by Pattern")
@@ -40,5 +54,4 @@ def read_csv():
     plt.savefig("sti_plot.png")
 
 if __name__ == "__main__":
-    print(get_csv_name())
     read_csv()

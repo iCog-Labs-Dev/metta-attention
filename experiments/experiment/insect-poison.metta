@@ -13,6 +13,7 @@
 !(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam)
 !(import! &self metta-attention:attention:agents:mettaAgents:Neighbors)
 !(import! &self metta-attention:experiments:runner-Def)
+!(import! &self metta-attention:experiments:logger)
 
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
@@ -26,51 +27,45 @@
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
 !(import! &tempspace metta-attention:attention:data:adagram_sm_links)
-! (import! &insect metta-attention:experiments:experiment:data:insect-words)
-! (import! &poison metta-attention:experiments:experiment:data:poison-words)
-!(collapse (match &insect (insect $x) $x))
-!(collapse (match &poison (poison $x) $x))
+!(import! &insect metta-attention:experiments:experiment:data:insect-words)
+!(import! &poison metta-attention:experiments:experiment:data:poison-words)
+(collapse (match &insect (insect $x) $x))
+(collapse (match &poison (poison $x) $x))
 
-!(setStv (assymetric a b) (0.2 0.3))
-!(stimulate a 4000)
+!(updateAttentionParam MAX_AF_SIZE 4)
+
 (=(spaceAdder) (add-atom-reduct (TypeSpace) (get-atoms &tempspace))) 
- !(spaceAdder)
+!(spaceAdder)
+
 (= (insectPoisonExp $maxim $space $type)
-   (
-     (if (< $maxim 0)
-         finished
-         
-
-           (let* (
-          
-             ($words (collapse (match $space ($type $x) $x)))
-             ($randInt1 (random-int 0 (size-atom $words)))
-             ($randInt2 (random-int 0 (size-atom $words)))
-             ($randomWord1 (index-atom $words $randInt1))
-             
-           )
-           
-           
-          
-           ((stimulate $randomWord1 10)
-          (collapse(test-superpose))
-           
-            (let $newMaxim (- $maxim 1)
-            (if (> $maxim 2)
-             (insectPoisonExp $newMaxim  &insect insect)
-             (insectPoisonExp $newMaxim  &poison poison)
-             
-             
-             )
-           )
-           )
-           )
-         )
-         
-     )
-   )
+    (
+        (if (< $maxim 0)
+            finished
+            (let* 
+                (
+                    ($words (collapse (match $space ($type $x) $x)))
+                    ($randInt1 (random-int 0 (size-atom $words)))
+                    ($randInt2 (random-int 0 (size-atom $words)))
+                    ($randomWord1 (index-atom $words $randInt1))
+                )
+                (
+                    (stimulate $randomWord1 10)
+                    (println! $randomWord1)
+                    (collapse(test-superpose))
+                    (collapse (write_csv_wrapper (attentionalFocus) out.csv))
+                    (let $newMaxim (- $maxim 1)
+                        (if (> $maxim 2)
+                            (insectPoisonExp $newMaxim  &insect insect)
+                            (insectPoisonExp $newMaxim  &poison poison)
+                        )
+                    )
+                )
+            )
+        )     
+    )
+)
 
 
-!(insectPoisonExp 3 &insect insect)
+!(insectPoisonExp 4 &insect insect)
 !(getAtomList)
-!(get-atoms (TypeSpace))
+(get-atoms (TypeSpace))

@@ -1,6 +1,5 @@
 from hyperon.ext import register_atoms
 from hyperon.atoms import OperationAtom, S
-from hyperon.ext import register_atoms
 from datetime import datetime
 import csv
 
@@ -13,17 +12,17 @@ def get_csv_file_name() -> str:
     file_name = f"csv/results_{time}.csv"
     return [S(file_name)]
 
-def write_to_csv(afatoms, name):
+def write_to_csv(afatoms, afsize, name):
     """ writes to a file passed as argument """
     data = []
 
     for atom in afatoms.get_children():
         (pattern, av) = atom.get_children()
         (_, sti, lti, _) = av.get_children()
-        data.append({"timestamp": datetime.now(), "pattern":pattern, "sti":sti, "lti":lti}) 
+        data.append({"timestamp": datetime.now(), "pattern":pattern, "sti":sti, "lti":lti, "afsize": afsize.get_children()[0]}) 
 
     with open(name.get_name(), 'a') as f:
-        writer = csv.DictWriter(f, fieldnames=["timestamp", "pattern", "sti", "lti"])
+        writer = csv.DictWriter(f, fieldnames=["timestamp", "pattern", "sti", "lti", "afsize"])
 
         if f.tell() == 0:
             writer.writeheader()
@@ -46,8 +45,8 @@ def utils(metta):
 
     writeToCsv = OperationAtom(
         "write_to_csv",
-        lambda afatoms, name: write_to_csv(afatoms, name),
-        ["Expression", "Expression", "Atom"],
+        lambda afatoms, afsize, name: write_to_csv(afatoms, afsize, name),
+        ["Expression", "Expression", "Expression","Atom"],
         unwrap=False
         )
     return {r"get_csv_file_name": getCsvFileName, r"write_to_csv": writeToCsv}
