@@ -53,7 +53,7 @@
                 (
                     (stimulate $randomWord1 10)
                     (collapse (test-superpose))
-                    (collapse (write_csv_wrapper (attentionalFocus) out.csv))
+                    (collapse (write_csv_wrapper (attentionalFocus) output/output.csv))
                     (let $newMaxim (- $maxim 1)
                         (if (> $maxim 2)
                             (insectPoisonExp $newMaxim  &insect insect)
