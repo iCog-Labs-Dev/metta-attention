@@ -13,17 +13,17 @@ def get_csv_file_name() -> str:
     file_name = f"csv/results_{time}.csv"
     return [S(file_name)]
 
-def write_to_csv(afatoms, afsize, name):
+def write_to_csv(afatoms, name):
     """ writes to a file passed as argument """
     data = []
 
     for atom in afatoms.get_children():
         (pattern, av) = atom.get_children()
         (_, sti, lti, _) = av.get_children()
-        data.append({"timestamp": datetime.now(), "pattern":pattern, "sti":sti, "lti":lti, "afsize": afsize.get_children()[0]}) 
+        data.append({"timestamp": datetime.now(), "pattern":pattern, "sti":sti, "lti":lti}) 
 
     with open(name.get_name(), 'a') as f:
-        writer = csv.DictWriter(f, fieldnames=["timestamp", "pattern", "sti", "lti", "afsize"])
+        writer = csv.DictWriter(f, fieldnames=["timestamp", "pattern", "sti", "lti"])
 
         if f.tell() == 0:
             writer.writeheader()
@@ -61,8 +61,11 @@ def utils(metta):
 
     writeToCsv = OperationAtom(
         "write_to_csv",
-        lambda afatoms, afsize, name: write_to_csv(afatoms, afsize, name),
-        ["Expression", "Expression", "Expression","Atom"],
+        lambda afatoms, name: write_to_csv(afatoms, name),
+        ["Expression", "Expression", "Atom"],
+        unwrap=False
+        )
+
     saveParams = OperationAtom(
         "save_params",
         lambda param: save_params(param),
