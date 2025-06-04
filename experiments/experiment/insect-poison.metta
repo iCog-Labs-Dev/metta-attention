@@ -34,8 +34,11 @@
 
 !(updateAttentionParam MAX_AF_SIZE 4)
 
-(=(spaceAdder) (add-atom-reduct (TypeSpace) (get-atoms &tempspace))) 
+(=(spaceAdder) (get-atoms &tempspace)) 
 !(spaceAdder)
+
+; write the params to a file
+!(let $vals (collapse (get-atoms &attentionParam)) (save_params $vals))
 
 (= (insectPoisonExp $maxim $space $type)
     (
