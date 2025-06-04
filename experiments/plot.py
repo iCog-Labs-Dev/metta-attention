@@ -4,7 +4,7 @@ from datetime import datetime
 import json
 
 # Read the CSV file
-df = pd.read_csv('out.csv', parse_dates=['timestamp'])
+df = pd.read_csv('output/output.csv', parse_dates=['timestamp'])
 
 def create_category():
 
@@ -39,7 +39,7 @@ def read_params(param:str) -> str:
         all returns are of type str
     """
 
-    with open('output/settings.json 'r') as f:
+    with open('output/settings.json', 'r') as f:
         setting_json = json.load(f)
 
     return setting_json[param]
@@ -85,5 +85,4 @@ plt.legend(title='Category', bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xticks(rotation=45)
 plt.tight_layout()
-plt.savefig("category_line_plot.png", dpi=300, bbox_inches='tight')
 plt.savefig("output/plot.png")
