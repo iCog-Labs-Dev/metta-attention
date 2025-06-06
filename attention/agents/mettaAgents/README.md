@@ -18,13 +18,13 @@ collabroative.
 The agents work in the atomspace of on atoms outside of it the 7 agents are as 
 follows.
 
-1. [**Hebbian Creation**](HebbianCreationAgent/)
+1. [**Hebbian Creation**](HebbianCreationAgent/README.md)
 2. **Hebbain Updating**
 3. **AF Importance Diffusion**
 4. **AF Rent Collection**
 5. **WA Importance Diffusion**
 6. **WA Rent Collection**
-. [**Forgetting**](ForgettingAgent/README.md)
+7. [**Forgetting**](ForgettingAgent/README.md)
 
 ## File Structure
 

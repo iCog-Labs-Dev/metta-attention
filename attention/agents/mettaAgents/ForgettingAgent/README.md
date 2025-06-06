@@ -1,5 +1,7 @@
 # Forgetting Agent
 
+## Overview
+
 The forgetting Agent is an agent responsible for removeing atoms of any kind 
 from the all relevant spaces available. The agent uses the value of the static 
 parameter of **ForgetThresold** and removes all atoms with **STI** values below
