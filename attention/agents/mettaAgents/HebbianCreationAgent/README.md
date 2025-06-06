@@ -35,9 +35,9 @@ for them.
       importance but it does not say what should happen to *source* given *target* 
       is in the **attentionalFocus**.
 
-- prior to adding atoms we first check if we are missing target and source 
+- Prior to adding atoms we first check if we are missing target and source 
 **ASYMMETRIC_HEBBIAN_LINK** for the current atom in consideration.
 
-- if there are missing hebbian links we add those links to the type space with
+- If there are missing hebbian links we add those links to the type space with
 default values.
 
