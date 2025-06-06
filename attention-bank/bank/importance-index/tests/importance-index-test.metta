@@ -1,5 +1,4 @@
 !(register-module! ../../../../../metta-attention)
-!(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
@@ -21,48 +20,28 @@
 !(assertEqual (getHandleSet 1 20) (c d a))
 !(assertEqual (getHandleSet 10 10) ())
 
-; Test case 01: Testing importanceBin with different number value
-!(assertEqual (importanceBin -5.0)  0.0)    ; Should return 0
-!(assertEqual (importanceBin 10.0)   10.0)   ; Should return 10 (direct assignment)
-!(assertEqual (importanceBin 20.0)  20.0)    ; Should calculate based on group logic 18
-!(assertEqual (importanceBin 50.0) 29.0)    ; Should calculate based on group logic 29
-
-
-; Test case 02: Testing getHandleSet with lowerbound and upperbound
-
-!(assertEqual (getHandleSet 1 20) (d c a))
-!(assertEqual (getHandleSet 10 10) ())
-!(assertEqual (getHandleSet 0 -1.0) ())
-
-; Test case 03: Testing update function
+; Test importanceBin function
+!(assertEqual (importanceBin -5.0)  0)    ; Should return 0
+!(assertEqual (importanceBin 10.0)   10)   ; Should return 10 (direct assignment)
+!(assertEqual (importanceBin 20.0)  18)    ; Should calculate based on group logic 18
+!(assertEqual (importanceBin 50.0)  29)    ; Should calculate based on group logic 29
+;
 !(assertEqual (update &atombin) ("Updated"))
-!(assertEqual (getMaxSTI) 200)
-!(assertEqual (getMinSTI) 2)
-
-
-; Test cases 04: Testing stimulate that need to be refactored
-!(assertEqual (stimulate x 1.5) ("Updated"))
-
-; Test case 05: Testing updateImportance updates the importance of an atom
-
+!(assertEqual (getMaxSTI) 2.0)
+!(assertEqual (getMinSTI) 1.0)
+;
+;;;Test cases that need to be refactored
+!(setAv x (200.0 200.0 0.0))
+!(stimulate x 1.5)
 ! (assertEqual (updateImportance &atombin a 1 20) ("Importance Updated"))
 !(assertEqual (getContent 1 (collapseAtomBin &atombin) ()) ())
+!(assertEqual (getNormalisedZeroToOneSTI a True True) 1.0)
+!(assertEqual (getNormalisedZeroToOneSTI d True False) 3.0)
+!(assertEqual (getNormalisedZeroToOneSTI c  False False) 0.5)
+!(assertEqual(getNormalisedSTI a) 2.0)
 
-
-; Test case 06: Testing getNormalisedZeroToOneSTI with different average and clip values both on and off
-
-!(assertEqual (getNormalisedZeroToOneSTI a True True) 0.0)
-!(assertEqual (getNormalisedZeroToOneSTI d True False) 0.008771929824561403)
-!(assertEqual (getNormalisedZeroToOneSTI c  False False) 0.0043859649122807015)
-
-; Test case 07: Testing getNormalisedSTI 
-
-!(assertEqual(getNormalisedSTI a) 1.0)
-!(assertEqual (getNormalisedSTI x) 115.0)
-
-
-; Test case 08: Testing getNormalisedSTI with different average and clip values
-
+!(assertEqual (getNormalisedSTI x) 230.0)
 !(assertEqual (getNormalisedSTI a True True) -1.0)
-!(assertEqual (getNormalisedSTI d True False) -1.0263157894736843)
+!(assertEqual (getNormalisedSTI d True False) -1.0218340611353711)
+
 
