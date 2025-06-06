@@ -19,9 +19,9 @@ The agents work in the atomspace of on atoms outside of it the 7 agents are as
 follows.
 
 1. [**Hebbian Creation**](HebbianCreationAgent/README.md)
-2. **Hebbain Updating**
-3. **AF Importance Diffusion**
-4. **AF Rent Collection**
+2. [**Hebbain Updating**](HebbianUpdatingAgent/README.md)
+3. [**AF Importance Diffusion**](ImportanceDiffusionAgent/AFImportanceDiffusionAgent/README.md)
+4. [**AF Rent Collection**](RentCollectionAgent/AFRentCollectionAgent/README.md)
 5. **WA Importance Diffusion**
 6. **WA Rent Collection**
 7. [**Forgetting**](ForgettingAgent/README.md)
@@ -35,6 +35,7 @@ The runner is the function used when calling agents from a python file.
 
 ### Basic File strucutre
 
+```
 mettaAgents
 |
 |---<Agent>
@@ -45,6 +46,7 @@ mettaAgents
     |---<Agent>-runnner.metta
     |
     |---<Agent>.metta
+```
 
 The following agents **Importance Diffusion** and **Rent Collection** are 
 used different in thier file structure such that they have a ** <Agent>Base.metta **
@@ -52,6 +54,7 @@ used different in thier file structure such that they have a ** <Agent>Base.mett
 For agents involved in Diffusion and Rent collection the file structure is as 
 follows
 
+```
 mettaAgents 
 |
 |---<Agent-Base>
@@ -69,4 +72,4 @@ mettaAgents
         |
         |---<Agent>.metta
     
-
+```
