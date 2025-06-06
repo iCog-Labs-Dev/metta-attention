@@ -2,7 +2,6 @@
 ; and set the attention value to the pattern/node.
 ;
 ; i.e !(set_av A (399 400 1))
-
 (: setAv (-> Atom (Number Number Number) Atom))
 (= (setAv $pattern ($sti $lti $vlti))
     (if (== (collapse (getValueType $pattern)) ())
@@ -27,13 +26,13 @@
 (: getAv (-> Atom AV))
 (= (getAv $pattern)
     (if (== (get-metatype $pattern) Expression)
-        (case (getValueType $pattern)
+        (case (let $a (collapse (let $x (getValueType $pattern) (collapse (superpose $x)))) (index-atom $a 0))
             (( (AV $a $b $c) (AV $a $b $c))
                     ( ( (STV $a $b) (AV $x $y $z)) (AV $x $y $z))
                     ($else (AV 0 0 0)))
         )
         (case (getValueType $pattern)
-                (( (AV $a $b $c) (AV $a $b $c))
+                (( (AV $a $b $c) (getValueType $pattern))
                     ( ( (STV $a $b) (AV $x $y $z)) (AV $x $y $z))
                     ($else %Undefined%)))
     )
@@ -48,8 +47,8 @@
 
  (: setStv (-> Atom (Number Number) Atom))
 (= (setStv $pattern ($mean $conf))
-    (if (== (getValueType $pattern) %Undefined%)
-        (add-atom &typeSpace (: $pattern (STV $mean $conf)))
+    (if (== (collapse (getValueType $pattern)) ())
+        (add-atom &self (: $pattern (STV $mean $conf)))
         (let* ( ( $av (getAv $pattern))
                 ($_ (let $x (collapse (match &self (: $pattern $_) (: $pattern $_)))
                         (if (== $x ())
@@ -148,106 +147,4 @@
 
 )
 
-
-(= (getType $pattern) (get-type-space &typeSpace $pattern))
-
-;;setSTI fnction accepts a pattern/node with an Sti value to replace the original
-;;and set the Sti to the pattern/node.
-; i.e !(setSTI A 500)
-(: setSTI (-> Atom Number Atom)) 
-(= (setSTI $pattern $newSTI)
-    (case (getAv $pattern)
-        ((%Undefined% (setAv $pattern ($newSTI 0 0)))
-        ((AV $sti $lti $vlti) (setAv $pattern ($newSTI $lti $vlti))))
-    )
-)
-
-;;setLTI fnction accepts a pattern/node with an Lti value to replace the original
-;;and set the Lti to the pattern/node.
-; i.e !(setLTI A 500)
-(: setLTI (-> Atom Number Atom)) 
-(= (setLTI $pattern $newLTI)
-    (case (getAv $pattern)
-        ((%Undefined% (setAv $pattern  (0 $newLTI 0)))
-        ((AV $sti $lti $vlti) (setAv $pattern ($sti $newLTI $vlti))))
-    )
-)
-
-;;setVLTI fnction accepts a pattern/node with an VLti value to replace the original
-;;and set the VLti to the pattern/node.
-; i.e !(setVLTI A 500)
-(: setVLTI (-> Atom Number Atom)) 
-(= (setVLTI $pattern $newVLTI)
-    (case (getAv $pattern)
-        ((%Undefined% (setAv $pattern  (0 0 $newVLTI)))
-        ((AV $sti $lti $vlti) (setAv $pattern ($sti $lti $newVLTI))))
-    )
-)
-
-(= (globalIncomingSetByType $atom $type)
-	(collapse
-		(superpose   
-			(
-				(match &typeSpace (: ($type $b $atom) $a) ($type $b $atom))
-				(match &typeSpace (: ($type $atom $b) $a) ($type $atom $b ))
-			)
-    )
-	)
-)
-
-(= (globalIncomingSetwithoutType $atom)
-    (collapse 
-        (superpose   
-            (
-				(match &typeSpace (: ($type $b $atom) $a) ($type $b $atom))
-				(match &typeSpace (: ($type $atom $b) $a) ($type $atom $b ))
-            )
-        )  
-    )
-)
-
-(: removeTypeSpace (-> Atom empty))
-(= (removeTypeSpace $atom) 
-	(let $a 
-		(getValueType $atom)
-		(if (== $a %Undefined%)
-			()
-			(remove-atom &typeSpace (: $atom $a))
-		)
-	)
-)
-
-; (: TypeSpace (-> Grounded))
-(= (TypeSpace)
-	&typeSpace
-)
-
-
-
-(: getAtomsInTypeSpace-helper (-> List))
-(= (getAtomsInTypeSpace-helper) 
-	(let $a 
-		(get-atoms &typeSpace)
-		(unify $a
-			(: $pattern $x)
-			$pattern
-			(empty)
-		)
-	)
-)
-
-; Description : getAtomsInTypeSpace is a function that returns a list of patterns in typespace
-; params:
-;	None
-; return: List of patterns in the typeSpace without thier types in and is more deterministic than matching
-(: getAtomsInTypeSpace (-> List))
-(= (getAtomsInTypeSpace) 
-	(collapse (getAtomsInTypeSpace-helper))
-)
-
-(= (countAtomsInTypeSpace)
-    (let $atoms
-        (getAtomsInTypeSpace)
-        (size-atom $atoms)
-    )
-)
+(= (getType $pattern) (get-type $pattern))
