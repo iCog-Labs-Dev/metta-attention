@@ -1,20 +1,19 @@
-(= (filter $array $func)
-   (if (== $array ())
-       () 
-       ($func $array)
-   )
-)
-
-(: notEmpty (-> Expression Expression))
-(= (notEmpty $list)
-
-   (collapse 
-        (let $x (superpose $list)
-            (if (== $x ()) 
-                (empty) 
-                $x
-            )
-        ) 
+(: filter (-> Expression (-> $t Bool) Expression))
+(= (filter $list $predicate)
+   (if (== $list ())
+    ()
+    (let*
+      (
+          ($head (car-atom $list))
+          ($tail (cdr-atom $list))
+          ($res ($predicate $head))
+          ($filteredTail (filter $tail $predicate))
+      )
+      (if $res
+          (cons-atom $head $filteredTail)
+          $filteredTail
+        )
+      )
    )
 )
 
@@ -67,41 +66,27 @@
 (= (valuesAtIndex $i $handleSetSeq)
    (if(== $handleSetSeq ())
      ()
-    (let $seq (collapse (let ($index $val) (superpose $handleSetSeq)
-        (if (== $i $index)
-            $val
-            (empty)
+     (let*(
+         (($index $val) (car-atom $handleSetSeq))
+         ($tail (cdr-atom $handleSetSeq))
+         ($newTail (valuesAtIndex $i $tail))
         )
-     
-        )
-        )
-        (if (== $seq ())
-            ()
-            (car-atom $seq)
-        )
+      (
+      if(== $i $index)
+        $val
+        $newTail
+      )
     )
-   )
+  )
 )
 
 
  
 ; Recursive helper to calculate the group index
 (= (findGroup $imp $sum $i)
-   (if ( <= $imp 0)
-    0
-    (
-        let* (
-            ($num (+ $imp 1))
-            ($log_num (log-math 2 $num))
-            ($int_num (ceil-math $log_num))
-            
-        )
-        
-        (if (<= $int_num (GroupNum))
-            $int_num
-            (GroupNum)
-        )
-    )
+   (if (or (>= $sum $imp) (>= $i (GroupNum)))
+      $i ; Return the group index
+      (findGroup $imp (+ $sum (pow-math 2 $i)) (+ $i 1))
    )
 )
 
@@ -230,35 +215,6 @@
        )
    )
 )
-; Define absolute difference
-(: abs (-> Number Number))
-(= (abs $x)
-    (if (< $x 0) (- 0 $x) $x)
-)
-
-; Define approximate equality
-(: approxEqual (-> Number Number Number Bool))
-(= (approxEqual $a $b $tol)
-    (<= (abs (- $a $b)) $tol)
-)
-
-(: extractAndFlatten (-> Expression Expression))
-(= (extractAndFlatten $expr)
-   (if (== $expr ())
-       ()
-       (let* (($head (car-atom $expr))
-              ($tail (cdr-atom $expr))
-            
-              ($firstElem (car-atom $head))
-              ($rest (cdr-atom $head))
-              ($processedHead (if (== (get-type $firstElem) Number) 
-                                  $rest  ; Remove the number, keep the rest
-                                  $head)) ; If not a number, keep the whole expression
-              ($flattenedTail (extractAndFlatten $tail))
-        )
-        (union-atom $processedHead $flattenedTail))
-    )
-)
 
 (: collectContents (-> Expression Expression Expression))
 (= (collectContents $list $acc)
@@ -266,7 +222,7 @@
     $acc
     (let*
       (
-        ($content (car-atom $list))
+        (($index $content) (car-atom $list))
         ($tail (cdr-atom $list))
         ($rest (collectContents $tail $acc))
        )
@@ -279,62 +235,54 @@
 
 (= (reverseExpr $x ) (collapse (union (superpose $x) (superpose ())))) 
 
-; Description: the function takes a list of atoms and experessions 
-;              and returns a new list wich contatins only symobls
-; params:
-;		$atoms: list of symbols and expressions
-; return: list of symbols
-(: removeLinksfromList (-> List List))
-(= (removeLinksfromList $atoms)
-	(if (== $atoms ())
-		()
-		(let* 
-			(
-				($head (car-atom $atoms))
-				($tail (cdr-atom $atoms))
-			)
-			(if (== (get-metatype $head) Symbol)
-				(concatTuple ($head) (removeLinksfromList $tail))	
-				(removeLinksfromList $tail)
-			)
-		)
-	)
-)
-
-
-(= (getSTIHelper $atoms)
-    (let* (
-        ($vals (getSTI (superpose $atoms)))
-    )
-    $vals
-    )
-)
 
 ; a function that find the maximum STI value of the  given atoms
-(: getAllMaxSTI  (-> Expression Number))
-(= (getAllMaxSTI $atoms)
-   (if (== $atoms ())
-            0.0
-            (let* (
-                ($stiValues (collapse (getSTIHelper $atoms)))
-                ($maxSTI (max-atom $stiValues))
-            )
-            $maxSTI
-            )
+(: findMaxSTI (-> Expression Number))
+(= (findMaxSTI $list)
+  (let* (
+    ($atom (car-atom $list))
+    ($max (getSTI $atom))
+    ($rest (cdr-atom $list))
+    )
+    (if (== $rest ())
+      $max
+      (let* (
+        ($nextTop (car-atom $rest))
+        ($secondMax (getSTI $nextTop))
+        ($tail (cdr-atom $rest))
+        ($mergeList (cons-atom $atom $tail))
         )
-    
+        (if (> $max $secondMax)
+          (findMaxSTI $mergeList)
+          (findMaxSTI $rest)
+        )
+      )
+    )
+  )
 )
 ; a function that find the minimum STI value of the  given atoms
-(: getAllMinSTI  (-> Expression Number))
-(= (getAllMinSTI $atoms)
-    (if (== $atoms ())
-            0.0
-            (let* (
-                ($stiValues (collapse (getSTIHelper $atoms)))
-                ($minSTI (min-atom $stiValues))
-            )
-            $minSTI
-            )
+(: findMinSTI (-> Expression Number))
+(= (findMinSTI $list)
+  (let* (
+    ($atom (car-atom $list))
+    ($max (getSTI $atom))
+    ($rest (cdr-atom $list))
+    )
+    (if (== $rest ())
+      $max
+      (let* (
+        ($nextTop (car-atom $rest))
+        ($secondMax (getSTI $nextTop))
+        ($tail (cdr-atom $rest))
+        ($mergeList (cons-atom $atom $tail))
         )
-    
-)
+        (if (< $max $secondMax)
+          (findMinSTI $mergeList)
+          (findMinSTI $rest)
+        )
+      )
+    )
+  )
+ )
+
+             
