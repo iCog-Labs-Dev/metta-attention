@@ -10,7 +10,7 @@ and **newAtomInAV** spaces and defines functions that interact with these spaces
 ### attentionalFocus
 
 The **attentionalFoucs** (**AF**) is a space whose size is dictatied by the **MAX_AF_SIZE**
-located in the [AttentionParam](../../../attnention/agents/mettaAgents/Attentional.metta)
+located in the [AttentionParam](../../../attnention/agents/mettaAgents/AttentionParam.metta)
 
 The space is used to store all atoms that are deemed to be important by the value
 of the STI. If the spapce is full and only atoms having STI values bigger than
@@ -21,7 +21,7 @@ the atom with the smallest STI are allowed to enter.
 The **newAtomInAV** space is used to store atoms that are new to be sored into
 the **AF**. 
 
-This space is mainly used by the [HebbianCreation agent](../../../attnention/agents/mettaAgents/HebbianCreationAgent/README.md) to ensure that is does not 
+This space is mainly used by the [HebbianCreation agent](../../../attention/agents/mettaAgents/HebbianCreationAgent/README.md) to ensure that is does not 
 work over the whole **AF** space but only atoms that are newly entered to the 
 AF.
 
