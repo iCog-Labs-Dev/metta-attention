@@ -1,4 +1,7 @@
 !(bind! &attentionalFocus (new-space))
+!(bind! &newAtomInAV (new-space))
+(= (AttentionalFocus) &attentionalFocus)
+(= (newAtomInAV) &newAtomInAV)
 
 (= (maxAFSize) 1000)
 
@@ -69,9 +72,18 @@
 ;Description: Retrieves a list of all atoms currently in attentional focus space.
 ;Parameters: None.
 ;Returns: A list of atoms in attentional focus space.
-(: getAtomList(->Symbol))
+(: getAtomList(-> Symbol))
 (= (getAtomList)
    (collapse (get-atoms &attentionalFocus))
+)
+
+;Function: getNewAtomInAVList
+;Description: Retrieves a list of all atoms currently in the newAtomInAV space.
+;Parameters: None.
+;Returns: A list of atoms in newAtomInAV space.
+(: getNewAtomInAVList(-> Symbol))
+(= (getNewAtomInAVList)
+   (collapse (get-atoms &newAtomInAV))
 )
 
 ;Function: attentionalFocusSize
@@ -176,6 +188,11 @@
     )
 )
 
+;Function: getLowestStiAtomInAF
+;Description: Goes through the AF and returns the Atom with the lowest Sti
+;Parameters: None
+;Returns: An Atom that has the lowerst sti in attentional focus.
+
 (: getLowestStiAtomInAF (-> Atom))
 (= (getLowestStiAtomInAF)
     (let $atoms (getAtomList)
@@ -223,7 +240,7 @@
                             (remove-atom &attentionalFocus $lowestAtom)
                             (addAtomToAF $atom True)
                         )
-                        (empty) ; Case 4: Atom not added
+                        () ; Case 4: Atom not added
                     )
                )
            )
@@ -235,31 +252,30 @@
 ;Description: Retrieves a random atom that is not in attentional focus.
 ;Parameters: None.
 ;Returns: A randomly selected atom from outside attentional focus.
-(: getRandomAtomNotInAF (-> Atom))
+(: getRandomAtomNotInAF (-> Symbol))
 (= (getRandomAtomNotInAF)
    (let*
        (
-
-           ($allAtoms  (getAtomBinList))
+           ($allAtoms  (getAllAtomsInBins))
            ($filteredAtoms (filter $allAtoms atomIsNotInAF))
        )
        (if (== $filteredAtoms ())
           ()
         (let*
                (
-
-                   ($res (py-list $filteredAtoms))
-                   ($randomAtom ((py-atom random.choice) $res))
+                   ($randInt (random-int 0 (size-atom $filteredAtoms)))
+                   ($randomAtom (index-atom $filteredAtoms $randInt))
                )
-               $randomAtom 
+             $randomAtom
            )
        )
    )
 )
 
+
 ;;; Function: getIncomingSet
 ;;; Description: Retrieves the set of incoming links of a specific type for a given atom,
-;;;              filtering out links not in the active frame (AF).
+;;;              filtering out links not in the attentional focus (AF).
 ;;; Parameters:
 ;;;   $atom: The atom for which to find incoming links.
 ;;;   $type: The type of link to consider.
@@ -277,33 +293,31 @@
 ;!!!the filtered set needs sorting by STI value
 
 ;;; Function: filterLinksInAF
-;;; Description: Filters a list of links, returning only those that are in the active frame (AF).
+;;; Description: Filters a list of links, returning only those that are in the attentional focus (AF).
 ;;; Parameters:
 ;;;   $incoming_set: A list of incoming links to filter.
 ;;; Returns: A new list containing only the links that are in the AF.
-
 (: filterLinksInAF (-> List List))
 (= (filterLinksInAF $incoming_set)
-    (if (== $incoming_set ())
-        ()
-        (let* (
-              ($head (car-atom $incoming_set))
-              ($tail (cdr-atom $incoming_set))
-              ($filtered_head 
-                    (if (atomIsInAF $head)
-                        $head
-                        ()
-                    ))
-               )
-               
-            (concatTuple ($filtered_head) (filterLinksInAF $tail))
+    (let $atoms (collapse (filterLinksInAFHelper $incoming_set))
+        $atoms
+    )
+)
+; function filterLinksInAFHelper
+; return list of atom that is not in AF
+(: filterLinksInAFHelper (-> List List))
+(= (filterLinksInAFHelper $incoming_set)
+    (let $atom (superpose $incoming_set)
+        (if (atomIsInAF $atom)
+            $atom
+            (emtpy)
         )
     )
 )
 
 ;;; Function: getIncomingSetByType
 ;;; Description: Retrieves the set of incoming links of a specific type for a given atom
-;;;              without filtering based on the active frame.
+;;;              without filtering based on the attentional focus.
 ;;; Parameters:
 ;;;   $atom: The atom for which to find incoming links.
 ;;;   $type: The type of link to consider.
@@ -321,9 +335,9 @@
     )
 )
 
+
 ;This function simply matches if two nodes are equal and they are in AF
 (:nodeMatch (-> Atom Atom Bool))
-
 (= (nodeMatch $node1 $node2)
     (if (and (== $node1 $node2) (atomIsInAF $node2))
         True
@@ -358,9 +372,12 @@
  ;; this Function is copied from the pattern minor project found at https://github.com/iCog-Labs-Dev/hyperon-miner/blob/experiments/experiments/utils/common-utils.metta
 
 
-(= (getArity Nil ) 0 )
 (= (getArity $pattern)
-    (- (tupleCount $pattern) 1) )
+	(if (== $pattern ())
+		0
+	    (- (tupleCount $pattern) 1)
+	) 
+)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

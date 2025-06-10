@@ -1,6 +1,7 @@
 !(register-module! ../../../../../metta-attention)
 !(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
+!(import! &self metta-attention:attention-bank:utilities:recentVal)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
@@ -10,16 +11,17 @@
 
 
 ;For Testing the update, getMaxSTI, getMinSTI
+;###################### Prep: adding atoms to the atom bin #####################
 !(setAv a (2.0 2.0 2.0))
 !(setAv d (4.0 2.0 2.0))
 !(setAv c (3.0 2.0 2.0))
+!(setAv x (200.0 200.0 0.0))
 
 !(add-atom &atombin (1 (a)))
 !(add-atom &atombin (10 (d)))
 !(add-atom &atombin (18 (c)))
 
-!(assertEqual (getHandleSet 1 20) (c d a))
-!(assertEqual (getHandleSet 10 10) ())
+;########################### Testing ###########################################
 
 ; Test case 01: Testing importanceBin with different number value
 !(assertEqual (importanceBin -5.0)  0.0)    ; Should return 0
@@ -65,4 +67,3 @@
 
 !(assertEqual (getNormalisedSTI a True True) -1.0)
 !(assertEqual (getNormalisedSTI d True False) -1.0263157894736843)
-

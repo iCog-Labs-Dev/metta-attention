@@ -107,4 +107,3 @@
 !(assertEqual(getAv k) (AV 200 200 200))
 !(assertEqual (getAttentionBank fundsSTI) 96403)
 !(assertEqual (getAttentionBank fundsLTI) 96600)
-

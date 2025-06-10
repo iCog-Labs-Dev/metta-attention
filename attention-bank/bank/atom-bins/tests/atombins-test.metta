@@ -2,12 +2,9 @@
 !(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam) 
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
-
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
-
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
-
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 
 ;################ Preparation: inserting atoms for testing ####################
@@ -51,25 +48,38 @@
 ;;;		$higher: The upper bound of the Atoms STI
 ;;; return: True if atom STI is in range of $lower and $higer else false
 ;(: pred (-> Symbol Number Number Bool))
-(= (pred $x $lower $higher) (
-    let $sti (getSTI $x) 
+(= (pred $x $lower $higher)
+	(let $sti (getSTI $x) 
       (and 
         (>=  $sti $lower) 
         (<=  $sti $higher)
       )
   )
 )
-!(assertEqual (getContentIf 2 pred 0 10 (collapseAtomBin &atombin) (a)) (a d))
-!(assertEqual (getContentIf 1 pred 0 10 (collapseAtomBin &atombin)()) (a))
-!(assertEqual (getContent 2 (collapseAtomBin &atombin) (a b)) (a b d))
-!(assertEqual (getContent 1 (collapseAtomBin &atombin) ()) (a))
 
+;################################### Testing ###################################
+
+; Test case 01: Tesing that the getRandomAtom function returns one result
+! (let $res (collapse (getRandomAtom)) (assertEqual (size-atom $res) 1))
+
+; Test case 02: Testing getContentIf function using pred as a predicate function
+!(assertEqual (getContentIf 1 pred 0 10 (collapseAtomBin &atombin) ()) (a))
+!(assertEqual (getContentIf 2 pred 0 10 (collapseAtomBin &atombin) (a)) (a d))
+!(assertEqual (getContentIf 17 pred 250 350 (collapseAtomBin &atombin) (a)) (a (EvaluationLink a b)))
+!(assertEqual (getContentIf 12 pred 0 10 (collapseAtomBin &atombin) ()) ())
+
+
+; Test case 03: Testing getContent by retriveing values from the atombin space
+!(assertEqual (getContent 2 (collapseAtomBin &atombin) (a b)) (a b d Animal (Hebbianlink (Hebbianlink Human Cat) Animal)))
+!(assertEqual (getContent 1 (collapseAtomBin &atombin) ()) (a Cat (Hebbianlink Human Cat)))
+!(assertEqual (getContent 12 (collapseAtomBin &atombin) ()) ())
+
+; Test case 04: Testing insertAtom can insert atom into the specifed empty index 
 !(setAv  E (200 200 0))
 !(insertAtom  45 E)
 !(assertEqual (match &atombin (45 $x) $x) (E)) 
-!(setAv G (200 200 0))
-!(insertAtom  45 G)
-!(assertEqual (match &atombin (45 $x) $x) (G E))
+
+; Test case 05: Testing insertAtom can insert an atom into the specified non-empty index
 !(setAv H (200 200 0))
 !(insertAtom  45 H)
 !(assertEqual (match &atombin (45 $x) $x) (H E))
