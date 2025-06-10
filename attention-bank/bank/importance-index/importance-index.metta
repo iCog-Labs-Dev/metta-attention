@@ -50,7 +50,7 @@
         $impo_int
         (let*
           (
-            ($imp (ceil-math (/ (- $impo_int $groupSize) $groupSize)))
+            ($imp (trunc-math (/ (- $impo_int $groupSize) $groupSize)))
             ($i (findGroup $imp 0 0))
             ($num (- $i 1))
             ($temp (ceil-math (/ $impo_int (pow-math 2 (- $i 1)))))
@@ -63,6 +63,7 @@
     )
   )
 )
+
 
 ;####################### update ##################################
 
@@ -82,20 +83,18 @@
 (: update (-> hyperon::space::DynSpace Atom))
 (= (update $space)
     (let* (
-            ($nums (collapse (match $space ($x $y) $x)))
-            ($vals (collapseAtomBin $space))
-            ($filteredVals (filter $vals notEmpty))
-            ($collectedContents (collectContents $filteredVals ()))
-            ($max (findMaxSTI $collectedContents))
-            ($min (findMinSTI $collectedContents))
+            ($collectedContents (getAllAtomsInBins))
+            ($max (getAllMaxSTI $collectedContents))
+            ($min (getAllMinSTI $collectedContents))
             ($exitCondition (> $min $max))
         )
-        (if $exitCondition
+         (if $exitCondition
             (updateGlobalMaxAndMinSTI $max $max)
             (updateGlobalMaxAndMinSTI $min $max)
           )
     )
 )
+
 
 (= (updateGlobalMaxAndMinSTI $min $max)
     (let*
@@ -119,26 +118,34 @@
 
 (: updateImportance (-> hyperon::space::DynSpace Atom Number Number Atom))
 (= (updateImportance $space $atom $oldSTI $newSTI)
-    (let* (
+    (let* 
+        (
             ($oldBin (importanceBin $oldSTI))
-            ($newBin (importanceBin $newSTI)))
-        (if (== $oldBin $newBin)
-            ()
-            (let $result (relocateAtom $oldBin $newBin $atom)
-              (if $result ("Importance Updated") ("Importance Not Updated"))
+            ($newBin (importanceBin $newSTI))
+            ($relocate 
+                (let $result 
+                    (relocateAtom $oldBin $newBin $atom)
+                    (if $result ("Importance Updated") ("Importance Not Updated")))
             )
         )
+        $relocate
     )
 )
 
+
 (: relocateAtom (-> Number Number Symbol Bool))
 (= (relocateAtom $oldBin $newBin $atom)
-   (let $res1 (removeAtom $oldBin $atom)
-     (if (or (== $res1 ("Atom is not valid")) (== $res1 ("Bin is empty")))
+   (let* (($res1 (removeAtom $oldBin $atom))
+         ($res2 (insertAtom $newBin $atom)))
+   
+      
+
+     (if (or (== $res1 ("Atom already exists")) (== $res1 ("Bin is empty")))
        False
-       (== (insertAtom $newBin $atom) ("Atom Inserted"))
+       (== (collapse(index-atom $res2 0)) ("Atom Inserted"))
       )
-    )
+   )
+    
 )
 
 (: pred (-> Symbol Number Number Bool))
@@ -251,8 +258,9 @@
 (= (getNormalisedSTI $atom)
    (let*
        (
+          ($atoms (getAtomList))
            ($s (getSTI $atom))
-           ($afMax (getAfMaxSTI))
+           ($afMax  (getAllMaxSTI $atoms))
            ($normaliser
                (if (> $s $afMax)
                    (getMaxSTI)
@@ -282,8 +290,9 @@
 (= (getNormalisedSTI $atom $average $clip)
    (let*
        (
+           ($atoms (getAtomList))
            ($s (getSTI $atom))
-           ($afMax (getAfMaxSTI)) 
+           ($afMax  (getAllMaxSTI $atoms))
            ($diff (- $s $afMax))
            ($sum (+ $s $afMax)) 
            ($normaliser

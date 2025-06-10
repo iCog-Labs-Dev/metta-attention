@@ -21,10 +21,10 @@
 (: calculateSTIWage (-> Number))
 (= (calculateSTIWage)
    (let* (
-           ($funds (match  &space  (fundsSTI $x) $x))
-           ($targetSTI (match  &space  (targetSTI $y) $y))
-           ($stiFundsBuffer (match  &space  (stiFundsBuffer $z) $z))
-           ($STIAtomWage (match  &space  (STIAtomWage $z) $z))
+           ($funds (match &space (fundsSTI $x) $x))
+           ($targetSTI (match &space (targetSTI $y) $y))
+           ($stiFundsBuffer (match &space (stiFundsBuffer $z) $z))
+           ($STIAtomWage (match &space (STIAtomWage $z) $z))
            ($diff (- $funds $targetSTI))
            ($ndiff-raw (/ $diff $stiFundsBuffer))
            ($ndiff-clamped-min (min-atom ($ndiff-raw 1.0)))
@@ -81,15 +81,9 @@
            ($new-sti (+ $sti $sti-wage))
            ($new-lti (+ $lti $lti-wage))
            ($new-av ($new-sti $new-lti $vlti))
-           ($stiDiff (- $sti $new-sti))
-           ($ltiDiff (- $lti $new-lti))
-           ($fundsSTI (match &space  (fundsSTI $x) $x))
-           ($fundsLTI (match  &space  (fundsLTI $x) $x))
-           ($newstifund (+ $fundsSTI $stiDiff))
-           ($newltifund (+ $fundsLTI $ltiDiff))
-           ($res (updateImportance $space $pattern $sti $new-sti))
+           ($res (setAv $pattern $new-av))
          )
-         (attentionValueChanged $pattern $newstifund $newltifund $new-av)
+		 ("Updated")
    )
 )
 
@@ -109,17 +103,16 @@
 ;Returns: The result of updating the AtomBin.
 
 
-(: attentionValueChanged (-> Atom Number Number AttentionValue empty))
-(= (attentionValueChanged $pattern $newSTIFund $newLTIFund $newAv)
+(: attentionValueChanged (-> Atom Number Number empty))
+(= (attentionValueChanged $pattern $newSTIFund $newLTIFund)
    (let*(
-         ($res (setAv $pattern $newAv))
          ($oldSTIFund (match &space (fundsSTI $fundsSTI) $fundsSTI))
          ($oldLTIFund (match &space (fundsLTI $fundsLTI) $fundsLTI))
-         ($_ (updateLTIFunds $oldLTIFund $newLTIFund))
-         ($_ (updateSTIFunds $oldSTIFund $newSTIFund))
-         ($_ (updateAttentionalFocus $pattern))
+         ($one (updateLTIFunds $oldLTIFund $newLTIFund))
+         ($two (updateSTIFunds $oldSTIFund $newSTIFund))
          ($atombin (AtomBin))
          ($r (update $atombin))
+         ($three (updateAttentionalFocus $pattern True))
         )
         $r
     )
@@ -131,7 +124,6 @@
 ;     $old: The previous LTI fund value
 ;     $new: The new LTI fund value
 ;Returns: Nothing (updates the fund in the AtomSpace)
-
 (: updateLTIFunds (-> Number Number empty))
 (= (updateLTIFunds $old $new)
   (match  &space  (fundsLTI $old)
@@ -157,3 +149,10 @@
       )
   )
 )
+(: getAttentionBank  (-> Symbol Number))
+(= (getAttentionBank $param)
+   (match &space ($param $x) $x)
+)
+
+; Alias for &space
+(= (space) &space)
