@@ -2,6 +2,7 @@ from hyperon.ext import register_atoms
 from hyperon.atoms import OperationAtom, S
 from datetime import datetime
 import csv
+import json
 
 
 
@@ -12,17 +13,17 @@ def get_csv_file_name() -> str:
     file_name = f"csv/results_{time}.csv"
     return [S(file_name)]
 
-def write_to_csv(afatoms, afsize, name):
+def write_to_csv(afatoms, name):
     """ writes to a file passed as argument """
     data = []
 
     for atom in afatoms.get_children():
         (pattern, av) = atom.get_children()
         (_, sti, lti, _) = av.get_children()
-        data.append({"timestamp": datetime.now(), "pattern":pattern, "sti":sti, "lti":lti, "afsize": afsize.get_children()[0]}) 
+        data.append({"timestamp": datetime.now(), "pattern":pattern, "sti":sti, "lti":lti}) 
 
     with open(name.get_name(), 'a') as f:
-        writer = csv.DictWriter(f, fieldnames=["timestamp", "pattern", "sti", "lti", "afsize"])
+        writer = csv.DictWriter(f, fieldnames=["timestamp", "pattern", "sti", "lti"])
 
         if f.tell() == 0:
             writer.writeheader()
@@ -31,6 +32,21 @@ def write_to_csv(afatoms, afsize, name):
             writer.writerow(d)
 
     return [S("wrote")]
+
+def save_params(params):
+    """ writes the params into a json file """
+
+    data = {}
+    for param in params.get_children():
+        key, value = param.get_children()
+        key = str(key)
+        value = str(value)
+        data[key] = value
+
+    with open("output/settings.json", "w") as f:
+        json.dump(data, f, indent=4)
+
+    return [S('()')]
 
 
 @register_atoms(pass_metta=True)
@@ -45,8 +61,15 @@ def utils(metta):
 
     writeToCsv = OperationAtom(
         "write_to_csv",
-        lambda afatoms, afsize, name: write_to_csv(afatoms, afsize, name),
-        ["Expression", "Expression", "Expression","Atom"],
+        lambda afatoms, name: write_to_csv(afatoms, name),
+        ["Expression", "Expression", "Atom"],
         unwrap=False
         )
-    return {r"get_csv_file_name": getCsvFileName, r"write_to_csv": writeToCsv}
+
+    saveParams = OperationAtom(
+        "save_params",
+        lambda param: save_params(param),
+        ["Expression", "Atom"],
+        unwrap=False
+        )
+    return {r"get_csv_file_name": getCsvFileName, r"write_to_csv": writeToCsv, r"save_params": saveParams}
