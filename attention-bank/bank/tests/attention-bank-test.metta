@@ -1,4 +1,5 @@
 !(register-module! ../../../../metta-attention)
+!(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
@@ -44,5 +45,11 @@
 ; Check the  attentional focus  is updated  when an atom is stimulated
 !(assertEqual (getAtomList) (x))
 !(stimulate y 2)
+
+; Check new Atom is added to bin 0
+!(stimulate w 0)
+
+!(assertEqual (getAtomsInBins) ((45.0 (z)) (49.0 (x)) (47.0 (y)) (0.0 (w))))
+!(assertEqual (getAtomList) (x y z w))
 
 !(assertEqual (getAtomList) (x y))

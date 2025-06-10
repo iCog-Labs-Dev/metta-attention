@@ -1,6 +1,6 @@
 !(bind! &attentionalFocus (new-space))
 
-(= (maxAFSize) 100)
+(= (maxAFSize) 1000)
 
 ;Function: atomIsInAF
 ;Description: Checks if a given atom is in the attentional focus space.
@@ -17,32 +17,51 @@
 )
 
 ;Function: atomIsNotInAF
-;Description: Checks if a given atom is NOT in the attentional focus.
+;Description: gives list of atoms not in the atentional focus.
 ;Parameters:
-;          $atom: The atom to check.
-;Returns: True if the atom is not in attentional focus, otherwise False.
+;          list of atoms
+;Returns: return list of atoms not in the atentional focus
 
-(: atomIsNotInAF (-> Atom Bool))
-(= (atomIsNotInAF $atom)
-   (not (atomIsInAF $atom))
+
+(: atomIsNotInAF (-> Expression Expression))
+(= (atomIsNotInAF $list)
+
+   (collapse 
+        (let $x (superpose $list)
+            (if (atomIsInAF $x) 
+                (empty) 
+                $x
+            )
+        ) 
+   )
 )
-
 
 ;Function: addAtomToAF
 ;Description:
 ;           if the atom has neither AV nor STV,it returns an error message
 ;           if an atom is valid,it will add it to the attentional focus space. 
+;           if an atom is new to the AF and isnt in newAtomIAV 
 ;Parameters:
 ;          $atom: The atom to add.
 ;Returns: A message indicating success or failure.
-(: addAtomToAF (-> Atom Symbol))
-(= (addAtomToAF $atom)
-   (if (== (getType $atom) %Undefined%)
+(: addAtomToAF (-> Atom Bool Symbol))
+(= (addAtomToAF $atom $new)
+   (if (== (getValueType $atom) %Undefined%)
        ("Atom is not valid")
-       (let()
-         (add-atom &attentionalFocus $atom)
-         ("Atom Added")
-       )
+       (let* 
+            (
+                (() (add-atom &attentionalFocus $atom))
+                (() (if (contains (getNewAtomInAVList) $atom)
+                        ()
+                        (if $new
+                            (add-atom &newAtomInAV $atom)
+                            ()
+                        )
+                    )
+                )
+            )
+            ("Atom Added")
+        )
    )
 )
 
@@ -167,32 +186,6 @@
     )
 )
 
-;gets the maximum STI value in the attentional focus
-
-;(: getAfMaxSTIHelper (-> List Atom Number Atom))
-(= (getAfMaxSTIHelper $atoms $maxAtom $maxSTI)
-    (if (== $atoms ())
-        $maxSTI
-        (let* (
-            ($current (car-atom $atoms))
-            ($sti (getSTI $current))
-            ($newMaxAtom (if (> $sti $maxSTI) $current $maxAtom))
-            ($newMaxSTI (if (> $sti $maxSTI) $sti $maxSTI))
-        )
-        (getAfMaxSTIHelper (cdr-atom $atoms) $newMaxAtom $newMaxSTI))
-    )
-)
-
-(: getAfMaxSTI (-> Number))
-(= (getAfMaxSTI)
-    (let $atoms (getAtomList)
-        (if (== $atoms ())
-            0.0
-            (getAfMaxSTIHelper $atoms (car-atom $atoms) (getSTI (car-atom $atoms)))
-        )
-    )
-)
-
 ;the function below updates the attentional focus with a new atom
 ;the RemoveAFSignal() and AddAFSignal() functions have been skipped in this function because it appears to primarily 
 ;serve logging the additional and removal of an atom as i reviewed in the example/AtomSpaceEventSubscribeExample.cc
@@ -204,11 +197,12 @@
 ;Parameters:
 ;          $atom: The atom to be added or updated.
 ;Returns: Nothing if no update occurs, otherwise the atom is added.
-(: updateAttentionalFocus (-> Atom empty))
-(= (updateAttentionalFocus $atom)
+(: updateAttentionalFocus (-> Atom Bool empty))
+(= (updateAttentionalFocus $atom $newAtom)
    (let*
        (
-           ($maxSize (maxAFSize)) 
+        
+           ($maxSize (getAttentionParam MAX_AF_SIZE)) 
            ($sti (getSTI $atom)) 
            ($currentSize (attentionalFocusSize)) 
            ($isInAF (atomIsInAF $atom)) ; Check if atom is already in AF
@@ -218,17 +212,16 @@
            ; Case 1: Atom is already in AF, update its value
            (let ()
                (remove-atom &attentionalFocus $atom)
-               (addAtomToAF $atom)
+               (addAtomToAF $atom $newAtom)
            )
            (if (< $currentSize $maxSize)
                ; Case 2: AF is not full, add the new atom
-               (addAtomToAF $atom)
-
+               (addAtomToAF $atom $newAtom)
                (let $lowestAtom (getLowestStiAtomInAF) ; Only compute if needed
                     (if (> $sti (getSTI $lowestAtom))  ; Case 3: Replace if better
                         (let ()
                             (remove-atom &attentionalFocus $lowestAtom)
-                            (addAtomToAF $atom)
+                            (addAtomToAF $atom True)
                         )
                         (empty) ; Case 4: Atom not added
                     )
@@ -251,8 +244,8 @@
            ($filteredAtoms (filter $allAtoms atomIsNotInAF))
        )
        (if (== $filteredAtoms ())
-           %Undefined 
-           (let*
+          ()
+        (let*
                (
 
                    ($res (py-list $filteredAtoms))
@@ -435,4 +428,55 @@
 )
 
 
+;;; Function: getIncomingSetwithoutType
+;;; Description: Retrieves the set of incoming links for a given atom,
+;;;              without filtering out links not in the attentional focus (AF).
+;;; Parameters:
+;;;   $atom: The atom for which to find incoming links.
+;;; Returns: A list of incoming links.
+(: getIncomingSetwithoutType (-> Atom List))
+(= (getIncomingSetwithoutType $atom)
+    (collapse
+        (superpose
+            (
+                (match &attentionalFocus ($type $atom $b) ($type $atom $b))
+                (match &attentionalFocus  ($type $b $atom) ($type $b $atom))
+            )
+        )  
+    )
+)
 
+
+
+( = (getRandomAtomInAF)
+    (if  (== (attentionalFocusSize) 0)
+        ("AF is Empty")
+        ;else
+        ( let*( ($randomNumber (random-int 0 (attentionalFocusSize) ))
+            ($atoms (getAtomList))
+            ($randomAtom (index-atom $atoms $randomNumber))
+            )
+        $randomAtom
+        )
+    )
+)
+
+
+(= (attentionalFocus)
+    &attentionalFocus
+)
+
+
+(: removeAtomAttentionalfocus (-> atom empty))
+(= (removeAtomAttentionalfocus $atom)
+	(if (atomIsInAF $atom)
+		(remove-atom &attentionalFocus $atom)
+		()
+	)
+)
+
+
+;(: removeNewAtomAV (-> atom empty))
+(= (removeNewAtomAV $head)
+    (remove-atom &newAtomInAV $head)
+)
