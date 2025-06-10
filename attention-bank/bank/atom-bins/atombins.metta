@@ -31,28 +31,28 @@
 ;         $pattern: The atom to be inserted.
 ;Returns: A confirmation message ("Atom Inserted") if successful, 
 ;         or an error message if the atom is invalid.
+
 (: insertAtom (-> Number Atom empty))
 (= (insertAtom $bin_index $pattern)
-  (if (== (collapse (match &atombin ($bin_index $x) $x)) ())
-           (let ()
-               (add-atom &atombin ($bin_index ($pattern))) ; Insert new bin
-               ("Atom Inserted")
-           )
-           (match &atombin ($bin_index $x)
-               (if (== (contains $x $pattern) True)  ; Check for duplicates
-                   ("Atom already exists")  ; Do not insert duplicate
-                   (let* (
-                        ($atomremove(remove-atom &atombin ($bin_index $x)))  ; Remove old bin
-                        ($updated (cons-atom $pattern $x))  ; Add new atom
-                        ($atomadded (add-atom &atombin ($bin_index $updated))) ; Update bin
-                    )
-                    ("Atom Inserted")
-                   )
+   (if(== (getType $pattern) %Undefined%)
+      ("Atom is not valid") ; Validate type
+      (if (== (collapse (match &atombin ($bin_index $x) $x)) ())
+         (let () 
+              (add-atom &atombin ($bin_index ($pattern)))
+              ("Atom Inserted")
+           ) ; Insert new bin
+         (match &atombin ($bin_index $x)
+            (let*(
+                ($_ (remove-atom &atombin ($bin_index $x))) ; Update bin
+                ($updated (cons-atom $pattern $x))
+                ($_ (add-atom &atombin ($bin_index $updated)))
                )
-           )
+              ("Atom Inserted")
+            )
+         )
+      )
    )
 )
-
 
 ;Function: removeAtom
 ;Description: Removes a specified atom from a given bin from &atombin space.
@@ -68,7 +68,7 @@
 
 (: removeAtom (-> Number Atom empty))
 (= (removeAtom $bin_index $atom)
-   (if (== (getValueType $atom) %Undefined%)
+   (if (== (getType $atom) %Undefined%)
       ("Atom is not valid") ; Validate type
       (let $bin_contents (collapse (match &atombin ($bin_index $contents) $contents))
          (if(== $bin_contents ())
@@ -77,8 +77,8 @@
                   (match &atombin ($bin_index $x)
                      (let*
                        (
-                          ($atomremove (remove-atom &atombin ($bin_index $x)))
-                          ($atomadded (add-atom &atombin ($bin_index $updated_contents)))
+                          ($_ (remove-atom &atombin ($bin_index $x)))
+                          ($_ (add-atom &atombin ($bin_index $updated_contents)))
                         )
                       ("Atom Removed")
                      )
@@ -129,7 +129,7 @@
    (
     let*(
          ($handleSetSeq (collapseAtomBin &atombin))
-         ($filteredOutput (filter $handleSetSeq notEmpty))
+         ($filteredOutput (filter $handleSetSeq notEmpty ()))
         )
     (if(== $filteredOutput ()) ;check if all bins in atom bins are empty
       empty
@@ -171,21 +171,4 @@
 
 (= (AtomBin)
    &atombin
-)
-
-(= (getAtomsInBins)
-	(collapse (get-atoms &atombin))
-)
-
-(= (getAllAtomsInBins)
-	( let* 
-		(
-			($atombin (AtomBin))
-	        ($allAtoms  (collapse (match $atombin ($x $y) $y)))
-    	    ($flatten (extractAndFlatten $allAtoms))
-		)
-        $flatten
-        
-        
-	)
 )
