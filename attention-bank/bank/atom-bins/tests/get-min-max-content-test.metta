@@ -81,4 +81,3 @@
 ; Expected: sumSizes(1 2) should return 5, sumSizes(70 60 90) should return 3
 !(assertEqual (sumSizes (1 2)) 5)
 !(assertEqual (sumSizes (70 60 90 )) 3)
-

@@ -19,4 +19,3 @@
 ;calculate rent after atoms stimulated
 !(assertEqual (> (calculateStiRent (getAttentionParam StartingAtomStiRent)) 0.0) True)
 !(assertEqual (> (calculateLtiRent (getAttentionParam StartingAtomLtiRent)) 0.0) True)
-

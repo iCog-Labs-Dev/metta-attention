@@ -39,7 +39,3 @@
 !(assertEqual (findGroup 50 0 0) 6)
 !(assertEqual (findGroup 500 0 0) 9)
 !(assertEqual (findGroup 5000 0 0) 12)
-
-
-
-

@@ -112,7 +112,7 @@
          ($two (updateSTIFunds $oldSTIFund $newSTIFund))
          ($atombin (AtomBin))
          ($r (update $atombin))
-         ($three (updateAttentionalFocus $pattern))
+         ($three (updateAttentionalFocus $pattern True))
         )
         $r
     )

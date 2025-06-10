@@ -67,4 +67,3 @@
 
 !(assertEqual (getNormalisedSTI a True True) -1.0)
 !(assertEqual (getNormalisedSTI d True False) -1.0263157894736843)
-
