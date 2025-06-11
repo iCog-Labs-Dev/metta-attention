@@ -1,10 +1,17 @@
 !(import! &self utils)
 (= (write_csv_wrapper $space $file)
-    (let*
+    (let $snapshot
+        (collapse (AFsnapshot $space))
+        (write_to_csv $snapshot $file)
+    )
+)
+
+(= (AFsnapshot $space)
+    (let* 
         (
             ($atom (get-atoms $space))
             ($av (getAv $atom))
-        )
-        (write_to_csv (($atom $av)) $file)
+        ) 
+        ($atom $av) 
     )
 )
