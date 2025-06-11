@@ -54,6 +54,7 @@
        (let* 
             (
                 (() (add-atom &attentionalFocus $atom))
+                ($wrote (write_csv_wrapper (attentionalFocus) output/output.csv))
                 (() (if (contains (getNewAtomInAVList) $atom)
                         ()
                         (if $new
