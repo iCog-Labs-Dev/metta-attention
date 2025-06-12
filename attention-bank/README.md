@@ -56,3 +56,15 @@ are defined in the **[types.metta](../../types.metta)** function defined in the 
 - This space is used to store links such as **ASYMMETRIC_HEBBIAN_LINK** which 
 will be created by the hebbian creation agent used for diffusion.
 
+## STI
+
+The **STI** value is the main value that determine's the movement of an atom
+higher in the spaces with repect to the above mentioned diagram.
+
+Atoms gain **STI** by wage which is supplied through wage via the stimulate function
+and through diffusion via the [**Diffusionagent**](../attention/agents/mettaAgents/ImportanceDiffusionAgent).
+
+Atoms loose **STI** based on Rent collected by [**RentCollectionAgent**](../attention/agents/mettaAgents/RentCollectionAgent) and through 
+diffusion to atoms that are have connection to the atom under consideration.
+
+for further information on **Wage** and **Rent** refer to the [README.md](bank/README.md)
