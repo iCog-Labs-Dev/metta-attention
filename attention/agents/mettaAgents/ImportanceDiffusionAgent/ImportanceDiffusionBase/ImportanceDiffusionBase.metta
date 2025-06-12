@@ -123,7 +123,7 @@
     (let*
         (
             ($diffusionAvailable 1.0)
-            ($hebbianDiffusionAvailable (* hebbianMaxAllocationPercentage $diffusionAvailable))
+            ($hebbianDiffusionAvailable (* getAllAttentionParams(HEBBIAN_MAX_ALLOCATION_PERCENTAGE)  $diffusionAvailable))
             ($hebbianMaximumLinkAllocation (/ $hebbianDiffusionAvailable (size-atom $adjacentVector)))
             ($hebbianProportionSTI (collapse (hebbianProportionSTI $adjacentVector $hebbianMaximumLinkAllocation)))
             ($resultone (extractMap $hebbianProportionSTI))
