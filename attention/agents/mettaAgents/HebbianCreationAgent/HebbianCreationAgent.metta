@@ -30,7 +30,7 @@
                                     (remove-atom (attentionalFocus) $source) ())) ; to minimize self connection I am unsure if this should exist
                             ($existingAsSourceHS  (getTargetNeighbors $source ASYMMETRIC_HEBBIAN_LINK $space)) ;;need to check if we should use source or sourceAtom
                             ($existingAsTarget  (getSourceNeighbors $source ASYMMETRIC_HEBBIAN_LINK $space))
-                            ($needToBeSource ( setDifference $existingAsSourceHS) )
+                            ($needToBeSource (setDifference $existingAsSourceHS) )
                             ($needToBeTarget  (setDifference $existingAsTarget))
                             ($count (size-atom $needToBeTarget ))
                             ($_ (collapse (addHebbian (superpose $needToBeSource) $source )))

@@ -13,7 +13,6 @@
 !(import! &self metta-attention:attention:agents:mettaAgents:Neighbors)
 !(import! &self metta-attention:experiments:runner-Def)
 !(import! &self metta-attention:experiments:logger)
-!(import! &self metta-attention:experiments:utils)
 
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
@@ -27,44 +26,50 @@
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
 !(import! &tempspace metta-attention:attention:data:adagram_sm_links)
-!(import! &insect metta-attention:experiments:experiment:data:insect-words)
-!(import! &poison metta-attention:experiments:experiment:data:poison-words)
+!(import! &insect metta-attention:experiments:experiment:data:insect-sent)
+!(import! &poison metta-attention:experiments:experiment:data:poison-sent)
+(collapse (match &insect (insect $x) $x))
+(collapse (match &poison (poison $x) $x))
 
-!(updateAttentionParam MAX_AF_SIZE 9)
-
+!(updateAttentionParam MAX_AF_SIZE 8)
 (=(spaceAdder) (get-atoms &tempspace)) 
 !(spaceAdder)
 
-; write the params to a file
-!(let $vals (collapse (get-atoms &attentionParam)) (save_params $vals))
-
-(= (insectPoisonExp $maxim $space $type)
+(= (insectPoisonReadExp $space $type $expr)
     (
-        (if (< $maxim 0)
+        (if (and (== $type poisonSent) (== $expr ()))
             finished
             (let* 
                 (
-                    ($words (collapse (match $space ($type $x) $x)))
-                    ($randInt1 (random-int 0 (size-atom $words)))
-                    ($randInt2 (random-int 0 (size-atom $words)))
-                    ($randomWord1 (index-atom $words $randInt1))
+                    ($now (car-atom $expr))
+                    ($rest (cdr-atom $expr))
+                    
                 )
                 (
-                    (stimulate $randomWord1 10)
+                    (stimulate $now 10)
+                    (println! $now)
                     (collapse (test-superpose))
-                    (collapse (write_csv_wrapper (attentionalFocus) output/output.csv))
-                    (let $newMaxim (- $maxim 1)
-                        (if (> $maxim 2)
-                            (insectPoisonExp $newMaxim  &insect insect)
-                            (insectPoisonExp $newMaxim  &poison poison)
-                        )
+                    (collapse (write_csv_wrapper (attentionalFocus) outer2.csv))
+                    
+                    (if (== $rest ())
+                            (if (== $type insectSent)
+                                (insectPoisonReadExp &poison poisonSent (match &poison (poisonSent $x) $x))
+                                finished
                     )
+                 
+                 (insectPoisonReadExp $space $type $rest)
+             )
+                    
                 )
             )
         )     
     )
 )
 
-
-!(insectPoisonExp 2 &insect insect)
+;!(match &insect (insectSent $x) $x)
+;!(match &poison (poisonSent $x) $x)
+!(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x))
 !(getAtomList)
+!(get-atoms (TypeSpace))
+
+
