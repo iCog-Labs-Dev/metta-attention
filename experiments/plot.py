@@ -1,44 +1,92 @@
-import matplotlib.pyplot as plt
 import pandas as pd
-import glob
-import os
+import matplotlib.pyplot as plt
+import json
+import sys
 
-def get_csv_name():
-    # Define the directory
-    directory = 'csv'  # or './csv'
-    latest_file = ''
+# Read the CSV file
+if len(sys.argv) >= 2:
+    FILE = sys.argv[1]
+else:
+    FILE = 'output/output.csv'
+df = pd.read_csv(FILE, parse_dates=['timestamp'])
 
-    # Get list of all CSV files in the directory
-    csv_files = glob.glob(os.path.join(directory, '*.csv'))
+def create_category():
 
-    if not csv_files:
-        print("No CSV files found.")
-    else:
-        # Find the most recently modified CSV file
-        latest_file = max(csv_files, key=os.path.getmtime)
+    file_list = {"insect": "experiments/experiment/data/insect-words.metta", "poison": "experiments/experiment/data/poison-words.metta", "insecticide": "experiments/experiment/data/insecticide-words.metta"}
 
-        print(f"Reading latest file: {latest_file}")
+    word_category = {key: [] for key in file_list}
 
-    return latest_file
+    for i in file_list.keys():
+        with open(file_list[i], 'r') as f:
+            for line in f:
+                word_category[i].append(line.split()[1].rstrip(")"))     
 
-def read_csv():
+    return word_category
+    
+# Categorize patterns
+def categorize_pattern(pattern):
+    pattern = str(pattern).lower()
+    word_category = create_category()
+    
+    # Similarity links - check what they link to
+    for category, words in word_category.items():
+        if pattern in words:
+            return  category
 
-    file_name = get_csv_name()
-    df = pd.read_csv(file_name, parse_dates=["timestamp"])
+    
+    return 'Entered through spreading'
 
-    # Pivot the data so each pattern is a column and timestamps are the index
-    pivot_df = df.pivot(index="timestamp", columns="pattern", values="sti")
+def read_params(param:str) -> str:
+    """ retrives the string of the passed value from a json file 
+        all returns are of type str
+    """
 
-    # Plot each pattern over time
-    pivot_df.plot(marker='o', figsize=(12, 6))
-    plt.xlabel("Timestamp")
-    plt.ylabel("STI")
-    plt.title("STI Over Time by Pattern")
-    plt.legend(title="Pattern", bbox_to_anchor=(1.05, 1), loc='upper left')
-    plt.tight_layout()
-    plt.grid(True)
-    plt.savefig("sti_plot.png")
+    with open('output/settings.json', 'r') as f:
+        setting_json = json.load(f)
 
-if __name__ == "__main__":
-    print(get_csv_name())
-    read_csv()
+    return setting_json[param]
+
+# Apply categorization
+df['category'] = df['pattern'].apply(categorize_pattern)
+
+# Apply time_Window
+df['time_window'] = df['timestamp'].dt.floor('1s')
+
+# Sort by timestamp for proper line connections
+
+# Group by time_window and category, then count occurrences
+category_counts = df.groupby(['time_window', 'category']).size().unstack(fill_value=0)
+
+af_size = int(read_params('MAX_AF_SIZE'))
+category_counts = category_counts / af_size
+
+plt.figure(figsize=(14, 7))
+
+# Customize colors and markers for each category
+colors = ['red', 'blue', 'green', 'purple']
+markers = ['o', 's', '^', 'D']  # Circle, square, triangle, diamond
+
+print(category_counts)
+
+for i, category in enumerate(category_counts.columns):
+    plt.plot(
+        category_counts.index, 
+        category_counts[category], 
+        label=category,
+        color=colors[i % len(colors)],
+        marker=markers[i % len(markers)],
+        markersize=2,
+        linestyle='-',
+        linewidth=1,
+        alpha=0.8
+    )
+
+plt.ylim(-0.02, 1.02)
+plt.xlabel('Time Window', fontsize=12)
+plt.ylabel(f'Number of Entries for {af_size}', fontsize=12)
+plt.title('Category Frequency Over Time', fontsize=14)
+plt.legend(title='Category', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.savefig("output/plot.png")
