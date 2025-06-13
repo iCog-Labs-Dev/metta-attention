@@ -33,7 +33,6 @@
           ($elapsedTime (* (- $currentTime $lastUpdate) 1000000))
           ($timeThreshold (/ 1000000 $updateFreq))
           ($multiplier (/ $updateFreq 1000000))
-          (println! $multiplier)
       )
       (if (match &timer (firstTime $x) $x)
           (
