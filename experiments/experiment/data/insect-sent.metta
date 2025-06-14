@@ -1,1 +1,1 @@
-(insectSent (Insects such as ants along with aphids are diverse .))
+(insectSent (Ants farm aphids .))

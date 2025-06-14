@@ -1,1 +1,1 @@
-(poisonSent (botulinum toxin , a potent neurotoxin is uniquely used in medicine .))
+(poisonSent (Botulinum avoids alcohol .))

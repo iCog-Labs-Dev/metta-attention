@@ -3,6 +3,7 @@ from hyperon.atoms import OperationAtom, S
 from datetime import datetime
 import csv
 import json
+import json
 
 
 
@@ -33,6 +34,8 @@ def write_to_csv(afatoms, name):
 
     return [S("wrote")]
 
+
+
 def save_params(params):
     """ writes the params into a json file """
 
@@ -43,7 +46,7 @@ def save_params(params):
         value = str(value)
         data[key] = value
 
-    with open("output/settings.json", "w") as f:
+    with open("/home/tarik/new-attention/metta-attention/output/settings.json", "w") as f:
         json.dump(data, f, indent=4)
 
     return [S('()')]
@@ -57,19 +60,25 @@ def utils(metta):
         lambda: get_csv_file_name(),
         ["Atom"],
         unwrap=False
-        )
+    )
 
     writeToCsv = OperationAtom(
         "write_to_csv",
         lambda afatoms, name: write_to_csv(afatoms, name),
         ["Expression", "Expression", "Atom"],
         unwrap=False
-        )
+    )
 
     saveParams = OperationAtom(
         "save_params",
         lambda param: save_params(param),
         ["Expression", "Atom"],
         unwrap=False
-        )
-    return {r"get_csv_file_name": getCsvFileName, r"write_to_csv": writeToCsv, r"save_params": saveParams}
+    )
+
+
+    return {
+                r"get_csv_file_name": getCsvFileName,
+                r"write_to_csv": writeToCsv,
+                r"save_params": saveParams
+            }

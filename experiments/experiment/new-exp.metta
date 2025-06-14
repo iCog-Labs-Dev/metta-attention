@@ -31,9 +31,12 @@
 (collapse (match &insect (insect $x) $x))
 (collapse (match &poison (poison $x) $x))
 
-!(updateAttentionParam MAX_AF_SIZE 8)
+!(updateAttentionParam MAX_AF_SIZE 15)
 (=(spaceAdder) (get-atoms &tempspace)) 
 !(spaceAdder)
+
+; write the params to a file
+!(let $vals (collapse (get-atoms &attentionParam)) (save_params $vals))
 
 (= (insectPoisonReadExp $space $type $expr)
     (
@@ -49,7 +52,7 @@
                     (stimulate $now 10)
                     (println! $now)
                     (collapse (test-superpose))
-                    (collapse (write_csv_wrapper (attentionalFocus) outer2.csv))
+                    (collapse (write_csv_wrapper (attentionalFocus) outputFile.csv))
                     
                     (if (== $rest ())
                             (if (== $type insectSent)
