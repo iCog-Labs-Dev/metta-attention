@@ -25,7 +25,7 @@
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
-!(import! &tempspace metta-attention:attention:data:adagram_sm_links)
+!(import! &tempspace metta-attention:attention:data:adagram_sm_linksSent)
 !(import! &insect metta-attention:experiments:experiment:data:insect-sent)
 !(import! &poison metta-attention:experiments:experiment:data:poison-sent)
 (collapse (match &insect (insect $x) $x))
