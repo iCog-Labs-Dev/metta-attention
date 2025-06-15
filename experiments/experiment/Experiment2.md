@@ -1,4 +1,4 @@
-#ECAN Experiment in MeTTa: Shifting and Drifting Attention
+# ECAN Experiment in MeTTa: Shifting and Drifting Attention
 
 This document summarizes an experiment conducted using **ECAN (Economic Attention Network)** with **MeTTa**. The goal was to observe and analyze the behavior of **attentional shifting** and **drifting**.
 
@@ -6,7 +6,7 @@ This document summarizes an experiment conducted using **ECAN (Economic Attentio
 
 ## Plot Overview
 
-![Category Frequency Over Time](/home/tarik/new-attention/metta-attention/output/plot.png.png)
+![Category Frequency Over Time](plot.png)
 
 The plot shows the frequency of different concept categories entering the attentional focus over time:
 
