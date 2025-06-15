@@ -44,7 +44,7 @@ After feeding poison-related sentences:
 Before direct stimulation:
 
 - `insecticide` entered focus due to links from both categories.
-- This shows **drifting**, i.e., attention diffusion through semantic proximity.
+- This shows **drifting**
 
 ---
 
@@ -53,7 +53,6 @@ Before direct stimulation:
 - MeTTa’s slowness required **very short input**.
 - This led to:
   - **Unrelated (noisy)** atoms entering focus.
-  - Reduced clarity of transitions due to lack of extended context.
 
 ---
 
