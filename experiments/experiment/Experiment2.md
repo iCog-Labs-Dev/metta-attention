@@ -2,7 +2,6 @@
 
 This document summarizes an experiment conducted using **ECAN (Economic Attention Network)** with **MeTTa**. The goal was to observe and analyze the behavior of **attentional shifting** and **drifting**.
 
----
 
 ## Plot Overview
 
@@ -15,8 +14,6 @@ The plot shows the frequency of different concept categories entering the attent
 - The red line **(Entered through spreading)** confirms that related atoms enter via **importance diffusion**.
 - **Noise** ("other") remains present, especially due to short input context.
 
----
-
 ##  Experimental Setup
 
 Due to **performance limitations in MeTTa**, only **short input sentences** were used for two concept groups:
@@ -27,7 +24,6 @@ Due to **performance limitations in MeTTa**, only **short input sentences** were
 
 These concept groups were processed **sequentially** — first insects, then poison.
 
----
 
 ##  Observed Attentional Behaviors
 
@@ -46,7 +42,6 @@ Before direct stimulation:
 - `insecticide` entered focus due to links from both categories.
 - This shows **drifting**
 
----
 
 ##  Challenges
 
@@ -54,7 +49,6 @@ Before direct stimulation:
 - This led to:
   - **Unrelated (noisy)** atoms entering focus.
 
----
 
 ## Conclusion
 
@@ -65,6 +59,5 @@ Despite system constraints, the experiment clearly demonstrated:
 
 These findings validate ECAN's **attention allocation** model in MeTTa and provide strong support for cognitive modeling of **dynamic focus**.
 
----
 
 > _Improving MeTTa’s performance will allow longer texts and more meaningful transitions to emerge._
