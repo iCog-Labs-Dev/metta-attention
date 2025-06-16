@@ -3,9 +3,9 @@ from hyperon.atoms import OperationAtom, S
 from datetime import datetime
 import csv
 import json
-import json
 
 
+START_LOGGER = False
 
 def get_csv_file_name() -> str:
     """ creats a name and file for the current instance of the controller """
@@ -16,7 +16,14 @@ def get_csv_file_name() -> str:
 
 def write_to_csv(afatoms, name):
     """ writes to a file passed as argument """
+
+    # check is a global param before writing
+    global START_LOGGER
+    if not START_LOGGER:
+        return [S('()')]
+
     data = []
+
 
     for atom in afatoms.get_children():
         (pattern, av) = atom.get_children()
@@ -34,10 +41,14 @@ def write_to_csv(afatoms, name):
 
     return [S("wrote")]
 
-
-
 def save_params(params):
-    """ writes the params into a json file """
+    """ 
+        writes the params into a json file 
+        and changes value of global param to start logger 
+    """
+
+    global START_LOGGER
+    START_LOGGER = True
 
     data = {}
     for param in params.get_children():
@@ -46,7 +57,7 @@ def save_params(params):
         value = str(value)
         data[key] = value
 
-    with open("/home/tarik/new-attention/metta-attention/output/settings.json", "w") as f:
+    with open("/home/tarik/Downloads/new-metta-attention/metta-attention/output/settings.json", "w") as f:
         json.dump(data, f, indent=4)
 
     return [S('()')]
@@ -67,18 +78,17 @@ def utils(metta):
         lambda afatoms, name: write_to_csv(afatoms, name),
         ["Expression", "Expression", "Atom"],
         unwrap=False
-    )
+        )
 
     saveParams = OperationAtom(
         "save_params",
         lambda param: save_params(param),
         ["Expression", "Atom"],
         unwrap=False
-    )
-
+        )
 
     return {
                 r"get_csv_file_name": getCsvFileName,
                 r"write_to_csv": writeToCsv,
-                r"save_params": saveParams
+                r"save_params": saveParams,
             }

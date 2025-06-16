@@ -1,14 +1,15 @@
 import pandas as pd
+import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
 import json
 
 # Read the CSV file
-df = pd.read_csv('/home/tarik/new-attention/metta-attention/output/output.csv', parse_dates=['timestamp'])
+df = pd.read_csv('/home/tarik/Downloads/new-metta-attention/metta-attention/output/outputFile.csv', parse_dates=['timestamp'])
 
 def create_category():
 
-    file_list = {"insect": "/home/tarik/new-attention/metta-attention/experiments/experiment/data/insect-words.metta", "poison": "/home/tarik/new-attention/metta-attention/experiments/experiment/data/poison-words.metta", "insecticide": "/home/tarik/new-attention/metta-attention/experiments/experiment/data/insecticide-words.metta"}
+    file_list = {"insect": "/home/tarik/Downloads/new-metta-attention/metta-attention/experiments/experiment/data/insect-words.metta", "poison": "/home/tarik/Downloads/new-metta-attention/metta-attention/experiments/experiment/data/poison-words.metta", "insecticide": "/home/tarik/Downloads/new-metta-attention/metta-attention/experiments/experiment/data/insecticide-words.metta"}
 
     word_category = {key: [] for key in file_list}
 
@@ -39,7 +40,7 @@ def read_params(param:str) -> str:
         all returns are of type str
     """
 
-    with open('/home/tarik/new-attention/metta-attention/output/settings.json', 'r') as f:
+    with open('/home/tarik/Downloads/new-metta-attention/metta-attention/output/settings.json', 'r') as f:
         setting_json = json.load(f)
 
     return setting_json[param]
@@ -85,4 +86,4 @@ plt.legend(title='Category', bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xticks(rotation=45)
 plt.tight_layout()
-plt.savefig("/home/tarik/new-attention/metta-attention/output/plot.png")
+plt.savefig("/home/tarik/Downloads/new-metta-attention/metta-attention/output/plot2.png")

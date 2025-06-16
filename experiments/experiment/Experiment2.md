@@ -5,7 +5,7 @@ This document summarizes an experiment conducted using **ECAN (Economic Attentio
 
 ## Plot Overview
 
-![Category Frequency Over Time](plot.png)
+![Category Frequency Over Time](plot2.png)
 
 The plot shows the frequency of different concept categories entering the attentional focus over time:
 
