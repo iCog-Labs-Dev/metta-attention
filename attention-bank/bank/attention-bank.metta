@@ -21,10 +21,10 @@
 (: calculateSTIWage (-> Number))
 (= (calculateSTIWage)
    (let* (
-           ($funds (match  &space  (fundsSTI $x) $x))
-           ($targetSTI (match  &space  (targetSTI $y) $y))
-           ($stiFundsBuffer (match  &space  (stiFundsBuffer $z) $z))
-           ($STIAtomWage (match  &space  (STIAtomWage $z) $z))
+           ($funds (match &space (fundsSTI $x) $x))
+           ($targetSTI (match &space (targetSTI $y) $y))
+           ($stiFundsBuffer (match &space (stiFundsBuffer $z) $z))
+           ($STIAtomWage (match &space (STIAtomWage $z) $z))
            ($diff (- $funds $targetSTI))
            ($ndiff-raw (/ $diff $stiFundsBuffer))
            ($ndiff-clamped-min (min-atom ($ndiff-raw 1.0)))
@@ -120,6 +120,7 @@
          ($_ (updateAttentionalFocus $pattern))
          ($atombin (AtomBin))
          ($r (update $atombin))
+         ($three (updateAttentionalFocus $pattern True))
         )
         $r
     )
@@ -131,7 +132,6 @@
 ;     $old: The previous LTI fund value
 ;     $new: The new LTI fund value
 ;Returns: Nothing (updates the fund in the AtomSpace)
-
 (: updateLTIFunds (-> Number Number empty))
 (= (updateLTIFunds $old $new)
   (match  &space  (fundsLTI $old)
@@ -157,3 +157,10 @@
       )
   )
 )
+(: getAttentionBank  (-> Symbol Number))
+(= (getAttentionBank $param)
+   (match &space ($param $x) $x)
+)
+
+; Alias for &space
+(= (space) &space)
