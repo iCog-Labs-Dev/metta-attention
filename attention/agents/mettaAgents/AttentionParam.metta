@@ -40,10 +40,3 @@
 (= (getAllAttentionParams)
    (get-atoms &attentionParam)
 )
-
-
-
-
-
-
-

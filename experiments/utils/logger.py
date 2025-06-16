@@ -14,7 +14,7 @@ def get_csv_file_name() -> str:
     file_name = f"csv/results_{time}.csv"
     return [S(file_name)]
 
-def write_to_csv(afatoms, name):
+def write_to_csv(afatoms, afsize, name):
     """ writes to a file passed as argument """
 
     # check is a global param before writing
@@ -28,10 +28,10 @@ def write_to_csv(afatoms, name):
     for atom in afatoms.get_children():
         (pattern, av) = atom.get_children()
         (_, sti, lti, _) = av.get_children()
-        data.append({"timestamp": datetime.now(), "pattern":pattern, "sti":sti, "lti":lti}) 
+        data.append({"timestamp": datetime.now(), "pattern":pattern, "sti":sti, "lti":lti, "afsize": afsize.get_children()[0]}) 
 
     with open(name.get_name(), 'a') as f:
-        writer = csv.DictWriter(f, fieldnames=["timestamp", "pattern", "sti", "lti"])
+        writer = csv.DictWriter(f, fieldnames=["timestamp", "pattern", "sti", "lti", "afsize"])
 
         if f.tell() == 0:
             writer.writeheader()

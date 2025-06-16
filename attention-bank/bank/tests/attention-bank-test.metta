@@ -50,4 +50,3 @@
 
 !(assertEqual (getAtomsInBins) ((45.0 (z)) (49.0 (x)) (47.0 (y)) (0.0 (w))))
 !(assertEqual (getAtomList) (x y z w))
-

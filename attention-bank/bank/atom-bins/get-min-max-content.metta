@@ -1,46 +1,29 @@
 
 ; this function take atoms from atombin space and return atoms found inside the largest bin index
 ; it uses Max helper function to get the largest bin index then it returns the atom found in that bin index
-
-(: getMaxContent (-> List))
-(= (getMaxContent)
+(= (getMaxContent) 
     (let* (
         ($atombin (AtomBin))
         ($numbers (collapse (match $atombin ($y $x) $y)))
-        )
-    (if (== $numbers ()) (Empty Bin) (
-        let* (
         ($max (max-atom $numbers))
         ($content (match (AtomBin) ($max $x)  $x))
-        )
-
+    )
         $content
     )
-    )
-    )
 )
-
-
 ; this function take atoms from atombin space and return atoms found inside the smallest bin index
 ; it uses Min helper function to get the smallest bin index then it returns the atom found in that bin index
-
-(: getMinContent (-> List))
 (= (getMinContent)
     (let* (
         ($atombin (AtomBin))
         ($numbers (collapse (match $atombin ($y $x) $y)))
-        )
-    (if (== $numbers ()) (Empty Bin) (
-        let* (
         ($min (min-atom $numbers))
         ($content (match (AtomBin) ($min $x)  $x))
-        )
-
-        $content
-    )
-    )
+      )
+      $content
     )
 )
+
 ; this function takes a bin number and return the number of atoms found in that bin
 ; it used size helper function to count the number of atoms found in the bin
 (= (getSize $binNumber)

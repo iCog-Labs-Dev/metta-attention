@@ -36,11 +36,3 @@
 !(assertEqual (getSTI c)  30000.0)
 !(assertEqual (getSTI d) 2900.0)
 !(assertEqual (getSTI (Hebbianlink a b)) 355.0)
-
-
-
-
-
-
-
-

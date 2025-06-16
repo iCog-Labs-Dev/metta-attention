@@ -163,6 +163,9 @@ Example:
 )
 ```
 
+### Commenting guidelines
+- Always use double semicolons (`;;`) for comments instead of a single semicolon (`;`) to maintain consistency.
+
 ## Documentation standards
 - Every new function should be documented using comments right before its definition.
 - Comments should be sufficient to describe the function's purpose and how it works at a high level. _A comment for a function should be enough to give a high level description of what the function purpose is or what it tries to achieve without looking into the code._
