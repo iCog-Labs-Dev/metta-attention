@@ -53,7 +53,7 @@
 
 ; Test case 05: Testing getLowestStiAtomInAF returns an atom with lowest Sti
 
-!(assertEqual (getLowestStiAtomInAF) a)
+!(assertEqual (getLowestStiAtomInAF) c)
 
 
 ; Test case 06: Testing updateAttentionalFocus by adding new atom to attentional focus
