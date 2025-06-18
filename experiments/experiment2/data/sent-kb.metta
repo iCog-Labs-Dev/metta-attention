@@ -1,0 +1,8 @@
+(setStv (SimilarityLink abamectin  Ants) (0.245 1.0))
+(setStv (SimilarityLink  abamectin  Botulinum) (0.245 1.0))
+(setStv (SimilarityLink  abamectin  aphids) (0.245 1.0))
+(setStv (SimilarityLink  abamectin  alcohol) (0.253 1.0))
+(setStv (SimilarityLink  acetamiprid  Ants) (0.075 1.0))
+(setStv (SimilarityLink  acetamiprid  Botulinum) (0.075 1.0))
+(setStv (SimilarityLink  acetamiprid  aphids) (0.245 1.0))
+(setStv (SimilarityLink  acetamiprid  alcohol) (0.253 1.0))
