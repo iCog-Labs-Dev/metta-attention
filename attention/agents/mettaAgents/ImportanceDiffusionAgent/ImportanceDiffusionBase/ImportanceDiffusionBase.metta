@@ -1,4 +1,4 @@
-!(bind! hebbianMaxAllocationPercentage 0.05)
+(bind! hebbianMaxAllocationPercentage 0.05)
 
 ;; This function is the main function that will be called to start the diffusion process
 ;; It will get the diffusion source vector and then call the diffuseAtom function
@@ -145,7 +145,7 @@
     (let*
         (
             ($diffusionAvailable 1.0)
-            ($hebbianDiffusionAvailable (* hebbianMaxAllocationPercentage $diffusionAvailable))
+            ($hebbianDiffusionAvailable (* (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE) $diffusionAvailable))
             ($hebbianMaximumLinkAllocation (/ $hebbianDiffusionAvailable (size-atom $adjacentVector)))
             ($hebbianProportionSTI (collapse (hebbianProportionSTI $adjacentVector $hebbianMaximumLinkAllocation)))
             ($hebbianDiffusionUsed (hebbianDiffusionUsed $hebbianProportionSTI))

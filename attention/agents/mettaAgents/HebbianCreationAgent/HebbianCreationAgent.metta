@@ -49,7 +49,7 @@
                                     ) 
                                 )
                             )
-                            ($farLinks (/ $count localToFarLinks )) ;round by default
+                            ($farLinks (/ $count (getAttentionParam LOCAL_FAR_LINK_RATIO) )) ;round by default
                             ($___ (addFromOutSideAF $source $farLinks))
                             ($incomingSet (getIncomingSetByType $source HEBBIAN_LINK)) ;should I add other types of hebbian links?
                         )
