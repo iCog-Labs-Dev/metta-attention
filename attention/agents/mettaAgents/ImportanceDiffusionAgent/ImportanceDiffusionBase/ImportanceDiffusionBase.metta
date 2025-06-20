@@ -1,4 +1,4 @@
-(bind! hebbianMaxAllocationPercentage 0.05)
+;(bind! hebbianMaxAllocationPercentage 0.05)
 
 ;; This function is the main function that will be called to start the diffusion process
 ;; It will get the diffusion source vector and then call the diffuseAtom function

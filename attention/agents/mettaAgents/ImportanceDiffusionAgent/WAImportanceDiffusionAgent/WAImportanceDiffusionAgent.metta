@@ -1,5 +1,5 @@
 
-(bind! maxSpreadPercentage 0.4)
+;(bind! maxSpreadPercentage 0.4)
 
 ;; This function will return the diffusion source vector (atoms that can be diffused) from WA
 ;; Parameters $space: The space that will be used to find the diffusion source vector

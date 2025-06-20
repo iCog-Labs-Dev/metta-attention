@@ -1,5 +1,5 @@
-!(bind! maxLinkNum 300) ; The maximum amount of links that can be created from a single atom
-!(bind! localToFarLinks 10) ;Ratio of local links to far links
+;(bind! maxLinkNum 300) ; The maximum amount of links that can be created from a single atom
+;(bind! localToFarLinks 10) ;Ratio of local links to far links
 
 ;Function: HebbianCreationAgent-Run
 ;Description: This function creates hebbian links between atoms in the attentional focus. It also creates links between atoms in the attentional focus and atoms outside the attentional focus. The number of links created between atoms in the attentional focus and atoms outside the attentional focus is determined by the localToFarLinks ratio. The function also removes links from the attentional focus if the number of incoming links exceeds the maxLinkNum.
@@ -54,8 +54,8 @@
                             ($incomingSet (getIncomingSetByType $source HEBBIAN_LINK)) ;should I add other types of hebbian links?
                         )
                         (
-                            (if (> (size-atom $incomingSet) maxLinkNum )
-                                (removeLinkRecursively (- (size-atom $incomingSet) maxLinkNum))
+                            (if (> (size-atom $incomingSet) (getAttentionParam MAX_LinkNum) )
+                                (removeLinkRecursively (- (size-atom $incomingSet) (getAttentionParam MAX_LinkNum)))
                                 ()
                             )
                             ()
