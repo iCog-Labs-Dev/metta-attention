@@ -106,10 +106,8 @@
 (: attentionValueChanged (-> Atom Number Number empty))
 (= (attentionValueChanged $pattern $newSTIFund $newLTIFund)
    (let*(
-         ($oldSTIFund (match &space (fundsSTI $fundsSTI) $fundsSTI))
-         ($oldLTIFund (match &space (fundsLTI $fundsLTI) $fundsLTI))
-         ($one (updateLTIFunds $oldLTIFund $newLTIFund))
-         ($two (updateSTIFunds $oldSTIFund $newSTIFund))
+         ($one (updateAttentionParam FundsLTI $newLTIFund))
+         ($two (updateAttentionParam FundsSTI $newSTIFund))
          ($atombin (AtomBin))
          ($r (update $atombin))
          ($three (updateAttentionalFocus $pattern True))

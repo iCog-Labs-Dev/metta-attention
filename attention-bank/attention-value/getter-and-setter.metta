@@ -4,7 +4,6 @@
 ; and set the attention value to the pattern/node.
 ;
 ; i.e !(set_av A (399 400 1))
-
 (: setAv (-> Atom (Number Number Number) Atom))
 (= (setAv $pattern ($sti $lti $vlti))
     (let* (
@@ -32,8 +31,8 @@
           
            ($stiDiff (- $oldSTI $sti))
            ($ltiDiff (-  $oldLTI $lti))
-           ($fundsSTI (getAttentionBank fundsSTI))
-           ($fundsLTI (getAttentionBank fundsLTI))
+           ($fundsSTI (getAttentionParam FundsSTI))
+           ($fundsLTI (getAttentionParam FundsLTI))
            ($newstifund (+ $fundsSTI $stiDiff))
            ($newltifund (+ $fundsLTI $ltiDiff))
            ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter

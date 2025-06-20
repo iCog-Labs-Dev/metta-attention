@@ -10,6 +10,7 @@
 
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
+!(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam)
 
 ; Example usage to compute STI and LTI wages
 !(assertEqual (calculateSTIWage) 20.0)
@@ -27,9 +28,9 @@
 ; Retrieve the updated AttentionValue
 !(assertEqual (getAv x) (AV 230.0 230.0 0))
 
-; Check updated funds
-!(assertEqual (match &space (fundsSTI $x) $x) 99370.0)
-!(assertEqual (match &space (fundsLTI $x) $x) 99370.0)
+; Check updated fundsFundsSTI
+!(assertEqual (getAttentionParam FundsSTI) 99370.0)
+!(assertEqual (getAttentionParam FundsLTI) 99370.0)
 
 ; Stimulate the atom with a stimulus of 2
 !(stimulate x 2)
@@ -38,8 +39,8 @@
 !(assertEqual (getAv x) (AV 270.0 270.0 0))
 
 ; Check updated funds
-!(assertEqual (match &space (fundsSTI $x) $x) 99330.0)
-!(assertEqual (match &space (fundsLTI $x) $x) 99330.0)
+!(assertEqual (getAttentionParam FundsSTI) 99330.0)
+!(assertEqual (getAttentionParam FundsLTI) 99330.0)
 
 ; Check the  attentional focus  is updated  when an atom is stimulated
 
