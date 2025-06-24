@@ -34,7 +34,7 @@ space.
 
 The values of AV is stored in the typespace and stored as a type to the atom
 
-- We retrive the atom and then call the `get-type` function and retirive the AV
+- We retrive the atom and then call the `getValueType` function and retirive the AV
 
 ## Setting STV
 
