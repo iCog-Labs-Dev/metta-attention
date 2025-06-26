@@ -35,7 +35,7 @@ that has all imports to the so that the `MeTTa` instance can be populated with t
 required functions. The path should be defined relative to the root of the project.
 
 Additionally you can define a path to a .log file relative to the project root
-if not it defaults to *af_agent.log* .
+if not it defaults to *af_agent.log*.
 
 ```py
 # create a metta instance
@@ -75,6 +75,18 @@ which will set parameters the will modify ecans behaviour.
 scheduler.update_attention_param("MAX_AF_SIZE", 7)
 ```
 
+### Stimulating Value
+
+The default inplementation stimulates all words by a value of 200 users can change
+get or change this value as follows.
+
+```py
+# Get stimulate value
+scheduler.get_stimulate_value() # 200 default Value
+
+# Set stimlate Value to desired preference
+scheduler.set_stimulate_value(100)
+```
 ### Registering Agents
 
 Agents are registed using the `register_agent` which will take a name for the

@@ -14,8 +14,13 @@ class ParallelScheduler:
         self.agent_instances = {}  # Stores actual agent instances
         self.metta = metta
 
+        # default stimulate value
+        self.stimulate_value = 200
+
         # Configure logging
         self.log_file = log_file
+
+        # files to read from
         self.sent_paths = []
 
         self.load_imports(paths)
@@ -152,6 +157,17 @@ class ParallelScheduler:
                 for word in words:
                     yield word
 
+    def set_stimulate_value(self, value:int) -> None:
+        """ Sets object variable that controls how much stimulus to apply """
+        if isinstance(value, int):
+            self.stimulate_value = value
+        else:
+            raise TypeError(f"stimulating value must be int instance")
+
+    def get_stimulate_value(self) -> int:
+        """ Retrives obects value used for stimlation """
+        return self.stimulate_value
+
     def stimulate_data(self, word, value):
         """ recives a word and a value and stimulates that value """
 
@@ -176,8 +192,8 @@ class ParallelScheduler:
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 while True :  # Infinite loop
                     value = next(data)
-                    print(f"--- stimulateing {value} ---")
-                    self.stimulate_data(value, 100)
+                    print(f"--- stimulateing {value} with {self.stimulate_value} ---")
+                    self.stimulate_data(value, self.stimulate_value)
                     futures = []
                     for agent_id in self.agent_creators:
                         agent = self.get_or_create_agent(agent_id)  # Use persistent agent
