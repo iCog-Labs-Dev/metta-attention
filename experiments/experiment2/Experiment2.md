@@ -9,7 +9,7 @@ This document summarizes an experiment conducted using **ECAN (Economic Attentio
 
 The plot shows the frequency of different concept categories entering the attentional focus over time:
 
-- **Poison**-related atoms increase in focus **after** insect-related input stops.
+- **Poison**-related atoms increase in focus after insect-related input stops.
 - **Insecticide** (bridge concept) appears **steadily**, illustrating **drifting**.
 - The red line **(Entered through spreading)** confirms that related atoms enter via **importance diffusion**.
 - **Noise** ("other") remains present, especially due to short input context.
@@ -31,7 +31,6 @@ These concept groups were processed **sequentially** — first insects, then poi
 
 After feeding poison-related sentences:
 
-- Insect-related atoms faded from focus.
 - Poison-related atoms rose in prominence.
 - The system **shifted attention** based on new, directly stimulated input.
 
