@@ -7,7 +7,7 @@ import sys
 if len(sys.argv) >= 2:
     FILE = sys.argv[1]
 else:
-    FILE = 'output/output.csv'
+    FILE = 'experiments/experiment2/output/output.csv'
 df = pd.read_csv(FILE, parse_dates=['timestamp'])
 
 def create_category():
@@ -41,7 +41,7 @@ def read_params(param:str) -> str:
         all returns are of type str
     """
 
-    with open('output/settings.json', 'r') as f:
+    with open('experiments/experiment2/output/settings.json', 'r') as f:
         setting_json = json.load(f)
 
     return setting_json[param]
