@@ -55,7 +55,7 @@
                     (stimulate $now 700)
                     (println! $now)
                     (collapse (test-superpose))
-                    (collapse (write_csv_wrapper (attentionalFocus) outputFile.csv))
+                    (collapse (write_csv_wrapper (attentionalFocus) output.csv))
                     
                     (if (== $rest ())
                             (if (== $type insectSent)
