@@ -30,8 +30,11 @@
 !(import! &poison metta-attention:experiments:experiment2:data:poison-sent)
 (collapse (match &insect (insect $x) $x))
 (collapse (match &poison (poison $x) $x))
-
-!(updateAttentionParam MAX_AF_SIZE 15)
+!(updateAttentionBank stiFundsBuffer 99900)
+!(updateAttentionBank ltiFundsBuffer 99900)
+!(updateAttentionBank targetSTI 99900)
+!(updateAttentionBank targetLTI 99900)
+!(updateAttentionParam MAX_AF_SIZE 8)
 (=(spaceAdder) (get-atoms &tempspace)) 
 !(spaceAdder)
 
@@ -69,9 +72,6 @@
     )
 )
 
-;!(match &insect (insectSent $x) $x)
-;!(match &poison (poisonSent $x) $x)
 !(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x))
 !(getAtomList)
 !(get-atoms (TypeSpace))
-
