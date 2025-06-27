@@ -189,8 +189,8 @@ class ParallelScheduler:
         data = self.word_reader()
 
         try:
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                while True :  # Infinite loop
+            while True :  # Infinite loop
+                with concurrent.futures.ThreadPoolExecutor() as executor:
                     value = next(data)
                     print(f"--- stimulateing {value} with {self.stimulate_value} ---")
                     self.stimulate_data(value, self.stimulate_value)
