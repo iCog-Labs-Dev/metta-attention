@@ -103,11 +103,3 @@
 (= (AtomBinInfo)
     &atomBinInfo
 )
-
-(: (ASYMMETRIC_HEBBIAN_LINK source target1) (STV 0.5 0.1))
-(: (ASYMMETRIC_HEBBIAN_LINK target1 source ) (STV 0.5 0.1))
-(: (SimilarityLink  source  target1 ) (STV 0.245 1.0))
-
-
-(1 (source target1 ))
-(2 (target2 target3))
