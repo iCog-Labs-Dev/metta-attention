@@ -114,3 +114,21 @@ discssed above.
 
 Upon completion it logs to the file the AV value of all atoms in the AttentionalFocus
 
+### Iterative Running
+
+Similar to `run_continuously` the `run_iterativly` function but operates by pciking random word for 
+and stimulating it for a specific number of iteration.
+
+The function is takes an int input to specifiy how many iterations to call the agents
+```py
+scheduler.run_iterativly(3)
+```
+
+The function puts all words from files in the self.sent_paths it is made with the
+assumption that only 2 contexts will be given. it takes those files and puts
+all words for a file in a list.
+
+Based on the count of the current iteration it will switch the context from 
+the file in index 0 to the file in index 1.
+
+It has similar logging behaviour as `run_continuously`.
