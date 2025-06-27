@@ -2,6 +2,7 @@ import concurrent.futures
 import sys
 import os
 import logging
+import random
 from pathlib import Path
 
 from agents.pythonAgents.agent_base import Agentrun
@@ -22,6 +23,9 @@ class ParallelScheduler:
 
         # files to read from
         self.sent_paths = []
+
+        # words to read from in random word experiment setup
+        self.word_list = []
 
         self.load_imports(paths)
         logging.basicConfig(filename=self.log_file, level=logging.INFO,
@@ -69,6 +73,21 @@ class ParallelScheduler:
                     raise TypeError("path to file must be str instance")
         else:
             raise TypeError("load_sent_files sentence argument must be list instance")
+
+    def create_word_list(self):
+        """ populates self.word_list by list of words to be chosen randomly """
+        for file in self.sent_paths:
+            with open(file, 'r') as f:
+                lines = f.read()
+                self.word_list.append(lines.split())
+
+    def random_word(self, index: int) -> str:
+        """ picks a random word from self.word_list instance variable """
+
+        if isinstance(index, int):
+            return random.choice(self.word_list[index])
+        else:
+            raise TypeError("argument to random_word must be int instance")
 
     def update_attention_param(self, param, new_value):
         """ Updates ECAN hyperparameters """
@@ -209,6 +228,51 @@ class ParallelScheduler:
 
             logging.info(f"AF in metta {self.metta.run('!(AFsnapshot (attentionalFocus))')}")
             print("AF in metta", self.metta.run("!(AFsnapshot (attentionalFocus))"))
+        except KeyboardInterrupt:
+           logging.info("Received interrupt signal. Stopping agents...")
+           print("\nReceived interrupt signal. Stopping agents...")
+        except Exception as e:
+            logging.error(f"Exception in run_continuously: {e}")
+            print(f"Exception in run_continuously: {e}")
+
+    def run_iterativly(self, iteration:int):
+
+        if not isinstance(iteration, int):
+            raise TypeError(f"run_iterativly expects int argument but {type(iteration)} was given")
+
+        if not self.agent_creators:
+            logging.warning("No agents registered!")
+            print("No agents registered!")
+
+        self.save_params()
+        logging.info("Starting continuous agent execution...")
+        
+        self.create_word_list()
+
+        try:
+            for count in range(iteration, -1, -1):
+                if count > 2:
+                    value = self.random_word(0)
+                else:
+                    value = self.random_word(1)
+
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    print(f"--- stimulateing {value} with {self.stimulate_value} ---")
+                    self.stimulate_data(value, self.stimulate_value)
+                    futures = []
+                    for agent_id in self.agent_creators:
+                        agent = self.get_or_create_agent(agent_id)  # Use persistent agent
+                        if agent:
+                            futures.append(executor.submit(self.log_af_state, agent, agent_id))
+
+                    # Wait for all agents to complete before starting the next iteration
+                    concurrent.futures.wait(futures)
+            else:
+                logging.info("Finished stimulating values")
+                print("Finished stimulating values")
+
+                logging.info(f"AF in metta {self.metta.run('!(AFsnapshot (attentionalFocus))')}")
+                print("AF in metta", self.metta.run("!(AFsnapshot (attentionalFocus))"))
         except KeyboardInterrupt:
            logging.info("Received interrupt signal. Stopping agents...")
            print("\nReceived interrupt signal. Stopping agents...")
