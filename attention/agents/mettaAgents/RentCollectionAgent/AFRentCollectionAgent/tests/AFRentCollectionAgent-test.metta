@@ -34,6 +34,3 @@
 !(assertEqual (approxEqual (getSTI c) 29998.7 1.6) True)
 !(assertEqual (approxEqual (getSTI d) 2898.71 1.6) True)
 !(assertEqual (approxEqual (getSTI (Hebbianlink a b)) 353.725 1.6) True)
-
-
-
