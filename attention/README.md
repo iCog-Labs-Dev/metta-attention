@@ -139,6 +139,6 @@ Let's say you have an agent named `MyAwesomeAgent`.
     !(my-awesome-function) ; Run it!
     ``
 - And do 
-   ```
+   ```python
     scheduler.register_agent("MyAwesomeAgentRunner", lambda: AgentObject(metta=metta, pathto MyAwesomeAgentRunner.metta"))
    ```

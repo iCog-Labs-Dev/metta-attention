@@ -1,0 +1,1 @@
+(insectSent (Ants farm aphids .))

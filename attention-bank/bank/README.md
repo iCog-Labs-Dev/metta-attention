@@ -1,82 +1,40 @@
+# Bank
 
-## DATA STRUCTURE version 2.0
+## Overview
 
-### About Atom Bins
+The bank module is a responsible for defining modules responsible for 
 
-- vector data structure which contain multiple another vector that contain atoms
-- since it is a vector we can acesses, insert and remove specifc atom using index
-- contain the following methods
-    -> insert
-    -> remove
-    -> size
-    -> getRandomatom  ... etc
+- [**atom-bins**](atom-bins/README.md)
+- [**attentional-focus**](attontional-focus/README.md)
+- [**importance-index**](importance-index/README.md)
+- [**stocastic-importance-diffusion**](importance-index/README.md)
 
-### metta representation
+Additionally the bank hold functions to control the disbursment of the STI and LTI.
 
-- according to my suggetion atombins can be represnted the following way.
+## Funds
 
-- tuple of tuple or expression of expression
-  - like `((1 (A)) (2 ()) (C, D, R))`
+The funds are mainly stored in the fundsSTI and fundsLTI variable 
+these values are the total amount of STI and LTI that can be in the system at one time.
 
-the above structure can be loaded into atomspace into two ways
+The **targetSTI**, **targetLTI**, **stiFundsBuffer** and **ltiFundsBuffer** are hyper parameters
+that control the rent collection and stimulation values.
 
-### 1 using specifc space to control importance of atoms
+The **STIAtomWge** and **LTIAtomWage** are multiples that are dependant on the above mentioned hyper parameters
+and are a multiplier that determine how much the **STI** and **LTI** are given from the stimulation value.
 
-- have collection of atombins
-- add them into specif space
-- add specific atom into specifc bin value
-- remove specifc atom from space
-- update a place of an atom by using its importance
+## Wage
 
-    Example code
+Wage is the main way an atom recives an **STI** and **LTI** values. The function takes a number as an argument
+and calculates wage by checking if the total funds is lower than the target funds. As the total available fund falls
+below the **targetSTI** and **targetLTI** the provided **STI** and **LTI** is reduced for each additional call to the stimulate
+function.
 
-   ```
-    !(bind! &atombin (new-space))
+## Rent
 
-    !(add-atom &atombin (1 (a)))
-    !(add-atom &atombin (2 (d)))
-    !(add-atom &atombin (3 (c)))
-    !(add-atom &atombin (17 (s c)))
-    !(add-atom &atombin (18 (g j)))
-    !(add-atom &atombin (37 (f h j k)))
-    ```
+Rent a ways in which an atom returns it **STI** and **LTI** values back into the buffer. While wage is initiaed by a system outside of
+the ECAN. Rent is handled by the [**RentCollectionAgent**](../../attention/agents/mettaAgents/RentCollectionAgent) and is called consitantly.
+One of the main requirments to be full filled before rent start being collected is the **fundsSTI** and **fundsLTI** values beings lower
+than**targetSTI** and **targetLTI** respectivley.
 
-### 2 using varibale to represent all collection then manupulate that varibable according to our interest
 
-- have specifc variable that have nested tuple structure and assign or load a few atoms
-- add atom with specific bin value
-- it that bin exist just add to the atom collection else add as a new bin and atom
-- the order doesnt matter
-- remove atom from atom bin by pattern matching
-- chnage the palce of an atom
 
-    Example code
-
-```
-    !(bind! &atombin (new-space))
-    !(add-atom &atombin (AtomBins ((1 (a)) (2 (d)) (3 (c)) (17 (s c)) (18 (g j)) (37 (f h j k)))))
-```
-
-### conclusion
-
-- so even if both methods seems applicabel we choose to represent atom bins using the first approach
-
-### Functions that shoud be implemented using decided approach
-
-- insert atom - it recives bin numebr and the atom
-- remove atom - it recive bin number and the atom
-- size - it recive bin number return the number of atom found inside that bin
-- getRandomAtom - it returns random atom from that space
-- getcontent - it recives bin number and returns atom found in that bin index
-- getcontentif - it recives bin number, predicate and returns the atoms based on that predicat
-
-- importanceBin - it recives importance value(sti value) and return bin value
-- updateImportance - it recives atom, old and new sti value and updates its bin location or update its position
-- update - update the global variables max sti and min sti value
-- getmaxsti - return the max sti value
-- getminsti - return the min sti value
-- getHandleSet - recive lower and uper bound of sti and return atoms in that bound
-- getMaxBinContents - return atoms found in max bin index
-- getMinBinContents - return atoms found in min bin index
-- bin_size - return the total bin size
-- size - it recives atom bin index and return the size or total number of atoms found inside that bin index

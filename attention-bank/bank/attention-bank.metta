@@ -156,3 +156,12 @@
 
 ; Alias for &space
 (= (space) &space)
+
+(= (updateAttentionBank $param $newValue)
+   (match &space ($param $x)
+      (let ()
+           (remove-atom &space ($param $x))
+           (add-atom &space ($param $newValue))
+      )
+   )
+)

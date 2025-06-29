@@ -201,7 +201,7 @@
     (let $atoms (getAtomList)
         (if (== $atoms ())
             ()
-            (getLowestStiAtomInAFHelper $atoms (car-atom $atoms) (getSTI (car-atom $atoms)))
+            (let $atom (car-atom $atoms) (getLowestStiAtomInAFHelper $atoms (car-atom $atoms) (getSTI $atom)))
         )
     )
 )
