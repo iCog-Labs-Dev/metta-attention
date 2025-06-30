@@ -11,6 +11,7 @@
         (
             ($atom (get-atoms $space))
             ($av (getAv $atom))
+            (() (println! (atom $atom)))
         ) 
         ($atom $av) 
     )
