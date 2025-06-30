@@ -12,7 +12,7 @@ df = pd.read_csv(FILE, parse_dates=['timestamp'])
 
 def create_category():
 
-    file_list = {"insect": "experiments/experiment1/data/insect-words.metta", "poison": "experiments/experiment1/data/poison-words.metta", "insecticide": "experiments/experiment1/data/insecticide-words.metta"}
+    file_list = {"insect": "experiments/Metta/experiment1/data/insect-words.metta", "poison": "experiments/Metta/experiment1/data/poison-words.metta", "insecticide": "experiments/Metta/experiment1/data/insecticide-words.metta"}
 
     word_category = {key: [] for key in file_list}
 
@@ -89,4 +89,4 @@ plt.legend(title='Category', bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.xticks(rotation=45)
 plt.tight_layout()
-plt.savefig("experiments/experiment1/plot1.png")
+plt.savefig("experiments/Metta/experiment1/plot1.png")

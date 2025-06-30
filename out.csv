@@ -18,3 +18,11 @@ timestamp,pattern,sti,lti
 2025-06-30 12:22:17.368909,(SimilarityLink aldrin aconite),120.0,0
 2025-06-30 12:22:17.368937,aconite,360.0,600.0
 2025-06-30 12:22:17.368967,(SimilarityLink dichloropropene ammonia),96.01591438793467,0.0
+2025-06-30 17:54:12.057964,armyworm,360.0,600.0
+2025-06-30 17:54:12.058008,(ActiveDuringLink armyworm night),240.0,0
+2025-06-30 17:55:50.070021,armyworm,312.05999999999995,600.0
+2025-06-30 17:55:50.070065,(ActiveDuringLink armyworm night),192.0,0.0
+2025-06-30 17:55:50.070097,ants,360.0,600.0
+2025-06-30 17:55:50.070133,night,95.94,0
+2025-06-30 17:55:50.070166,(MemberLink ants insectColony),120.0,0
+2025-06-30 17:55:50.070200,(SimilarityLink abamectin ants),120.0,0
