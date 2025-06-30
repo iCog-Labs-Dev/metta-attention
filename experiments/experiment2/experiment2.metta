@@ -12,7 +12,7 @@
 !(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam)
 !(import! &self metta-attention:attention:agents:mettaAgents:Neighbors)
 !(import! &self metta-attention:experiments:runner-Def)
-!(import! &self metta-attention:experiments:logger)
+!(import! &self metta-attention:experiments:experiment2:logger)
 
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
@@ -56,7 +56,7 @@
                     (stimulate $now 700)
                     (println! $now)
                     (collapse (test-superpose))
-                    (collapse (write_csv_wrapper (attentionalFocus) output.csv))
+                    (collapse (write_csv_wrapper (attentionalFocus) outputnew.csv))
                     
                     (if (== $rest ())
                             (if (== $type insectSent)
