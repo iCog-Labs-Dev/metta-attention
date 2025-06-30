@@ -25,16 +25,30 @@
                     (let*
                         (
                             ($removeHebbian (let $temp (removeHebbianLinksfromAF (collapse (match $space2 (HEBBIAN_LINK $a $b) (HEBBIAN_LINK $a $b)))) ()))
-                            ($removeSource
-                                (let $temp2 
-                                    (remove-atom (attentionalFocus) $source) ())) ; to minimize self connection I am unsure if this should exist
                             ($existingAsSourceHS  (getTargetNeighbors $source ASYMMETRIC_HEBBIAN_LINK $space)) ;;need to check if we should use source or sourceAtom
                             ($existingAsTarget  (getSourceNeighbors $source ASYMMETRIC_HEBBIAN_LINK $space))
                             ($needToBeSource ( setDifference $existingAsSourceHS) )
                             ($needToBeTarget  (setDifference $existingAsTarget))
                             ($count (size-atom $needToBeTarget ))
-                            ($_ (collapse (addHebbian (superpose $needToBeSource) $source )))
-                            ($__ (collapse (addHebbian $source (superpose $needToBeTarget))))
+                            ($_ (collapse 
+                                (let $target (superpose $needToBeSource)
+                                        (if (not (== $target $source)) 
+                                            (addHebbian $source $target)
+                                            ()
+                                        )
+                                ) 
+                                )
+                            )
+   
+                            ($__ (collapse 
+                                    (let $x (superpose $needToBeTarget)
+                                        (if (not (== $x $source)) 
+                                            (addHebbian $source $x)
+                                            ()
+                                        )
+                                    ) 
+                                )
+                            )
                             ($farLinks (/ $count localToFarLinks )) ;round by default
                             ($___ (addFromOutSideAF $source $farLinks))
                             ($incomingSet (getIncomingSetByType $source HEBBIAN_LINK)) ;should I add other types of hebbian links?
@@ -44,7 +58,7 @@
                                 (removeLinkRecursively (- (size-atom $incomingSet) maxLinkNum))
                                 ()
                             )
-                            (updateAttentionalFocus $source False)
+                            ()
                         )
                     )
                 )
@@ -135,7 +149,7 @@
                     (if (== (get-metatype $target) Expression)
                         (if (== (car-atom $target) HEBBIAN_LINK)
                             ()
-                            (if (atomIsInAF (ASYMMETRIC_HEBBIAN_LINK $source $target)) ;If the link exists dont add it again 
+                            (if (and (atomIsInAF (ASYMMETRIC_HEBBIAN_LINK $source $target)) (== $target $source)) ;If the link exists dont add it again 
                                 ()
                                 (
                                     (addHebbian $source $target )
