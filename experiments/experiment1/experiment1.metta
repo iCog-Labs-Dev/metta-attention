@@ -1,0 +1,76 @@
+!(register-module! ../../../metta-attention)
+!(import! &self metta-attention:attention:agents:mettaAgents:ForgettingAgent:ForgettingAgent)
+!(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam)
+!(import! &self metta-attention:attention:agents:mettaAgents:RentCollectionAgent:RentCollectionBaseAgent:RentCollectionBaseAgent)
+!(import! &self metta-attention:attention:agents:mettaAgents:RentCollectionAgent:WARentCollectionAgent:WARentCollectionAgent)
+!(import! &self metta-attention:attention:agents:mettaAgents:RentCollectionAgent:AFRentCollectionAgent:AFRentCollectionAgent)
+!(import! &self metta-attention:attention:agents:mettaAgents:ImportanceDiffusionAgent:ImportanceDiffusionBase:ImportanceDiffusionBase)
+!(import! &self metta-attention:attention:agents:mettaAgents:ImportanceDiffusionAgent:WAImportanceDiffusionAgent:WAImportanceDiffusionAgent)
+!(import! &self metta-attention:attention:agents:mettaAgents:ImportanceDiffusionAgent:AFImportanceDiffusionAgent:AFImportanceDiffusionAgent)
+!(import! &self metta-attention:attention:agents:mettaAgents:HebbianUpdatingAgent:HebbianUpdatingAgent)
+!(import! &self metta-attention:attention:agents:mettaAgents:HebbianCreationAgent:HebbianCreationAgent)
+!(import! &self metta-attention:attention:data:adagram_sm_links)
+!(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam)
+!(import! &self metta-attention:attention:agents:mettaAgents:Neighbors)
+!(import! &self metta-attention:experiments:runner-Def)
+!(import! &self metta-attention:experiments:logger)
+
+!(import! &self metta-attention:attention-bank:utilities:helper-functions)
+!(import! &self metta-attention:attention-bank:utilities:recentVal)
+
+!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
+
+!(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
+!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
+!(import! &self metta-attention:attention-bank:bank:attention-bank)
+!(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
+!(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
+!(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
+!(import! &tempspace metta-attention:experiments:experiment1:data:links)
+!(import! &insect metta-attention:experiments:experiment1:data:insect-words)
+!(import! &poison metta-attention:experiments:experiment1:data:poison-words)
+(collapse (match &insect (insect $x) $x))
+(collapse (match &poison (poison $x) $x))
+
+! (updateAttentionParam MAX_AF_SIZE 8)
+
+
+(=(spaceAdder) (add-atom-reduct (TypeSpace) (get-atoms &tempspace))) 
+!(spaceAdder)
+
+; write the params to a file
+!(let $vals (collapse (get-atoms &attentionParam)) (save_params $vals))
+
+(= (insectPoisonExp $maxim $space $type)
+    (
+        (if (< $maxim 0)
+            finished
+            (let* 
+                (
+                    ($words (collapse (match $space ($type $x) $x)))
+                    ($randInt1 (random-int 0 (size-atom $words)))
+                    ($randInt2 (random-int 0 (size-atom $words)))
+                    ($randomWord1 (index-atom $words $randInt1))
+                )
+                (
+                    (stimulate $randomWord1 30)
+                    (println! ($type $randomWord1))
+                    (collapse(test-superpose))
+                    (collapse (write_csv_wrapper (attentionalFocus) out.csv))
+                    (let $newMaxim (- $maxim 1)
+                        (if (> $maxim 2)
+                            (insectPoisonExp $newMaxim  &insect insect)
+                            (insectPoisonExp $newMaxim  &poison poison)
+                        )
+                    )
+                )
+            )
+        )     
+    )
+)
+
+
+!(insectPoisonExp 3 &insect insect)
+!(getAtomList)
+; (get-atoms (TypeSpace))
+! (binSize)
