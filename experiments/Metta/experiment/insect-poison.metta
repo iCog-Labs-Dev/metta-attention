@@ -33,7 +33,7 @@
 !(spaceAdder)
 
 ; write the params to a file
-!(let $vals (collapse (get-atoms &attentionParam)) (save_params $vals))
+!(start_log (attentionParam) (space) experiments/Metta/experiment2)
 
 (= (insectPoisonExp $maxim $space $type)
    (

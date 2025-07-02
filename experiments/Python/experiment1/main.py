@@ -23,6 +23,9 @@ def main():
     # create parallerscheduler instance with metta instance for all agents and a file with all relvent imports
     scheduler = ParallelScheduler(metta, "attention/paths.metta")
 
+
+    scheduler.start_logger("experiments/Python/experiment1")
+
     # load any file that is to be used as knowledge base
     scheduler.load_imports("experiments/Python/experiment1/data/adagram_sm_links.metta")
 
