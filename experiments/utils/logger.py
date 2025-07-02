@@ -112,8 +112,6 @@ class Logger:
     def write_to_csv(cls, afatoms):
         """ writes to a file passed as argument """
 
-        print("afatoms", afatoms)
-        print("csv_path", cls.csv_path)
         if not isinstance(afatoms, ExpressionAtom):
             raise TypeError("write_to_csv expects an ExpressionAtom argument")
 
