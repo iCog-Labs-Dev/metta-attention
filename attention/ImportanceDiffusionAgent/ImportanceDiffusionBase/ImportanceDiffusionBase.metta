@@ -11,18 +11,20 @@
 (= (diffuseAtom $atom $space $AForWA)
     (let*
         (
+            (() (println! (diffusing from $atom)))
             ($incidentAtoms (collapse (incidentAtoms $atom $space)))
             ($foset (if (== (get-metatype $atom) Expression)
-                        (getOutGoingAtoms $atom)
+                        (getOutGoingAtom $atom)
                         ()
                     )
             )
             ($oset (collapse (filteroset $foset)))
             ($incidentAndoset (concatTuple $incidentAtoms $oset))
-            ($iset (globalIncomingSetByType  $atom ASYMMETRIC_HEBBIAN_LINK) )
+            ($iset (globalIncomingSetByType source $atom ASYMMETRIC_HEBBIAN_LINK) )
             ($hebbianAdjacentAtoms (collapse (hebbianAdjacentAtoms $iset $atom)))
             ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAndoset)))
             ($probabilityVectorHebbianAjacent (collapse (probabilityVectorHebbianAjacent $atom $hebbianAdjacentAtoms)))
+            (() (println! (probabilityVectorhebbianAjacent $probabilityVectorHebbianAjacent)))
             ($combProbabilityVector (combineIncidentAdjacentVectors $probabilityVectorIncident $probabilityVectorHebbianAjacent))
             ($totaldiffusionAmount (if (== $AForWA AF)
                                        (calculateDiffusionAmount $atom)
@@ -35,12 +37,14 @@
                         (let*
                             (
                                 (($first $second) (superpose $combProbabilityVector))
+                                (() (println! (first $first second $second)))
                                 ($diffusionAmount  (* $totaldiffusionAmount $second))
                             )
                             ($first $diffusionAmount)
                         )
                     )
             )
+            (() (println! (finished diffusing $atom ($atomToReceive $stiGiven))))
         )
         ($atom $atomToReceive $stiGiven)
     )
@@ -125,6 +129,7 @@
 (= (probabilityVectorHebbianAjacent $atom $hebbianAdjacentAtoms)
     (let*
         (
+            (() (println! (hebbainvertor $hebbianAdjacentAtoms)))
             ($diffusionAvailable 1.0)
             ($atomCount (size-atom $hebbianAdjacentAtoms))
             ($maxAllocation (/ $diffusionAvailable $atomCount))
@@ -144,10 +149,12 @@
 (= (combineIncidentAdjacentVectors $incidentVector $adjacentVector)
     (let*
         (
+            ; (() (println! (incident $incidentVector adjacent $adjacentVector)))
             ($diffusionAvailable 1.0)
             ($hebbianDiffusionAvailable (* hebbianMaxAllocationPercentage $diffusionAvailable))
             ($hebbianMaximumLinkAllocation (/ $hebbianDiffusionAvailable (size-atom $adjacentVector)))
             ($hebbianProportionSTI (collapse (hebbianProportionSTI $adjacentVector $hebbianMaximumLinkAllocation)))
+            ; (() (println! (hebbianPortionSTI $hebbianProportionSTI)))
             ($hebbianDiffusionUsed (hebbianDiffusionUsed $hebbianProportionSTI))
             ($resulttwo (collapse (incidentProportionSTI $incidentVector $hebbianDiffusionUsed)))
             ($finalResult (concatTuple $hebbianProportionSTI $resulttwo))
@@ -248,8 +255,8 @@
 ;; Parameters $link: The link that will be used to find the outgoing atoms
 ;; Return : The outgoing atoms of the link
 
-(: getOutGoingAtoms (-> Atom Atom))
-(= (getOutGoingAtoms $link)
+(: getOutGoingAtom (-> Atom Atom))
+(= (getOutGoingAtom $link)
     (if (== (size-atom $link) 3)
         (cdr-atom $link)
         "No outgoing atoms"
