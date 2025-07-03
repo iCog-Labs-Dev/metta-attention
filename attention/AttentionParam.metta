@@ -41,7 +41,9 @@
    (get-atoms &attentionParam)
 )
 
-
+(= (attentionParam) 
+    &attentionParam
+)
 
 
 
