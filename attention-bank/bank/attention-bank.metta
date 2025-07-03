@@ -165,3 +165,7 @@
       )
    )
 )
+
+(= (getAttentionParams)
+    (match &space $x $x)
+)
