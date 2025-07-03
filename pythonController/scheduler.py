@@ -120,9 +120,13 @@ class ParallelScheduler:
         else:
             raise TypeError("function takes str as first argument")
 
-    def save_params(self):
+    def start_logger(self, directory):
         """ makes a call to the save_param function in utilities """
-        self.metta.run("!(let $vals (collapse (get-atoms &attentionParam)) (save_params $vals))")
+
+        if not isinstance(directory, str):
+            raise TypeError("save_params directroy path must be str instance")
+
+        self.metta.run(f"!(start_log (attentionParam) (space) {directory})")
 
     def register_agent(self, agent_id, agent_creator):
         """ Register an agent factory function (not instance) """
@@ -199,7 +203,6 @@ class ParallelScheduler:
             print("No agents registered!")
             return
 
-        self.save_params()
         logging.info("Starting continuous agent execution...")
         data = self.word_reader()
 
@@ -239,7 +242,6 @@ class ParallelScheduler:
             logging.warning("No agents registered!")
             print("No agents registered!")
 
-        self.save_params()
         logging.info("Starting continuous agent execution...")
         
         self.create_word_list()

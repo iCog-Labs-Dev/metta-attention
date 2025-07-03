@@ -1,7 +1,8 @@
-Ants
-ant
-aphid
-aphids
-armyworms
-armyworm
-beanfly
+(insect Ants)
+(insect ants)
+(insect ant)
+(insect aphid)
+(insect aphids)
+(insect armyworms)
+(insect armyworm)
+(insect beanfly)
