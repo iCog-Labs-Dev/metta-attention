@@ -23,16 +23,16 @@ def main():
     # create parallerscheduler instance with metta instance for all agents and a file with all relvent imports
     scheduler = ParallelScheduler(metta, "attention/paths.metta")
 
+    # Optional: adjust parameters
+    scheduler.update_attention_param("MAX_AF_SIZE", 7)
+
     scheduler.start_logger("experiments/Python/experiment2")
 
     # load any file that is to be used as knowledge base
-    scheduler.load_imports("experiments/Python/experiment1/data/adagram_sm_links.metta")
+    scheduler.load_imports("experiments/Python/experiment2/data/adagram_sm_links.metta")
 
     # load list of files to for ECAN to read through
-    scheduler.load_sent_files(["experiments/Python/experiment1/data/insect-sent.txt", "experiments/Python/experiment1/data/poison-sent.txt"])
-
-    # Optional: adjust parameters
-    scheduler.update_attention_param("MAX_AF_SIZE", 3)
+    scheduler.load_sent_files(["experiments/Python/experiment2/data/insect-sent.txt", "experiments/Python/experiment2/data/poison-sent.txt"])
 
 
     # Register agents
@@ -58,7 +58,7 @@ def main():
 
     try:
         print("\nRunning agents in continuous mode. Press Ctrl+C to stop.")
-        scheduler.run_iterativly(3)
+        scheduler.run_continuously()
     except KeyboardInterrupt:
         print("\nReceived interrupt signal. Stopping system...")
     except Exception as e:
