@@ -24,7 +24,7 @@ def main():
     scheduler = ParallelScheduler(metta, "attention/paths.metta")
 
     # Optional: adjust parameters
-    scheduler.update_attention_param("MAX_AF_SIZE", 7)
+    scheduler.update_attention_param("MAX_AF_SIZE", 8)
 
     scheduler.start_logger("experiments/Python/experiment2")
 
