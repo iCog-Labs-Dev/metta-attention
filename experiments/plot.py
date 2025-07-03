@@ -81,6 +81,8 @@ class Plotter:
         colors = ['red', 'blue', 'green', 'purple']
         markers = ['o', 's', '^', 'D']  # Circle, square, triangle, diamond
         category_counts = self.data_frame
+
+        plt.figure(figsize=(14, 7))
         for i, category in enumerate(category_counts.columns):
             plt.plot(
                 category_counts.index, 
