@@ -52,6 +52,7 @@ class Plotter:
                 for line in f:
                     word_category[i].append(line.split()[1].rstrip(")"))
 
+
         return word_category
 
     def categorize_pattern(self, pattern):
@@ -61,6 +62,8 @@ class Plotter:
         for category, words in word_category.items():
             if pattern in words:
                 return category
+
+        return 'Entered through spreading'
 
     def read_csv(self):
 
@@ -110,7 +113,7 @@ if __name__ == "__main__":
     if len(sys.argv) >= 2:
         output_csv = sys.argv[1:]
     else:
-        output_csv = list(base_dir.glob("**/*.csv"))
+        output_csv = list(base_dir.glob("**/output.csv"))
     
     for output in output_csv:
         try:
