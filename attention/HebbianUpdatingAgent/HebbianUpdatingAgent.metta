@@ -62,21 +62,6 @@
     )
 )
 
-;;; Function: getOutGoingAtoms
-;;; Description: Retrieves the outgoing atoms of a given link.
-;;; Parameters:
-;;;   $link: The link for which to find outgoing atoms.
-;;; Returns: A list of outgoing atoms.
-;;; Example: (getOutGoingAtoms (LINK A B))
-;;;          Returns (A B)
-
-(: getOutGoingAtoms (-> Atom Atom))
-(= (getOutGoingAtoms $link)
-    (if (== (size-atom $link) 3)
-        (cdr-atom $link)
-        ()
-    )
-)
 
 ;;; Function: targetConjunction
 ;;; Description: Calculates the target conjunction of a given link.
