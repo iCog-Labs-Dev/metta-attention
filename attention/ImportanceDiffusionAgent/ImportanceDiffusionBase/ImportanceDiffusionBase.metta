@@ -13,7 +13,7 @@
         (
             ($incidentAtoms (collapse (incidentAtoms $atom $space)))
             ($foset (if (== (get-metatype $atom) Expression)
-                        (getOutGoingAtoms $atom)
+                        (getOutGoingAtom $atom)
                         ()
                     )
             )
@@ -248,8 +248,8 @@
 ;; Parameters $link: The link that will be used to find the outgoing atoms
 ;; Return : The outgoing atoms of the link
 
-(: getOutGoingAtoms (-> Atom Atom))
-(= (getOutGoingAtoms $link)
+(: getOutGoingAtom (-> Atom Atom))
+(= (getOutGoingAtom $link)
     (if (== (size-atom $link) 3)
         (cdr-atom $link)
         "No outgoing atoms"
