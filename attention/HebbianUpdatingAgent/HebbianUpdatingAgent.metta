@@ -32,14 +32,7 @@
 (= (updateHebbianLinks $source $space)
     (let*
         (
-            ($iset
-                (let $temp (getAllIncomingSetsForHUAgent $source $space)
-                    (if (== (car-atom $temp) ASYMMETRIC_HEBBIAN_LINK)
-                        $temp
-                        (empty)
-                    )
-                )
-            )
+            ($iset (getAllIncomingSetsForHUAgent $source $space ASYMMETRIC_HEBBIAN_LINK))
             ($outgoing (getOutGoingAtoms $iset))
             ($head (if (== $outgoing ()) () (car-atom $outgoing)))
         )
@@ -69,21 +62,6 @@
     )
 )
 
-;;; Function: getOutGoingAtoms
-;;; Description: Retrieves the outgoing atoms of a given link.
-;;; Parameters:
-;;;   $link: The link for which to find outgoing atoms.
-;;; Returns: A list of outgoing atoms.
-;;; Example: (getOutGoingAtoms (LINK A B))
-;;;          Returns (A B)
-
-(: getOutGoingAtoms (-> Atom Atom))
-(= (getOutGoingAtoms $link)
-    (if (== (size-atom $link) 3)
-        (cdr-atom $link)
-        ()
-    )
-)
 
 ;;; Function: targetConjunction
 ;;; Description: Calculates the target conjunction of a given link.
@@ -171,12 +149,7 @@
 ;;            $type: The type that will be used to find the incoming set
 ;; Return : The incoming set of the atom
 
-(: getAllIncomingSetsForHUAgent (-> Atom Grounded List))
-(= (getAllIncomingSetsForHUAgent $atom $space)
-    (superpose
-        (
-            (match $space (: ($type $atom $x) $AV) ($type $atom $x))
-            (match $space (: ($type $x $atom) $AV) ($type $x $atom))
-        )
-    )
+(: getAllIncomingSetsForHUAgent (-> Atom Grounded Atom List))
+(= (getAllIncomingSetsForHUAgent $atom $space $type)
+    (match $space (: ($type $atom $x) $AV) ($type $atom $x))
 )
