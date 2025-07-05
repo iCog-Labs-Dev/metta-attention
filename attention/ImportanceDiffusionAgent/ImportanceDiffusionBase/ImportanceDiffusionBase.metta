@@ -20,7 +20,7 @@
             )
             ($oset (collapse (filteroset $foset)))
             ($incidentAndoset (concatTuple $incidentAtoms $oset))
-            ($iset (globalIncomingSetByType source $atom ASYMMETRIC_HEBBIAN_LINK) )
+            ($iset (collapse (match $space (: (ASYMMETRIC_HEBBIAN_LINK $atom $b) $a) (ASYMMETRIC_HEBBIAN_LINK $atom $b))))
             ($hebbianAdjacentAtoms (collapse (hebbianAdjacentAtoms $iset $atom)))
             ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAndoset)))
             ($probabilityVectorHebbianAjacent (collapse (probabilityVectorHebbianAjacent $atom $hebbianAdjacentAtoms)))
