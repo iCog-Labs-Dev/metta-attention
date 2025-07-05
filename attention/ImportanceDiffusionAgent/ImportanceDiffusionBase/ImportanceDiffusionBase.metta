@@ -19,7 +19,7 @@
             )
             ($oset (collapse (filteroset $foset)))
             ($incidentAndoset (concatTuple $incidentAtoms $oset))
-            ($iset (globalIncomingSetByType  $atom ASYMMETRIC_HEBBIAN_LINK) )
+            ($iset (collapse (match $space (: (ASYMMETRIC_HEBBIAN_LINK $atom $b) $a) (ASYMMETRIC_HEBBIAN_LINK $atom $b))))
             ($hebbianAdjacentAtoms (collapse (hebbianAdjacentAtoms $iset $atom)))
             ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAndoset)))
             ($probabilityVectorHebbianAjacent (collapse (probabilityVectorHebbianAjacent $atom $hebbianAdjacentAtoms)))
@@ -244,17 +244,6 @@
     )
 )
 
-;; This function will return the outgoing atoms of Link
-;; Parameters $link: The link that will be used to find the outgoing atoms
-;; Return : The outgoing atoms of the link
-
-(: getOutGoingAtoms (-> Atom Atom))
-(= (getOutGoingAtoms $link)
-    (if (== (size-atom $link) 3)
-        (cdr-atom $link)
-        "No outgoing atoms"
-    )
-)
 
 ;; This function will return the incoming set of an atom
 ;; Parameters $atom: The atom that will be used to find the incoming set
