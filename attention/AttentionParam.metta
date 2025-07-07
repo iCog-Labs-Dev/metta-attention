@@ -13,10 +13,6 @@
 !(add-atom &attentionParam  (SPREAD_HEBBIAN_ONLY 0.0))
 !(add-atom &attentionParam  (StartingAtomStiRent 1.0))
 !(add-atom &attentionParam  (StartingAtomLtiRent 1.0))
-!(add-atom &attentionParam  (TargetStiFunds  10000.0))
-!(add-atom &attentionParam  (TargetLtiFunds  10000.0))
-!(add-atom &attentionParam  (StiFundsBuffer  10000.0))
-!(add-atom &attentionParam  (LtiFundsBuffer  10000.0))
 !(add-atom &attentionParam  (TARGET_LTI_FUNDS_BUFFER  10000.0))
 !(add-atom &attentionParam  (RENT_TOURNAMENT_SIZE  5.0))
 !(add-atom &attentionParam  (SPREADING_FILTER  (MemberLink (Type "MemberLink"))))
@@ -41,7 +37,9 @@
    (get-atoms &attentionParam)
 )
 
-
+(= (attentionParam) 
+    &attentionParam
+)
 
 
 
