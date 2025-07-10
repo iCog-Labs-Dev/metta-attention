@@ -265,8 +265,8 @@
 (= (getAllIncomingSets $atom $space)
     (superpose
         (
-            (match $space (: ($type $atom $x) $AV) ($type $atom $x))
-            (match $space (: ($type $x $atom) $AV) ($type $x $atom))
+            (match $space (($type $atom $x) $AV) ($type $atom $x))
+            (match $space (($type $x $atom) $AV) ($type $x $atom))
         )
     )
 )

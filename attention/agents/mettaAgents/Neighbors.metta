@@ -91,8 +91,8 @@
     (collapse
         (superpose
             (
-                (match $space (: ($type $atom $b) $Value) ($type $atom $b))
-                (match $space (: ($type $b $atom) $Value) ($type $b $atom))
+                (match $space (($type $atom $b) $Value) ($type $atom $b))
+                (match $space (($type $b $atom) $Value) ($type $b $atom))
             )
         )
     )
