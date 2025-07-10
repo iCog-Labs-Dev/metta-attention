@@ -68,7 +68,7 @@
 
 !(assertEqual   
     (let $atoms (collapse 
-                    (match (TypeSpace) (: (ASYMMETRIC_HEBBIAN_LINK $x $y) $value) 
+                    (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $x $y) $value) 
                             (ASYMMETRIC_HEBBIAN_LINK $x $y))) (size-atom $atoms))
     12
 )
