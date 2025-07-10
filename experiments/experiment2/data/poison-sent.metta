@@ -1,0 +1,1 @@
+(poisonSent (Botulinum avoids alcohol .))
