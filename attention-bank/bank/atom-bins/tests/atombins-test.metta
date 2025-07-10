@@ -1,5 +1,5 @@
 !(register-module! ../../../../../metta-attention)
-!(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam) 
+!(import! &self metta-attention:attention:AttentionParam) 
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
