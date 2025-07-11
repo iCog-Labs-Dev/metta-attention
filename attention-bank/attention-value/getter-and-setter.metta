@@ -243,7 +243,6 @@
 	)
 )
 
-
 (= (globalIncomingSetwithoutType $atom)
     (collapse 
         (superpose   

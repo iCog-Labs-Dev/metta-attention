@@ -13,7 +13,7 @@
         (
             ($incidentAtoms (collapse (incidentAtoms $atom $space)))
             ($foset (if (== (get-metatype $atom) Expression)
-                        (getOutGoingAtom $atom)
+                        (getOutGoingAtoms $atom)
                         ()
                     )
             )
