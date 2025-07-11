@@ -32,8 +32,8 @@
           
            ($stiDiff (- $oldSTI $sti))
            ($ltiDiff (-  $oldLTI $lti))
-           ($fundsSTI (getAttentionBank fundsSTI))
-           ($fundsLTI (getAttentionBank fundsLTI))
+           ($fundsSTI (getAttentionParam FUNDS_STI))
+           ($fundsLTI (getAttentionParam FUNDS_LTI))
            ($newstifund (+ $fundsSTI $stiDiff))
            ($newltifund (+ $fundsLTI $ltiDiff))
            ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter
