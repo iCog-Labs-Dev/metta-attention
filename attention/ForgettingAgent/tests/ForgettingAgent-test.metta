@@ -8,6 +8,7 @@
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 
+!(updateAttentionParam FORGET_THRESHOLD 5)
 ; stimualte 0.25 translated to lti 5
 
 !(stimulate a 1)
@@ -80,7 +81,7 @@
 ; stv &av, lit < 5, source < 5, target < 5, link lti above source & target lti
 !(stimulate (SYMMETRIC_HEBBIAN_LINK M N) 0.2)
 
-!(assertEqual (match &space (fundsSTI $x) $x) 99174.80000000002)
+!(assertEqual (getAttentionParam FUNDS_STI) 99174.80000000002)
 
 
 !(forgettingAgent-Run (AtomBin))
@@ -97,6 +98,6 @@
     ()
 ) 
 
-!(assertEqual (match &space (fundsSTI $x) $x) 99468.40000000002)
+!(assertEqual (getAttentionParam FUNDS_STI) 99468.40000000002)
 
 !(assertEqual (let $a (getAtomsInRemoveSpace) (size-atom $a)) 16)
