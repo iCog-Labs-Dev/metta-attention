@@ -7,7 +7,7 @@ import sys
 if len(sys.argv) >= 2:
     FILE = sys.argv[1]
 else:
-    FILE = 'output/output.csv'
+    FILE = 'experiments/Metta/experiment1/output/output.csv'
 df = pd.read_csv(FILE, parse_dates=['timestamp'])
 
 def create_category():

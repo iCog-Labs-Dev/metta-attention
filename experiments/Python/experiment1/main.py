@@ -40,6 +40,9 @@ def main():
     # Register agents
     print("\nRegistering agents...")
 
+    # scheduler.register_agent("test-superpose",
+    #     lambda: Agentrun(metta=metta, path=os.path.join(base_path, "../experiments/Agents-runner.metta")))
+
     scheduler.register_agent("AFImportanceDiffusionAgent",
         lambda: Agentrun(metta=metta, path=os.path.join(base_path, "ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent-runner.metta")))
     scheduler.register_agent("AFRentCollectionAgent",

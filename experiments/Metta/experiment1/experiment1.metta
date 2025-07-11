@@ -25,15 +25,26 @@
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
-!(import! &tempspace metta-attention:experiments:Metta:experiment:data:adagram_sm_links)
-!(import! &insect metta-attention:experiments:Metta:experiment:data:insect-words)
-!(import! &poison metta-attention:experiments:Metta:experiment:data:poison-words)
+; !(import! &tempspace metta-attention:experiments:Metta:experiment:data:adagram_sm_links)
+!(import! &insect metta-attention:experiments:Metta:experiment1:data:insect-words)
+!(import! &poison metta-attention:experiments:Metta:experiment1:data:poison-words)
+!(import! &tempspace metta-attention:experiments:Metta:experiment1:data:links)
 
-(=(spaceAdder) (add-atom-reduct (TypeSpace) (get-atoms &tempspace))) 
+
+; (=(spaceAdder) (add-atom-reduct (TypeSpace) (get-atoms &tempspace))) 
+(= (spaceAdder) (get-atoms &tempspace))
 !(spaceAdder)
 
 ; write the params to a file
-!(start_log (attentionParam) (space) experiments/Metta/experiment)
+!(updateAttentionParam MAX_AF_SIZE 10.0)
+!(updateAttentionBank targetSti 1000.0)
+!(updateAttentionBank targetLti 1000.0)
+!(updateAttentionBank stiFundsBuffer 1000.0)
+!(updateAttentionBank ltiFundsBuffer 1000.0)
+!(updateAttentionBank fundsSTI 2000.0)
+!(updateAttentionBank fundsLTI 2000.0)
+
+!(start_log (attentionParam) (space) experiments/Metta/experiment1)
 
 (= (insectPoisonExp $maxim $space $type)
     (
@@ -50,7 +61,7 @@
                     (stimulate $randomWord1 30)
                     (println! ($type $randomWord1))
                     (collapse(test-superpose))
-                    (collapse (write_csv_wrapper (attentionalFocus) out.csv))
+                    ; (collapse (write_csv_wrapper (attentionalFocus) out.csv))
                     (let $newMaxim (- $maxim 1)
                         (if (> $maxim 2)
                             (insectPoisonExp $newMaxim  &insect insect)
