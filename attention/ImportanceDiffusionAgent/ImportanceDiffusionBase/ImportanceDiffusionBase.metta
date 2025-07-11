@@ -244,17 +244,6 @@
     )
 )
 
-;; This function will return the outgoing atoms of Link
-;; Parameters $link: The link that will be used to find the outgoing atoms
-;; Return : The outgoing atoms of the link
-
-(: getOutGoingAtom (-> Atom Atom))
-(= (getOutGoingAtom $link)
-    (if (== (size-atom $link) 3)
-        (cdr-atom $link)
-        "No outgoing atoms"
-    )
-)
 
 ;; This function will return the incoming set of an atom
 ;; Parameters $atom: The atom that will be used to find the incoming set
