@@ -10,15 +10,15 @@
 
 ; Test case 01: testing attention value setter(setAv) function for symbol atom type and 
 ;testing that atoms are inserted to atombins and attentional focus space when av is set to them
-!(assertEqual (getAttentionBank fundsSTI) 100000)
-!(assertEqual (getAttentionBank fundsLTI) 100000)
+!(assertEqual (getAttentionParam FUNDS_STI) 100000)
+!(assertEqual (getAttentionParam FUNDS_LTI) 100000)
 !(setAv A (200 200 0)) 
 !(setAv A (400 400 0)) 
 !(setAv Cat (400 400 1))  
 !(setAv Animal (400 400 1))
 !(setAv Human (400 400 1))
-!(assertEqual (getAttentionBank fundsSTI) 98400)
-!(assertEqual (getAttentionBank fundsLTI) 98400)
+!(assertEqual (getAttentionParam FUNDS_STI) 98400)
+!(assertEqual (getAttentionParam FUNDS_LTI) 98400)
 !(assertEqual (getAtomsInBins) ((53.0 (Human Animal Cat A))))
 !(assertEqual (getAtomList) (A Cat Animal Human))
 ; Test case 02: testing attention value getter(getAv) function for symbol atom type
@@ -100,11 +100,11 @@
 ! (assertEqual (getVLTI (Hebbianlink (Hebbianlink Animal Hebbianlink) (Hebbianlink Animal Cat))) 0)
 
 ; Test case 10:testing setSTI,setLTI,setVLTI functions and the dereasing the global parameters
-;(funsSTI and fundsLTI) for every av the is given to the atoms
+;(fundsSTI and fundsLTI) for every av the is given to the atoms
 !(setSTI k 200)
 !(setLTI k 200)
 !(setVLTI k 200)
 !(assertEqual(getAv k) (AV 200 200 200))
-!(assertEqual (getAttentionBank fundsSTI) 96403)
-!(assertEqual (getAttentionBank fundsLTI) 96600)
+!(assertEqual (getAttentionParam FUNDS_STI) 96403)
+!(assertEqual (getAttentionParam FUNDS_LTI) 96600)
 
