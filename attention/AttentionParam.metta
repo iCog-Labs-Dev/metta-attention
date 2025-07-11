@@ -18,6 +18,8 @@
 !(add-atom &attentionParam  (StartingAtomLtiRent 1.0))
 !(add-atom &attentionParam  (TARGET_LTI_FUNDS_BUFFER  10000.0))
 !(add-atom &attentionParam  (RENT_TOURNAMENT_SIZE  5.0))
+!(add-atom &attentionParam  (TC_DECAY_RATE  0.1))
+!(add-atom &attentionParam  (DEFAULT_K 800))
 !(add-atom &attentionParam  (SPREADING_FILTER  (MemberLink (Type "MemberLink"))))
 (: getAttentionParam (-> Symbol Number))
 (= (getAttentionParam $param)
