@@ -110,7 +110,7 @@
 (= (lessThanSti $elem $pivot)
     (if (or (== $elem ()) (== $pivot ())) 
         False 
-        (< (getSTI $elem) (getSTI $pivot))
+        (< (getSti $elem) (getSti $pivot))
     )
 )
 
@@ -126,7 +126,7 @@
 (= (greaterEqualSti $elem $pivot)
     (if (or (== $elem ()) (== $pivot ())) 
         False 
-        (>= (getSTI $elem) (getSTI $pivot))
+        (>= (getSti $elem) (getSti $pivot))
     )
 )
 
@@ -183,7 +183,7 @@
         $minAtom
         (let* (
             ($current (car-atom $atoms))
-            ($sti (getSTI $current))
+            ($sti (getSti $current))
             ($newMinAtom (if (< $sti $minSTI) $current $minAtom))
             ($newMinSTI (if (< $sti $minSTI) $sti $minSTI))
         )
@@ -201,7 +201,7 @@
     (let $atoms (getAtomList)
         (if (== $atoms ())
             ()
-            (let $atom (car-atom $atoms) (getLowestStiAtomInAFHelper $atoms (car-atom $atoms) (getSTI $atom)))
+            (let $atom (car-atom $atoms) (getLowestStiAtomInAFHelper $atoms (car-atom $atoms) (getSti $atom)))
         )
     )
 )
@@ -223,7 +223,7 @@
        (
         
            ($maxSize (getAttentionParam MAX_AF_SIZE)) 
-           ($sti (getSTI $atom)) 
+           ($sti (getSti $atom)) 
            ($currentSize (attentionalFocusSize)) 
            ($isInAF (atomIsInAF $atom)) ; Check if atom is already in AF
        )
@@ -238,7 +238,7 @@
                ; Case 2: AF is not full, add the new atom
                (addAtomToAF $atom $newAtom)
                (let $lowestAtom (getLowestStiAtomInAF) ; Only compute if needed
-                    (if (> $sti (getSTI $lowestAtom))  ; Case 3: Replace if better
+                    (if (> $sti (getSti $lowestAtom))  ; Case 3: Replace if better
                         (let ()
                             (remove-atom &attentionalFocus $lowestAtom)
                             (addAtomToAF $atom True)
