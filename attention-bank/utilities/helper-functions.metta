@@ -302,9 +302,9 @@
 )
 
 
-(= (getSTIHelper $atoms)
+(= (getStiHelper $atoms)
     (let* (
-        ($vals (getSTI (superpose $atoms)))
+        ($vals (getSti (superpose $atoms)))
     )
     $vals
     )
@@ -316,7 +316,7 @@
    (if (== $atoms ())
             0.0
             (let* (
-                ($stiValues (collapse (getSTIHelper $atoms)))
+                ($stiValues (collapse (getStiHelper $atoms)))
                 ($maxSTI (max-atom $stiValues))
             )
             $maxSTI
@@ -330,7 +330,7 @@
     (if (== $atoms ())
             0.0
             (let* (
-                ($stiValues (collapse (getSTIHelper $atoms)))
+                ($stiValues (collapse (getStiHelper $atoms)))
                 ($minSTI (min-atom $stiValues))
             )
             $minSTI

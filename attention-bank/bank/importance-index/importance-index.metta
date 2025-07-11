@@ -150,7 +150,7 @@
 
 (: pred (-> Symbol Number Number Bool))
 (= (pred $x $lower $higher) (
-    let $sti (getSTI $x) 
+    let $sti (getSti $x) 
       (and 
         (>=  $sti $lower) 
         (<=  $sti $higher)
@@ -174,7 +174,7 @@
        (
         ($lowerBin (importanceBin $lowerBound))
         ($upperBin (importanceBin $upperBound))
-        ($atomBins (collapseAtomBin (AtomBin)))
+        ($atomBins (collapseAtomBin (atomBin)))
         ($gcIfRes (getContentIf $lowerBin pred $lowerBound $upperBound $atomBins ())) ;gcIfRes - getContentIfResult (result obtained after calling getContentIf)
         ($exitCondition (== $upperBin $lowerBin))
         ($gcRes (loop $lowerBin $upperBin $atomBins $gcIfRes)) ;gcRes - getContentResult (result obtained after calling getContent)
@@ -226,7 +226,7 @@
 (: getNormalisedZeroToOneSTI (-> Atom Bool Bool Number))
 (= (getNormalisedZeroToOneSTI $atom $average $clip)
    (let*
-       (   ($sti  (getSTI $atom))
+       (   ($sti  (getSti $atom))
            ($maxSTI (getMaxSTI $average))
            ($minSTI (getMinSTI $average))
            ($normaliser (- $maxSTI $minSTI))
@@ -259,7 +259,7 @@
    (let*
        (
           ($atoms (getAtomList))
-           ($s (getSTI $atom))
+           ($s (getSti $atom))
            ($afMax  (getAllMaxSTI $atoms))
            ($normaliser
                (if (> $s $afMax)
@@ -291,7 +291,7 @@
    (let*
        (
            ($atoms (getAtomList))
-           ($s (getSTI $atom))
+           ($s (getSti $atom))
            ($afMax  (getAllMaxSTI $atoms))
            ($diff (- $s $afMax))
            ($sum (+ $s $afMax)) 
