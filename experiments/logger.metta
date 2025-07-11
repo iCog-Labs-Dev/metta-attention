@@ -16,12 +16,11 @@
     )
 )
 
-(= (start_log $attentionParam $space $file)
+(= (start_log $attentionParam $file)
     (let $param
         (start_logger $file)
         (let $atoms
             (let $val (collapse (get-atoms $attentionParam)) (save_params $val))
-            (let $vals (collapse (get-atoms $space)) (save_params $vals))
         )
     )
 )
