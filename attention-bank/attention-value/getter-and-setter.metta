@@ -243,11 +243,6 @@
 	)
 )
 
-(= (globalIncomingSetByType source $atom $type)
-	(collapse
-        (match &typeSpace (: ($type $b $atom) $a) ($type $b $atom))
-	)
-)
 
 (= (globalIncomingSetwithoutType $atom)
     (collapse 
