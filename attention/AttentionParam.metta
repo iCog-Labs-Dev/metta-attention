@@ -10,6 +10,7 @@
 !(add-atom &attentionParam  (ACC_DIV_SIZE 1))
 !(add-atom &attentionParam  (HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.05))
 !(add-atom &attentionParam  (LOCAL_FAR_LINK_RATIO      10.0))
+!(add-atom &attentionParam  (MAX_LINK_NUM 300.0))
 !(add-atom &attentionParam  (MAX_SPREAD_PERCENTAGE 0.4))
 !(add-atom &attentionParam  (DIFFUSION_TOURNAMENT_SIZE 5.0))
 !(add-atom &attentionParam  (SPREAD_HEBBIAN_ONLY 0.0))
