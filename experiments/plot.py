@@ -20,17 +20,14 @@ class Plotter:
         if not data_path.exists() or not data_path.is_dir():
             raise FileNotFoundError(f"No {data_path} directory found")
 
-        file_paths = {"insect": "", "poison": "", "insecticide": ""}
-        for i in ("insect-words.metta", "poison-words.metta", "insecticide-words.metta"):
-            
-            words_file = list(data_path.glob(i))
-            if len(words_file) == 0:
-                raise FileNotFoundError(f"missing {i} file in {data_path} directory")
-            if len(words_file) > 1:
-                raise ValueError(f"Multiple {i} files in {data_path} directory")
+        file_paths = list(data_path.glob("words.json"))
 
-            file_paths[i.split("-")[0]] = str(words_file[0])
-        return file_paths
+        if len(file_paths) == 0:
+            raise FileNotFoundError(f"No words.json file found at {data_path}")
+        elif len(file_paths) > 1:
+            raise ValueError(f"Multiple words.json files found at {data_path}")
+
+        return file_paths[0]
 
     def read_params(self):
 
@@ -45,24 +42,28 @@ class Plotter:
         return setting_json
 
     def create_category(self):
-        word_category = {key: [] for key in self.data_path}
+        word_category = {}
 
-        for i in self.data_path.keys():
-            with open(self.data_path[i], 'r') as f:
-                for line in f:
-                    word_category[i].append(line.split()[1].rstrip(")"))
-
+        with open(self.data_path, 'r') as f:
+            word_category = json.load(f)
 
         return word_category
 
     def categorize_pattern(self, pattern):
-        pattern = str(pattern).lower()
+        pattern = str(pattern)
         word_category = self.categories
+        word = ""
+
+        pattern_list = pattern.split()
+        if len(pattern_list) == 1:
+            word = pattern_list[0]
+        elif len(pattern_list) > 1 :
+            word = pattern_list[0].lstrip("(")
 
         for category, words in word_category.items():
-            if pattern in words:
+            if word in words:
                 return category
-
+            
         return 'Entered through spreading'
 
     def read_csv(self):
@@ -72,13 +73,12 @@ class Plotter:
         df['category'] = df['pattern'].apply(self.categorize_pattern)
         df['time_windows'] = df['timestamp'].dt.floor('1s')
         category_counts = df.groupby(['time_windows', 'category']).size().unstack(fill_value=0)
-        af_size = int(self.params['MAX_AF_SIZE'])
+        af_size = int(float(self.params['MAX_AF_SIZE']))
         category_counts = category_counts / af_size
         return category_counts
 
     def plot(self):
         
-        colors = ['red', 'blue', 'green', 'purple']
         markers = ['o', 's', '^', 'D']  # Circle, square, triangle, diamond
         category_counts = self.data_frame
 
@@ -88,7 +88,6 @@ class Plotter:
                 category_counts.index, 
                 category_counts[category], 
                 label=category,
-                color=colors[i % len(colors)],
                 marker=markers[i % len(markers)],
                 markersize=2,
                 linestyle='-',
