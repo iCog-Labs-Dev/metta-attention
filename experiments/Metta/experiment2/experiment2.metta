@@ -31,8 +31,8 @@
 
 !(updateAttentionBank stiFundsBuffer 99900)
 !(updateAttentionBank ltiFundsBuffer 99900)
-!(updateAttentionBank targetSTI 99900)
-!(updateAttentionBank targetLTI 99900)
+!(updateAttentionBank targetSti 99900)
+!(updateAttentionBank targetLti 99900)
 !(updateAttentionParam AFRentFrequency 2.0)
 !(updateAttentionParam MAX_AF_SIZE 8)
 (=(spaceAdder) (get-atoms &tempspace)) 

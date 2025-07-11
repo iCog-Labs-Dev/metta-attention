@@ -54,13 +54,13 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 !(println! (hebbianupdatingagent-run))
 !(HebbianUpdatingAgent-Run (TypeSpace))
@@ -72,13 +72,13 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 !(println! (afimportancediffusionagent))
 !(AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace))
@@ -90,13 +90,13 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 !(println! (afretncollectionagent))
 !(afrent (AFRentCollectionAgent-run))
@@ -108,13 +108,13 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 !(println! (warentcollectionagent))
 !(WARentCollectionAgent-Run)
@@ -126,13 +126,13 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 !(println! (waimportancediffusionagent))
 !(WAImportanceDiffusionAgent-Run (TypeSpace))
@@ -144,16 +144,16 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 !(println! (forgettingagent))
-!(forgettingAgent-Run (AtomBin))
+!(forgettingAgent-Run (atomBin))
 !(println! (typesepace (get-atoms (TypeSpace))))
 !(println! (removespace (getAtomsInRemoveSpace)))
 !(println! 
@@ -162,13 +162,13 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 ; -------------------- Loop 1 ------------------ ;
 
@@ -188,13 +188,13 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 !(println! (hebbianupdatingagent))
 !(HebbianUpdatingAgent-Run (TypeSpace))
@@ -206,13 +206,13 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 !(println! (afimportancediffusionagent))
 !(AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace))
@@ -224,13 +224,13 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 !(println! (afrentcollectionagent))
 !(afrent (AFRentCollectionAgent-run))
@@ -242,13 +242,13 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 !(println! (warentcollection))
 !(WARentCollectionAgent-Run)
@@ -260,13 +260,13 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 !(println! (waimportancediffusion))
 !(WAImportanceDiffusionAgent-Run (TypeSpace))
@@ -278,16 +278,16 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 !(println! (forgettingagent))
-!(forgettingAgent-Run (AtomBin))
+!(forgettingAgent-Run (atomBin))
 !(println! (typesepace (get-atoms (TypeSpace))))
 !(println! (removespace (getAtomsInRemoveSpace)))
 !(println! 
@@ -296,13 +296,13 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 
 !(println! (typesepace (get-atoms (TypeSpace))))
@@ -313,13 +313,13 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 !(get-atoms &timer)
 
 ; -------------------- Loop 2 ------------------ ;
@@ -334,13 +334,13 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 !(println! (hebbianupdatingagent))
 !(HebbianUpdatingAgent-Run (TypeSpace))
@@ -352,13 +352,13 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 !(println! (afimportancediffusionagent))
 !(AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace))
@@ -370,13 +370,13 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 !(println! (afrentcollectionagent))
 !(afrent (AFRentCollectionAgent-run))
@@ -388,13 +388,13 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 !(println! (warentcollection))
 !(WARentCollectionAgent-Run)
@@ -406,13 +406,13 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 !(println! (waimportancediffusion))
 !(WAImportanceDiffusionAgent-Run (TypeSpace))
@@ -424,16 +424,16 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 !(println! (forgettingagent))
-!(forgettingAgent-Run (AtomBin))
+!(forgettingAgent-Run (atomBin))
 !(println! (typesepace (get-atoms (TypeSpace))))
 !(println! (removespace (getAtomsInRemoveSpace)))
 !(println! 
@@ -442,18 +442,18 @@
             (
                ($atoms (getAtomList))
                ($vals (superpose $atoms))
-               ($sti (getSTI $vals))
+               ($sti (getSti $vals))
             )
             ($vals $sti)
         )
     )
 )
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 
 !(println! (typesepace (get-atoms (TypeSpace))))
 !(println! (removespace (getAtomsInRemoveSpace)))
 !(println! (AF (getAtomList)))
-!(println! (Bin (collapseAtomBin (AtomBin))))
+!(println! (Bin (collapseAtomBin (atomBin))))
 
 
