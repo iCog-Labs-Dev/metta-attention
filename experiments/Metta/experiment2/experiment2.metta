@@ -29,17 +29,17 @@
 !(import! &insect metta-attention:experiments:Metta:experiment2:data:insect-sent)
 !(import! &poison metta-attention:experiments:Metta:experiment2:data:poison-sent)
 
-!(updateAttentionBank stiFundsBuffer 99900)
-!(updateAttentionBank ltiFundsBuffer 99900)
-!(updateAttentionBank targetSTI 99900)
-!(updateAttentionBank targetLTI 99900)
+!(updateAttentionParam STI_FUNDS_BUFFER 99900)
+!(updateAttentionParam LTI_FUNDS_BUFFER 99900)
+!(updateAttentionParam TARGET_STI 99900)
+!(updateAttentionParam TARGET_LTI 99900)
 !(updateAttentionParam AFRentFrequency 2.0)
 !(updateAttentionParam MAX_AF_SIZE 8)
 (=(spaceAdder) (get-atoms &tempspace)) 
 !(spaceAdder)
 
 ; write the params to a file
-!(start_log (attentionParam) (space) experiments/Metta/experiment2)
+!(start_log (attentionParam) experiments/Metta/experiment2)
 
 (= (insectPoisonReadExp $space $type $expr)
     (
