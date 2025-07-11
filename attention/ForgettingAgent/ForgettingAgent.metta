@@ -5,10 +5,6 @@
 	&removeSpace
 )
 
-(= (forgetThreshold) 5) ; constant set in line 57 opencog/attention/ForgettingAgent.cc
-(= (maxSize) 2) ; constant set in line 63 opencog/attention/ForgettingAgent.cc
-(= (accDivSize) 1) ;  constant set in line 64 opencog/attention/ForgettingAgent.cc
-
 ; Description: a function to remove atoms that have low LTI values from the typeSpace
 ; params:
 ;		None
@@ -18,10 +14,13 @@
 	(let* 
 		(
 			($count 0)
+            ($maxSize (getAttentionParam MAX_SIZE))
+            ($accDivSize (getAttentionParam ACC_DIV_SIZE))
+            ($forgetThreshold (getAttentionParam FORGET_THRESHOLD))
 			($atoms (collapseBin $space))
 			($size (countAtomsInTypeSpace)) 
-			($removalAmount (- $size (- (maxSize) (accDivSize))))
-			($filteredatom (filterByLti $atoms))
+			($removalAmount (- $size (- $maxSize $accDivSize)))
+			($filteredatom (filterByLti $atoms $forgetThreshold))
 			($sortedatoms (ForgettingLTIThenTVAscendingSort $filteredatom))
 				
 		)
@@ -40,8 +39,8 @@
 ; params :
 ;	$atoms : List of atoms to be filtered
 ; return: List of atoms that are below threshold
-(: filterByLti (-> List List))
-(= (filterByLti $atoms)
+(: filterByLti (-> List Number List))
+(= (filterByLti $atoms $forgetThreshold)
 	(if (== $atoms ())
 		()
 		(let*
@@ -49,12 +48,12 @@
 				($head (car-atom $atoms))
 				($tail (cdr-atom $atoms))
 			)
-			(if (<= (getLTI $head) (forgetThreshold))
+			(if (<= (getLTI $head) $forgetThreshold)
 				(if (== (getVLTI $head) 0)
-					(concatTuple ($head) (filterByLti $tail))
-					(filterByLti $tail)
+					(concatTuple ($head) (filterByLti $tail $forgetThreshold))
+					(filterByLti $tail $forgetThreshold)
 				)
-				(filterByLti $tail)
+				(filterByLti $tail $forgetThreshold)
 			)
 		)
 	)
