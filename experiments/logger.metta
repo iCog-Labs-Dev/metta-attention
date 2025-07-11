@@ -19,9 +19,7 @@
 (= (start_log $attentionParam $file)
     (let $param
         (start_logger $file)
-        (let $atoms
-            (let $val (collapse (get-atoms $attentionParam)) (save_params $val))
-        )
+        (let $val (collapse (get-atoms $attentionParam)) (save_params $val))
     )
 )
 
