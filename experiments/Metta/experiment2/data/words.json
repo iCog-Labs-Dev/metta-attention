@@ -1,0 +1,53 @@
+{
+    "insect": [
+        "Ants",
+        "ants",
+        "ant",
+        "aphid",
+        "aphids",
+        "armyworms",
+        "armyworm",
+        "beanfly"
+    ],
+    "poison": [
+        "Botulinum",
+        "aconite",
+        "aflatoxin",
+        "alcohol",
+        "ammonia",
+        "arsenic",
+        "aspirin"
+    ],
+    "insecticide": [
+        "abamectin",
+        "acetamiprid",
+        "alachlor",
+        "aldicarb",
+        "aldrin",
+        "bactericide",
+        "benazolin",
+        "bendiocarb",
+        "bromacil",
+        "bulan",
+        "carbaryl",
+        "diazinon",
+        "dichloropropene",
+        "dichlorvos",
+        "dicofol",
+        "dilan",
+        "dinoseb",
+        "ethiofencarb",
+        "ethion",
+        "fenson",
+        "fluvalinate",
+        "fosmethilan",
+        "herbicide",
+        "hydramethylnon",
+        "insecticide",
+        "lindane",
+        "lufenuron",
+        "methidathion",
+        "nematocide",
+        "trichlorophenol"
+    ]
+}
