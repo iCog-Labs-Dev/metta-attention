@@ -1,0 +1,6 @@
+(insect ant)
+(insect aphid)
+(insect armyworm)
+(insect beetwebworm)
+(insect spider)
+(insect beanpodborer)

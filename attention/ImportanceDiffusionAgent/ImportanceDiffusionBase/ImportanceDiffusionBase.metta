@@ -272,12 +272,12 @@
         ()
         (let*
             (
-                ($sourceSTI (getSTI $source))
-                ($targetSTI (getSTI $target))
+                ($sourceSTI (getSti $source))
+                ($targetSti (getSti $target))
                 ($newSourceSTI (- $sourceSTI $value))
-                ($newTargetSTI (+ $targetSTI $value))
-                (() (setSTI $target $newTargetSTI))
-                (() (setSTI $source $newSourceSTI))
+                ($newTargetSti (+ $targetSti $value))
+                (() (setSti $target $newTargetSti))
+                (() (setSti $source $newSourceSTI))
             )
             ()
         )

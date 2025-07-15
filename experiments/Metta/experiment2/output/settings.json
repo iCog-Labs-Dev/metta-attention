@@ -3,7 +3,7 @@
     "MIN_AF_SIZE": "500",
     "AFB_DECAY": "0.05",
     "AFB_BOTTOM": "50.0",
-    "MAX_AF_SIZE": "8",
+    "MAX_AF_SIZE": "12",
     "AFRentFrequency": "2.0",
     "FORGET_THRESHOLD": "0.05",
     "HEBBIAN_MAX_ALLOCATION_PERCENTAGE": "0.05",
@@ -22,8 +22,8 @@
     "fundsLTI": "100000",
     "stiFundsBuffer": "99900",
     "ltiFundsBuffer": "99900",
-    "targetSTI": "99900",
-    "targetLTI": "99900",
+    "targetSti": "99900",
+    "targetLti": "99900",
     "STIAtomWage": "10",
     "LTIAtomWage": "10"
 }

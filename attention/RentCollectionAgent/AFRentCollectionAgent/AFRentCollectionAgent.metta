@@ -67,8 +67,8 @@
 (= (applyRent  $w $atom)
    (let*
         (
-          ($sti (getSTI $atom))
-          ($lti (getLTI $atom))
+          ($sti (getSti $atom))
+          ($lti (getLti $atom))
           ($stiAtomRent (getAttentionParam StartingAtomStiRent))
           ($ltiAtomRent (getAttentionParam StartingAtomLtiRent))
           ($calculatestirent  (calculateStiRent $stiAtomRent))
@@ -85,7 +85,7 @@
               ($minltiRent (min-atom ($ltiRent $lti)))
               ($stiDiff (- $sti $minstiRent))
               ($ltiDiff (- $lti $minltiRent))
-              ($atomVlti (getVLTI $atom))
+              ($atomVlti (getVlti $atom))
             )
             (setAv $atom ($stiDiff $ltiDiff $atomVlti))
           )
