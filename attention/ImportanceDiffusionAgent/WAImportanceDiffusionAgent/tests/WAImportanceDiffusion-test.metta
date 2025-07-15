@@ -22,11 +22,11 @@
 !(stimulate target3 400)
 !(stimulate target4 300)
 
-!(getSTI source)
-!(getSTI target1)
-!(getSTI target2)
-!(getSTI target3)
-!(getSTI target4)
+!(getSti source)
+!(getSti target1)
+!(getSti target2)
+!(getSti target3)
+!(getSti target4)
 
 
 !(setStv (HEBBIAN_LINK source target1) (0 1))

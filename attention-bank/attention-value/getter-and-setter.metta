@@ -12,8 +12,8 @@
 (= (setAv $pattern ($sti $lti $vlti))
     (let* (
 
-        ($oldSTI (getSTI $pattern))
-        ($oldLTI (getLTI $pattern))
+        ($oldSTI (getSti $pattern))
+        ($oldLTI (getLti $pattern))
         ($updateimpo (updateImportance (AtomBin) $pattern $oldSTI $sti))
         ($res (if (== (getValueType $pattern) %Undefined)
                    (add-atom &typeSpace ($pattern (AV $sti $lti $vlti)))
