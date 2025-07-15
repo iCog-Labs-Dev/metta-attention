@@ -1,144 +1,126 @@
-# ECAN Agents Framework in MeTTa
+# ECAN Experiment in Python: Shifting and Drifting Attention
 
-A proof-of-concept (POC) for an agent-based system implemented in MeTTa, leveraging a shared MeTTa atomspace for inter-agent communication and knowledge sharing.
+This document summarizes an experiment conducted using **ECAN (Economic Attention Network)** with **Python**. The goal was to observe and analyze the behavior of **attentional shifting** and **drifting**.
 
-## Overview
+## 1.Description
 
-This framework provides a way to implement a cognitive controller for ECAN Agents using MeTTa.  Crucially, all agents operate within the **same, shared MeTTa environment (atomspace)**.  This allows agents to directly observe and interact with each other's knowledge and actions. The state within the shared atomspace is preserved until the system is stopped.
+The experiment aimed to simulate how attention shifts and drifts within a cognitive system when presented with sequential inputs related to different concept groups. Specifically, it focused on two primary categories:
+- **Insect-related concepts**: Representing one domain of interest.
+- **Poison-related concepts**: Representing another domain of interest.
+- **Insecticide**: Acting as a bridge concept linking both domains.
 
-## Core Components
+The ECAN, implemented in MeTTa, manages attention through agents such as Hebbian link creation, Importance diffusion, Rent collection, and Forgetting. The experiment tracked how these mechanisms influence the movement of atoms into and out of the **Attentional Focus (AF)** over time.
 
-### Base Architecture
 
-- `AgentObject`: The foundational class that enables both MeTTa scripts and Python classes to function as agents.  It now takes a shared `MeTTa` instance as an argument.
-- `ParallelScheduler`: Manages the concurrent execution of multiple agents within the shared `MeTTa` environment.
+## 2.The Data used in the experiment
 
-### Agents to be Implemented
-
-1.  **Importance Diffusion Agents**
-    *   `AFImportanceDiffusionAgent`: Implements attentional-focus importance diffusion.
-    *   `WAImportanceDiffusionAgent`: Handles Whole Atomspace importance diffusion.
-
-2.  **Rent Collection Agents**
-    *   `AFRentCollectionAgent`: Manages attentional-focus Rent collection.
-    *   `WARentCollectionAgent`: Manages Whole-atomspace Rent collection.
-
-3.  **Learning and Memory Agents**
-    *   `HebbianCreationAgent`: Manages Hebbian Link creation between atoms.
-    *   `HebbianUpdatingAgent`: Manages updates to Hebbian link weights.
-    *   `ForgettingAgent`: Handles memory decay and cleanup operations.
-
-## Key Features
-
--   **Parallel Execution**: Agents can run concurrently using the `ParallelScheduler`.
--   **Shared Atomspace**: All agents operate within a single, shared `MeTTa` atomspace, enabling direct communication and knowledge sharing.
--   **Stateful**: State is persisted in the shared atomspace throughout the execution of the agents.
--   **Flexible Integration**: Supports both MeTTa and Python-based agent implementations.
-
-## Usage
-
-### Prerequisites
-
-*   Make sure you have hyperon installed
-*   Make sure all the dependency installed
-
-### Registering with Scheduler
-
-```python
-metta = MeTTa() #create metta instance
-scheduler = ParallelScheduler(metta) # Initialize the scheduler with the metta instance
-scheduler.register_agent("agent_id", lambda: AgentObject(metta=metta, ...)) #register the agent using lambda
-metta: a metta instance that created for sharing space
-AgentObject: takes metta instance and can work on the shared space
-lambda: create an anonymous funciton that returns an instance of AgentObject, making sure that all agents are initialized in the same space
-...: all the extra paramaters that required to initialize the agent
-```
-
-### Running Agents
-# Run all agents in parallel
-
-```
-python3 main.py
-```
-
-# Expected output
-
-```
-   Registering agents...
-   Registered agent: AFImportanceDiffusionAgent
-   Registered agent: AFRentCollectionAgent
+The input data consisted of two sets of sentences:
+1. **Insect-related sentence**: Stimulated the system with insect-related concepts.
+2. **Poison-related sentence**: Stimulated the system with poison-related concepts.
    
-   Agent System Ready!
-   
-   Running agents in continuous mode. Press Ctrl+C to stop.
-   
-   Starting continuous agent execution... (Press Ctrl+C to stop)
-   Created new agent: AFImportanceDiffusionAgent
-   Running agent: <class 'agents.agent_base.AgentObject'> from !(import! &self attention:agents:mettaAgents:adder...
-   Created new agent: AFRentCollectionAgent
-   Running agent: <class 'agents.agent_base.AgentObject'> from !(import! &self attention:agents:mettaAgents:adder...
-   Execution result for <class 'agents.agent_base.AgentObject'>: [[()], [("AFRentCollectionAgent.metta")], [2]]
-   Execution result for <class 'agents.agent_base.AgentObject'>: [[()], [("AFImportanceDiffusionAgent.metta")], [()], [("AFImportanceDiffusionAgent.metta")], [()], [2, 2]]
-   Running agent: <class 'agents.agent_base.AgentObject'> from !(import! &self attention:agents:mettaAgents:adder...
-   Running agent: <class 'agents.agent_base.AgentObject'> from !(import! &self attention:agents:mettaAgents:adder...
-   Execution result for <class 'agents.agent_base.AgentObject'>: [[()], [("AFRentCollectionAgent.metta")], [2, 2]]
-   Execution result for <class 'agents.agent_base.AgentObject'>: [[()], [("AFImportanceDiffusionAgent.metta")], [()], [("AFImportanceDiffusionAgent.metta")], [()], [2, 2, 2]]
-   Running agent: <class 'agents.agent_base.AgentObject'> from !(import! &self attention:agents:mettaAgents:adder...
-   Running agent: <class 'agents.agent_base.AgentObject'> from !(import! &self attention:agents:mettaAgents:adder...
-   Execution result for <class 'agents.agent_base.AgentObject'>: [[()], [("AFRentCollectionAgent.metta")], [2, 2, 2]]
-   Execution result for <class 'agents.agent_base.AgentObject'>: [[()], [("AFImportanceDiffusionAgent.metta")], [()], [("AFImportanceDiffusionAgent.metta")], [()], [2, 2, 2, 2]]
-   Running agent: <class 'agents.agent_base.AgentObject'> from !(import! &self attention:agents:mettaAgents:adder...
-   Running agent: <class 'agents.agent_base.AgentObject'> from !(import! &self attention:agents:mettaAgents:adder...
-   Execution result for <class 'agents.agent_base.AgentObject'>: [[()], [("AFRentCollectionAgent.metta")], [2, 2, 2, 2]]
+
+Key points about the data:
+- Due to performance limitations in MeTTa, only short input sentences were used.
+- `Insecticide` served as a bridge concept, connecting the insect and poison domains.
+- The system processed these inputs sequentially: first insect-related sentence, then poison-related sentence.
+
+
+
+## 3.Execution 
+
+The experiment was executed using the following steps:
+
+### Initialization
+1. **Instansiation**
+    - create an instance of the ParallelScheduler class and provide
+        - A metta instance for all agents to work together
+        - a path to a file for all relevant imports
+
+2. **Set up parameters**:
+   - Set up paraments for the test such as the AF size and other hyperparameters
+
+3. **Load Knowledge Base**:
+   - Loaded the knowledge base containing predefined relationships between concepts.
+   - Initialized the system with specific sentences for insects and poisons.
+
+4. **Load agents**
+    - Loaded agents via the register_agent function as follows
+```py
+    scheduler.register_agent("test-superpose",
+        lambda: Agentrun(metta=metta, path=os.path.join(base_path, "../experiments/Agents-runner.metta")))
 ```
+    - The above example loads a function that calls all agents but registering 
+      each agent is possible but is prone to memory crash when using large data sets.
+### Input Processing
+3. **Stimulate Concepts**:
+    - Simulating can be done by simply calling `scheduler.run_continuously()`
+    - Each word in the sentence is stimualated, increasing  it's Importance value.
 
-### Architecture Details
-# Agent Lifecycle
- * Initialization: A single MeTTa instance is created.
+4. **Execute ECAN Agents**:
+   - Ran ECAN agents at each step to manage attention dynamics:
 
- * Registration: Agents are registered with the ParallelScheduler, receiving a reference to the shared MeTTa instance.
+     - **HebbianCreationAgent**:creates ASYMMETRIC_HEBBIAN_LINK  connections between atoms in the attentional focus
+     - **HebbianUpdatingAgent**:the HebianUpdating updates the Truthvalue's (mean, confidence) of ASYMMETRIC_HEBBIAN_LINK links
+     - **AFImportanceDiffusionAgent**: Diffuse importance within the Attentional Focus.
+     - **AFRentCollectionAgent**: Collected rent from  atoms in the Attentional Focus.
+     - **ForgettingAgent**: an agent responsible for removing atoms of any kind from the all relevant spaces available.
 
- * Execution: Agents run concurrently, interacting with the shared MeTTa atomspace.
+5. **Monitor Attentional Focus**:
+   - Tracked the frequency of different concept categories entering the Attentional Focus over time.
+   - Logged results to analyze attentional shifting and drifting.
 
- * Termination: Agents stop gracefully when the system is interrupted, leaving the state in the shared atomspace intact.
+## 4.Results
 
- ### Important!!!!
- ### You should structure your Agents in this way
- ### AgentScript.metta
- ### AgentScriptRunner.metta 
+The experiment produced the following insights based on the plot titled **"Category Frequency Over Time"**:
 
- - AgentScriptRunner. metta should Import the AgentScript.metta file and run the main function for example (AFImportanceDiffusionAgenT-RUN)
- - And only the AgentScriptRunner.metta should be registered int eh main.py
+### Key Observations
+1. **Shifting of Attention**:
+   - After processing insect-related sentences, the focus shifted toward poison-related concepts when poison-related sentences were introduced.
+   - This shift was evident in the increased prominence of poison-related atoms in the Attentional Focus.
 
-## Agent Structure (IMPORTANT)
+2. **Drifting of Attention**:
+   - the `insecticide` concept (a bridge concept) appeared steadily in the Attentional Focus.
+   - This demonstrates **drifting**, where related but unstimulated concepts enter the focus due to their connections to stimulated concepts.
 
-To maintain code organization and reusability, agents should be structured in the following way:
+3. **Importance Diffusion**:
+   - The red line labeled **"Entered through spreading"** confirmed that related atoms entered the focus via importance diffusion.
+   - This highlights how ECAN dynamically redistributes attention across connected concepts.
 
-*   `AgentScript.metta`: Contains the core logic and definitions for the agent's functionality.  This file defines the core rules and functions.
-*   `AgentScriptRunner.metta`: Imports `AgentScript.metta` and executes the main function (e.g., `<AgentName>-RUN`). This acts as the entry point for the agent.
+4. **Noise in the System**:
+   - Due to short input contexts and performance constraints, unrelated ("noisy") atoms occasionally entered the Attentional Focus.
+   - These noisy entries were more pronounced during transitions between input phases.
 
-**Example:**
+### Plot Analysis
 
-Let's say you have an agent named `MyAwesomeAgent`.
+Here is the plot showing the **Category Frequency Over Time**:
 
-1.  `MyAwesomeAgentScript.metta`:
+![Category Frequency Over Time](output/plot.png)
 
-    ```metta
-    ; Define the core logic of MyAwesomeAgent here
-    (= (my-awesome-function)
-      ; ...do something with $x...
-    )
-    ```
+#### Observations from the Plot:
+- **Insect-related concepts** dominated initially but decreased after poison-related sentences were introduced.
+- **Poison-related concepts** rose in prominence, reflecting attentional shifting.
+- **Insecticide** remained steady, illustrating drifting behavior.
+- The **red line** ("Entered through spreading") showed consistent entry of related atoms via diffusion.
 
-2.  `MyAwesomeAgentRunner.metta`:
 
-    ```metta
-    ; Import the agent's core script
-    !(import! &self MyAwesomeAgentScript.metta)
 
-    !(my-awesome-function) ; Run it!
-    ``
-- And do 
-   ```python
-    scheduler.register_agent("MyAwesomeAgentRunner", lambda: AgentObject(metta=metta, pathto MyAwesomeAgentRunner.metta"))
-   ```
+## 5. Conclusion
+
+Despite the performance limitations of MeTTa, which restricted the use of longer texts, the experiment clearly demonstrated the following:
+
+1. **Shifting of Attention**:
+   - The system effectively shifted attention from insect-related concepts to poison-related concepts upon receiving new, directly stimulated input.
+
+2. **Drifting of Attention**:
+   - Unstimulated but related concepts (e.g., `insecticide`) drifted into the Attentional Focus due to their connections to stimulated concepts.
+
+3. **Dynamic Focus Management**:
+   - ECAN's agents (e.g., Hebbian links, importance diffusion, rent collection) successfully managed attention allocation over time.
+
+### Future Improvements
+- **Enhanced Performance**: Improving MeTTa's performance would allow for longer and more complex inputs, enabling richer transitions and interactions.
+- **Noise Reduction**: Refining the system to better filter out unrelated atoms could enhance focus clarity.
+
+
+
+This experiment provides strong evidence for the effectiveness of ECAN's attention allocation in MeTTa, validating its ability to stimulate dynamic cognitive processes like attentional shifting and drifting.
