@@ -8,9 +8,9 @@
    (let*
       (
          ($funds (getAttentionBank  fundsSTI))
-         ($targetSTI (getAttentionBank targetSTI))
+         ($targetSti (getAttentionBank targetSti))
          ($stiFundsBuffer (getAttentionBank stiFundsBuffer ))
-         ($diff (- $targetSTI $funds))
+         ($diff (- $targetSti $funds))
       )
       (if  (<= $diff 0)
             0.0
@@ -37,9 +37,9 @@
    (let*
       (
          ($funds (getAttentionBank fundsLTI))
-         ($targetLTI (getAttentionBank targetLTI))
+         ($targetLti (getAttentionBank targetLti))
          ($ltiFundsBuffer (getAttentionBank ltiFundsBuffer))
-         ($diff (- $targetLTI $funds))
+         ($diff (- $targetLti $funds))
       )
       (if (<= $diff 0)
             0.0
