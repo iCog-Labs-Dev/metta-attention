@@ -5,13 +5,13 @@
 (: getMaxContent (-> List))
 (= (getMaxContent)
     (let* (
-        ($atombin (AtomBin))
+        ($atombin (atomBin))
         ($numbers (collapse (match $atombin ($y $x) $y)))
         )
     (if (== $numbers ()) (Empty Bin) (
         let* (
         ($max (max-atom $numbers))
-        ($content (match (AtomBin) ($max $x)  $x))
+        ($content (match (atomBin) ($max $x)  $x))
         )
 
         $content
@@ -27,13 +27,13 @@
 (: getMinContent (-> List))
 (= (getMinContent)
     (let* (
-        ($atombin (AtomBin))
+        ($atombin (atomBin))
         ($numbers (collapse (match $atombin ($y $x) $y)))
         )
     (if (== $numbers ()) (Empty Bin) (
         let* (
         ($min (min-atom $numbers))
-        ($content (match (AtomBin) ($min $x)  $x))
+        ($content (match (atomBin) ($min $x)  $x))
         )
 
         $content
@@ -45,7 +45,7 @@
 ; it used size helper function to count the number of atoms found in the bin
 (= (getSize $binNumber)
     (let* (
-        ($atoms (match (AtomBin) ($binNumber $x) $x))
+        ($atoms (match (atomBin) ($binNumber $x) $x))
     )
         (size-atom $atoms)
     )
@@ -59,7 +59,7 @@
 (: binSize (-> Number))
 (= (binSize)
    (let* (
-      ($atombin (AtomBin))
+      ($atombin (atomBin))
       ($indices (collapse (match $atombin ($x $y) $x)))
       ($binsSize (sumSizes $indices)) 
     )

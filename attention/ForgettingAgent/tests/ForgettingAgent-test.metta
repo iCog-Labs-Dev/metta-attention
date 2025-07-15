@@ -83,7 +83,7 @@
 !(assertEqual (match &space (fundsSTI $x) $x) 99174.80000000002)
 
 
-!(forgettingAgent-Run (AtomBin))
+!(forgettingAgent-Run (atomBin))
 
 
 !(let*

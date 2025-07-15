@@ -5,8 +5,8 @@
 !(add-atom &space (fundsLTI 100000))
 !(add-atom &space (stiFundsBuffer 10000))
 !(add-atom &space (ltiFundsBuffer 10000))
-!(add-atom &space (targetSTI 10000))
-!(add-atom &space (targetLTI 10000))
+!(add-atom &space (targetSti 10000))
+!(add-atom &space (targetLti 10000))
 !(add-atom &space (STIAtomWage 10))
 !(add-atom &space (LTIAtomWage 10))
 
@@ -22,10 +22,10 @@
 (= (calculateSTIWage)
    (let* (
            ($funds (match &space (fundsSTI $x) $x))
-           ($targetSTI (match &space (targetSTI $y) $y))
+           ($targetSti (match &space (targetSti $y) $y))
            ($stiFundsBuffer (match &space (stiFundsBuffer $z) $z))
            ($STIAtomWage (match &space (STIAtomWage $z) $z))
-           ($diff (- $funds $targetSTI))
+           ($diff (- $funds $targetSti))
            ($ndiff-raw (/ $diff $stiFundsBuffer))
            ($ndiff-clamped-min (min-atom ($ndiff-raw 1.0)))
            ($ndiff (max-atom ($ndiff-clamped-min -1.0)))
@@ -47,10 +47,10 @@
 (= (calculateLTIWage)
    (let* (
            ($funds (match  &space  (fundsLTI $x) $x))
-           ($targetLTI (match  &space  (targetLTI $y) $y))
+           ($targetLti (match  &space  (targetLti $y) $y))
            ($ltiFundsBuffer (match  &space  (ltiFundsBuffer $z) $z))
            ($LTIAtomWage (match  &space (LTIAtomWage $z) $z))
-           ($diff (- $funds $targetLTI))
+           ($diff (- $funds $targetLti))
            ($ndiff-raw (/ $diff $ltiFundsBuffer))
            ($ndiff-clamped-min (min-atom ($ndiff-raw 1.0)))
            ($ndiff (max-atom ($ndiff-clamped-min -1.0)))
@@ -73,9 +73,9 @@
 (: stimulate (-> Atom Number empty))
 (= (stimulate $pattern $stimulus)
    (let* (
-           ($sti (getSTI $pattern))
-           ($lti (getLTI $pattern))
-           ($vlti (getVLTI $pattern))
+           ($sti (getSti $pattern))
+           ($lti (getLti $pattern))
+           ($vlti (getVlti $pattern))
            ($sti-wage (* (calculateSTIWage) $stimulus))
            ($lti-wage (* (calculateLTIWage) $stimulus))
            ($new-sti (+ $sti $sti-wage))
@@ -100,7 +100,7 @@
 ;     $newSTIFund: The new STI fund value.
 ;     $newLTIFund: The new LTI fund value.
 ;     $newAv: The new AttentionValue to be set for the atom.
-;Returns: The result of updating the AtomBin.
+;Returns: The result of updating the atomBin.
 
 
 (: attentionValueChanged (-> Atom Number Number empty))
@@ -110,7 +110,7 @@
          ($oldLTIFund (match &space (fundsLTI $fundsLTI) $fundsLTI))
          ($one (updateLTIFunds $oldLTIFund $newLTIFund))
          ($two (updateSTIFunds $oldSTIFund $newSTIFund))
-         ($atombin (AtomBin))
+         ($atombin (atomBin))
          ($r (update $atombin))
          ($three (updateAttentionalFocus $pattern True))
         )

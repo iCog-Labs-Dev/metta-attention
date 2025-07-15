@@ -39,8 +39,8 @@ be pivotal
 - Atoms storage is not sturcured but should only be done via the setAv function
 to ensure that all checks are made when the atom is added.
 
-### **AtomBin**:
-- The AtomBin space is used as an intermideary.
+### **atomBin**:
+- The atomBin space is used as an intermideary.
 - It holds all atoms that have an AV value set.
 - The atom bin is strucutred to as a mimick as a sparse matrix that holds atoms
 of the same with similar sti values in the same expression atom.

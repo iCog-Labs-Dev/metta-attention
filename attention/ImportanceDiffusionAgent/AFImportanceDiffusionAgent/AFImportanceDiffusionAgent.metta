@@ -29,7 +29,7 @@
 
 (: calculateDiffusionAmount (-> Atom Number))
 (= (calculateDiffusionAmount $atom)
-    (* (getSTI $atom) maxSpreadPercentage)
+    (* (getSti $atom) maxSpreadPercentage)
 )
 
 ;;This function will retrieve the diffusion source vector from AF and then call the diffuseAtom function to diffuse the atoms
