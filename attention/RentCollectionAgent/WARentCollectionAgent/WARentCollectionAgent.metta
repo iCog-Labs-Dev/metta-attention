@@ -19,8 +19,8 @@
         (let*
             (
                
-               ($sti (getSTI $target))
-               ($lti (getLTI $target))
+               ($sti (getSti $target))
+               ($lti (getLti $target))
                ($elapsedTime (elapsedTime $target))
                ($stiAtomRent (getAttentionParam StartingAtomStiRent))
                 ($ltiAtomRent (getAttentionParam StartingAtomLtiRent))
@@ -34,7 +34,7 @@
                ($ltiRent (min-atom ($ltistartRent $lti)))
                ($newsti (- $sti $stiRent))
                ($newlti (- $lti $ltiRent))
-               ($newvlti (getVLTI $target))
+               ($newvlti (getVlti $target))
             )
             (
 

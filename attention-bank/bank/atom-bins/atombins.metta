@@ -73,7 +73,7 @@
       (let $bin_contents (collapse (match &atombin ($bin_index $contents) $contents))
          (if(== $bin_contents ())
             ("Bin is empty") ; Bin is empty, nothing to remove
-            (let $updated_contents (removehelp $atom (car-atom $bin_contents))
+            (let $updated_contents (removeAtomHelper $atom (car-atom $bin_contents))
                   (match &atombin ($bin_index $x)
                      (let*
                        (
@@ -88,22 +88,21 @@
                      ("Atom Removed")
                      )
                   )
-            
             )
          )
       )
    )
 )
 
-;Function: removehelp
+;Function: removeAtomHelper
 ;Description: removes a specified atom from a list of contents.
 ;             If the atom is found, it is skipped in the resulting list.
 ;Parameters:
 ;          $atom: The atom to be removed.
 ;          $contents: The list of atoms from which to remove the specified atom.
 ;Returns: A new list with all occurrences of the specified atom removed.
-(: removehelp (-> Atom List List))
-(= (removehelp  $atom $list)
+(: removeAtomHelper (-> Atom List List))
+(= (removeAtomHelper  $atom $list)
 
    (collapse 
         (let $x (superpose $list)
@@ -128,7 +127,7 @@
 (= (getRandomAtom)
    (
     let*(
-         ($handleSetSeq (collapse (match (AtomBin) ($x $y) $y)))
+         ($handleSetSeq (collapse (match (atomBin) ($x $y) $y)))
          ($filteredOutput (filter $handleSetSeq notEmpty))
         )
     (if(== $filteredOutput ()) ;check if all bins in atom bins are empty
@@ -169,7 +168,7 @@
   )
 )
 
-(= (AtomBin)
+(= (atomBin)
    &atombin
 )
 
@@ -180,7 +179,7 @@
 (= (getAllAtomsInBins)
 	( let* 
 		(
-			($vals (collapse (match (AtomBin) ($x $y) $y)))
+			($vals (collapse (match (atomBin) ($x $y) $y)))
          ($filteredVals (filter $vals notEmpty))
          ($collectedContents (collectContents $filteredVals ()))
 		)
