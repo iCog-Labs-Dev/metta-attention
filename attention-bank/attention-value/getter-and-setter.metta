@@ -15,26 +15,21 @@
         ($oldSTI (getSti $pattern))
         ($oldLTI (getLti $pattern))
         ($updateimpo (updateImportance (AtomBin) $pattern $oldSTI $sti))
-        ($res (if (== (getValueType $pattern) %Undefined)
+        ($res (if (== (getValueType $pattern) %Undefined%)
                    (add-atom &typeSpace ($pattern (AV $sti $lti $vlti)))
-                   (let* (
+                   (let* 
+                        (
                            ($stv (getStv $pattern))
-                           ($_ (let $x (collapse (match &typeSpace ($pattern $_) ($pattern $_)))
-                                   (if (== $x ())
-                                       ()
-                                       (let $y (car-atom $x) (remove-atom &typeSpace $y))
-                                   )
-                               )
-                           )
-                         )
+                           ($value (match &typeSpace ($pattern $_) ($pattern $_)))
+                           (() (remove-atom &typeSpace $value))
+                        )
                       (if (== $stv %Undefined%)
                           (add-atom &typeSpace ($pattern (AV $sti $lti $vlti)))
                           (add-atom &typeSpace ($pattern ($stv (AV $sti $lti $vlti)))))
                    )
-
                 )
            )
-          
+
            ($stiDiff (- $oldSTI $sti))
            ($ltiDiff (-  $oldLTI $lti))
            ($fundsSTI (getAttentionBank fundsSTI))
@@ -74,19 +69,18 @@
 (= (setStv $pattern ($mean $conf))
     (if (== (getValueType $pattern) %Undefined%)
         (add-atom &typeSpace ($pattern (STV $mean $conf)))
-        (let* ( ( $av (getAv $pattern))
-                ($_ (let $x (collapse (match &typeSpace ($pattern $_) ($pattern $_)))
-
-                        (if (== $x ())
-                            ()
-                            (remove-atom &typeSpace $x)
-                            )))
+         (let* 
+            (
+                ($av (getAv $pattern))
+                ($value (match &typeSpace ($pattern $_) ($pattern $_)))
+                (() (remove-atom &typeSpace $value))
               )
             (if (== $av %Undefined%)
                 (add-atom &typeSpace ($pattern (STV $mean $conf)))
                 (add-atom &typeSpace ($pattern ( (STV $mean $conf) $av)))))
     )
 )
+    
 
  ; getStv function accepts a pattern/node and returns the simple truth
  ; value attaced to the pattern/node
@@ -102,36 +96,16 @@
             ($else %Undefined%)
             )
         )
-    
+
 )
 
 (: getValueType (-> Atom Type))
 (= (getValueType $pattern) 
 	(let $a 
-		(collapse (getValueTypeHelper $pattern))
+		(collapse (match &typeSpace ($pattern $value) $value))
 		(if (== $a ())
 			%Undefined%
 			(car-atom $a)
-		)
-	)
-)
-
-(: getValueTypeHelper (-> Atom Type))
-(= (getValueTypeHelper $pattern) 
-	(let $a 
-		(match &typeSpace ($pattern $value) $value) 
-		(unify $a  
-			(AV $sti $lti $vlti) 
-			(AV $sti $lti $vlti)
-			(unify $a
-				(STV $mean $conf)
-				(STV $mean $conf)
-				(unify $a
-					((STV $mean $conf) (AV $sti $lti $vlti))
-					((STV $mean $conf) (AV $sti $lti $vlti))
-					(empty)
-				)
-			)
 		)
 	)
 )
@@ -166,7 +140,7 @@
         ((%Undefined% 0)
         ((AV $sti $lti $vlti) $sti))
     )
-        
+
 )
 
 
@@ -197,9 +171,7 @@
 
 ; (= (getType $pattern) (get-type-space &typeSpace $pattern))
 
-
-;;setSti fnction accepts a pattern/node with an Sti value to replace the original
-
+;;setSTI function accepts a pattern/node with an Sti value to replace the original
 ;;and set the Sti to the pattern/node.
 ; i.e !(setSti A 500)
 (: setSti (-> Atom Number Atom)) 
@@ -210,9 +182,7 @@
     )
 )
 
-
 ;;setLti fnction accepts a pattern/node with an Lti value to replace the original
-
 ;;and set the Lti to the pattern/node.
 ; i.e !(setLti A 500)
 (: setLti (-> Atom Number Atom)) 
@@ -223,9 +193,7 @@
     )
 )
 
-
 ;;setVlti fnction accepts a pattern/node with an VLti value to replace the original
-
 ;;and set the VLti to the pattern/node.
 ; i.e !(setVlti A 500)
 (: setVlti (-> Atom Number Atom)) 
@@ -236,6 +204,9 @@
     )
 )
 
+;; globalIncomingSetByType a function that takes in an a pattern and retrives
+;; all links it is an incoming set in and the predicate of the link is a defined type
+;; used in Forgetting agent
 (= (globalIncomingSetByType $atom $type)
 	(collapse
 		(superpose   
@@ -247,6 +218,9 @@
 	)
 )
 
+
+;; globalIncomingSetByType a function that takes in an a pattern and retrives
+;; all links it is an incoming set in
 (= (globalIncomingSetwithoutType $atom)
     (collapse 
         (superpose   
@@ -258,6 +232,8 @@
     )
 )
 
+;; remoeTypeSpace a function that removes an atom from the typeSpace
+;; used in Forgettingagent
 (: removeTypeSpace (-> Atom empty))
 (= (removeTypeSpace $atom) 
 	(let $a 
@@ -275,7 +251,7 @@
 )
 
 
-
+;; used to return all atoms that have an stv or an AV in typespace
 (: getAtomsInTypeSpace-helper (-> List))
 (= (getAtomsInTypeSpace-helper) 
 	(let $a 
@@ -297,6 +273,7 @@
 	(collapse (getAtomsInTypeSpace-helper))
 )
 
+;; counts all atoms in the TypeSpace
 (= (countAtomsInTypeSpace)
     (let $atoms
         (getAtomsInTypeSpace)
