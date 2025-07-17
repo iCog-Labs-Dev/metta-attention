@@ -25,13 +25,11 @@
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
-; !(import! &tempspace metta-attention:experiments:Metta:experiment:data:adagram_sm_links)
 !(import! &insect metta-attention:experiments:Metta:experiment1:data:insect-words)
 !(import! &poison metta-attention:experiments:Metta:experiment1:data:poison-words)
 !(import! &tempspace metta-attention:experiments:Metta:experiment1:data:links)
 
 
-; (=(spaceAdder) (add-atom-reduct (TypeSpace) (get-atoms &tempspace))) 
 (= (spaceAdder) (get-atoms &tempspace))
 !(spaceAdder)
 
@@ -61,7 +59,6 @@
                     (stimulate $randomWord1 30)
                     (println! ($type $randomWord1))
                     (collapse(test-superpose))
-                    ; (collapse (write_csv_wrapper (attentionalFocus) out.csv))
                     (let $newMaxim (- $maxim 1)
                         (if (> $maxim 2)
                             (insectPoisonExp $newMaxim  &insect insect)
@@ -76,6 +73,3 @@
 
 
 !(insectPoisonExp 3 &insect insect)
-!(getAtomList)
-; (get-atoms (TypeSpace))
-! (binSize)
