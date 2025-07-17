@@ -3,3 +3,6 @@ __pycache__
 *.swp
 *.swo
 .vscode
+Result.html
+*.metta.html
+*.metta.pl
