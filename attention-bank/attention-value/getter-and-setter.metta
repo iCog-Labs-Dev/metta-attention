@@ -11,29 +11,25 @@
 (: setAv (-> Atom (Number Number Number) Atom))
 (= (setAv $pattern ($sti $lti $vlti))
     (let* (
+
         ($oldSTI (getSti $pattern))
         ($oldLTI (getLti $pattern))
-        ($updateimpo (updateImportance (atomBin) $pattern $oldSTI $sti))
-        
+        ($updateimpo (updateImportance (AtomBin) $pattern $oldSTI $sti))
         ($res (if (== (getValueType $pattern) %Undefined%)
-                   (add-atom &typeSpace (: $pattern (AV $sti $lti $vlti)))
-                        (let* (
-                                ($stv (getStv $pattern))
-                                ($_ (let $x (match &typeSpace (: $pattern $_) (: $pattern $_))
-                                     (if (== $x ())
-                                         ()
-                                         (remove-atom &typeSpace $x)
-                                     )
-                                    )
-                                )
-                                )
-                            (if (== $stv %Undefined%)
-                                (add-atom &typeSpace (: $pattern (AV $sti $lti $vlti)))
-                                (add-atom &typeSpace (: $pattern ($stv (AV $sti $lti $vlti)))))
+                   (add-atom &typeSpace ($pattern (AV $sti $lti $vlti)))
+                   (let* 
+                        (
+                           ($stv (getStv $pattern))
+                           ($value (match &typeSpace ($pattern $_) ($pattern $_)))
+                           (() (remove-atom &typeSpace $value))
                         )
+                      (if (== $stv %Undefined%)
+                          (add-atom &typeSpace ($pattern (AV $sti $lti $vlti)))
+                          (add-atom &typeSpace ($pattern ($stv (AV $sti $lti $vlti)))))
+                   )
                 )
            )
-          
+
            ($stiDiff (- $oldSTI $sti))
            ($ltiDiff (-  $oldLTI $lti))
            ($fundsSTI (getAttentionBank fundsSTI))
@@ -72,19 +68,19 @@
  (: setStv (-> Atom (Number Number) Atom))
 (= (setStv $pattern ($mean $conf))
     (if (== (getValueType $pattern) %Undefined%)
-        (add-atom &typeSpace (: $pattern (STV $mean $conf)))
-        (let* ( ( $av (getAv $pattern))
-                ($_ (let $x (match &typeSpace (: $pattern $_) (: $pattern $_))
-                        (if (== $x ())
-                            ()
-                            (remove-atom &typeSpace $x)
-                            )))
+        (add-atom &typeSpace ($pattern (STV $mean $conf)))
+         (let* 
+            (
+                ($av (getAv $pattern))
+                ($value (match &typeSpace ($pattern $_) ($pattern $_)))
+                (() (remove-atom &typeSpace $value))
               )
             (if (== $av %Undefined%)
-                (add-atom &typeSpace (: $pattern (STV $mean $conf)))
-                (add-atom &typeSpace (: $pattern ( (STV $mean $conf) $av)))))
+                (add-atom &typeSpace ($pattern (STV $mean $conf)))
+                (add-atom &typeSpace ($pattern ( (STV $mean $conf) $av)))))
     )
 )
+    
 
  ; getStv function accepts a pattern/node and returns the simple truth
  ; value attaced to the pattern/node
@@ -100,36 +96,16 @@
             ($else %Undefined%)
             )
         )
-    
+
 )
 
 (: getValueType (-> Atom Type))
 (= (getValueType $pattern) 
 	(let $a 
-		(collapse (getValueTypeHelper $pattern))
+		(collapse (match &typeSpace ($pattern $value) $value))
 		(if (== $a ())
 			%Undefined%
 			(car-atom $a)
-		)
-	)
-)
-
-(: getValueTypeHelper (-> Atom Type))
-(= (getValueTypeHelper $pattern) 
-	(let $a 
-		(get-type-space &typeSpace $pattern) 
-		(unify $a  
-			(AV $sti $lti $vlti) 
-			(AV $sti $lti $vlti)
-			(unify $a
-				(STV $mean $conf)
-				(STV $mean $conf)
-				(unify $a
-					((STV $mean $conf) (AV $sti $lti $vlti))
-					((STV $mean $conf) (AV $sti $lti $vlti))
-					(empty)
-				)
-			)
 		)
 	)
 )
@@ -164,7 +140,7 @@
         ((%Undefined% 0)
         ((AV $sti $lti $vlti) $sti))
     )
-        
+
 )
 
 
@@ -195,7 +171,7 @@
 
 ; (= (getType $pattern) (get-type-space &typeSpace $pattern))
 
-;;setSti fnction accepts a pattern/node with an Sti value to replace the original
+;;setSTI function accepts a pattern/node with an Sti value to replace the original
 ;;and set the Sti to the pattern/node.
 ; i.e !(setSti A 500)
 (: setSti (-> Atom Number Atom)) 
@@ -228,35 +204,43 @@
     )
 )
 
+;; globalIncomingSetByType a function that takes in an a pattern and retrives
+;; all links it is an incoming set in and the predicate of the link is a defined type
+;; used in Forgetting agent
 (= (globalIncomingSetByType $atom $type)
 	(collapse
 		(superpose   
 			(
-				(match &typeSpace (: ($type $b $atom) $a) ($type $b $atom))
-				(match &typeSpace (: ($type $atom $b) $a) ($type $atom $b ))
+				(match &typeSpace (($type $b $atom) $a) ($type $b $atom))
+				(match &typeSpace (($type $atom $b) $a) ($type $atom $b ))
 			)
     )
 	)
 )
 
+
+;; globalIncomingSetByType a function that takes in an a pattern and retrives
+;; all links it is an incoming set in
 (= (globalIncomingSetwithoutType $atom)
     (collapse 
         (superpose   
             (
-				(match &typeSpace (: ($type $b $atom) $a) ($type $b $atom))
-				(match &typeSpace (: ($type $atom $b) $a) ($type $atom $b ))
+				(match &typeSpace (($type $b $atom) $a) ($type $b $atom))
+				(match &typeSpace (($type $atom $b) $a) ($type $atom $b ))
             )
         )  
     )
 )
 
+;; remoeTypeSpace a function that removes an atom from the typeSpace
+;; used in Forgettingagent
 (: removeTypeSpace (-> Atom empty))
 (= (removeTypeSpace $atom) 
 	(let $a 
 		(getValueType $atom)
 		(if (== $a %Undefined%)
 			()
-			(remove-atom &typeSpace (: $atom $a))
+			(remove-atom &typeSpace ($atom $a))
 		)
 	)
 )
@@ -267,13 +251,13 @@
 )
 
 
-
+;; used to return all atoms that have an stv or an AV in typespace
 (: getAtomsInTypeSpace-helper (-> List))
 (= (getAtomsInTypeSpace-helper) 
 	(let $a 
 		(get-atoms &typeSpace)
 		(unify $a
-			(: $pattern $x)
+			($pattern $x)
 			$pattern
 			(empty)
 		)
@@ -283,12 +267,13 @@
 ; Description : getAtomsInTypeSpace is a function that returns a list of patterns in typespace
 ; params:
 ;	None
-; return: List of patterns in the typeSpace without thier types in and is more deterministic than matching
+; return: List of patterns in the typeSpace without their types in and is more deterministic than matching
 (: getAtomsInTypeSpace (-> List))
 (= (getAtomsInTypeSpace) 
 	(collapse (getAtomsInTypeSpace-helper))
 )
 
+;; counts all atoms in the TypeSpace
 (= (countAtomsInTypeSpace)
     (let $atoms
         (getAtomsInTypeSpace)
