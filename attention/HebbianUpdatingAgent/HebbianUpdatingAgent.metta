@@ -148,8 +148,7 @@
 ;; Parameters $atom: The atom that will be used to find the incoming set
 ;;            $type: The type that will be used to find the incoming set
 ;; Return : The incoming set of the atom
-
 (: getAllIncomingSetsForHUAgent (-> Atom Grounded Atom List))
 (= (getAllIncomingSetsForHUAgent $atom $space $type)
-    (match $space (: ($type $atom $x) $AV) ($type $atom $x))
+    (match $space (($type $atom $x) $AV) ($type $atom $x))
 )
