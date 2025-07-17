@@ -46,7 +46,7 @@
  
  ; i.e !(getAv A)  output: (AV 400 400 1)
 
-(: getAv (-> Atom AV))
+
 (= (getAv $pattern)
         (case (getValueType $pattern)
           (
@@ -87,7 +87,7 @@
  ;
  ; i.e !(getStv A)  output: (STV 0.1 0.9)
 
-(: getStv (-> Atom STV))
+
 (= (getStv $pattern)
         (case (getValueType $pattern)
           (
@@ -99,7 +99,7 @@
 
 )
 
-(: getValueType (-> Atom Type))
+
 (= (getValueType $pattern) 
 	(let $a 
 		(collapse (match &typeSpace ($pattern $value) $value))
@@ -169,7 +169,6 @@
 )
 
 
-; (= (getType $pattern) (get-type-space &typeSpace $pattern))
 
 ;;setSTI function accepts a pattern/node with an Sti value to replace the original
 ;;and set the Sti to the pattern/node.
