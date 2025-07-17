@@ -99,11 +99,13 @@ The ECAN system is parameterized with:
 ### 4. Results
 - Two separate experiment runs were conducted with different MAX_AF_SIZE settings:
 
-        image2: Run 1 (MAX_AF_SIZE = 10)
+        image2: Run 1 (MAX_AF_SIZE = 10) 
+        
+    ![plot 1](output/image2.png)
 
         image3: Run 2 (MAX_AF_SIZE = 15)
-
-Observations:
+    ![plot 1](output/image3.png)
+### Observations:
 - In both runs, attention starts focused on insect-related words.
 
 - Upon switching to poison words, a clear attention shift occurs.
