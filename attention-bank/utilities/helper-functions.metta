@@ -20,7 +20,7 @@
 
 (: customFilter (-> Expression (-> Symbol Number Number Bool) Number Number Expression))
 (= (customFilter $list $predicate $lower $upper)
-  (if(== $list ())
+  (if (== $list ())
     ()
     (let*
       (
@@ -65,7 +65,7 @@
 ;TODO: Figure out why when types are added to this function, It returns []
 ;(: valuesAtIndex (-> Number $list_t $list_t))
 (= (valuesAtIndex $i $handleSetSeq)
-   (if(== $handleSetSeq ())
+   (if (== $handleSetSeq ())
      ()
     (let $seq (collapse (let ($index $val) (superpose $handleSetSeq)
         (if (== $i $index)
@@ -144,7 +144,7 @@
 (: ceil (-> Number Number))
 (= (ceil $x)
    (let $int_part (trunc-math $x)
-      (if(== $x $int_part)
+      (if (== $x $int_part)
          $int_part ; $x is already an integer
          (+ $int_part 1)
       )
@@ -297,7 +297,7 @@
 
 (: collectContents (-> Expression Expression Expression))
 (= (collectContents $list $acc)
-   (if(== $list ())
+   (if (== $list ())
     $acc
     (let*
       (
