@@ -24,7 +24,16 @@ def main():
     scheduler = ParallelScheduler(metta, "attention/paths.metta")
 
     # Optional: adjust parameters
-    scheduler.update_attention_param("MAX_AF_SIZE", 8)
+    scheduler.update_attention_param("MAX_AF_SIZE", 12)
+    scheduler.update_attention_param("AFRentFrequency", 2.0)
+
+    scheduler.metta.run("!(updateAttentionBank stiFundsBuffer 50000)")
+    scheduler.metta.run("!(updateAttentionBank ltiFundsBuffer 50000)")
+    scheduler.metta.run("!(updateAttentionBank targetSTI 50000)")
+    scheduler.metta.run("!(updateAttentionBank targetLTI 50000)")
+
+    # Set stimlate Value to desired preference
+    scheduler.set_stimulate_value(100)
 
     scheduler.start_logger("experiments/Python/experiment2")
 
@@ -38,20 +47,8 @@ def main():
     # Register agents
     print("\nRegistering agents...")
 
-    scheduler.register_agent("AFImportanceDiffusionAgent",
-        lambda: Agentrun(metta=metta, path=os.path.join(base_path, "ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent-runner.metta")))
-    scheduler.register_agent("AFRentCollectionAgent",
-        lambda: Agentrun(metta=metta, path=os.path.join(base_path, "RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent-runner.metta")))
-    scheduler.register_agent("HebbianUpdatingAgent",
-        lambda: Agentrun(metta=metta, path=os.path.join(base_path, "HebbianUpdatingAgent/HebbianUpdatingAgent-runner.metta")))
-    scheduler.register_agent("HebbianCreationAgent",
-        lambda: Agentrun(metta=metta, path=os.path.join(base_path, "HebbianCreationAgent/HebbianCreationAgent-runner.metta")))
-    # scheduler.register_agent("WAImportanceDiffusionAgent",
-    #     lambda: Agentrun(metta=metta, path=os.path.join(base_path, "ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent-runner.metta")))
-    # scheduler.register_agent("WARentCollectionAgent",
-    #     lambda: Agentrun(metta=metta, path=os.path.join(base_path, "RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent-runner.metta")))
-    # scheduler.register_agent("ForgettingAgent",
-    #     lambda: Agentrun(metta=metta, path=os.path.join(base_path, "ForgettingAgent/ForgettingAgent-runner.metta")))
+    scheduler.register_agent("test-superpose",
+        lambda: Agentrun(metta=metta, path=os.path.join(base_path, "../experiments/Agents-runner.metta")))
 
 
     print("\nAgent System Ready!")
