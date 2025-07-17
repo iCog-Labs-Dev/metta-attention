@@ -84,7 +84,42 @@
 )
 
 
- 
+(= (log' $x $y)
+    (if (<= $y 0)
+        (empty)
+        (let*
+            (
+                ($y-low -1000)
+                ($y-high 1000)
+                ($epsilon 0.000000000001)
+                ($max-iter 1000)
+                ($iter 0)
+            )
+            (loop $x $y $y-low $y-high $epsilon $max-iter $iter)
+        )
+    )
+)
+
+(= (loop $x $y $y-low $y-high $epsilon $max-iter $iter)
+    (if (or (> $iter $max-iter) (== $iter $max-iter))
+        (/ (+ $y-low $y-high) 2)
+        (let* 
+            (
+                ($y-mid (/ (+ $y-low $y-high) 2))
+                ($e-mid (pow-math $x $y-mid))
+                ($new-iter (+ 1 $iter))
+            )
+            (if (< (abs-math (- $e-mid $y)) $epsilon)
+                $y-mid
+                (if (> $e-mid $y)
+                    (loop $x $y $y-low $y-mid $epsilon $max-iter $new-iter)
+                    (loop $x $y $y-mid $y-high $epsilon $max-iter $new-iter)
+                )
+            )
+        )           
+    )
+)
+
 ; Recursive helper to calculate the group index
 (= (findGroup $imp $sum $i)
    (if ( <= $imp 0)
@@ -92,8 +127,8 @@
     (
         let* (
             ($num (+ $imp 1))
-            ($log_num (log-math 2 $num))
-            ($int_num (ceil-math $log_num))
+            ($log_num (log' 2 $num))
+            ($int_num (+ (floor-math $log_num) 1))
             
         )
         
