@@ -100,7 +100,7 @@
 ! (assertEqual (getVlti (Hebbianlink (Hebbianlink Animal Hebbianlink) (Hebbianlink Animal Cat))) 0)
 
 ; Test case 10:testing setSti,setLti,setVlti functions and the dereasing the global parameters
-;(fundsSTI and fundsLTI) for every av the is given to the atoms
+;(FUNDS_STI and FUNDS_LTI) for every av the is given to the atoms
 !(setSti k 200)
 !(setLti k 200)
 !(setVlti k 200)
