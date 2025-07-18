@@ -116,19 +116,17 @@
 ; What this does is remove the a atom from the 1st bin index and add it to the index
 ; that the STI 100 belongs to.
 
-(: updateImportance (-> hyperon::space::DynSpace Atom Number Number Atom))
+(: updateImportance (-> hyperon::space::DynSpace Atom Number Number Bool))
 (= (updateImportance $space $atom $oldSTI $newSTI)
     (let* 
         (
             ($oldBin (importanceBin $oldSTI))
             ($newBin (importanceBin $newSTI))
-            ($relocate 
-                (let $result 
-                    (relocateAtom $oldBin $newBin $atom)
-                    (if $result ("Importance Updated") ("Importance Not Updated")))
-            )
+           
         )
-        $relocate
+        (let $result 
+                    (relocateAtom $oldBin $newBin $atom)
+                    $result)
     )
 )
 
@@ -136,14 +134,8 @@
 (: relocateAtom (-> Number Number Symbol Bool))
 (= (relocateAtom $oldBin $newBin $atom)
    (let* (($res1 (removeAtom $oldBin $atom))
-         ($res2 (insertAtom $newBin $atom)))
-   
-      
-
-     (if (or (== $res1 ("Atom already exists")) (== $res1 ("Bin is empty")))
-       False
-       (== (collapse(index-atom $res2 0)) ("Atom Inserted"))
-      )
+         ($res2 (insertAtom $newBin $atom)))  
+     (and $res1 $res2)
    )
     
 )
