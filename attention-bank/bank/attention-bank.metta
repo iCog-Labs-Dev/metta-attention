@@ -80,8 +80,8 @@
 ; Description:
 ;    Updates the AttentionValue of an atom and adjusts the global STI and LTI funds
 ;    -set the new attention value of the atom 
-;    - Remove the current fundsSTI and fundsLTI values from the AtomSpace.
-;    - Add the updated fundsSTI and fundsLTI values to the AtomSpace.
+;    - Remove the current FUNDS_STI and FUNDS_LTI values from the AtomSpace.
+;    - Add the updated FUNDS_STI and FUNDS_LTI values to the AtomSpace.
 ;    - Inserts the atom to the attentional focus if possible
 ;    - Updates the Bin placement of the atom
 ;Parameters:
