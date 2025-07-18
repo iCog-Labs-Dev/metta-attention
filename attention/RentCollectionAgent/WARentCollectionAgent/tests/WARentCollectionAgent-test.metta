@@ -18,11 +18,11 @@
 !(stimulate d 290.0)
 !(stimulate (Hebbianlink a b) 50.0)
 !(stimulate (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)) 5.0)
-!(assertEqual  (getSTI b) 60000.0)
-!(assertEqual (getSTI c)  30000.0)
-!(assertEqual (getSTI d) 2900.0)
-!(assertEqual (getSTI (Hebbianlink a b)) 355.0)
-!(assertEqual  (getSTI (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 33.725)
+!(assertEqual  (getSti b) 60000.0)
+!(assertEqual (getSti c)  30000.0)
+!(assertEqual (getSti d) 2900.0)
+!(assertEqual (getSti (Hebbianlink a b)) 355.0)
+!(assertEqual  (getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 33.725)
 !(assertEqual (selectTargets) (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)))
 !((let $res (selectTargets)
 (elapsedTime $res) ))
@@ -30,12 +30,12 @@
 ; Sleep for the computed time to match C++ behavior
 !((py-atom time.sleep) 0.5)
 !(WARentCollectionAgent-Run)
-!(assertEqual (< (getSTI (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 33.725) True) ;must have lower sti
-!(getSTI (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)))
-!(assertEqual  (getSTI b) 60000.0)
-!(assertEqual (getSTI c)  30000.0)
-!(assertEqual (getSTI d) 2900.0)
-!(assertEqual (getSTI (Hebbianlink a b)) 355.0)
+!(assertEqual (< (getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 33.725) True) ;must have lower sti
+!(getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)))
+!(assertEqual  (getSti b) 60000.0)
+!(assertEqual (getSti c)  30000.0)
+!(assertEqual (getSti d) 2900.0)
+!(assertEqual (getSti (Hebbianlink a b)) 355.0)
 
 
 

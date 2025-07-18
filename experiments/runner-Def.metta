@@ -7,7 +7,7 @@
             (AFRentCollectionAgent-run)
             ;(WARentCollectionAgent-Run)
             ;(WAImportanceDiffusionAgent-Run (TypeSpace))
-            ;(forgettingAgent-Run (AtomBin))
+            ;(forgettingAgent-Run (atomBin))
         )
     )
 )

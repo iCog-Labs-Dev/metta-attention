@@ -19,8 +19,8 @@
 !(setAv a (1.0 1.0 1.0))
 
 
-! (getSTI a)
-! (calcElapsedTime (getSTI a))
+! (getSti a)
+! (calcElapsedTime (getSti a))
 
 
 ! (updateBin a)
@@ -45,8 +45,8 @@
 ! (updateBin a)
 ! (match &atomBinInfo (1.0 $_) $_)
 
-! (importanceBin (getSTI a))
-! (calcElapsedTime (importanceBin (getSTI a)))
+! (importanceBin (getSti a))
+! (calcElapsedTime (importanceBin (getSti a)))
 
 ;This will update the _bin
 ; !(timeTime)  
