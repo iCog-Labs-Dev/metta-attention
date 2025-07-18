@@ -109,7 +109,17 @@ class ParallelScheduler:
                 "LtiFundsBuffer",
                 "TARGET_LTI_FUNDS_BUFFER",
                 "RENT_TOURNAMENT_SIZE",
-                "SPREADING_FILTER"
+                "SPREADING_FILTER",
+                "STARTING_FUNDS_STI", 
+                "FUNDS_STI",
+                "STARTING_FUNDS_LTI",
+                "FUNDS_LTI",
+                "STI_FUNDS_BUFFER",
+                "LTI_FUNDS_BUFFER",
+                "TARGET_STI", 
+                "TARGET_LTI",
+                "STI_ATOM_WAGE",
+                "LTI_ATOM_WAGE"
             ]
 
         if isinstance(param, str):
@@ -126,7 +136,7 @@ class ParallelScheduler:
         if not isinstance(directory, str):
             raise TypeError("save_params directroy path must be str instance")
 
-        self.metta.run(f"!(start_log (attentionParam) (space) {directory})")
+        self.metta.run(f"!(start_log (attentionParam) {directory})")
 
     def register_agent(self, agent_id, agent_creator):
         """ Register an agent factory function (not instance) """

@@ -26,11 +26,10 @@ def main():
     # Optional: adjust parameters
     scheduler.update_attention_param("MAX_AF_SIZE", 12)
     scheduler.update_attention_param("AFRentFrequency", 2.0)
-
-    scheduler.metta.run("!(updateAttentionBank stiFundsBuffer 50000)")
-    scheduler.metta.run("!(updateAttentionBank ltiFundsBuffer 50000)")
-    scheduler.metta.run("!(updateAttentionBank targetSTI 50000)")
-    scheduler.metta.run("!(updateAttentionBank targetLTI 50000)")
+    scheduler.update_attention_param("STI_FUNDS_BUFFER", 50000)
+    scheduler.update_attention_param("LTI_FUNDS_BUFFER", 50000)
+    scheduler.update_attention_param("TARGET_STI", 50000)
+    scheduler.update_attention_param("TARGET_LTI", 50000)
 
     # Set stimlate Value to desired preference
     scheduler.set_stimulate_value(100)
