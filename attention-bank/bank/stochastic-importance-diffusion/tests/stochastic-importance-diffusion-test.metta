@@ -1,6 +1,6 @@
 !(register-module! ../../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
-!(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam)
+!(import! &self metta-attention:attention:AttentionParam)
 
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
@@ -19,8 +19,8 @@
 !(setAv a (1.0 1.0 1.0))
 
 
-! (getSTI a)
-! (calcElapsedTime (getSTI a))
+! (getSti a)
+! (calcElapsedTime (getSti a))
 
 
 ! (updateBin a)
@@ -45,8 +45,8 @@
 ! (updateBin a)
 ! (match &atomBinInfo (1.0 $_) $_)
 
-! (importanceBin (getSTI a))
-! (calcElapsedTime (importanceBin (getSTI a)))
+! (importanceBin (getSti a))
+! (calcElapsedTime (importanceBin (getSti a)))
 
 ;This will update the _bin
 ; !(timeTime)  

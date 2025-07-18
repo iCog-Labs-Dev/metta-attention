@@ -302,9 +302,9 @@
 )
 
 
-(= (getSTIHelper $atoms)
+(= (getStiHelper $atoms)
     (let* (
-        ($vals (getSTI (superpose $atoms)))
+        ($vals (getSti (superpose $atoms)))
     )
     $vals
     )
@@ -316,7 +316,7 @@
    (if (== $atoms ())
             0.0
             (let* (
-                ($stiValues (collapse (getSTIHelper $atoms)))
+                ($stiValues (collapse (getStiHelper $atoms)))
                 ($maxSTI (max-atom $stiValues))
             )
             $maxSTI
@@ -330,11 +330,28 @@
     (if (== $atoms ())
             0.0
             (let* (
-                ($stiValues (collapse (getSTIHelper $atoms)))
+                ($stiValues (collapse (getStiHelper $atoms)))
                 ($minSTI (min-atom $stiValues))
             )
             $minSTI
             )
         )
     
+)
+
+
+;;; Function: getOutGoingAtoms
+;;; Description: Retrieves the outgoing atoms of a given link.
+;;; Parameters:
+;;;   $link: The link for which to find outgoing atoms.
+;;; Returns: A list of outgoing atoms.
+;;; Example: (getOutGoingAtoms (LINK A B))
+;;;          Returns (A B)
+
+(: getOutGoingAtoms (-> Atom Atom))
+(= (getOutGoingAtoms $link)
+    (if (== (size-atom $link) 3)
+        (cdr-atom $link)
+        ()
+    )
 )

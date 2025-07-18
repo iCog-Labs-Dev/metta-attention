@@ -1,11 +1,11 @@
 !(register-module! ../../../../../metta-attention)
-!(import! &self metta-attention:attention:agents:mettaAgents:AttentionParam) 
+!(import! &self metta-attention:attention:AttentionParam) 
 !(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 
-; Test Case 01: Testing Empty AtomBin
+; Test Case 01: Testing Empty atomBin
 ; Ensure getMaxContent and getMinContent return empty lists when no atoms are present
  ;!(assertEqual (getMaxContent) ())
  ;!(assertEqual (getMinContent) ())
