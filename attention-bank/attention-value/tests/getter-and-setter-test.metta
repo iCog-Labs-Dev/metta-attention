@@ -95,15 +95,15 @@
 
 ! (assertEqual (getMean A) 1)
 ! (assertEqual (getConfidence (EvaluationLink a b)) 0.9)
-! (assertEqual (getSTI (Hebbianlink Human Cat)) 200)
-! (assertEqual (getLTI (Hebbianlink (Hebbianlink Human Cat) Animal)) 200)
-! (assertEqual (getVLTI (Hebbianlink (Hebbianlink Animal Hebbianlink) (Hebbianlink Animal Cat))) 0)
+! (assertEqual (getSti (Hebbianlink Human Cat)) 200)
+! (assertEqual (getLti (Hebbianlink (Hebbianlink Human Cat) Animal)) 200)
+! (assertEqual (getVlti (Hebbianlink (Hebbianlink Animal Hebbianlink) (Hebbianlink Animal Cat))) 0)
 
-; Test case 10:testing setSTI,setLTI,setVLTI functions and the dereasing the global parameters
+; Test case 10:testing setSti,setLti,setVlti functions and the dereasing the global parameters
 ;(fundsSTI and fundsLTI) for every av the is given to the atoms
-!(setSTI k 200)
-!(setLTI k 200)
-!(setVLTI k 200)
+!(setSti k 200)
+!(setLti k 200)
+!(setVlti k 200)
 !(assertEqual(getAv k) (AV 200 200 200))
 !(assertEqual (getAttentionParam FUNDS_STI) 96403)
 !(assertEqual (getAttentionParam FUNDS_LTI) 96600)

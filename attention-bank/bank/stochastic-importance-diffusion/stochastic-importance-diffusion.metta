@@ -23,7 +23,7 @@
 (: updateBin (-> Atom empty))
 (= (updateBin $atom)
     (let* (
-            ($index (importanceBin (getSTI $atom)))
+            ($index (importanceBin (getSti $atom)))
             ($it (collapse (match &atomBinInfo ($index $_) $index)))
             ($firstTime   (timeTime))
           )
@@ -63,7 +63,7 @@
 (: elapsedTime (-> Atom Number))
 (= (elapsedTime $atom)
     (let* (
-            ($index (importanceBin (getSTI $atom)))
+            ($index (importanceBin (getSti $atom)))
             ($averageElapsedTime (calcElapsedTime $index))
             ($res (updateBin $atom))
             
@@ -93,7 +93,7 @@
 (= (diffusedValue $atom $decayRate)
    (let* (
           ($averageElapsedTime (elapsedTime $atom))
-          ($sti (getSTI $atom))
+          ($sti (getSti $atom))
           ($powerRes (pow-math (- 1 $decayRate) $averageElapsedTime))
         )
         (* $sti $powerRes)

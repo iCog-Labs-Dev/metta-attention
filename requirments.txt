@@ -1,3 +1,5 @@
 hyperon==0.2.2
 matplotlib
 pandas
+seaborn
+plotly

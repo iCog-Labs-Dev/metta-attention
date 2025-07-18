@@ -62,9 +62,9 @@
 (: stimulate (-> Atom Number empty))
 (= (stimulate $pattern $stimulus)
    (let* (
-           ($sti (getSTI $pattern))
-           ($lti (getLTI $pattern))
-           ($vlti (getVLTI $pattern))
+           ($sti (getSti $pattern))
+           ($lti (getLti $pattern))
+           ($vlti (getVlti $pattern))
            ($sti-wage (* (calculateSTIWage) $stimulus))
            ($lti-wage (* (calculateLTIWage) $stimulus))
            ($new-sti (+ $sti $sti-wage))
@@ -89,7 +89,7 @@
 ;     $newSTIFund: The new STI fund value.
 ;     $newLTIFund: The new LTI fund value.
 ;     $newAv: The new AttentionValue to be set for the atom.
-;Returns: The result of updating the AtomBin.
+;Returns: The result of updating the atomBin.
 
 
 (: attentionValueChanged (-> Atom Number Number empty))

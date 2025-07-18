@@ -17,7 +17,7 @@
             )
             ($oset (collapse (filteroset $foset)))
             ($incidentAndoset (concatTuple $incidentAtoms $oset))
-            ($iset (collapse (match $space (: (ASYMMETRIC_HEBBIAN_LINK $atom $b) $a) (ASYMMETRIC_HEBBIAN_LINK $atom $b))))
+            ($iset (collapse (match $space ((ASYMMETRIC_HEBBIAN_LINK $atom $b) $a) (ASYMMETRIC_HEBBIAN_LINK $atom $b))))
             ($hebbianAdjacentAtoms (collapse (hebbianAdjacentAtoms $iset $atom)))
             ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAndoset)))
             ($probabilityVectorHebbianAjacent (collapse (probabilityVectorHebbianAjacent $atom $hebbianAdjacentAtoms)))
@@ -252,8 +252,8 @@
 (= (getAllIncomingSets $atom $space)
     (superpose
         (
-            (match $space (: ($type $atom $x) $AV) ($type $atom $x))
-            (match $space (: ($type $x $atom) $AV) ($type $x $atom))
+            (match $space (($type $atom $x) $AV) ($type $atom $x))
+            (match $space (($type $x $atom) $AV) ($type $x $atom))
         )
     )
 )
@@ -270,12 +270,12 @@
         ()
         (let*
             (
-                ($sourceSTI (getSTI $source))
-                ($targetSTI (getSTI $target))
+                ($sourceSTI (getSti $source))
+                ($targetSti (getSti $target))
                 ($newSourceSTI (- $sourceSTI $value))
-                ($newTargetSTI (+ $targetSTI $value))
-                (() (setSTI $target $newTargetSTI))
-                (() (setSTI $source $newSourceSTI))
+                ($newTargetSti (+ $targetSti $value))
+                (() (setSti $target $newTargetSti))
+                (() (setSti $source $newSourceSTI))
             )
             ()
         )
