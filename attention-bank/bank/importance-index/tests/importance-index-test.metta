@@ -47,7 +47,7 @@
 
 ; Test case 05: Testing updateImportance updates the importance of an atom
 
-! (assertEqual (updateImportance &atombin a 1 20) ("Importance Updated"))
+! (assertEqual (updateImportance &atombin a 1 20) True)
 !(assertEqual (getContent 1 (collapseAtomBin &atombin) ()) ())
 
 
