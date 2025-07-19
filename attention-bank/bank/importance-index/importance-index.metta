@@ -146,11 +146,11 @@
 )
 
 (: pred (-> Symbol Number Number Bool))
-(= (pred $x $lower $higher) (
-    let $sti (getSti $x) 
+(= (pred $x $lower $higher)
+	(let $sti (getSti $x) 
       (and 
-        (>=  $sti $lower) 
-        (<=  $sti $higher)
+        (or (>  $sti $lower) (and (<= $sti $lower) (not (< $sti $lower))))
+        (or (<  $sti $higher) (and (<= $sti $higher) (not (< $sti $higher))))
       )
   )
 )
