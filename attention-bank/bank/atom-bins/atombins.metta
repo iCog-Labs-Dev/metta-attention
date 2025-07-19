@@ -71,7 +71,7 @@
    (if (== (getValueType $atom) %Undefined%)
       ("Atom is not valid") ; Validate type
       (let $bin_contents (collapse (match &atombin ($bin_index $contents) $contents))
-         (if(== $bin_contents ())
+         (if (== $bin_contents ())
             ("Bin is empty") ; Bin is empty, nothing to remove
             (let $updated_contents (removeAtomHelper $atom (car-atom $bin_contents))
                   (match &atombin ($bin_index $x)
@@ -126,14 +126,14 @@
 (: getRandomAtom (-> Symbol))
 (= (getRandomAtom)
    (
-    let*(
+    let* (
          ($handleSetSeq (collapse (match (atomBin) ($x $y) $y)))
          ($filteredOutput (filter $handleSetSeq notEmpty))
         )
-    (if(== $filteredOutput ()) ;check if all bins in atom bins are empty
+    (if (== $filteredOutput ()) ;check if all bins in atom bins are empty
       empty
       (
-       let*(
+       let* (
             ($res (py-list $filteredOutput))
             ($kvPair ((py-atom random.choice) $res)) ;randomly choose a bin
             ($collapsed ($kvPair))
@@ -159,7 +159,7 @@
 ;(: getContentIf (-> Number (-> Symbol Number Number Bool)) Number Number $list_t $list_t $list_t)
 (= (getContentIf $index $predicate $lower $upper $atombins $out)
   (
-   let*(
+   let* (
         ($handleSet (valuesAtIndex $index $atombins))
         ($filteredOutput (customFilter $handleSet $predicate $lower $upper))
         ($res (union-atom $out $filteredOutput))

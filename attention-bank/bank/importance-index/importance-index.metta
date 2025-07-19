@@ -40,7 +40,7 @@
     let*
     (
       ($groupSize (GroupSize))
-      ($impo_int (trunc-math $impo)) ; Ensure $impo is treated as an integer
+      ($impo_int (trunc' $impo)) ; Ensure $impo is treated as an integer
       ($firstCondition (< $impo_int 0))
       ($secondCondition (< $impo_int (* 2 $groupSize)))
     )
@@ -50,10 +50,10 @@
         $impo_int
         (let*
           (
-            ($imp (trunc-math (/ (- $impo_int $groupSize) $groupSize)))
+            ($imp (trunc' (/ (- $impo_int $groupSize) $groupSize)))
             ($i (findGroup $imp 0 0))
             ($num (- $i 1))
-            ($temp (ceil-math (/ $impo_int (pow-math 2 (- $i 1)))))
+            ($temp (ceil' (/ $impo_int (pow-math 2 (- $i 1)))))
             ($ad (- $groupSize $temp))
             ($bin (- (* $i $groupSize) $ad))
           )
@@ -137,12 +137,9 @@
 (= (relocateAtom $oldBin $newBin $atom)
    (let* (($res1 (removeAtom $oldBin $atom))
          ($res2 (insertAtom $newBin $atom)))
-   
-      
-
      (if (or (== $res1 ("Atom already exists")) (== $res1 ("Bin is empty")))
        False
-       (== (collapse(index-atom $res2 0)) ("Atom Inserted"))
+       (== (collapse (index-atom $res2 0)) ("Atom Inserted"))
       )
    )
     
@@ -160,7 +157,7 @@
 
 (: loop (-> Number Number $list_t $list_t $list_t))
 (= (loop $i $term $atomBins $acc)
-   (if(== $i $term)
+   (if (== $i $term)
       $acc
       (let $next (+ 1 $i) (loop $next $term $atomBins (getContent $i $atomBins $acc)))
     )

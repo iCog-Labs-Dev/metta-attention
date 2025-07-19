@@ -75,7 +75,7 @@
 ;Description: Retrieves a list of all atoms currently in attentional focus space.
 ;Parameters: None.
 ;Returns: A list of atoms in attentional focus space.
-(: getAtomList(-> Symbol))
+(: getAtomList (-> Symbol))
 (= (getAtomList)
    (collapse (get-atoms &attentionalFocus))
 )
@@ -84,7 +84,7 @@
 ;Description: Retrieves a list of all atoms currently in the newAtomInAV space.
 ;Parameters: None.
 ;Returns: A list of atoms in newAtomInAV space.
-(: getNewAtomInAVList(-> Symbol))
+(: getNewAtomInAVList (-> Symbol))
 (= (getNewAtomInAVList)
    (collapse (get-atoms &newAtomInAV))
 )
@@ -439,7 +439,7 @@
 
 ; This function matches if the link matches the TermMatchMixin condition and is in The attentional focus.It is a function that is currently found in the opencog atomspace repository(https://github.com/opencog/atomspace/blob/master/opencog/query/TermMatchMixin.cc).
 
-( :linkMatch(-> Atom Atom Bool))
+( :linkMatch (-> Atom Atom Bool))
 ( = (linkMatch $ptm $lsoln)
     (if (and (termMatchMixinLinkMatch $ptm $lsoln) (atomIsInAF $lsoln))
     True
@@ -472,7 +472,7 @@
     (if  (== (attentionalFocusSize) 0)
         ("AF is Empty")
         ;else
-        ( let*( ($randomNumber (random-int 0 (attentionalFocusSize) ))
+        ( let* ( ($randomNumber (random-int 0 (attentionalFocusSize) ))
             ($atoms (getAtomList))
             ($randomAtom (index-atom $atoms $randomNumber))
             )
