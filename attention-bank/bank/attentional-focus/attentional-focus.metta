@@ -126,7 +126,13 @@
 (= (greaterEqualSti $elem $pivot)
     (if (or (== $elem ()) (== $pivot ())) 
         False 
-        (>= (getSti $elem) (getSti $pivot))
+        (let*
+            (
+                ($stiE (getSti $elem))
+                ($stiP (getSti $pivot))
+            )
+            (or (> $stiE $stiP) (and (<= $stiE $stiP) (not (< $stiE $stiP)))) 
+        )
     )
 )
 

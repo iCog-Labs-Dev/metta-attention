@@ -303,10 +303,9 @@
 
 
 (= (getStiHelper $atoms)
-    (let* (
-        ($vals (getSti (superpose $atoms)))
-    )
-    $vals
+    (let $vals 
+        (superpose $atoms)
+        (getSti $vals)
     )
 )
 
