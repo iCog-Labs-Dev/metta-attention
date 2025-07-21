@@ -36,7 +36,9 @@
 ! (setAv (a) (397 400 1))
 ! (setAv (C) (400 400 1))
 ! (setAv (EvaluationLink a b) (300 200 0))
+! (setAv (Hebbianlink a b) (300 200 0))
 ! (setAv (Hebbianlink Human Cat) (200 200 0))
+! (setAv (SimilarityLink Human Cat) (200 200 0))
 ! (setAv (Hebbianlink (Hebbianlink Human Cat) Animal) (300 200 0))
 ! (setAv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat)) (200 200 0))
 
@@ -104,7 +106,22 @@
 !(setSti k 200)
 !(setLti k 200)
 !(setVlti k 200)
-!(assertEqual(getAv k) (AV 200 200 200))
-!(assertEqual (getAttentionParam FUNDS_STI) 96403)
-!(assertEqual (getAttentionParam FUNDS_LTI) 96600)
+!(assertEqual (getAv k) (AV 200 200 200))
+!(assertEqual (getAttentionParam FUNDS_STI) 95903)
+!(assertEqual (getAttentionParam FUNDS_LTI) 96200)
 
+; Test case 11: testing  functions globalIncomingSetByType and globalIncomingSetwithoutType
+!(assertEqual (globalIncomingSetByType a EvaluationLink)  ((EvaluationLink a b)))
+!(assertEqual (globalIncomingSetByType Human Hebbianlink) ((Hebbianlink Human Cat)))
+!(assertEqual (let $vals
+    (globalIncomingSetwithoutType a)
+    (subtraction-atom $vals ((EvaluationLink a b) (Hebbianlink a b)))
+    ) 
+    ()
+)
+!(assertEqual (let $vals
+    (globalIncomingSetwithoutType Human)
+    (subtraction-atom $vals ((SimilarityLink Human Cat) (Hebbianlink Human Cat)))
+    ) 
+    ()
+)
