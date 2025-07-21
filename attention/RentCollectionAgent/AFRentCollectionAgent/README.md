@@ -13,9 +13,9 @@ ie. To return a percentage of STI from all atoms in the attentional Focus space.
     2. if not it calculates the time difference between now and last time it 
     was called
 3. The agents then tries to calculate the rent which will only be applyed if the
-fundsSTI and fundsLTI global variables (which is a number showing the amount of
-LTI and STI that system hasnt used) are below the trargetSti and targetLti 
+FUNDS_STI and FUNDS_LTI global variables (which is a number showing the amount of
+LTI and STI that system hasnt used) are below the TARGET_STI and TARGET_LTI 
 variables.
 4. The amount of STI and LTI subtracted is a value based on the difference between
-the targetSti and fundSTI and the amount of time elapsed from the last update 
+the TARGET_STI and FUNDS_STI and the amount of time elapsed from the last update 
 time for the STI and simlar operation for the LTI also.
