@@ -107,12 +107,15 @@
 !(setLti k 200)
 !(setVlti k 200)
 !(assertEqual (getAv k) (AV 200 200 200))
+
 !(assertEqual (getAttentionParam FUNDS_STI) 95903)
 !(assertEqual (getAttentionParam FUNDS_LTI) 96200)
+
 
 ; Test case 11: testing  functions globalIncomingSetByType and globalIncomingSetwithoutType
 !(assertEqual (globalIncomingSetByType a EvaluationLink)  ((EvaluationLink a b)))
 !(assertEqual (globalIncomingSetByType Human Hebbianlink) ((Hebbianlink Human Cat)))
+
 !(assertEqual (let $vals
     (globalIncomingSetwithoutType a)
     (subtraction-atom $vals ((EvaluationLink a b) (Hebbianlink a b)))
@@ -125,3 +128,4 @@
     ) 
     ()
 )
+
