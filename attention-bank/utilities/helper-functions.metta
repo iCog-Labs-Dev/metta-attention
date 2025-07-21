@@ -404,5 +404,12 @@
 )
 
 (= (ceil' $x)
-    (+ 1 (floor-math $x))
+    (
+        let* (
+            ($floor (floor-math $x))
+            ($isEqual (== $x $floor))
+            ($ans (if $isEqual $floor (+ $floor 1))
+        ))
+        $ans
+    )
 )

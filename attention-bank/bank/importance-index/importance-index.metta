@@ -187,27 +187,27 @@
 (= (getMaxSTI $avg) 
    (let $recentVal (RecentVal)
     (if $avg
-      (match $recentVal (recent_max $_) $_)
-      (match $recentVal (value_max $_) $_)
+      (match $recentVal (recent_max $x) $x)
+      (match $recentVal (value_max $x) $x)
       )
    )
 )
 
 (: getMaxSTI (-> Number))
-(= (getMaxSTI) (let $recentVal (RecentVal) (match $recentVal (recent_max $_) $_)))
+(= (getMaxSTI) (let $recentVal (RecentVal) (match $recentVal (recent_max $x) $x)))
 
 (: getMinSTI (-> Bool Number))
 (= (getMinSTI $avg)
    (let $recentVal (RecentVal)
     (if $avg
-      (match $recentVal (recent_min $_) $_)
-      (match $recentVal (value_min $_) $_)
+      (match $recentVal (recent_min $x) $x)
+      (match $recentVal (value_min $x) $x)
       )
    )
 )
 
 (: getMinSTI (-> Number))
-(= (getMinSTI) (let $recentVal (RecentVal) (match $recentVal (recent_min $_) $_)))
+(= (getMinSTI) (let $recentVal (RecentVal) (match $recentVal (recent_min $x) $x)))
 
 
 ;Function: getNormalisedZeroToOneSTI
