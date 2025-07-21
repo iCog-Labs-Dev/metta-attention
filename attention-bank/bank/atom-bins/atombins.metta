@@ -31,22 +31,22 @@
 ;         $pattern: The atom to be inserted.
 ;Returns: A confirmation message ("Atom Inserted") if successful, 
 ;         or an error message if the atom is invalid.
-(: insertAtom (-> Number Atom empty))
+(: insertAtom (-> Number Atom Bool))
 (= (insertAtom $bin_index $pattern)
   (if (== (collapse (match &atombin ($bin_index $x) $x)) ())
            (let ()
                (add-atom &atombin ($bin_index ($pattern))) ; Insert new bin
-               ("Atom Inserted")
+               True
            )
            (match &atombin ($bin_index $x)
-               (if (== (contains $x $pattern) True)  ; Check for duplicates
-                   ("Atom already exists")  ; Do not insert duplicate
+               (if (contains $x $pattern)   ; Check for duplicates
+                   False ; Do not insert duplicate
                    (let* (
                         ($atomremove (remove-atom &atombin ($bin_index $x)))  ; Remove old bin
                         ($updated (cons-atom $pattern $x))  ; Add new atom
                         ($atomadded (add-atom &atombin ($bin_index $updated))) ; Update bin
                     )
-                    ("Atom Inserted")
+                    True
                    )
                )
            )
@@ -66,13 +66,13 @@
 ;Returns: A confirmation message ("Atom Removed") if successful, 
 ;         or an error message if the atom is invalid or the bin is empty.
 
-(: removeAtom (-> Number Atom empty))
+(: removeAtom (-> Number Atom Bool))
 (= (removeAtom $bin_index $atom)
    (if (== (getValueType $atom) %Undefined%)
-      ("Atom is not valid") ; Validate type
+      False ; Validate type
       (let $bin_contents (collapse (match &atombin ($bin_index $contents) $contents))
          (if(== $bin_contents ())
-            ("Bin is empty") ; Bin is empty, nothing to remove
+            False ; Bin is empty, nothing to remove
             (let $updated_contents (removeAtomHelper $atom (car-atom $bin_contents))
                   (match &atombin ($bin_index $x)
                      (let*
@@ -85,7 +85,7 @@
                             )
                           )
                         )
-                     ("Atom Removed")
+                     True
                      )
                   )
             )
@@ -163,8 +163,9 @@
         ($handleSet (valuesAtIndex $index $atombins))
         ($filteredOutput (customFilter $handleSet $predicate $lower $upper))
         ($res (union-atom $out $filteredOutput))
+        
       )
-    $res
+   $res
   )
 )
 
