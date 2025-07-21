@@ -221,14 +221,7 @@
 ;; globalIncomingSetByType a function that takes in an a pattern and retrives
 ;; all links it is an incoming set in
 (= (globalIncomingSetwithoutType $atom)
-    (collapse 
-        (superpose   
-            (
-				(match &typeSpace (($type $b $atom) $a) ($type $b $atom))
-				(match &typeSpace (($type $atom $b) $a) ($type $atom $b ))
-            )
-        )  
-    )
+    (globalIncomingSetByType $atom $_)
 )
 
 ;; remoeTypeSpace a function that removes an atom from the typeSpace
