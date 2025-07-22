@@ -32,7 +32,7 @@
 
 ; Test case 02: Testing getHandleSet with lowerbound and upperbound
 
-!(assertEqual (getHandleSet 1 20) (d c a))
+!(assertEqual (getHandleSet 1 20) (a c d))
 !(assertEqual (getHandleSet 10 10) ())
 !(assertEqual (getHandleSet 0 -1.0) ())
 
@@ -48,7 +48,7 @@
 ; Test case 05: Testing updateImportance updates the importance of an atom
 
 ! (assertEqual (updateImportance &atombin a 1 20) True)
-!(assertEqual (getContent 1 (collapseAtomBin &atombin) ()) ())
+
 
 
 ; Test case 06: Testing getNormalisedZeroToOneSTI with different average and clip values both on and off

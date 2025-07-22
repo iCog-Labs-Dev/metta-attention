@@ -102,7 +102,8 @@
        ($firstRes (updateMin $min))
        ($secondRes (updateMax $max))
       )
-      ("Updated")
+      (trace! (output) ("Updated"))
+
      )
 )
 
@@ -150,13 +151,7 @@
   )
 )
 
-(: loop (-> Number Number $list_t $list_t $list_t))
-(= (loop $i $term $atomBins $acc)
-   (if(== $i $term)
-      $acc
-      (let $next (+ 1 $i) (loop $next $term $atomBins (getContent $i $atomBins $acc)))
-    )
-)
+
 
 (: getHandleSet (-> Number Number Expression))
 (= (getHandleSet $lowerBound $upperBound)
@@ -166,14 +161,11 @@
        (
         ($lowerBin (importanceBin $lowerBound))
         ($upperBin (importanceBin $upperBound))
-        ($atomBins (collapseAtomBin (atomBin)))
-        ($gcIfRes (getContentIf $lowerBin pred $lowerBound $upperBound $atomBins ())) ;gcIfRes - getContentIfResult (result obtained after calling getContentIf)
-        ($exitCondition (== $upperBin $lowerBin))
-        ($gcRes (loop $lowerBin $upperBin $atomBins $gcIfRes)) ;gcRes - getContentResult (result obtained after calling getContent)
-        ($res (getContentIf $upperBin pred $lowerBound $upperBound $atomBins $gcRes))
-        ($finalResult (if $exitCondition (removeDuplicates $gcIfRes) (removeDuplicates $res))) ;remove duplicates because the result needs to be a set of atoms.
+        ($allContents (getContent $lowerBin $upperBin))
+        ($filteredContents  (customFilter $allContents pred  $lowerBound $upperBound))
+        
       )
-       $finalResult
+       (unique-atom $filteredContents)  
     )
   )
 )
