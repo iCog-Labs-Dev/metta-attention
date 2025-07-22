@@ -1,7 +1,6 @@
 ! (bind! &atomBinInfo (new-space))
-! (bind! time-mod (py-atom time))
-! (bind! timeTime (py-dot time-mod time (-> Number)))
-! (timeTime)
+! (bind! timeTime (py-atom time.time))
+
 
 
 ;The udate_bin function receives an atom and updates this values
@@ -24,14 +23,14 @@
 (= (updateBin $atom)
     (let* (
             ($index (importanceBin (getSti $atom)))
-            ($it (collapse (match &atomBinInfo ($index $_) $index)))
+            ($it (collapse (match &atomBinInfo ($index $a) $index)))
             ($firstTime   (timeTime))
           )
         (if (== $it ($index))
             (updateExistingBin $index)
             (let* (
                 ($time (timeTime)) 
-            )
+                )
                 (add-atom &atomBinInfo 
                     ($index ((count 1) (index $index) (_size (getSize $index)) (update_rate (/ 1 (- $time $firstTime))) (last_update $time)))
             ))
