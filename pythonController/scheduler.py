@@ -243,7 +243,7 @@ class ParallelScheduler:
             logging.error(f"Exception in run_continuously: {e}")
             print(f"Exception in run_continuously: {e}")
 
-    def run_iterativly(self, iteration:int):
+    def run_iterativly(self, iteration:int, switch:int):
 
         if not isinstance(iteration, int):
             raise TypeError(f"run_iterativly expects int argument but {type(iteration)} was given")
@@ -257,8 +257,8 @@ class ParallelScheduler:
         self.create_word_list()
 
         try:
-            for count in range(iteration, -1, -1):
-                if count > 2:
+            for count in range(iteration, 0, -1):
+                if count > switch:
                     value = self.random_word(0)
                 else:
                     value = self.random_word(1)

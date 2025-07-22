@@ -1,11 +1,19 @@
 {
     "insect": [
+        "Ant",
         "ant",
         "aphid",
+        "aphids",
         "armyworm",
+        "armyworms",
         "beetwebworm",
         "spider",
-        "beanpodborer"
+        "beanpodborer",
+        "beanfly",
+        "caterpillar",
+        "locust",
+        "grasshopper",
+        "jassid"
     ],
     "poison": [
         "aconite",
@@ -15,7 +23,11 @@
         "arsenic",
         "aspirin",
         "azoxystrobi",
-        "botulinum"
+        "botulinum",
+        "caffeine",
+        "chlorine",
+        "cocaine",
+        "cyanide"
     ],
     "insecticide": [
         "abamectin",
