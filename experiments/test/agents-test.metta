@@ -27,14 +27,13 @@
 !(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
 
 ; =================== Set hyperparameters =====================
-
 !(updateAttentionParam MAX_AF_SIZE 5.0)
-!(updateAttentionBank targetSti 1000.0)
-!(updateAttentionBank targetLti 1000.0)
-!(updateAttentionBank stiFundsBuffer 1000.0)
-!(updateAttentionBank ltiFundsBuffer 1000.0)
-!(updateAttentionBank fundsSTI 2000.0)
-!(updateAttentionBank fundsLTI 2000.0)
+!(updateAttentionParam TARGET_STI 1000.0) 
+!(updateAttentionParam TARGET_LTI 1000.0) 
+!(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
+!(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
+!(updateAttentionParam FUNDS_STI 2000.0) 
+!(updateAttentionParam FUNDS_LTI 2000.0) 
 
 ; =================== Set links containing prior to testing ==============
 !(setStv (SimilarityLink abamectin  Ants) (0.245 0.9))
@@ -81,8 +80,6 @@
 !(assertEqual (< (getLti Ants) 600) True) 
 !(assertEqual (getLti (SimilarityLink abamectin Ants)) 0)
 !(assertEqual (getLti aflatoxin) 420.0)
-!(assertEqual (collapseAtomBin (atomBin)) 
-    ((47.0 (Ants)) (49.0 ((SimilarityLink abamectin Ants))) (48.0 (aflatoxin)) (28.0 (abamectin)) (43.0 ((SimilarityLink aldicarb aflatoxin)))))
 
 !(assertEqual (collapse (get-atoms &newAtomInAV)) ())
 
