@@ -25,7 +25,15 @@ def main():
 
 
     # Optional: adjust parameters
-    scheduler.update_attention_param("MAX_AF_SIZE", 7)
+
+    scheduler.update_attention_param("STI_FUNDS_BUFFER", 1000)
+    scheduler.update_attention_param("LTI_FUNDS_BUFFER", 1000)
+    scheduler.update_attention_param("TARGET_STI", 1000)
+    scheduler.update_attention_param("TARGET_LTI", 1000)
+    scheduler.update_attention_param("FUNDS_STI", 2000)
+    scheduler.update_attention_param("FUNDS_LTI", 2000)
+    scheduler.update_attention_param("MAX_AF_SIZE", 16)
+    scheduler.update_attention_param("AFRentFrequency", 1.0)
 
     scheduler.start_logger("experiments/Python/experiment1")
 
@@ -36,34 +44,19 @@ def main():
     scheduler.load_sent_files(["experiments/Python/experiment1/data/insect-sent.txt", "experiments/Python/experiment1/data/poison-sent.txt"])
 
 
+    scheduler.set_stimulate_value(30)
 
     # Register agents
     print("\nRegistering agents...")
 
-    # scheduler.register_agent("test-superpose",
-    #     lambda: Agentrun(metta=metta, path=os.path.join(base_path, "../experiments/Agents-runner.metta")))
-
-    scheduler.register_agent("AFImportanceDiffusionAgent",
-        lambda: Agentrun(metta=metta, path=os.path.join(base_path, "ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent-runner.metta")))
-    scheduler.register_agent("AFRentCollectionAgent",
-        lambda: Agentrun(metta=metta, path=os.path.join(base_path, "RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent-runner.metta")))
-    scheduler.register_agent("HebbianUpdatingAgent",
-        lambda: Agentrun(metta=metta, path=os.path.join(base_path, "HebbianUpdatingAgent/HebbianUpdatingAgent-runner.metta")))
-    scheduler.register_agent("HebbianCreationAgent",
-        lambda: Agentrun(metta=metta, path=os.path.join(base_path, "HebbianCreationAgent/HebbianCreationAgent-runner.metta")))
-    # scheduler.register_agent("WAImportanceDiffusionAgent",
-    #     lambda: Agentrun(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent-runner.metta")))
-    # scheduler.register_agent("WARentCollectionAgent",
-    #     lambda: Agentrun(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent-runner.metta")))
-    # scheduler.register_agent("ForgettingAgent",
-    #     lambda: Agentrun(metta=metta, path=os.path.join(base_path, "agents/mettaAgents/ForgettingAgent/ForgettingAgent-runner.metta")))
-
+    scheduler.register_agent("test-superpose",
+        lambda: Agentrun(metta=metta, path=os.path.join(base_path, "../experiments/Agents-runner.metta")))
 
     print("\nAgent System Ready!")
 
     try:
         print("\nRunning agents in continuous mode. Press Ctrl+C to stop.")
-        scheduler.run_iterativly(3)
+        scheduler.run_iterativly(6, 3)
     except KeyboardInterrupt:
         print("\nReceived interrupt signal. Stopping system...")
     except Exception as e:
