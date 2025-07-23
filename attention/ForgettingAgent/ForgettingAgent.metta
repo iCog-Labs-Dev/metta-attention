@@ -49,7 +49,7 @@
 				($head (car-atom $atoms))
 				($tail (cdr-atom $atoms))
 			)
-			(if (<= (getLti $head) (forgetThreshold))
+			(if (or (< (getLti $head) (forgetThreshold)) (== (getLti $head) (forgetThreshold)))
 				(if (== (getVlti $head) 0)
 					(concatTuple ($head) (filterByLti $tail))
 					(filterByLti $tail)
@@ -112,7 +112,7 @@
 	(if (or (== $elem ()) (== $pivot ()))
 		False
 		(if (== (getLti $elem) (getLti $pivot))
-			(>= (getMean $elem) (getMean $pivot))
+			(or (> (getMean $elem) (getMean $pivot)) (== (getMean $elem) (getMean $pivot)))
 			(> (getLti $elem) (getLti $pivot))
 		)
 	)
@@ -164,7 +164,7 @@
 ; return: True if atom can be removed else False
 (: atomBelowForgetThreshold (-> Atom Number Number Bool))
 (= (atomBelowForgetThreshold $head $removalAmount $count) 
-	(if (and (<= (getLti $head) (forgetThreshold)) (< $count $removalAmount))
+	(if (and (or (< (getLti $head) (forgetThreshold)) (== (getLti $head) (forgetThreshold))) (< $count $removalAmount))
 		(if (== (getVlti $head) 0 ) 
 			True
 			False
@@ -221,7 +221,7 @@
 			(() (extractAtomRecursive $niset))
 			(() (removeAtomAttentionalfocus $head))
 			($bin (importanceBin (getSti $head)))
-			($_ (removeAtom $bin $head))
+			($a (removeAtom $bin $head))
 			(() (removeTypeSpace $head))
 		)
 		()
@@ -244,7 +244,7 @@
                 (() (refundAV $head))
 				(() (add-atom &removeSpace (: $head ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))))
 				($bin (importanceBin (getSti $head)))
-				($_ (removeAtom $bin $head))
+				($a (removeAtom $bin $head))
 				(() (removeAtomAttentionalfocus $head))
 				(() (removeTypeSpace $head))
                 (() (removeNewAtomAV $head))
