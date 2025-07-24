@@ -102,7 +102,7 @@
        ($firstRes (updateMin $min))
        ($secondRes (updateMax $max))
       )
-      (trace! (output) ("Updated"))
+      (trace! (updated) ("Updated"))
 
      )
 )
@@ -141,16 +141,23 @@
     
 )
 
-(: pred (-> Symbol Number Number Bool))
-(= (pred $x $lower $higher) (
-    let $sti (getSti $x) 
-      (and 
-        (>=  $sti $lower) 
-        (<=  $sti $higher)
-      )
-  )
-)
 
+(: filterContents (-> Expression Number Number Expression))
+(= (filterContents $contents $lower $higher)
+   (if (== $contents ())
+        () 
+        (collapse 
+          (let* (($x (superpose $contents)))
+            (if (and (>=  (getSti $x) $lower) (<= (getSti $x) $higher)) 
+                 $x
+                () 
+            )
+          ) 
+        )
+   )
+     
+
+)
 
 
 (: getHandleSet (-> Number Number Expression))
@@ -162,10 +169,11 @@
         ($lowerBin (importanceBin $lowerBound))
         ($upperBin (importanceBin $upperBound))
         ($allContents (getContent $lowerBin $upperBin))
-        ($filteredContents  (customFilter $allContents pred  $lowerBound $upperBound))
+        ($filteredContents  (filterContents $allContents $lowerBound $upperBound))
         
       )
-       (unique-atom $filteredContents)  
+     (filter $filteredContents notEmpty) 
+        
     )
   )
 )

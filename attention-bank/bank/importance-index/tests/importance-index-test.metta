@@ -10,17 +10,19 @@
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 
 
-;For Testing the update, getMaxSTI, getMinSTI
 ;###################### Prep: adding atoms to the atom bin #####################
 !(setAv a (2.0 2.0 2.0))
 !(setAv d (4.0 2.0 2.0))
 !(setAv c (3.0 2.0 2.0))
 !(setAv x (200.0 200.0 0.0))
-
+!(setAv (EvaluationLink a b) (20 20 0)) 
+!(setAv another (25 25 0)) 
+!(setAv Animals (30 30 1)) 
+!(setAv (Hebbianlink (Hebbianlink Human Cat)  Animal) (40 40 1))
+!(setAv something   (80 80 1))
 !(add-atom &atombin (1 (a)))
 !(add-atom &atombin (10 (d)))
 !(add-atom &atombin (18 (c)))
-
 ;########################### Testing ###########################################
 
 ; Test case 01: Testing importanceBin with different number value
@@ -30,11 +32,12 @@
 !(assertEqual (importanceBin 50.0) 29.0)    ; Should calculate based on group logic 29
 
 
-; Test case 02: Testing getHandleSet with lowerbound and upperbound
+; Test case 02: Testing getHandleSet,getContent and filterContents functions
 
-!(assertEqual (getHandleSet 1 20) (a c d))
-!(assertEqual (getHandleSet 10 10) ())
-!(assertEqual (getHandleSet 0 -1.0) ())
+!(assertEqual (getHandleSet 20 40) ((EvaluationLink a b) another Animals (Hebbianlink (Hebbianlink Human Cat) Animal)))
+!(assertEqual (filterContents ((EvaluationLink a b) another Animals ) 10 25) (() another (EvaluationLink a b)))
+!(assertEqual (getHandleSet 11 26) ((EvaluationLink a b) another))
+!(assertEqual (getContent 20 30) ((EvaluationLink a b) another Animals (Hebbianlink (Hebbianlink Human Cat) Animal)) )
 
 ; Test case 03: Testing update function
 !(assertEqual (update &atombin) ("Updated"))
