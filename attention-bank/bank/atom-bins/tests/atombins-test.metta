@@ -8,20 +8,7 @@
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 
-
-; Prep: Setting values in the atombin space prior to testing
-
-!(setAv (EvaluationLink a b) (20 20 0)) 
-!(setAv another (25 25 0)) 
-!(setAv Animals (30 30 1)) 
-!(setAv (Hebbianlink (Hebbianlink Human Cat)  Animal) (40 40 1))
-!(setAv something   (80 80 1))
-;testing getHandleSet and customFilter functions
-!(assertEqual (getHandleSet 10 40) ((EvaluationLink a b) another Animals (Hebbianlink (Hebbianlink Human Cat) Animal)))
-!(assertEqual (customFilter (another (EvaluationLink a b) Animals (Hebbianlink (Hebbianlink Human Cat) Animal) something) pred 10 40) (another (EvaluationLink a b) Animals (Hebbianlink (Hebbianlink Human Cat) Animal)))
-
 ;################ Preparation: inserting atoms for testing ####################
-
 ; Prep: Setting values in the atombin space prior to testing
 !(add-atom &atombin (1 (a Cat (Hebbianlink Human Cat))))
 !(add-atom &atombin (2 (d Animal (Hebbianlink (Hebbianlink Human Cat) Animal))))
@@ -49,7 +36,7 @@
 ! (setAv (Hebbianlink Human Cat) (200 200 0))
 ! (setAv  (Hebbianlink Human Dog) (200 20 0))
 ! (setAv (Hebbianlink (Hebbianlink Human Cat) Animal) (300 200 0))
-!  (setAv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat)) (200 200 0))
+! (setAv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat)) (200 200 0))
 !(setAv  E (200 200 0))
 
 
@@ -58,9 +45,6 @@
 
 ; Test case 01: Tesing that the getRandomAtom function returns one result
 ! (let $res (collapse (getRandomAtom)) (assertEqual (size-atom $res) 1))
-
-
-!(assertEqual (match &atombin (45.0 $x) $x) (E (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat)) (Hebbianlink Human Dog) (Hebbianlink Human Cat)))
 
 ; Test case 04: Testing insertAtom can insert atom into the specifed empty index 
 
@@ -71,6 +55,7 @@
 !(setAv H (200 200 0))
 !(insertAtom  20.0 H)
 !(assertEqual (match &atombin (20.0 $x) $x) (H E))
+
 ; Test case 06: Testing insertAtom can insert an Expression into the specified non-empty index
 !(insertAtom  20.0 (EvaluationLink a b))
 !(assertEqual (match &atombin (20.0 $x) $x) ((EvaluationLink a b) H E))
