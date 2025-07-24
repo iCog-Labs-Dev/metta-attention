@@ -170,9 +170,10 @@
         ($upperBin (importanceBin $upperBound))
         ($allContents (getContent $lowerBin $upperBin))
         ($filteredContents  (filterContents $allContents $lowerBound $upperBound))
+        ($finalContents  (filter $filteredContents notEmpty))
         
       )
-     (filter $filteredContents notEmpty) 
+     $finalContents 
         
     )
   )
