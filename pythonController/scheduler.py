@@ -109,7 +109,17 @@ class ParallelScheduler:
                 "LtiFundsBuffer",
                 "TARGET_LTI_FUNDS_BUFFER",
                 "RENT_TOURNAMENT_SIZE",
-                "SPREADING_FILTER"
+                "SPREADING_FILTER",
+                "STARTING_FUNDS_STI", 
+                "FUNDS_STI",
+                "STARTING_FUNDS_LTI",
+                "FUNDS_LTI",
+                "STI_FUNDS_BUFFER",
+                "LTI_FUNDS_BUFFER",
+                "TARGET_STI", 
+                "TARGET_LTI",
+                "STI_ATOM_WAGE",
+                "LTI_ATOM_WAGE"
             ]
 
         if isinstance(param, str):
@@ -126,7 +136,7 @@ class ParallelScheduler:
         if not isinstance(directory, str):
             raise TypeError("save_params directroy path must be str instance")
 
-        self.metta.run(f"!(start_log (attentionParam) (space) {directory})")
+        self.metta.run(f"!(start_log (attentionParam) {directory})")
 
     def register_agent(self, agent_id, agent_creator):
         """ Register an agent factory function (not instance) """
@@ -233,7 +243,7 @@ class ParallelScheduler:
             logging.error(f"Exception in run_continuously: {e}")
             print(f"Exception in run_continuously: {e}")
 
-    def run_iterativly(self, iteration:int):
+    def run_iterativly(self, iteration:int, switch:int):
 
         if not isinstance(iteration, int):
             raise TypeError(f"run_iterativly expects int argument but {type(iteration)} was given")
@@ -247,8 +257,8 @@ class ParallelScheduler:
         self.create_word_list()
 
         try:
-            for count in range(iteration, -1, -1):
-                if count > 2:
+            for count in range(iteration, 0, -1):
+                if count > switch:
                     value = self.random_word(0)
                 else:
                     value = self.random_word(1)

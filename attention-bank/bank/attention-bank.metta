@@ -1,15 +1,4 @@
 !(bind! &space (new-space))
-!(add-atom &space (startingFundsSTI 100000))
-!(add-atom &space (fundsSTI 100000))
-!(add-atom &space (startingFundsLTI 100000))
-!(add-atom &space (fundsLTI 100000))
-!(add-atom &space (stiFundsBuffer 10000))
-!(add-atom &space (ltiFundsBuffer 10000))
-!(add-atom &space (targetSti 10000))
-!(add-atom &space (targetLti 10000))
-!(add-atom &space (STIAtomWage 10))
-!(add-atom &space (LTIAtomWage 10))
-
 
 ; Function to calculate STI wage
 ; Description: Calculates the adjustment factor for Short-Term Importance (STI)
@@ -21,11 +10,11 @@
 (: calculateSTIWage (-> Number))
 (= (calculateSTIWage)
    (let* (
-           ($funds (match &space (fundsSTI $x) $x))
-           ($targetSti (match &space (targetSti $y) $y))
-           ($stiFundsBuffer (match &space (stiFundsBuffer $z) $z))
-           ($STIAtomWage (match &space (STIAtomWage $z) $z))
-           ($diff (- $funds $targetSti))
+           ($funds (getAttentionParam FUNDS_STI))
+           ($targetSTI (getAttentionParam TARGET_STI))
+           ($stiFundsBuffer (getAttentionParam STI_FUNDS_BUFFER))
+           ($STIAtomWage (getAttentionParam STI_ATOM_WAGE))
+           ($diff (- $funds $targetSTI))
            ($ndiff-raw (/ $diff $stiFundsBuffer))
            ($ndiff-clamped-min (min-atom ($ndiff-raw 1.0)))
            ($ndiff (max-atom ($ndiff-clamped-min -1.0)))
@@ -46,11 +35,11 @@
 (: calculateLTIWage (-> Number))
 (= (calculateLTIWage)
    (let* (
-           ($funds (match  &space  (fundsLTI $x) $x))
-           ($targetLti (match  &space  (targetLti $y) $y))
-           ($ltiFundsBuffer (match  &space  (ltiFundsBuffer $z) $z))
-           ($LTIAtomWage (match  &space (LTIAtomWage $z) $z))
-           ($diff (- $funds $targetLti))
+           ($funds (getAttentionParam FUNDS_LTI))
+           ($targetLTI (getAttentionParam TARGET_LTI))
+           ($ltiFundsBuffer (getAttentionParam LTI_FUNDS_BUFFER))
+           ($LTIAtomWage (getAttentionParam LTI_ATOM_WAGE))
+           ($diff (- $funds $targetLTI))
            ($ndiff-raw (/ $diff $ltiFundsBuffer))
            ($ndiff-clamped-min (min-atom ($ndiff-raw 1.0)))
            ($ndiff (max-atom ($ndiff-clamped-min -1.0)))
@@ -91,8 +80,8 @@
 ; Description:
 ;    Updates the AttentionValue of an atom and adjusts the global STI and LTI funds
 ;    -set the new attention value of the atom 
-;    - Remove the current fundsSTI and fundsLTI values from the AtomSpace.
-;    - Add the updated fundsSTI and fundsLTI values to the AtomSpace.
+;    - Remove the current FUNDS_STI and FUNDS_LTI values from the AtomSpace.
+;    - Add the updated FUNDS_STI and FUNDS_LTI values to the AtomSpace.
 ;    - Inserts the atom to the attentional focus if possible
 ;    - Updates the Bin placement of the atom
 ;Parameters:
@@ -106,66 +95,12 @@
 (: attentionValueChanged (-> Atom Number Number empty))
 (= (attentionValueChanged $pattern $newSTIFund $newLTIFund)
    (let*(
-         ($oldSTIFund (match &space (fundsSTI $fundsSTI) $fundsSTI))
-         ($oldLTIFund (match &space (fundsLTI $fundsLTI) $fundsLTI))
-         ($one (updateLTIFunds $oldLTIFund $newLTIFund))
-         ($two (updateSTIFunds $oldSTIFund $newSTIFund))
-         ($atombin (atomBin))
+         ($one (updateAttentionParam FUNDS_STI $newSTIFund))
+         ($two (updateAttentionParam FUNDS_LTI $newLTIFund))
+         ($atombin (AtomBin))
          ($r (update $atombin))
          ($three (updateAttentionalFocus $pattern True))
         )
         $r
     )
-)
-
-;Function: updateLTIFunds
-;Description: Updates the global LTI funds by replacing the old value with a new one
-;Parameters:
-;     $old: The previous LTI fund value
-;     $new: The new LTI fund value
-;Returns: Nothing (updates the fund in the AtomSpace)
-(: updateLTIFunds (-> Number Number empty))
-(= (updateLTIFunds $old $new)
-  (match  &space  (fundsLTI $old)
-      (let ()
-           (remove-atom &space (fundsLTI $old))
-           (add-atom &space (fundsLTI $new))
-      )
-  )
-)
-
-;Function: updateSTIFunds
-;Description: Updates the global STI funds by replacing the old value with a new one.
-;Parameters:
-;      $old: The previous STI fund value.
-;      $new: The new STI fund value.
-;Returns: Nothing (updates the fund in the AtomSpace).
-(: updateSTIFunds (-> Number Number empty))
-(= (updateSTIFunds $old $new)
-  (match  &space  (fundsSTI $old)
-      (let ()
-           (remove-atom &space (fundsSTI $old))
-           (add-atom &space (fundsSTI $new))
-      )
-  )
-)
-(: getAttentionBank  (-> Symbol Number))
-(= (getAttentionBank $param)
-   (match &space ($param $x) $x)
-)
-
-; Alias for &space
-(= (space) &space)
-
-(= (updateAttentionBank $param $newValue)
-   (match &space ($param $x)
-      (let ()
-           (remove-atom &space ($param $x))
-           (add-atom &space ($param $newValue))
-      )
-   )
-)
-
-(= (getAttentionParams)
-    (match &space $x $x)
 )

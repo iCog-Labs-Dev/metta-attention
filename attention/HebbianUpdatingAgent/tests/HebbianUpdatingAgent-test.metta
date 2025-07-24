@@ -7,7 +7,9 @@
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
 !(import! &self metta-attention:attention:HebbianUpdatingAgent:HebbianUpdatingAgent)
+!(import! &self metta-attention:attention:AttentionParam)
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
+
 
 ;################ Prep: giving atoms mean and confidence ####################
 !(setStv source (0.1 0.9))
