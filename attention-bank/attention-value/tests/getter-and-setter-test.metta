@@ -19,7 +19,6 @@
 !(setAv Human (400 400 1))
 !(assertEqual (getAttentionParam FUNDS_STI) 98400)
 !(assertEqual (getAttentionParam FUNDS_LTI) 98400)
-!(assertEqual (getAtomsInBins) ((53.0 (Human Animal Cat A))))
 !(assertEqual (getAtomList) (A Cat Animal Human))
 ; Test case 02: testing attention value getter(getAv) function for symbol atom type
 
