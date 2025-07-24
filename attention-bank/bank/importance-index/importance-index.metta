@@ -142,6 +142,7 @@
 )
 
 
+; Filters atoms in expression whose STI values fall between lower and higher bounds.
 (: filterContents (-> Expression Number Number Expression))
 (= (filterContents $contents $lower $higher)
    (if (== $contents ())
@@ -159,7 +160,7 @@
 
 )
 
-
+; Retrieves atoms from bins whose STI values fallin lowerbound and upperBound. it utilizes filterContents function.
 (: getHandleSet (-> Number Number Expression))
 (= (getHandleSet $lowerBound $upperBound)
    (if (or (< $lowerBound 0) (< $upperBound 0))

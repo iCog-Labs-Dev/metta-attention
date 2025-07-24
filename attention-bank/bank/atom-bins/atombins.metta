@@ -128,6 +128,7 @@
    &atombin
 )
 
+; Recursively collects all atoms from bins indexed between $lower and $higher, inclusive.
 (: getContent (-> Number Number Expression))
 (= (getContent $lower $higher)
   (if (> $lower $higher)
