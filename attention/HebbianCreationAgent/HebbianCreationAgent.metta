@@ -6,7 +6,7 @@
 ;Parameters: None.
 ;Returns: empty
 
-(: HebbianCreationAgent-Run(-> Grounded Grounded Grounded empty))
+;(: HebbianCreationAgent-Run(-> Grounded Grounded Grounded empty))
 (= (HebbianCreationAgent-Run $space $space2 $space3)
     ; if the attentional focus is empty no work is done
     (if ( == (attentionalFocusSize)  0)
@@ -30,7 +30,7 @@
                             ($needToBeSource ( setDifference $existingAsSourceHS) )
                             ($needToBeTarget  (setDifference $existingAsTarget))
                             ($count (size-atom $needToBeTarget ))
-                            ($_ (collapse 
+                            ($c (collapse 
                                 (let $target (superpose $needToBeSource)
                                         (if (not (== $target $source)) 
                                             (addHebbian $source $target)
@@ -39,8 +39,9 @@
                                 ) 
                                 )
                             )
+
    
-                            ($__ (collapse 
+                            ($b (collapse 
                                     (let $x (superpose $needToBeTarget)
                                         (if (not (== $x $source)) 
                                             (addHebbian $source $x)
@@ -49,8 +50,10 @@
                                     ) 
                                 )
                             )
-                            ($farLinks (/ $count localToFarLinks )) ;round by default
-                            ($___ (addFromOutSideAF $source $farLinks))
+
+                            ($farLinks (round' (/ $count localToFarLinks ))) ;round by default
+                            (()(println! ($farLinks)))
+                            ($d (addFromOutSideAF $source $farLinks))
                             ($incomingSet (getIncomingSetByType $source HEBBIAN_LINK)) ;should I add other types of hebbian links?
                         )
                         (
@@ -87,7 +90,7 @@
 ;Parameters: Atom
 ;Returns: Atom
 
-(:getSourceAtom(-> Atom Atom))
+; (:getSourceAtom(-> Atom Atom))
 ( = (getSourceAtom $source)
     (if (== (size-atom $source) 3) ;if source is a link
         (let* (
@@ -106,7 +109,7 @@
 ;Parameters: $number- Number of times to remove links
 ;Returns: empty
 
-(:removeLinkRecursively(-> Number Empty))
+; (:removeLinkRecursively(-> Number Empty))
 ( = (removeLinkRecursively $num)
     (if ( or (== $num 0) (== 0 (attentionalFocusSize)))
         ()
@@ -126,7 +129,7 @@
 ;Parameters: $incomingList- List of atoms
 ;Returns: List of atoms
 
-(:setDifference (-> List List))
+; (:setDifference (-> List List))
 ( = (setDifference  $IncomingList)
     (let $atomList (getAtomList)
         (subtraction-atom $atomList $IncomingList )
@@ -138,9 +141,9 @@
 ;Parameters: $source- Atom, $farLinks- Number of links to be created
 ;Returns: empty
 
-(:addFromOutSideAF(-> Atom Number Empty))
+; (:addFromOutSideAF(-> Atom Number Empty))
 ( = (addFromOutSideAF  $source $farLinks)
-    (if ( == $farLinks 0 )
+    (if (== $farLinks 0)
         ()
         (let $target (getRandomAtomNotInAF)
             (if (== %Undefined% $target)
@@ -152,6 +155,7 @@
                             (if (and (atomIsInAF (ASYMMETRIC_HEBBIAN_LINK $source $target)) (== $target $source)) ;If the link exists dont add it again 
                                 ()
                                 (
+                                    let $1
                                     (addHebbian $source $target )
                                     (addFromOutSideAF $source (- $farLinks 1))
                                 )
@@ -160,6 +164,7 @@
                         (if (atomIsInAF (ASYMMETRIC_HEBBIAN_LINK $source $target)) ;If the link exists dont add it again 
                             ()
                             (
+                                let $2
                                 (addHebbian $source $target )
                                 (addFromOutSideAF $source (- $farLinks 1))
                             )
@@ -176,7 +181,7 @@
 ;Parameters: $source- Atom, $target- Atom
 ;Returns: empty
 
-(: addHebbian (-> Atom Atom Empty))
+; (: addHebbian (-> Atom Atom Empty))
 (= (addHebbian $source $target)
     (let $link (ASYMMETRIC_HEBBIAN_LINK $source $target)
         (setStv $link (0.5 0.1))
@@ -185,4 +190,15 @@
 
 (= (removeAtomFromNewAVList $atom $space)
     (remove-atom $space $atom)
+)
+
+;helper function to get the atom list
+(= (round' $x)
+    (let $floor (floor-math $x)
+        (if (< (- $x $floor) 0.5)
+            $floor
+            (+ $floor 1)
+        )
+        
+    )
 )
