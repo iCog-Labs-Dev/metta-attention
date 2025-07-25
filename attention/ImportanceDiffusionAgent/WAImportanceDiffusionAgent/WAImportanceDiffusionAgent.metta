@@ -33,13 +33,21 @@
 
 (: spreadImportanceWA (-> Grounded Empty))
 (= (spreadImportanceWA $space)
-    (let $diffusionSourceVector (collapse (diffusionSourceVectorWA))
+    (let* (
+        ($diffusionSourceVector (collapse (diffusionSourceVectorWA)))
+    )
         (if (== (size-atom $diffusionSourceVector) 0)
             ()
-            (let $target (index-atom $diffusionSourceVector 0)
+            (let*
+                (
+                    ($target (index-atom $diffusionSourceVector 0))
+                ) 
                 (let ($atom $atomToReceive $stiGiven)
                         (diffuseAtom $target $space WA)
-                             (tradeSti $atom $atomToReceive $stiGiven)
+                            (
+                                (tradeSti $atom $atomToReceive $stiGiven)
+
+                            )
                         )
             )
         )
@@ -69,5 +77,7 @@
 
 (: WAImportanceDiffusionAgent-Run (-> Grounded Empty))
 (= (WAImportanceDiffusionAgent-Run $space)
-    (spreadImportanceWA $space)
+    (let* (
+        ($importance (spreadImportanceWA $space))
+    ) $importance)
 )
