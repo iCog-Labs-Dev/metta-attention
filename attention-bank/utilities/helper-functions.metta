@@ -239,7 +239,7 @@
 ; Define approximate equality
 (: approxEqual (-> Number Number Number Bool))
 (= (approxEqual $a $b $tol)
-    (<= (abs (- $a $b)) $tol)
+    (or (== (abs (- $a $b)) $tol) (< (abs (- $a $b)) $tol))
 )
 
 (: extractAndFlatten (-> Expression Expression))
