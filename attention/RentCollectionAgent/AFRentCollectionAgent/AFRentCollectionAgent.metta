@@ -1,6 +1,5 @@
 ; Bind Python time module to get current timestamp
-! (bind! time-mod (py-atom time))
-! (bind! timeTime(py-dot time-mod time (-> Number)))
+! (bind! timeTime (py-atom time.time))
 
 ; AFRentCollectionAgent - Handles rent collection for atoms in Attentional Focus (AF).
 ; The agent collects rent from atoms in AF based on elapsed time.
