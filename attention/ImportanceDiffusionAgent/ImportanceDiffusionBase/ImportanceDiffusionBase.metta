@@ -146,7 +146,11 @@
         (
             ($diffusionAvailable 1.0)
             ($hebbianDiffusionAvailable (* hebbianMaxAllocationPercentage $diffusionAvailable))
-            ($hebbianMaximumLinkAllocation (/ $hebbianDiffusionAvailable (size-atom $adjacentVector)))
+            ($hebbianMaximumLinkAllocation (
+                if (== (size-atom $adjacentVector) 0)
+                    0
+                    (/ $hebbianDiffusionAvailable (size-atom $adjacentVector))
+            ))
             ($hebbianProportionSTI (collapse (hebbianProportionSTI $adjacentVector $hebbianMaximumLinkAllocation)))
             ($hebbianDiffusionUsed (hebbianDiffusionUsed $hebbianProportionSTI))
             ($resulttwo (collapse (incidentProportionSTI $incidentVector $hebbianDiffusionUsed)))

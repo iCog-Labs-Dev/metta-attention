@@ -39,11 +39,16 @@
 
 (: spreadImportance (-> Grounded Grounded Empty))
 (= (spreadImportance $space $space2)
-    (let $diffusionSourceVector (diffusionSourceVector $space)
-        (let ($atom $atomToReceive $stiGiven)
-            (diffuseAtom (superpose $diffusionSourceVector) $space2 AF)
-                (tradeSti $atom $atomToReceive $stiGiven)
-            )
+    (let*
+        (
+         ($diffusionSourceVector (diffusionSourceVector $space))
+         (()(println! ("Diffusion source vector: " $diffusionSourceVector)))
+         ($result (collapse (diffuseAtom (superpose $diffusionSourceVector) $space2 AF)))
+         (($atom $atomToReceive $stiGiven) (superpose $result))
+        )
+        
+        (tradeSti $atom $atomToReceive $stiGiven)
+        
     )
 )
 
