@@ -6,8 +6,11 @@
 !(add-atom &attentionParam  (MAX_AF_SIZE 1000.0))
 !(add-atom &attentionParam  (AFRentFrequency 5.0))
 !(add-atom &attentionParam  (FORGET_THRESHOLD 0.05))
+!(add-atom &attentionParam  (MAX_SIZE 2))
+!(add-atom &attentionParam  (ACC_DIV_SIZE 1))
 !(add-atom &attentionParam  (HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.05))
 !(add-atom &attentionParam  (LOCAL_FAR_LINK_RATIO      10.0))
+!(add-atom &attentionParam  (MAX_LINK_NUM 300.0))
 !(add-atom &attentionParam  (MAX_SPREAD_PERCENTAGE 0.4))
 !(add-atom &attentionParam  (DIFFUSION_TOURNAMENT_SIZE 5.0))
 !(add-atom &attentionParam  (SPREAD_HEBBIAN_ONLY 0.0))
@@ -15,7 +18,19 @@
 !(add-atom &attentionParam  (StartingAtomLtiRent 1.0))
 !(add-atom &attentionParam  (TARGET_LTI_FUNDS_BUFFER  10000.0))
 !(add-atom &attentionParam  (RENT_TOURNAMENT_SIZE  5.0))
+!(add-atom &attentionParam  (TC_DECAY_RATE  0.1))
+!(add-atom &attentionParam  (DEFAULT_K 800))
 !(add-atom &attentionParam  (SPREADING_FILTER  (MemberLink (Type "MemberLink"))))
+!(add-atom &attentionParam  (STARTING_FUNDS_STI 100000))
+!(add-atom &attentionParam  (FUNDS_STI 100000))
+!(add-atom &attentionParam  (STARTING_FUNDS_LTI 100000))
+!(add-atom &attentionParam  (FUNDS_LTI 100000))
+!(add-atom &attentionParam  (STI_FUNDS_BUFFER 10000))
+!(add-atom &attentionParam  (LTI_FUNDS_BUFFER 10000))
+!(add-atom &attentionParam  (TARGET_STI 10000))
+!(add-atom &attentionParam  (TARGET_LTI 10000))
+!(add-atom &attentionParam  (STI_ATOM_WAGE 10))
+!(add-atom &attentionParam  (LTI_ATOM_WAGE 10))
 (: getAttentionParam (-> Symbol Number))
 (= (getAttentionParam $param)
    (match &attentionParam ($param $x) $x)
@@ -40,8 +55,3 @@
 (= (attentionParam) 
     &attentionParam
 )
-
-
-
-
-
