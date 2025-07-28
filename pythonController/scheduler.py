@@ -109,7 +109,7 @@ class ParallelScheduler:
                 "LtiFundsBuffer",
                 "TARGET_LTI_FUNDS_BUFFER",
                 "RENT_TOURNAMENT_SIZE",
-                "SPREADING_FILTER",
+                 "SPREADING_FILTER",
                 "STARTING_FUNDS_STI", 
                 "FUNDS_STI",
                 "STARTING_FUNDS_LTI",
@@ -119,7 +119,6 @@ class ParallelScheduler:
                 "TARGET_STI", 
                 "TARGET_LTI",
                 "STI_ATOM_WAGE",
-                "LTI_ATOM_WAGE"
             ]
 
         if isinstance(param, str):
