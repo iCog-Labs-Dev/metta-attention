@@ -25,15 +25,24 @@
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
-!(import! &tempspace metta-attention:experiments:Metta:experiment1:data:links)
 !(import! &insect metta-attention:experiments:Metta:experiment1:data:insect-words)
 !(import! &poison metta-attention:experiments:Metta:experiment1:data:poison-words)
+!(import! &tempspace metta-attention:experiments:Metta:experiment1:data:links)
 
-(=(spaceAdder) (get-atoms &tempspace))
+
+(= (spaceAdder) (get-atoms &tempspace))
 !(spaceAdder)
 
 ; write the params to a file
-!(start_log (attentionParam) (space) experiments/Metta/experiment1)
+!(updateAttentionParam MAX_AF_SIZE 1.0)
+!(updateAttentionParam TARGET_STI 1000.0) 
+!(updateAttentionParam TARGET_LTI 1000.0) 
+!(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
+!(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
+!(updateAttentionParam FUNDS_STI 2000.0) 
+!(updateAttentionParam FUNDS_LTI 2000.0) 
+
+!(start_log (attentionParam) experiments/Metta/experiment1)
 
 (= (insectPoisonExp $maxim $space $type)
    (
@@ -63,5 +72,3 @@
 
 
 !(insectPoisonExp 3 &insect insect)
-!(getAtomList)
-!(get-atoms (TypeSpace))
