@@ -5,8 +5,8 @@
 ; The agent collects rent from atoms in AF based on elapsed time.
 ; Rent is deducted from STI and LTI values, ensuring values do not go negative.
 !(bind! &timer (new-space))
-!(add-atom &timer  (firstTime True))
-!(add-atom &timer  (lastUpdate  (timeTime)))
+!(add-atom &timer (firstTime True))
+!(let $time (timeTime) (add-atom &timer  (lastUpdate  $time)))
 
 ; Function: selectTargets
 ; Description: Retrieves the list of atoms currently in attentional focus.
@@ -33,7 +33,7 @@
           ($timeThreshold (/ 1000000 $updateFreq))
           ($multiplier (/ $updateFreq 1000000))
       )
-      (if (match &timer (firstTime $x) $x)
+      (if (match &timer (firstTime $val) $val)
           (
             (setFirstTime False)
             (setLastUpdate $currentTime)
@@ -72,7 +72,6 @@
           ($ltiAtomRent (getAttentionParam StartingAtomLtiRent))
           ($calculatestirent  (calculateStiRent $stiAtomRent))
           ($calculateltirent  (calculateLtiRent $ltiAtomRent))
-
         )
         (if (and (== $calculatestirent  0.0) (== $calculateltirent 0.0))
           ()
