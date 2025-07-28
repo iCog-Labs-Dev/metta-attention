@@ -102,7 +102,8 @@
        ($firstRes (updateMin $min))
        ($secondRes (updateMax $max))
       )
-      ("Updated")
+      (trace! (updated) ("Updated"))
+
      )
 )
 
@@ -140,24 +141,26 @@
     
 )
 
-(: pred (-> Symbol Number Number Bool))
-(= (pred $x $lower $higher) (
-    let $sti (getSti $x) 
-      (and 
-        (>=  $sti $lower) 
-        (<=  $sti $higher)
-      )
-  )
+
+; Filters atoms in expression whose STI values fall between lower and higher bounds.
+(: filterContents (-> Expression Number Number Expression))
+(= (filterContents $contents $lower $higher)
+   (if (== $contents ())
+        () 
+        (collapse 
+          (let* (($x (superpose $contents)))
+            (if (and (>=  (getSti $x) $lower) (<= (getSti $x) $higher)) 
+                 $x
+                () 
+            )
+          ) 
+        )
+   )
+     
+
 )
 
-(: loop (-> Number Number $list_t $list_t $list_t))
-(= (loop $i $term $atomBins $acc)
-   (if(== $i $term)
-      $acc
-      (let $next (+ 1 $i) (loop $next $term $atomBins (getContent $i $atomBins $acc)))
-    )
-)
-
+; Retrieves atoms from bins whose STI values fallin lowerbound and upperBound. it utilizes filterContents function.
 (: getHandleSet (-> Number Number Expression))
 (= (getHandleSet $lowerBound $upperBound)
    (if (or (< $lowerBound 0) (< $upperBound 0))
@@ -166,14 +169,13 @@
        (
         ($lowerBin (importanceBin $lowerBound))
         ($upperBin (importanceBin $upperBound))
-        ($atomBins (collapseAtomBin (atomBin)))
-        ($gcIfRes (getContentIf $lowerBin pred $lowerBound $upperBound $atomBins ())) ;gcIfRes - getContentIfResult (result obtained after calling getContentIf)
-        ($exitCondition (== $upperBin $lowerBin))
-        ($gcRes (loop $lowerBin $upperBin $atomBins $gcIfRes)) ;gcRes - getContentResult (result obtained after calling getContent)
-        ($res (getContentIf $upperBin pred $lowerBound $upperBound $atomBins $gcRes))
-        ($finalResult (if $exitCondition (removeDuplicates $gcIfRes) (removeDuplicates $res))) ;remove duplicates because the result needs to be a set of atoms.
+        ($allContents (getContent $lowerBin $upperBin))
+        ($filteredContents  (filterContents $allContents $lowerBound $upperBound))
+        ($finalContents  (filter $filteredContents notEmpty))
+        
       )
-       $finalResult
+     $finalContents 
+        
     )
   )
 )

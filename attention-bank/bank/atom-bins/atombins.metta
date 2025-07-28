@@ -122,60 +122,33 @@
 (= (collapseAtomBin $space) (collapse (get-atoms $space)))
 
 
-;this function randomly selects a bin from atombins and proceeds to randomly choose a single element from selected random bin.
-(: getRandomAtom (-> Symbol))
-(= (getRandomAtom)
-   (
-    let*(
-         ($handleSetSeq (collapse (match (atomBin) ($x $y) $y)))
-         ($filteredOutput (filter $handleSetSeq notEmpty))
-        )
-    (if(== $filteredOutput ()) ;check if all bins in atom bins are empty
-      empty
-      (
-       let*(
-            ($res (py-list $filteredOutput))
-            ($kvPair ((py-atom random.choice) $res)) ;randomly choose a bin
-            ($collapsed ($kvPair))
-            ($vals ((py-dot $kvPair __getitem__) 1)) ; Access the second element
-            ($randomAtom ((py-atom random.choice) $vals)) ;randomly choose a single atom
-          )
-          $randomAtom
-      )
-    )
-  )
-)
-;This function fetches all the values stored in &atombin atomspace, which are located at the specified index.
-(: getContent (-> Number $list_t $list_t $list_t))
-(= (getContent $index $atombins $out)
-   (let $vals (valuesAtIndex $index $atombins) 
-     (union-atom $out $vals)
-   )
-)
 
-;A function to get the values stored in the &atombin atomspace, at the specified index.
-;it accepts a predicate function as it's second argument.
-;the type of the function should take a generic value and return a Boolean 
-;(: getContentIf (-> Number (-> Symbol Number Number Bool)) Number Number $list_t $list_t $list_t)
-(= (getContentIf $index $predicate $lower $upper $atombins $out)
-  (
-   let*(
-        ($handleSet (valuesAtIndex $index $atombins))
-        ($filteredOutput (customFilter $handleSet $predicate $lower $upper))
-        ($res (union-atom $out $filteredOutput))
-        
-      )
-   $res
-  )
-)
 
 (= (atomBin)
    &atombin
 )
 
-(= (getAtomsInBins)
-	(collapse (get-atoms &atombin))
+; Recursively collects all atoms from bins indexed between $lower and $higher, inclusive.
+(: getContent (-> Number Number Expression))
+(= (getContent $lower $higher)
+  (if (> $lower $higher)
+    ()  
+    (let*
+      (
+        ($vals (collapse (match (atomBin) ($lower $content) $content)))
+
+        ($rest (getContent (+ $lower 1) $higher))
+
+        ($result (collectContents $vals $rest))
+      )
+      $result
+    )
+  )
 )
+
+
+
+
 
 (= (getAllAtomsInBins)
 	( let* 

@@ -62,26 +62,6 @@
        )
    )
 )
-;TODO: Figure out why when types are added to this function, It returns []
-;(: valuesAtIndex (-> Number $list_t $list_t))
-(= (valuesAtIndex $i $handleSetSeq)
-   (if(== $handleSetSeq ())
-     ()
-    (let $seq (collapse (let ($index $val) (superpose $handleSetSeq)
-        (if (== $i $index)
-            $val
-            (empty)
-        )
-     
-        )
-        )
-        (if (== $seq ())
-            ()
-            (car-atom $seq)
-        )
-    )
-   )
-)
 
 
  
