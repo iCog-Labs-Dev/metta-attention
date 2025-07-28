@@ -1,9 +1,7 @@
 !(bind! &attentionalFocus (new-space))
 !(bind! &newAtomInAV (new-space))
-(= (AttentionalFocus) &attentionalFocus)
+(= (attentionalFocus) &attentionalFocus)
 (= (newAtomInAV) &newAtomInAV)
-
-(= (maxAFSize) 1000)
 
 ;Function: atomIsInAF
 ;Description: Checks if a given atom is in the attentional focus space.
@@ -95,83 +93,6 @@
    (let $atomList (getAtomList)
     (size-atom $atomList)
    )
-)
-
-;Function: lessThanSti
-;Description: Helper function that checks if the STI of $elem is less than the STI of $pivot.
-;Parameters:
-;         $elem: The first atom.
-;         $pivot: The atom to compare against.
-;Returns: True if $elem has a lower STI than $pivot, otherwise False.
-(: lessThanSti (-> Atom Atom Bool))
-(= (lessThanSti $elem $pivot)
-    (if (or (== $elem ()) (== $pivot ())) 
-        False 
-        (< (getSti $elem) (getSti $pivot))
-    )
-)
-
-;Function: greaterEqualSti
-;Description: Helper function that checks if the STI of $elem is greater than or equal to the STI of $pivot.
-;Parameters:
-;        $elem: The first atom.
-;        $pivot: The atom to compare against.
-;Returns: True if $elem has an equal or higher STI than $pivot, otherwise False.
-
-
-(: greaterEqualSti (-> Atom Atom Bool))
-(= (greaterEqualSti $elem $pivot)
-    (if (or (== $elem ()) (== $pivot ())) 
-        False 
-        (>= (getSti $elem) (getSti $pivot))
-    )
-)
-
-;Function: sortAtomsBySti
-;Description: Sorts a list of atoms by their STI values in ascending order using recursive filtering.
-;Parameters:
-;         $atoms: A list of atoms.
-;Returns: A sorted list of atoms in ascending order of STI.
-
-(: sortAtomsBySti (-> Symbol Symbol))
-(= (sortAtomsBySti $atoms)
-    (if (== $atoms ())
-        ()
-        (let*
-           (
-               ($pivot (car-atom $atoms))
-               ($tail (cdr-atom $atoms))
-               ($lesser (binaryFilter lessThanSti $pivot $tail))
-               ($greater (binaryFilter greaterEqualSti $pivot $tail))
-               ($sortedLesser (sortAtomsBySti $lesser))
-               ($sortedGreater (sortAtomsBySti $greater))
-           )
-           (concatTuple $sortedLesser (cons-atom $pivot $sortedGreater))
-        )
-    )
-)
-
-;Function: sortAtomsByStiDescending
-;Description:Sorts a list of atoms by their STI values in descending order using recursive filtering.
-;Parameters:
-;         $atoms: A list of atoms.
-;Returns: A sorted list of atoms in descending order of STI.
-(: sortAtomsByStiDescending (-> Symbol Symbol))
-(= (sortAtomsByStiDescending $atoms)
-    (if (== $atoms ())
-        ()
-        (let*
-           (
-               ($pivot (car-atom $atoms))
-               ($tail (cdr-atom $atoms))
-               ($greater (binaryFilter greaterEqualSti $pivot $tail))
-               ($lesser (binaryFilter lessThanSti $pivot $tail))
-               ($sortedGreater (sortAtomsByStiDescending $greater))
-               ($sortedLesser (sortAtomsByStiDescending $lesser))
-           )
-           (concatTuple $sortedGreater (cons-atom $pivot $sortedLesser))
-        )
-    )
 )
 
 
@@ -335,116 +256,6 @@
     )
 )
 
-
-;This function simply matches if two nodes are equal and they are in AF
-(:nodeMatch (-> Atom Atom Bool))
-(= (nodeMatch $node1 $node2)
-    (if (and (== $node1 $node2) (atomIsInAF $node2))
-        True
-        False
-    )
-)
-
-
-
-
-
-; Function: tuple-count
- ; Description: Calculates the tuple-count of a tuple.
- ; Parameters:
- ;   - $tuple: The tuple whose tuple-count is to be calculated.
- ; Returns:
- ;   - The tuple-count of the tuple as an integer.
- ;; Count the number elements in an expression
-
- ;; this Function is copied from the pattern minor project found at https://github.com/iCog-Labs-Dev/hyperon-miner/blob/experiments/experiments/utils/common-utils.metta
-
-   (: tupleCount (-> %Undefined% Number))
-   (= (tupleCount $atom) (if (== $atom ()) 0 (+ 1 (tupleCount (cdr-atom $atom)))))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
- ;;(: getArity (-> $pattern) Number)
- ;; we substruct 1 since the getArity count the all tuple and we don't want to count
- ;; the "AND LINK" as a part of the arity
-
- ;; this Function is copied from the pattern minor project found at https://github.com/iCog-Labs-Dev/hyperon-miner/blob/experiments/experiments/utils/common-utils.metta
-
-
-(= (getArity $pattern)
-	(if (== $pattern ())
-		0
-	    (- (tupleCount $pattern) 1)
-	) 
-)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
- ; Function: getVariables
- ; This function extracts all the variables from a given pattern (Expression).
- ; It works recursively by checking each element of the pattern to see if it is of the metatype "Variable".
-; this funtion is required because it is called by the termMatchMixinLinkMatch function
- ; Parameters:
- ;   - $pattern: The pattern from which to extract the variables.
- ; Returns:
- ;   - A list of all the variables in the pattern.
-
-(= (getVariables $pattern)
-    (if (== $pattern ())
-        ()
-        (if (== (let* (
-                        ($var (car-atom $pattern)))
-                    (get-metatype $var)) Variable)
-            ( (car-atom $pattern) (getVariables (cdr-atom $pattern)))
-            (getVariables (cdr-atom $pattern))
-        ))
-)
-
-
-(: termMatchMixinLinkMatch ( -> Atom Atom Bool))
-
-(= (termMatchMixinLinkMatch $ptm $lsoln)
-    (if (== $ptm $lsoln)
-        True
-        (if (== (car-atom $ptm) CHOICE_LINK)  
-            True
-            (if (not (== (car-atom $ptm) (car-atom $lsoln)))
-                False
-                ;else
-                (let* (( $ptmArity (getArity $ptm))
-                       ( $lsolnArity (getArity $lsoln)))
-                    (if (not (== $ptmArity $lsolnArity))
-                        False
-                        ;else
-                        (if (== (car-atom $ptm) SCOPE_LINK)
-                            (if (not (== (getVariables $ptm) (getVariables $lsoln)))
-                                False
-                                True)
-                            True)
-                    )
-                )
-            )
-        )
-    )
-)
-
-
-
-
-
-
-; This function matches if the link matches the TermMatchMixin condition and is in The attentional focus.It is a function that is currently found in the opencog atomspace repository(https://github.com/opencog/atomspace/blob/master/opencog/query/TermMatchMixin.cc).
-
-( :linkMatch(-> Atom Atom Bool))
-( = (linkMatch $ptm $lsoln)
-    (if (and (termMatchMixinLinkMatch $ptm $lsoln) (atomIsInAF $lsoln))
-    True
-    False
-    )
-)
-
-
 ( = (getRandomAtomInAF)
     (if  (== (attentionalFocusSize) 0)
         ("AF is Empty")
@@ -458,10 +269,6 @@
     )
 )
 
-
-(= (attentionalFocus)
-    &attentionalFocus
-)
 
 
 (: removeAtomAttentionalfocus (-> atom empty))
