@@ -1,6 +1,6 @@
-!(register-module! ../metta-attention)
-!(import! &self metta-attention:attention-bank:utilities/helper-functions)
-!(import! &self metta-attention:attention-bank:bank:importance-index/importance-index)
+!(register-module! ../../../attention-bank)
+!(import! &self attention-bank:utilities:helper-functions)
+!(import! &self attention-bank:bank:importance-index/importance-index)
 
 !(assertEqual (notEmpty (1 2 3 ())) (1 2 3))
 !(assertEqual 
