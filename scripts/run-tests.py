@@ -42,12 +42,12 @@ def print_ascii_art(text):
 
 
 # Define the command to run with the test files
-metta_run_command = "metta"
+metta_run_command = ["mettalog", "--test"]
 
 
 root = pathlib.Path(".")
 
-testMettaFiles = root.rglob("*-test.metta")
+testMettaFiles = root.rglob("*-test-mettalog.metta")
 total_files = 0
 results = []
 fails = 0
@@ -59,7 +59,7 @@ for testFile in testMettaFiles:
     total_files += 1
     try:
         result = subprocess.run(
-            [metta_run_command, str(testFile)],  # Convert testFile to string
+            metta_run_command + [str(testFile)],  # Convert testFile to string
             capture_output=True,
             text=True,
             check=True,
@@ -67,13 +67,13 @@ for testFile in testMettaFiles:
         fails += result.returncode
         results.append((result, testFile))  # Collect only stdout in the results list
     except subprocess.CalledProcessError as e:
-        results.append(f"Error with {testFile}: {e.stderr}")
+        results.append((e, testFile))
         fails += 1
 
 # Output the results
 for idx, (result, path) in enumerate(results):
-    if isinstance(result, str):
-        print(RED + f"Error found: {result}" + RESET)
+    if isinstance(result, subprocess.CalledProcessError):
+        print(RED + f"Error with {path}: {result.stderr}" + RESET)
         continue
 
     has_failure = extract_and_print(result, path)
