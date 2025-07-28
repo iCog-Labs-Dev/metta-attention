@@ -1,5 +1,4 @@
 
-!(bind! maxSpreadPercentage 0.4)
 
 ;; This function will return the diffusion source vector (atoms that can be diffused) from WA
 ;; Parameters $space: The space that will be used to find the diffusion source vector
@@ -64,7 +63,8 @@
 (= (calculateDiffusionAmountWA $atom)
     (let*
         (
-            ($currentEstiate (diffusedValue $atom maxSpreadPercentage))
+            ($maxSpreadPercentage (getAttentionParam MAX_SPREAD_PERCENTAGE))
+            ($currentEstiate (diffusedValue $atom $maxSpreadPercentage))
             ($diffusionAmount (- (getSti $atom) $currentEstiate))
         )
         $diffusionAmount
