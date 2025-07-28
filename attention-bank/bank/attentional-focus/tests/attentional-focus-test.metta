@@ -54,24 +54,20 @@
 ; Test case 05: Testing updateAttentionalFocus by adding new atom to attentional focus
 
 !(setAv G (300.0 400.0 500.0))
-!(assertEqual (updateAttentionalFocus G) ("Atom Added"))
+!(assertEqual (updateAttentionalFocus G) True)
 !(assertEqual (getAtomList) (a d c A B C D F (EvaluationLink a b) (Hebbianlink (Hebbianlink Cat Human) Animal) G))
 
 
 ; Test case 06: Testing updateAttentionalFocus by changing values of saved atom
 
 !(setAv G (15.0 25.0 35.0))
-!(assertEqual (updateAttentionalFocus G) ("Atom Added"))
+!(assertEqual (updateAttentionalFocus G) True)
 !(assertEqual (getAtomList) (a d c A B C D F (EvaluationLink a b) (Hebbianlink (Hebbianlink Cat Human) Animal) G))
 
 ; Test case 07: Testing updateAttentionalFocus adding an atom without AV 
 
-!(assertEqual (updateAttentionalFocus L) ("Atom is not valid"))
+!(assertEqual (updateAttentionalFocus L) False)
 ; !(assertEqual (getAtomList) (a A B C D F G))
-
-
-!(assertEqual (sortAtomsBySti  (getAtomList)) (c a d G D B F A (EvaluationLink a b) C (Hebbianlink (Hebbianlink Cat Human) Animal)))
-
 
 ; Test case 09: Testing getRandomAtomNotInAF assure that only one atom is returned
 

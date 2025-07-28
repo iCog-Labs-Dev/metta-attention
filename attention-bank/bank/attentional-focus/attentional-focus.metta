@@ -45,10 +45,10 @@
 ;Parameters:
 ;          $atom: The atom to add.
 ;Returns: A message indicating success or failure.
-(: addAtomToAF (-> Atom Symbol))
+(: addAtomToAF (-> Atom Bool))
 (= (addAtomToAF $atom)
    (if (== (getValueType $atom) %Undefined%)
-       ("Atom is not valid")
+       False
        (let* 
             (
                 (() (add-atom &attentionalFocus $atom))
@@ -61,7 +61,7 @@
                     )
                 )
             )
-            ("Atom Added")
+            True
         )
    )
 )
@@ -135,7 +135,7 @@
 ;Parameters:
 ;          $atom: The atom to be added or updated.
 ;Returns: Nothing if no update occurs, otherwise the atom is added.
-(: updateAttentionalFocus (-> Atom empty))
+(: updateAttentionalFocus (-> Atom ()))
 (= (updateAttentionalFocus $atom)
    (let*
        (
@@ -256,9 +256,14 @@
     )
 )
 
+;;; Function: getRandomAtomInAF
+;;; Descriptions: Retrives at atom at random from the attentionalFocus
+;;; Parameters: None
+;;; Returns: A unit Atom in Af is empty or a random atom 
+(: getRandomAtomInAF (-> Atom))
 ( = (getRandomAtomInAF)
     (if  (== (attentionalFocusSize) 0)
-        ("AF is Empty")
+        ()
         ;else
         ( let*( ($randomNumber (random-int 0 (attentionalFocusSize) ))
             ($atoms (getAtomList))
@@ -270,7 +275,11 @@
 )
 
 
-
+;;; Function: removeAtomAttentionalfocus
+;;; Description: removes an atom from the attentionalFocus space
+;;; Parameters:
+;;;     $atom: The atom to be removed from AF
+;;; Returns: A unit-atom
 (: removeAtomAttentionalfocus (-> atom empty))
 (= (removeAtomAttentionalfocus $atom)
 	(if (atomIsInAF $atom)
@@ -279,8 +288,12 @@
 	)
 )
 
-
-;(: removeNewAtomAV (-> atom empty))
+;;; Function: removeNewAtomAv
+;;; Description: removes an atom from the newAtonInAv space
+;;; Parameters:
+;;;     $atom: The atom to be removed from AF
+;;; Returns: A unit-atom
+(: removeNewAtomAV (-> atom ()))
 (= (removeNewAtomAV $head)
     (remove-atom &newAtomInAV $head)
 )
