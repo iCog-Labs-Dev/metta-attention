@@ -133,8 +133,8 @@
 			(
 				($head (car-atom $sortedatoms))
 				($tail (cdr-atom $sortedatoms))
-				($iset (incomingSetType $head ASYMMETRIC_HEBBIAN_LINK))
-				($niset (incomingSetUntyped $head))
+				($iset (globalIncomingSetByType $head ASYMMETRIC_HEBBIAN_LINK))
+				($niset (globalIncomingSetwithoutType $head))
 			)
 			(if (< $count $removalAmount) 
 				(if (== (size-atom $iset) (size-atom $niset))
@@ -169,39 +169,6 @@
 			False
 		)
 		False
-	)
-)
-
-: Description: a function to find incoming set from both attentioanl focus and typeSpace.
-; params:
-;		$atom: atom whose incoming set is to be searched
-;		$type: type of the link of the returned incoming set
-; return: all set of incoiming sets with matching types
-(: incomingSetType (-> Atom Atom List))
-(= (incomingSetType $atom $type)
-	(let* 
-		(
-			($selfiset (globalIncomingSetByType $atom $type))
-			($attiset (getIncomingSetByType $atom $type))
-			($union (union-atom $selfiset $attiset))
-		)
-		(unique-atom $union)
-	)
-)
-
-: Description: a function to find incoming set from both attentioanl focus and self typeSpace.
-; params:
-;		$atom: atom whose incoming set is to be searched
-; return: all set of incoiming sets not specifc of types
-(: incomingSetType (-> Atom Atom List))
-(= (incomingSetUntyped $atom)
-	(let* 
-		(
-			($selfiset (globalIncomingSetwithoutType $atom))
-			($attiset (getIncomingSetwithoutType $atom))
-			($union (union-atom $selfiset $attiset))
-		)
-		(unique-atom $union)
 	)
 )
 
