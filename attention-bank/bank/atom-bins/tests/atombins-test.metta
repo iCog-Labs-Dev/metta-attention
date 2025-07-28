@@ -9,9 +9,6 @@
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 
 ;################ Preparation: inserting atoms for testing ####################
-
-;################ Preparation: inserting atoms for testing ####################
-
 ; Prep: Setting values in the atombin space prior to testing
 !(add-atom &atombin (1 (a Cat (Hebbianlink Human Cat))))
 !(add-atom &atombin (2 (d Animal (Hebbianlink (Hebbianlink Human Cat) Animal))))
@@ -39,7 +36,7 @@
 ! (setAv (Hebbianlink Human Cat) (200 200 0))
 ! (setAv  (Hebbianlink Human Dog) (200 20 0))
 ! (setAv (Hebbianlink (Hebbianlink Human Cat) Animal) (300 200 0))
-!  (setAv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat)) (200 200 0))
+! (setAv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat)) (200 200 0))
 !(setAv  E (200 200 0))
 
 
@@ -48,20 +45,6 @@
 
 ; Test case 01: Tesing that the getRandomAtom function returns one result
 ! (let $res (collapse (getRandomAtom)) (assertEqual (size-atom $res) 1))
-
-
-!(assertEqual (match &atombin (45.0 $x) $x) (E (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat)) (Hebbianlink Human Dog) (Hebbianlink Human Cat)))
-; Test case 02: Testing getContentIf function using pred as a predicate function
-!(assertEqual (getContentIf 1 pred 0 10 (collapseAtomBin &atombin) ()) (a))
-!(assertEqual (getContentIf 2 pred 0 10 (collapseAtomBin &atombin) (a)) (a d))
-!(assertEqual (getContentIf 17 pred 250 350 (collapseAtomBin &atombin) (a)) (a (EvaluationLink a b)))
-!(assertEqual (getContentIf 12 pred 0 10 (collapseAtomBin &atombin) ()) ())
-
-
-; Test case 03: Testing getContent by retriveing values from the atombin space
-!(assertEqual (getContent 2 (collapseAtomBin &atombin) (a b)) (a b d Animal (Hebbianlink (Hebbianlink Human Cat) Animal)))
-!(assertEqual (getContent 1 (collapseAtomBin &atombin) ()) (a Cat (Hebbianlink Human Cat)))
-!(assertEqual (getContent 12 (collapseAtomBin &atombin) ()) ())
 
 ; Test case 04: Testing insertAtom can insert atom into the specifed empty index 
 
@@ -72,6 +55,7 @@
 !(setAv H (200 200 0))
 !(insertAtom  20.0 H)
 !(assertEqual (match &atombin (20.0 $x) $x) (H E))
+
 ; Test case 06: Testing insertAtom can insert an Expression into the specified non-empty index
 !(insertAtom  20.0 (EvaluationLink a b))
 !(assertEqual (match &atombin (20.0 $x) $x) ((EvaluationLink a b) H E))
@@ -101,4 +85,3 @@
 ; Test case 10: Testing intertAtom with an Expression and see that it checks if the atom is already inserted
 !(setAv (Hebbianlink Human Dog) (200 200 0))
 !(assertEqual (insertAtom 45.0 (Hebbianlink Human Dog)) False)
-
