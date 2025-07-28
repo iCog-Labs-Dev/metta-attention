@@ -47,8 +47,8 @@
 ;Parameters:
 ;          $atom: The atom to add.
 ;Returns: A message indicating success or failure.
-(: addAtomToAF (-> Atom Bool Symbol))
-(= (addAtomToAF $atom $new)
+(: addAtomToAF (-> Atom Symbol))
+(= (addAtomToAF $atom)
    (if (== (getValueType $atom) %Undefined%)
        ("Atom is not valid")
        (let* 
@@ -56,12 +56,9 @@
                 (() (add-atom &attentionalFocus $atom))
                 (() (if (contains (getNewAtomInAVList) $atom)
                         ()
-                        (if $new
-                            (let $wrote
-                                (write_csv_wrapper (attentionalFocus))
-                                (add-atom &newAtomInAV $atom)
-                            )
-                            ()
+                        (let $wrote
+                            (write_csv_wrapper (attentionalFocus))
+                            (add-atom &newAtomInAV $atom)
                         )
                     )
                 )
@@ -217,8 +214,8 @@
 ;Parameters:
 ;          $atom: The atom to be added or updated.
 ;Returns: Nothing if no update occurs, otherwise the atom is added.
-(: updateAttentionalFocus (-> Atom Bool empty))
-(= (updateAttentionalFocus $atom $newAtom)
+(: updateAttentionalFocus (-> Atom empty))
+(= (updateAttentionalFocus $atom)
    (let*
        (
         
@@ -232,16 +229,16 @@
            ; Case 1: Atom is already in AF, update its value
            (let ()
                (remove-atom &attentionalFocus $atom)
-               (addAtomToAF $atom $newAtom)
+               (addAtomToAF $atom)
            )
            (if (< $currentSize $maxSize)
                ; Case 2: AF is not full, add the new atom
-               (addAtomToAF $atom $newAtom)
+               (addAtomToAF $atom)
                (let $lowestAtom (getLowestStiAtomInAF) ; Only compute if needed
                     (if (> $sti (getSti $lowestAtom))  ; Case 3: Replace if better
                         (let ()
                             (remove-atom &attentionalFocus $lowestAtom)
-                            (addAtomToAF $atom True)
+                            (addAtomToAF $atom)
                         )
                         () ; Case 4: Atom not added
                     )
