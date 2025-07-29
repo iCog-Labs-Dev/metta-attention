@@ -99,7 +99,7 @@
          ($two (updateAttentionParam FUNDS_LTI $newLTIFund))
          ($atombin (AtomBin))
          ($r (update $atombin))
-         ($three (updateAttentionalFocus $pattern True))
+         ($three (updateAttentionalFocus $pattern))
         )
         $r
     )
