@@ -78,8 +78,10 @@
 !(stimulate aflatoxin 30)
 !(test-superpose)
 
-!(assertEqual (getAtomList) 
-(SimilarityLink aldicarb aflatoxin) aflatoxin abamectin (SimilarityLink abamectin Ants) Ants)
+!(assertEqual 
+    (let $afatoms 
+        (getAtomList) 
+        (subtraction-atom $afatoms ((SimilarityLink aldicarb aflatoxin) aflatoxin abamectin (SimilarityLink abamectin Ants) Ants))) ())
 !(assertEqual (< (getLti Ants) 600) True) 
 !(assertEqual (getLti (SimilarityLink abamectin Ants)) 0)
 !(assertEqual (< (getLti aflatoxin) 420.0) True)
