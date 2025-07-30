@@ -42,7 +42,6 @@
     (let*
         (
          ($diffusionSourceVector (diffusionSourceVector $space))
-         (()(println! ("Diffusion source vector: " $diffusionSourceVector)))
          ($result (collapse (diffuseAtom (superpose $diffusionSourceVector) $space2 AF)))
          (($atom $atomToReceive $stiGiven) (superpose $result))
         )

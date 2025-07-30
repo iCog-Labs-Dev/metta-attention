@@ -60,7 +60,7 @@
 
 ; Test case 07: Testing getNormalisedSTI 
 
-!(assertEqual(getNormalisedSTI a) 1.0)
+!(assertEqual (getNormalisedSTI a) 1.0)
 !(assertEqual (getNormalisedSTI x) 115.0)
 
 

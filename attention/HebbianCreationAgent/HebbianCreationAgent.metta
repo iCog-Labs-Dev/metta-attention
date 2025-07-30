@@ -52,7 +52,6 @@
                             )
 
                             ($farLinks (round' (/ $count localToFarLinks ))) ;round by default
-                            (()(println! ($farLinks)))
                             ($d (addFromOutSideAF $source $farLinks))
                             ($incomingSet (getIncomingSetByType $source HEBBIAN_LINK)) ;should I add other types of hebbian links?
                         )

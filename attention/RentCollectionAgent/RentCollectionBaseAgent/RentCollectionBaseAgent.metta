@@ -7,9 +7,9 @@
 (= (calculateStiRent $STIAtomRent)
    (let*
       (
-         ($funds (getAttentionBank  fundsSTI))
-         ($targetSti (getAttentionBank targetSti))
-         ($stiFundsBuffer (getAttentionBank stiFundsBuffer ))
+         ($funds (getAttentionParam FUNDS_STI))
+         ($targetSti (getAttentionParam TARGET_STI))
+         ($stiFundsBuffer (getAttentionParam STI_FUNDS_BUFFER))
          ($diff (- $targetSti $funds))
       )
       (if  (<= $diff 0)
@@ -36,9 +36,9 @@
 (= (calculateLtiRent $LTIAtomRent)
    (let*
       (
-         ($funds (getAttentionBank fundsLTI))
-         ($targetLti (getAttentionBank targetLti))
-         ($ltiFundsBuffer (getAttentionBank ltiFundsBuffer))
+         ($funds (getAttentionParam FUNDS_STI))
+         ($targetLti (getAttentionParam TARGET_STI))
+         ($ltiFundsBuffer (getAttentionParam LTI_FUNDS_BUFFER))
          ($diff (- $targetLti $funds))
       )
       (if (<= $diff 0)

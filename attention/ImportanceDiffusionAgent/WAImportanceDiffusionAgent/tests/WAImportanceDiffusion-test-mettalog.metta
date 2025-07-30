@@ -43,7 +43,6 @@
 
 ;############################################################################
 
-(println! (getSti target4))
 
 !(assertEqual (< (getSti target4) 6000.0) True)
 !(assertEqual (> (getSti (INHERITANCE_LINK source target4)) 0.0) True)
