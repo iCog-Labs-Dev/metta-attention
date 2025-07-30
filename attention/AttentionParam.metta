@@ -55,8 +55,3 @@
 (= (attentionParam) 
     &attentionParam
 )
-
-
-
-
-

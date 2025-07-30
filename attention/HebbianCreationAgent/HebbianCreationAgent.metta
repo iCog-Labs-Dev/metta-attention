@@ -54,10 +54,12 @@
                             ($farLinks (round' (/ $count localToFarLinks ))) ;round by default
                             ($d (addFromOutSideAF $source $farLinks))
                             ($incomingSet (getIncomingSetByType $source HEBBIAN_LINK)) ;should I add other types of hebbian links?
+                                                        ($maxLinkNum (getAttentionParam MAX_LINK_NUM))
+
                         )
                         (
-                            (if (> (size-atom $incomingSet) maxLinkNum )
-                                (removeLinkRecursively (- (size-atom $incomingSet) maxLinkNum))
+                            (if (> (size-atom $incomingSet) $maxLinkNum )
+                                (removeLinkRecursively (- (size-atom $incomingSet) $maxLinkNum))
                                 ()
                             )
                             ()

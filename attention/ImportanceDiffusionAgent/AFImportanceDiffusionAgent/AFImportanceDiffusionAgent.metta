@@ -1,4 +1,3 @@
-!(bind! maxSpreadPercentage 0.4)
 
 ;; This function will return the diffusion source vector (atoms that can be diffused) from AF
 ;; Parameters $space: The space that will be used to find the diffusion source vector
@@ -29,7 +28,7 @@
 
 (: calculateDiffusionAmount (-> Atom Number))
 (= (calculateDiffusionAmount $atom)
-    (* (getSti $atom) maxSpreadPercentage)
+    (* (getSti $atom) (getAttentionParam MAX_SPREAD_PERCENTAGE))
 )
 
 ;;This function will retrieve the diffusion source vector from AF and then call the diffuseAtom function to diffuse the atoms

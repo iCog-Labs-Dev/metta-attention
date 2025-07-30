@@ -48,6 +48,5 @@
 ; Check new Atom is added to bin 0
 !(stimulate w 0)
 
-!(assertEqual (getAtomsInBins) ((49.0 (x)) (45.0 (z)) (47.0 (y)) (0.0 (w))))
-!(assertEqual (getAtomList) (z x y w))
-
+!(assertEqual (getAtomsInBins) ((45.0 (z)) (49.0 (x)) (47.0 (y)) (0.0 (w))))
+!(assertEqual (getAtomList) (x y z w))
