@@ -70,7 +70,7 @@
 ;Description: Retrieves a list of all atoms currently in attentional focus space.
 ;Parameters: None.
 ;Returns: A list of atoms in attentional focus space.
-(: getAtomList(-> Symbol))
+(: getAtomList (-> Expression))
 (= (getAtomList)
    (collapse (get-atoms &attentionalFocus))
 )
@@ -79,7 +79,7 @@
 ;Description: Retrieves a list of all atoms currently in the newAtomInAV space.
 ;Parameters: None.
 ;Returns: A list of atoms in newAtomInAV space.
-(: getNewAtomInAVList(-> Symbol))
+(: getNewAtomInAVList (-> Expression))
 (= (getNewAtomInAVList)
    (collapse (get-atoms &newAtomInAV))
 )
