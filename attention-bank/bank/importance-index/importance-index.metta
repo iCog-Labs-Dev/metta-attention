@@ -119,19 +119,32 @@
 
 (: updateImportance (-> hyperon::space::DynSpace Atom Number Number Bool))
 (= (updateImportance $space $atom $oldSTI $newSTI)
-    (let* 
-        (
-            ($oldBin (importanceBin $oldSTI))
-            ($newBin (importanceBin $newSTI))
-           
+    (if (== (getValueType $atom) %Undefined%)
+        (let $newBin
+            (importanceBin $newSTI)
+            (insertAtom $newBin $atom)
         )
-        (let $result 
-                    (relocateAtom $oldBin $newBin $atom)
-                    $result)
+        (let* 
+            (
+                ($oldBin (importanceBin $oldSTI))
+                ($newBin (importanceBin $newSTI))
+               
+            )
+            (if (== $newBin $oldBin)
+                True
+                (relocateAtom $oldBin $newBin $atom)
+            )
+        )
     )
 )
 
 
+;; Function: relocateAtom
+;; Parameters:
+;;      $oldBin: The bin index where the atom will be removed
+;;      $newBin: The bin index where the atom will be inserted
+;;      $atom: The pattern of the to relocate
+;; Return: True if sucessfully relocated
 (: relocateAtom (-> Number Number Symbol Bool))
 (= (relocateAtom $oldBin $newBin $atom)
    (let* (($res1 (removeAtom $oldBin $atom))
