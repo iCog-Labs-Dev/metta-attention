@@ -1,6 +1,6 @@
 !(register-module! ../../../../metta-attention)
 !(import! &self metta-attention:attention:AttentionParam)
-!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
+!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter-2)
 !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
@@ -19,7 +19,7 @@
 !(setAv Human (400 400 1))
 !(assertEqual (getAttentionParam FUNDS_STI) 98400)
 !(assertEqual (getAttentionParam FUNDS_LTI) 98400)
-!(assertEqual (getAtomList) (A Cat Animal Human))
+
 ; Test case 02: testing attention value getter(getAv) function for symbol atom type
 
 ! (assertEqual (getAv A) (AV 400 400 0)) ; getting attention value for symbol A
