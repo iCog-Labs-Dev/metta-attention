@@ -194,48 +194,6 @@
 )
 
 
-;;; Function: getIncomingSet
-;;; Description: Retrieves the set of incoming links of a specific type for a given atom,
-;;;              filtering out links not in the attentional focus (AF).
-;;; Parameters:
-;;;   $atom: The atom for which to find incoming links.
-;;;   $type: The type of link to consider.
-;;; Returns: A list of incoming links that are in the AF.
-
-(: getIncomingSet (-> Atom Type List))
-(= (getIncomingSet $atom $type)
-    (let* (
-          ($incoming_set (getIncomingSetByType $atom $type))
-          ($filtered_set (filterLinksInAF $incoming_set))
-           )
-        $filtered_set
-    )
-)
-;!!!the filtered set needs sorting by STI value
-
-;;; Function: filterLinksInAF
-;;; Description: Filters a list of links, returning only those that are in the attentional focus (AF).
-;;; Parameters:
-;;;   $incoming_set: A list of incoming links to filter.
-;;; Returns: A new list containing only the links that are in the AF.
-(: filterLinksInAF (-> List List))
-(= (filterLinksInAF $incoming_set)
-    (let $atoms (collapse (filterLinksInAFHelper $incoming_set))
-        $atoms
-    )
-)
-; function filterLinksInAFHelper
-; return list of atom that is not in AF
-(: filterLinksInAFHelper (-> List List))
-(= (filterLinksInAFHelper $incoming_set)
-    (let $atom (superpose $incoming_set)
-        (if (atomIsInAF $atom)
-            $atom
-            (emtpy)
-        )
-    )
-)
-
 ;;; Function: getIncomingSetByType
 ;;; Description: Retrieves the set of incoming links of a specific type for a given atom
 ;;;              without filtering based on the attentional focus.
@@ -265,7 +223,8 @@
     (if  (== (attentionalFocusSize) 0)
         ()
         ;else
-        ( let*( ($randomNumber (random-int 0 (attentionalFocusSize) ))
+        ( let*( 
+            ($randomNumber (random-int 0 (attentionalFocusSize) ))
             ($atoms (getAtomList))
             ($randomAtom (index-atom $atoms $randomNumber))
             )
@@ -280,7 +239,7 @@
 ;;; Parameters:
 ;;;     $atom: The atom to be removed from AF
 ;;; Returns: A unit-atom
-(: removeAtomAttentionalfocus (-> atom empty))
+(: removeAtomAttentionalfocus (-> Atom Expression))
 (= (removeAtomAttentionalfocus $atom)
 	(if (atomIsInAF $atom)
 		(remove-atom &attentionalFocus $atom)
@@ -293,7 +252,7 @@
 ;;; Parameters:
 ;;;     $atom: The atom to be removed from AF
 ;;; Returns: A unit-atom
-(: removeNewAtomAV (-> atom ()))
+(: removeNewAtomAV (-> Atom Expression))
 (= (removeNewAtomAV $head)
     (remove-atom &newAtomInAV $head)
 )

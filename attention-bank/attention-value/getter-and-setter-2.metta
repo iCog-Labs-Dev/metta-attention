@@ -11,7 +11,6 @@
 (: setAv (-> Atom (Number Number Number) Atom))
 (= (setAv $pattern ($sti $lti $vlti))
     (let* (
-
         ($oldSti (getSti $pattern))
         ($oldLti (getLti $pattern))
         ($bin    (importanceBin $sti))
@@ -43,10 +42,7 @@
 
  ; set_stv function accepts a pattern/node with the truthvalues
  ; and set the simple truth value to the pattern/node.
- ;
  ; i.e !(set_stv A (0.1 0.9))
- ;
-
 (: setStv (-> Atom (Number Number) Atom))
 (= (setStv $pattern ($mean $conf))
     (if (== (getValueType $pattern) %Undefined%)
