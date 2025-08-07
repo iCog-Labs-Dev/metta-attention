@@ -10,16 +10,15 @@
 
 ; Test case 01: testing attention value setter(setAv) function for symbol atom type and 
 ;testing that atoms are inserted to atombins and attentional focus space when av is set to them
-!(assertEqual (getAttentionBank fundsSTI) 100000)
-!(assertEqual (getAttentionBank fundsLTI) 100000)
+!(assertEqual (getAttentionParam FUNDS_STI) 100000)
+!(assertEqual (getAttentionParam FUNDS_LTI) 100000)
 !(setAv A (200 200 0)) 
 !(setAv A (400 400 0)) 
 !(setAv Cat (400 400 1))  
 !(setAv Animal (400 400 1))
 !(setAv Human (400 400 1))
-!(assertEqual (getAttentionBank fundsSTI) 98400)
-!(assertEqual (getAttentionBank fundsLTI) 98400)
-!(assertEqual (getAtomsInBins) ((53.0 (Human Animal Cat A))))
+!(assertEqual (getAttentionParam FUNDS_STI) 98400)
+!(assertEqual (getAttentionParam FUNDS_LTI) 98400)
 !(assertEqual (getAtomList) (A Cat Animal Human))
 ; Test case 02: testing attention value getter(getAv) function for symbol atom type
 
@@ -36,7 +35,9 @@
 ! (setAv (a) (397 400 1))
 ! (setAv (C) (400 400 1))
 ! (setAv (EvaluationLink a b) (300 200 0))
+! (setAv (Hebbianlink a b) (300 200 0))
 ! (setAv (Hebbianlink Human Cat) (200 200 0))
+! (setAv (SimilarityLink Human Cat) (200 200 0))
 ! (setAv (Hebbianlink (Hebbianlink Human Cat) Animal) (300 200 0))
 ! (setAv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat)) (200 200 0))
 
@@ -100,11 +101,30 @@
 ! (assertEqual (getVlti (Hebbianlink (Hebbianlink Animal Hebbianlink) (Hebbianlink Animal Cat))) 0)
 
 ; Test case 10:testing setSti,setLti,setVlti functions and the dereasing the global parameters
-;(funsSTI and fundsLTI) for every av the is given to the atoms
+;(FUNDS_STI and FUNDS_LTI) for every av the is given to the atoms
 !(setSti k 200)
 !(setLti k 200)
 !(setVlti k 200)
 !(assertEqual (getAv k) (AV 200 200 200))
-!(assertEqual (getAttentionBank fundsSTI) 96403)
-!(assertEqual (getAttentionBank fundsLTI) 96600)
+
+!(assertEqual (getAttentionParam FUNDS_STI) 95903)
+!(assertEqual (getAttentionParam FUNDS_LTI) 96200)
+
+
+; Test case 11: testing  functions globalIncomingSetByType and globalIncomingSetwithoutType
+!(assertEqual (globalIncomingSetByType a EvaluationLink)  ((EvaluationLink a b)))
+!(assertEqual (globalIncomingSetByType Human Hebbianlink) ((Hebbianlink Human Cat)))
+
+!(assertEqual (let $vals
+    (globalIncomingSetwithoutType a)
+    (subtraction-atom $vals ((EvaluationLink a b) (Hebbianlink a b)))
+    ) 
+    ()
+)
+!(assertEqual (let $vals
+    (globalIncomingSetwithoutType Human)
+    (subtraction-atom $vals ((SimilarityLink Human Cat) (Hebbianlink Human Cat)))
+    ) 
+    ()
+)
 

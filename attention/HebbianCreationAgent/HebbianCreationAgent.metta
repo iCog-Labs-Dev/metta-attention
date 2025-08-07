@@ -1,4 +1,3 @@
-!(bind! maxLinkNum 300) ; The maximum amount of links that can be created from a single atom
 !(bind! localToFarLinks 10) ;Ratio of local links to far links
 
 ;Function: HebbianCreationAgent-Run
@@ -52,10 +51,11 @@
                             ($farLinks (/ $count localToFarLinks )) ;round by default
                             ($___ (addFromOutSideAF $source $farLinks))
                             ($incomingSet (getIncomingSetByType $source HEBBIAN_LINK)) ;should I add other types of hebbian links?
+                            ($maxLinkNum (getAttentionParam MAX_LINK_NUM))
                         )
                         (
-                            (if (> (size-atom $incomingSet) maxLinkNum )
-                                (removeLinkRecursively (- (size-atom $incomingSet) maxLinkNum))
+                            (if (> (size-atom $incomingSet) $maxLinkNum )
+                                (removeLinkRecursively (- (size-atom $incomingSet) $maxLinkNum))
                                 ()
                             )
                             ()

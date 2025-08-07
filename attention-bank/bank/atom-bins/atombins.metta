@@ -31,22 +31,22 @@
 ;         $pattern: The atom to be inserted.
 ;Returns: A confirmation message ("Atom Inserted") if successful, 
 ;         or an error message if the atom is invalid.
-(: insertAtom (-> Number Atom empty))
+(: insertAtom (-> Number Atom Bool))
 (= (insertAtom $bin_index $pattern)
   (if (== (collapse (match &atombin ($bin_index $x) $x)) ())
            (let ()
                (add-atom &atombin ($bin_index ($pattern))) ; Insert new bin
-               ("Atom Inserted")
+               True
            )
            (match &atombin ($bin_index $x)
-               (if (== (contains $x $pattern) True)  ; Check for duplicates
-                   ("Atom already exists")  ; Do not insert duplicate
+               (if (contains $x $pattern)   ; Check for duplicates
+                   False ; Do not insert duplicate
                    (let* (
                         ($atomremove (remove-atom &atombin ($bin_index $x)))  ; Remove old bin
                         ($updated (cons-atom $pattern $x))  ; Add new atom
                         ($atomadded (add-atom &atombin ($bin_index $updated))) ; Update bin
                     )
-                    ("Atom Inserted")
+                    True
                    )
                )
            )
@@ -66,13 +66,13 @@
 ;Returns: A confirmation message ("Atom Removed") if successful, 
 ;         or an error message if the atom is invalid or the bin is empty.
 
-(: removeAtom (-> Number Atom empty))
+(: removeAtom (-> Number Atom Bool))
 (= (removeAtom $bin_index $atom)
    (if (== (getValueType $atom) %Undefined%)
-      ("Atom is not valid") ; Validate type
+      False ; Validate type
       (let $bin_contents (collapse (match &atombin ($bin_index $contents) $contents))
          (if(== $bin_contents ())
-            ("Bin is empty") ; Bin is empty, nothing to remove
+            False ; Bin is empty, nothing to remove
             (let $updated_contents (removeAtomHelper $atom (car-atom $bin_contents))
                   (match &atombin ($bin_index $x)
                      (let*
@@ -85,7 +85,7 @@
                             )
                           )
                         )
-                     ("Atom Removed")
+                     True
                      )
                   )
             )
@@ -122,59 +122,33 @@
 (= (collapseAtomBin $space) (collapse (get-atoms $space)))
 
 
-;this function randomly selects a bin from atombins and proceeds to randomly choose a single element from selected random bin.
-(: getRandomAtom (-> Symbol))
-(= (getRandomAtom)
-   (
-    let*(
-         ($handleSetSeq (collapse (match (atomBin) ($x $y) $y)))
-         ($filteredOutput (filter $handleSetSeq notEmpty))
-        )
-    (if(== $filteredOutput ()) ;check if all bins in atom bins are empty
-      empty
-      (
-       let*(
-            ($res (py-list $filteredOutput))
-            ($kvPair ((py-atom random.choice) $res)) ;randomly choose a bin
-            ($collapsed ($kvPair))
-            ($vals ((py-dot $kvPair __getitem__) 1)) ; Access the second element
-            ($randomAtom ((py-atom random.choice) $vals)) ;randomly choose a single atom
-          )
-          $randomAtom
-      )
-    )
-  )
-)
-;This function fetches all the values stored in &atombin atomspace, which are located at the specified index.
-(: getContent (-> Number $list_t $list_t $list_t))
-(= (getContent $index $atombins $out)
-   (let $vals (valuesAtIndex $index $atombins) 
-     (union-atom $out $vals)
-   )
-)
 
-;A function to get the values stored in the &atombin atomspace, at the specified index.
-;it accepts a predicate function as it's second argument.
-;the type of the function should take a generic value and return a Boolean 
-;(: getContentIf (-> Number (-> Symbol Number Number Bool)) Number Number $list_t $list_t $list_t)
-(= (getContentIf $index $predicate $lower $upper $atombins $out)
-  (
-   let*(
-        ($handleSet (valuesAtIndex $index $atombins))
-        ($filteredOutput (customFilter $handleSet $predicate $lower $upper))
-        ($res (union-atom $out $filteredOutput))
-      )
-    $res
-  )
-)
 
 (= (atomBin)
    &atombin
 )
 
-(= (getAtomsInBins)
-	(collapse (get-atoms &atombin))
+; Recursively collects all atoms from bins indexed between $lower and $higher, inclusive.
+(: getContent (-> Number Number Expression))
+(= (getContent $lower $higher)
+  (if (> $lower $higher)
+    ()  
+    (let*
+      (
+        ($vals (collapse (match (atomBin) ($lower $content) $content)))
+
+        ($rest (getContent (+ $lower 1) $higher))
+
+        ($result (collectContents $vals $rest))
+      )
+      $result
+    )
+  )
 )
+
+
+
+
 
 (= (getAllAtomsInBins)
 	( let* 

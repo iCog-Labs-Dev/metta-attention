@@ -102,7 +102,8 @@
        ($firstRes (updateMin $min))
        ($secondRes (updateMax $max))
       )
-      ("Updated")
+      (trace! (updated) ("Updated"))
+
      )
 )
 
@@ -116,56 +117,63 @@
 ; What this does is remove the a atom from the 1st bin index and add it to the index
 ; that the STI 100 belongs to.
 
-(: updateImportance (-> hyperon::space::DynSpace Atom Number Number Atom))
+(: updateImportance (-> hyperon::space::DynSpace Atom Number Number Bool))
 (= (updateImportance $space $atom $oldSTI $newSTI)
-    (let* 
-        (
-            ($oldBin (importanceBin $oldSTI))
-            ($newBin (importanceBin $newSTI))
-            ($relocate 
-                (let $result 
-                    (relocateAtom $oldBin $newBin $atom)
-                    (if $result ("Importance Updated") ("Importance Not Updated")))
+    (if (== (getValueType $atom) %Undefined%)
+        (let $newBin
+            (importanceBin $newSTI)
+            (insertAtom $newBin $atom)
+        )
+        (let* 
+            (
+                ($oldBin (importanceBin $oldSTI))
+                ($newBin (importanceBin $newSTI))
+               
+            )
+            (if (== $newBin $oldBin)
+                True
+                (relocateAtom $oldBin $newBin $atom)
             )
         )
-        $relocate
     )
 )
 
 
+;; Function: relocateAtom
+;; Parameters:
+;;      $oldBin: The bin index where the atom will be removed
+;;      $newBin: The bin index where the atom will be inserted
+;;      $atom: The pattern of the to relocate
+;; Return: True if sucessfully relocated
 (: relocateAtom (-> Number Number Symbol Bool))
 (= (relocateAtom $oldBin $newBin $atom)
    (let* (($res1 (removeAtom $oldBin $atom))
-         ($res2 (insertAtom $newBin $atom)))
-   
-      
-
-     (if (or (== $res1 ("Atom already exists")) (== $res1 ("Bin is empty")))
-       False
-       (== (collapse(index-atom $res2 0)) ("Atom Inserted"))
-      )
+         ($res2 (insertAtom $newBin $atom)))  
+     (and $res1 $res2)
    )
     
 )
 
-(: pred (-> Symbol Number Number Bool))
-(= (pred $x $lower $higher) (
-    let $sti (getSti $x) 
-      (and 
-        (>=  $sti $lower) 
-        (<=  $sti $higher)
-      )
-  )
+
+; Filters atoms in expression whose STI values fall between lower and higher bounds.
+(: filterContents (-> Expression Number Number Expression))
+(= (filterContents $contents $lower $higher)
+   (if (== $contents ())
+        () 
+        (collapse 
+          (let* (($x (superpose $contents)))
+            (if (and (>=  (getSti $x) $lower) (<= (getSti $x) $higher)) 
+                 $x
+                () 
+            )
+          ) 
+        )
+   )
+     
+
 )
 
-(: loop (-> Number Number $list_t $list_t $list_t))
-(= (loop $i $term $atomBins $acc)
-   (if(== $i $term)
-      $acc
-      (let $next (+ 1 $i) (loop $next $term $atomBins (getContent $i $atomBins $acc)))
-    )
-)
-
+; Retrieves atoms from bins whose STI values fallin lowerbound and upperBound. it utilizes filterContents function.
 (: getHandleSet (-> Number Number Expression))
 (= (getHandleSet $lowerBound $upperBound)
    (if (or (< $lowerBound 0) (< $upperBound 0))
@@ -174,14 +182,13 @@
        (
         ($lowerBin (importanceBin $lowerBound))
         ($upperBin (importanceBin $upperBound))
-        ($atomBins (collapseAtomBin (atomBin)))
-        ($gcIfRes (getContentIf $lowerBin pred $lowerBound $upperBound $atomBins ())) ;gcIfRes - getContentIfResult (result obtained after calling getContentIf)
-        ($exitCondition (== $upperBin $lowerBin))
-        ($gcRes (loop $lowerBin $upperBin $atomBins $gcIfRes)) ;gcRes - getContentResult (result obtained after calling getContent)
-        ($res (getContentIf $upperBin pred $lowerBound $upperBound $atomBins $gcRes))
-        ($finalResult (if $exitCondition (removeDuplicates $gcIfRes) (removeDuplicates $res))) ;remove duplicates because the result needs to be a set of atoms.
+        ($allContents (getContent $lowerBin $upperBin))
+        ($filteredContents  (filterContents $allContents $lowerBound $upperBound))
+        ($finalContents  (filter $filteredContents notEmpty))
+        
       )
-       $finalResult
+     $finalContents 
+        
     )
   )
 )
