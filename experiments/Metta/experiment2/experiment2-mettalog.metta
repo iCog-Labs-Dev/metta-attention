@@ -12,7 +12,7 @@
 !(import! &self metta-attention:attention:AttentionParam)
 !(import! &self metta-attention:attention:Neighbors)
 !(import! &self metta-attention:experiments:runner-Def)
-!(import! &self metta-attention:experiments:logger)
+!(import! &self metta-attention:experiments:n_logger)
 
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
@@ -34,7 +34,7 @@
 !(updateAttentionParam TARGET_STI 99900)
 !(updateAttentionParam TARGET_LTI 99900)
 !(updateAttentionParam AFRentFrequency 2.0)
-!(updateAttentionParam MAX_AF_SIZE 12)
+!(updateAttentionParam MAX_AF_SIZE 24)
 (= (spaceAdder) (get-atoms &tempspace))
 !(spaceAdder)
 
@@ -45,11 +45,13 @@
 (= (insectSent) (Ants farm aphids beanfly armyworms .))
 (= (poisonSent) (Botulinum avoids alcohol ammonia aconite aflatoxin .))
 
-; Clean stimulate function - just shows the word
+; Enhanced stimulate function - shows word and logs to CSV
 (= (stimulate $word $value)
     (let ()
-        ; Just print the word cleanly - CSV logging handled by wrapper
+        ; Print the word cleanly to terminal
         (println! $word)
+        ; Log the word to CSV with attention values
+        (log_word $word $value $value)
         ()
     )
 )

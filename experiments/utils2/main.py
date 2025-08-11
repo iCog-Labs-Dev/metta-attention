@@ -258,9 +258,10 @@ def start_logger(directory):
     logger_state['start_logger'] = True
     logger_state['csv_cleared'] = False  # Reset for new experiment
 
-    # Parse path and create file paths
-    parse_path(str(directory))
-    create_file_path(str(directory))
+    # Parse path and create file paths - clean directory path by removing extra quotes
+    clean_directory = str(directory).strip("'\"")
+    parse_path(clean_directory)
+    create_file_path(clean_directory)
 
     # ALWAYS clear existing files on every run
     clear_csv()
@@ -270,11 +271,15 @@ def start_logger(directory):
     return "()"
 
 def clear_csv():
-    """Clear the CSV file"""
+    """Clear the CSV file and add header"""
 
     csv_path = logger_state['csv_path']
-    if csv_path and csv_path.exists():
-        csv_path.write_text("")
+    if csv_path:
+        # Write CSV header
+        with open(csv_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["timestamp", "word", "sti", "lti"])
+        logger_state['csv_cleared'] = True
 
 def clear_settings():
     """Clear the settings file"""
@@ -306,6 +311,32 @@ def save_params(params_data):
             json.dump(data, f, indent=4)
 
         print(f"Settings updated with new experiment run: {current_time}")
+
+    return "()"
+
+def log_word_to_csv(word, sti_value=700.0, lti_value=700.0):
+    """Log a single word to CSV with timestamp"""
+
+    if not logger_state['start_logger']:
+        return "()"
+
+    csv_path = logger_state['csv_path']
+    if not csv_path:
+        return "()"
+
+    # Ensure CSV is initialized with header
+    if not logger_state['csv_cleared']:
+        clear_csv()
+
+    # Write the word entry
+    timestamp = datetime.now().isoformat()
+
+    try:
+        with open(csv_path, 'a', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow([timestamp, word, sti_value, lti_value])
+    except Exception as e:
+        print(f"Error writing to CSV: {e}")
 
     return "()"
 

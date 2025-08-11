@@ -1,3 +1,4 @@
+from hyperon import *
 from hyperon.ext import register_atoms
 from hyperon.atoms import OperationAtom, S, ExpressionAtom 
 from datetime import datetime
@@ -28,7 +29,7 @@ class Logger:
         return [S('()')]
 
     @classmethod
-    def save_params(cls, params):
+    def save_params(cls, metta, params):
 
         if not cls.start_logger:
             return [S('()')]
@@ -157,7 +158,7 @@ def utils(metta):
 
     saveParams = OperationAtom(
         "save_params",
-        lambda params: Logger.save_params(params),
+        lambda params: Logger.save_params(metta, params),
         ["Expression", "Atom"],
         unwrap=False
         )
@@ -167,3 +168,5 @@ def utils(metta):
                 r"write_to_csv": writeToCsv,
                 r"save_params": saveParams,
             }
+
+print("utils imported")
