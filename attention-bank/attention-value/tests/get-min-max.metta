@@ -11,10 +11,10 @@
 ; Ensure getMaxContent and getMinContent return empty lists when no atoms are present
  !(assertEqual (getMaxContent) ())
  !(assertEqual (getMinContent) ())
-; ; Test Case 02: getSize for a Non-Existent Bin
-; ; Ensure getSize returns 0 for bins that don't exist
+; Test Case 02: getSize for a Non-Existent Bin
+; Ensure getSize returns 0 for bins that don't exist
 !(assertEqual (binSize) 0)
-
+!(assertEqual (getSize 20) 0)
 ; ; Setup: setAv values to atoms
 !(setAv Human (100.0 100.0 1.0))
 !(setAv Dog (200.0 200.0 1.0))
@@ -23,58 +23,47 @@
 !(setAv Mother (500.0 500.0 1.0))
 
 
-; ; ; Test Case 03: Testing getMaxContent and getMinContent with Initial Data
-; ; ; Ensure they return correct values when bins are populated
-; ; ; Expected: Max bin (50) = Mother, Min bin (1) = Human
-!(setBin Mother 50)
-!(setBin Human 1)
-!(setBin Dog 2)
-!(setBin Animal 3)
-!(setBin Cat 3)
+; Test Case 03: Testing getMaxContent and getMinContent with Initial Data
+; Ensure they return correct values when bins are populated
+; Since Mother and Human has highest and lowest sti, they should have highest and lowest bin respectively.
+
 !(assertEqual (getMaxContent) (Mother))
 !(assertEqual (getMinContent) (Human))
 
-; ; ; ; SetUp: setAv values to atoms
-!(setAv (EvaluationLink Dog Cat) (110.0 110.0 1.0))
-!(setAv (Hebbianlink (Hebbianlink Human Cat) Animal) (120.0 120.0 1.0))
-!(setAv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother)) (1030.0 130.0 1.0))
+; SetUp: setAv values to atoms
+!(setAv (EvaluationLink Dog Cat) (110.0 110.0 1.0)) ;getBin == 38.0
+!(setAv (Hebbianlink (Hebbianlink Human Cat) Animal) (120.0 120.0 1.0)) ; getBin == 39.0
+!(setAv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother)) (1030.0 130.0 1.0)) ; getBin == 65.0
 
 
-!(setBin (EvaluationLink Dog Cat) 60)
-!(setBin (Hebbianlink (Hebbianlink Human Cat) Animal) 70)
-!(setBin (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother)) 90)
- ; ; Test Case 04: Adding Atom to Max Bin
+ ; Test Case 04: Adding Atom to Max Bin
 
- ; ; Expected: Max bin to be 90 =  (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother))
+ ; Expected: Max bin = (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother))
 !(assertEqual (getMaxContent) (collapse (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother))))
 
-; ; Test Case 05: getMinContent for Multiple Min Bins
-; ; Adding "Father" to bin 1 should update getMinContent
-; ; Insert another atom in bin 1 and ensure both "Human" and "Father" are returned
+; Test Case 05: getMinContent for Multiple Min Bins
+; Insert another atom with close sti and ensure both "Human" and "Father" are returned
+; Father and Human will have the same Bin since they have close sti
+!(setAv Father (103.0 210.0 1.0)) ; 
+;!(getBin Father) ;[37.0]
+
+;Test with Symbol Atom Type
 ; there may be reversed sequence due to non-deterministic-computation
-!(setAv Father (210.0 210.0 1.0))
-!(setBin Father 1)
-
-
-; ; ; ;Test with Symbol Atom Type
 !(assertEqual (getMinContent) (Father Human))
 
-; ; ; Test Case 06: Testing getSize Function
-; ; ; Ensure getSize returns correct atom count in bins
-; ; ; Expected: Bin 1 has 3 atoms, Bin 2 has 2 atoms, Bin 50 has 1 atoms, Bin 90 has 1 atom
-!(setAv Humaner (220.0 220.0 1.0))
-!(setAv Doger (230.0 230.0 1.0))
-!(setBin Humaner 1)
-!(setBin Doger 2)
+; Test Case 06: Testing getSize Function
+; Ensure getSize returns correct atom count in bins
+; Expected: Bin 38 has 3 atoms, Bin 45 has 2 atoms, Bin 56 has 1 atoms, Bin 65 has 1 atom
+!(setAv Humaner (104.0 220.0 1.0))
+!(setAv Doger (201.0 230.0 1.0))
+!(assertEqual (getSize 37.0) 3)
+!(assertEqual (getSize 45.0) 2)
+!(assertEqual (getSize 56.0) 1)
+!(assertEqual (getSize 65.0) 1)
 
-!(assertEqual (getSize 1) 3)
-!(assertEqual (getSize 2) 2)
-!(assertEqual (getSize 50) 1)
-!(assertEqual (getSize 90) 1)
-
-; ; ; ; Test Case 07: Testing binSize Function
-; ; ; ; Ensure binSize correctly returns the total number of atoms across all bins
-; ; ; ; Expected: Total atoms = 11
+; Test Case 07: Testing binSize Function
+; Ensure binSize correctly returns the total number of atoms across all bins
+; Expected: Total atoms = 11
 !(assertEqual (binSize) 11)
 
 
