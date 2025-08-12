@@ -248,7 +248,7 @@
 
 
 ;; used to return all atoms that have an stv or an AV in typespace
-(: getAtomsInTypeSpace-helper (-> List))
+(: getAtomsInTypeSpace-helper (-> Expression))
 (= (getAtomsInTypeSpace-helper) 
 	(let $a 
 		(get-atoms &typeSpace)
@@ -260,11 +260,11 @@
 	)
 )
 
-; Description : getAtomsInTypeSpace is a function that returns a list of patterns in typespace
+; Description : getAtomsInTypeSpace is a function that returns Expression of patterns in typespace
 ; params:
 ;	None
-; return: List of patterns in the typeSpace without their types in and is more deterministic than matching
-(: getAtomsInTypeSpace (-> List))
+; return: Expression of patterns in the typeSpace without their types in and is more deterministic than matching
+(: getAtomsInTypeSpace (-> Expression))
 (= (getAtomsInTypeSpace) 
 	(collapse (getAtomsInTypeSpace-helper))
 )
@@ -277,7 +277,7 @@
     )
 )
 ; finds all atoms that is found in the specific bin
-(: getAtomsByBin (-> Number list))
+(: getAtomsByBin (-> Number Expression))
 (= (getAtomsByBin $binNumber)
     (let* (
             ($withSTV (collapse (match (typespace) ($patt ($s $av (Bin $binNumber))) $patt)) )
@@ -286,7 +286,7 @@
 )
 
 ; return all atoms that have AV/bin number 
-(: getAllAtomsWithBins (-> list))
+(: getAllAtomsWithBins (-> Expression))
 (= (getAllAtomsWithBins)
     (let* ( 
             ($withSTV (collapse (match (typespace) ($patt ((STV $s) $av $bin)) $patt)) )
