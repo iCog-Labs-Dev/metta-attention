@@ -2,7 +2,7 @@
 ; this function take atoms from typespace and return atoms found inside the largest bin index
 ; it uses Max helper function to get the largest bin index then it returns the atom found in that bin index
 
-(: getMaxContent (-> List))
+(: getMaxContent (-> Expression))
 (= (getMaxContent)
     (let* (
         ($atoms (getAllAtomsWithBins))
@@ -24,7 +24,7 @@
 
 ; this function take atoms from typespace space and return atoms found inside the smallest bin index
 
-(: getMinContent (-> List))
+(: getMinContent (-> Expression))
 (= (getMinContent)
     (let* (
         ($atoms (getAllAtomsWithBins))
@@ -66,26 +66,4 @@
     )
     (size-atom $binsSize)
   )
-)
-
-;setBin accepts a pattern and bin number and sets bin number
-; mainly for testing purpose
-(: setBin (-> Atom Number Expression))
-(= (setBin $pattern $Bin)
-    (let $res (if (== (getValueType $pattern) %Undefined%)
-                (atom-not-exist)   
-                   (let* 
-                        (
-                           ($stv (getStv $pattern))
-                           ($value (match (typespace) ($pattern $_) ($pattern $_)))
-                           ($av (getAv $pattern))
-                           (() (remove-atom (typespace) $value))
-                        )
-                      (if (== $stv %Undefined%)
-                          (add-atom (typespace) ($pattern ($av (Bin $Bin)) ))
-                          (add-atom (typespace) ($pattern ($stv $av (Bin $Bin)) )))
-                   )
-                )
-                ()
-           )
 )
