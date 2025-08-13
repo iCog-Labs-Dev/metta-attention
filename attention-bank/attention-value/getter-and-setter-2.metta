@@ -295,3 +295,19 @@
         (union-atom $withSTV $nostv)
     )
 )
+
+; Recursively collects all atoms from bins indexed between $lower and $higher, inclusive.
+(: getContent (-> Number Number Expression))
+(= (getContent $lower $higher)
+  (if (> $lower $higher)
+    ()  
+    (let*
+      (
+        ($vals (getAtomsByBin $lower))
+
+        ($rest (getContent (+ $lower 1) $higher))
+      )
+      (union-atom $vals $rest)
+    )
+  )
+)
