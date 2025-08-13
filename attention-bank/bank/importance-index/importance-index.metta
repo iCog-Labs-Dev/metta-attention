@@ -68,9 +68,9 @@
 ; use by other methods or functions that need them
 ; the space that will be passed is the space that the atoms are stored in
 ;
-; i.e (update &atombin) will update the global variables _minSTI and _maxSTI
+; i.e (update &typeSpace) will update the global variables _minSTI and _maxSTI
 
-;get all contents that are in atombin indices
+;get all contents that are in typeSpace indices
 ;filter out empty contents
 ;find maximum sti
 ;find minumum sti
@@ -80,7 +80,7 @@
 (: update (-> hyperon::space::DynSpace Atom))
 (= (update $space)
     (let* (
-            ($collectedContents (getAllAtomsInBins))
+            ($collectedContents (getAllAtomsWithBins))
             ($max (getAllMaxSTI $collectedContents))
             ($min (getAllMinSTI $collectedContents))
             ($exitCondition (> $min $max))
