@@ -1,5 +1,7 @@
 !(bind! &typeSpace (new-space))
-
+(= (typespace)
+    &typeSpace
+)
 ; setAv function accepts a pattern (it could be a symbol or an expression) and attention values(contain STI, LTI and VLTI)
 ; and set the attention value as a type for the pattern. 
 ; then the pattern will be stored with attention value type in a space called typespace.
@@ -56,7 +58,7 @@
               )
             (if (== $av %Undefined%)
                 (add-atom &typeSpace ($pattern (STV $mean $conf)))
-                (add-atom &typeSpace ($pattern ( (STV $mean $conf) $av $bin)))))
+                (add-atom &typeSpace ($pattern ( (STV $mean $conf) $av (Bin $bin))))))
     )
 )
 
@@ -92,8 +94,8 @@
 (= (getBin $pattern)
 (case (getValueType $pattern)
   (
-    ( ((AV $a $b $c) (Bin $bin)) (Bin $bin))
-    ( ((STV $a $b) (AV $x $y $z) (Bin $bin)) (Bin $bin))
+    ( ((AV $a $b $c) (Bin $bin)) $bin)
+    ( ((STV $a $b) (AV $x $y $z) (Bin $bin)) $bin)
     ($else %Undefined%)
     )
 )
@@ -244,14 +246,9 @@
 	)
 )
 
-; (: TypeSpace (-> Grounded))
-(= (TypeSpace)
-	&typeSpace
-)
-
 
 ;; used to return all atoms that have an stv or an AV in typespace
-(: getAtomsInTypeSpace-helper (-> List))
+(: getAtomsInTypeSpace-helper (-> Expression))
 (= (getAtomsInTypeSpace-helper) 
 	(let $a 
 		(get-atoms &typeSpace)
@@ -263,11 +260,11 @@
 	)
 )
 
-; Description : getAtomsInTypeSpace is a function that returns a list of patterns in typespace
+; Description : getAtomsInTypeSpace is a function that returns Expression of patterns in typespace
 ; params:
 ;	None
-; return: List of patterns in the typeSpace without their types in and is more deterministic than matching
-(: getAtomsInTypeSpace (-> List))
+; return: Expression of patterns in the typeSpace without their types in and is more deterministic than matching
+(: getAtomsInTypeSpace (-> Expression))
 (= (getAtomsInTypeSpace) 
 	(collapse (getAtomsInTypeSpace-helper))
 )
@@ -279,4 +276,38 @@
         (size-atom $atoms)
     )
 )
+; finds all atoms that is found in the specific bin
+(: getAtomsByBin (-> Number Expression))
+(= (getAtomsByBin $binNumber)
+    (let* (
+            ($withSTV (collapse (match (typespace) ($patt ($s $av (Bin $binNumber))) $patt)) )
+            ($nostv (collapse (match (typespace) ($patt ($av (Bin $binNumber))) $patt)))
+            ) (union-atom $withSTV $nostv))
+)
 
+; return all atoms that have AV/bin number 
+(: getAllAtomsWithBins (-> Expression))
+(= (getAllAtomsWithBins)
+    (let* ( 
+            ($withSTV (collapse (match (typespace) ($patt ((STV $s) $av $bin)) $patt)) )
+            ($nostv (collapse (match (typespace) ($patt ($av $bin)) $patt)))
+        )   
+        (union-atom $withSTV $nostv)
+    )
+)
+
+; Recursively collects all atoms from bins indexed between $lower and $higher, inclusive.
+(: getContent (-> Number Number Expression))
+(= (getContent $lower $higher)
+  (if (> $lower $higher)
+    ()  
+    (let*
+      (
+        ($vals (getAtomsByBin $lower))
+
+        ($rest (getContent (+ $lower 1) $higher))
+      )
+      (union-atom $vals $rest)
+    )
+  )
+)

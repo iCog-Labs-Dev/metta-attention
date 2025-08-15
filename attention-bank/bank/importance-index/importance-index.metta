@@ -2,9 +2,7 @@
 
 ; functions like the following
 
-
 ; - importanceBin - it recives importance value(sti value) and return bin value
-; - updateImportance - it recives atom, old and new sti value and updates its bin location or update its position
 ; - update - update the global variables max sti and min sti value
 ; - getmaxsti - return the max sti value
 ; - getminsti - return the min sti value
@@ -12,7 +10,6 @@
 ; - getMaxBinContents - return atoms found in max bin index
 ; - getMinBinContents - return atoms found in min bin index
 ; - bin_size - return the total bin size
-; - size - it recives atom bin index and return the size or total number of atoms found inside that bin index
 
 (: GroupSize Number)
 (= (GroupSize) 8)
@@ -71,9 +68,9 @@
 ; use by other methods or functions that need them
 ; the space that will be passed is the space that the atoms are stored in
 ;
-; i.e (update &atombin) will update the global variables _minSTI and _maxSTI
+; i.e (update &typeSpace) will update the global variables _minSTI and _maxSTI
 
-;get all contents that are in atombin indices
+;get all contents that are in typeSpace indices
 ;filter out empty contents
 ;find maximum sti
 ;find minumum sti
@@ -83,7 +80,7 @@
 (: update (-> hyperon::space::DynSpace Atom))
 (= (update $space)
     (let* (
-            ($collectedContents (getAllAtomsInBins))
+            ($collectedContents (getAllAtomsWithBins))
             ($max (getAllMaxSTI $collectedContents))
             ($min (getAllMinSTI $collectedContents))
             ($exitCondition (> $min $max))
@@ -107,52 +104,6 @@
      )
 )
 
-;####################### updateImportance ##################################
-
-; the updateImportance function receives atom, old and new sti value and updates 
-; its bin location or update its position according to the new sti
-;
-; i.e (updateImportance a 1 100) output: "Importance Updated"
-;
-; What this does is remove the a atom from the 1st bin index and add it to the index
-; that the STI 100 belongs to.
-
-(: updateImportance (-> hyperon::space::DynSpace Atom Number Number Bool))
-(= (updateImportance $space $atom $oldSTI $newSTI)
-    (if (== (getValueType $atom) %Undefined%)
-        (let $newBin
-            (importanceBin $newSTI)
-            (insertAtom $newBin $atom)
-        )
-        (let* 
-            (
-                ($oldBin (importanceBin $oldSTI))
-                ($newBin (importanceBin $newSTI))
-               
-            )
-            (if (== $newBin $oldBin)
-                True
-                (relocateAtom $oldBin $newBin $atom)
-            )
-        )
-    )
-)
-
-
-;; Function: relocateAtom
-;; Parameters:
-;;      $oldBin: The bin index where the atom will be removed
-;;      $newBin: The bin index where the atom will be inserted
-;;      $atom: The pattern of the to relocate
-;; Return: True if sucessfully relocated
-(: relocateAtom (-> Number Number Symbol Bool))
-(= (relocateAtom $oldBin $newBin $atom)
-   (let* (($res1 (removeAtom $oldBin $atom))
-         ($res2 (insertAtom $newBin $atom)))  
-     (and $res1 $res2)
-   )
-    
-)
 
 
 ; Filters atoms in expression whose STI values fall between lower and higher bounds.
