@@ -1,567 +1,426 @@
+# ============================================================================
+# METTALOG-COMPATIBLE LOGGER SYSTEM
+# ============================================================================
+# Converted from Metta-compatible logger.py to work with Mettalog's py-atom system
+# Key differences from Metta version:
+# 1. No @register_atoms decorator - Mettalog uses py-atom direct calls
+# 2. No OperationAtom classes - Simple function definitions
+# 3. No ExpressionAtom/S() wrappers - Direct string/value handling
+# 4. Simple return values instead of [S('()')] format
+# 5. Global state management for cross-call persistence
+# 6. Direct function calls instead of class-based operations
+
 from pathlib import Path
 import os
 import json
 import csv
-import time
-import threading
 from datetime import datetime
 
-# Global state for logger
+# ============================================================================
+# GLOBAL STATE MANAGEMENT FOR METTALOG
+# ============================================================================
+# Mettalog doesn't maintain object state between py-atom calls,
+# so we use global variables to persist logger state across function calls
 logger_state = {
-    'start_logger': False,
-    'logging_directory': None,
-    'setting_path': None,
-    'csv_path': None,
-    'csv_cleared': False
+    'start_logger': False,        # Whether logging is active
+    'logging_directory': None,    # Base directory for logging
+    'setting_path': None,         # Path to settings.json file
+    'csv_path': None,            # Path to output.csv file
+    'csv_cleared': False         # Whether CSV has been cleared this session
 }
 
-# Background CSV processor
-class MettalogCSVProcessor:
-    def __init__(self):
-        self.running = False
-        self.command_file = Path("experiments/Metta/experiment2/output/csv_commands.txt")
-        self.csv_file = Path("experiments/Metta/experiment2/output/output.csv")
-        self.settings_file = Path("experiments/Metta/experiment2/output/settings.json")
-        self.processed_count = 0
-
-    def start_background_processor(self):
-        """Start background CSV processor"""
-        if self.running:
-            return
-
-        self.running = True
-        self.processor_thread = threading.Thread(target=self._process_commands, daemon=True)
-        self.processor_thread.start()
-        print("Background CSV processor started")
-
-    def stop_background_processor(self):
-        """Stop background CSV processor"""
-        self.running = False
-        if hasattr(self, 'processor_thread'):
-            self.processor_thread.join(timeout=1)
-
-    def _process_commands(self):
-        """Process CSV commands from command file"""
-        while self.running:
-            try:
-                if self.command_file.exists():
-                    with open(self.command_file, 'r') as f:
-                        lines = f.readlines()
-
-                    # Process new commands
-                    new_lines = lines[self.processed_count:]
-
-                    for line in new_lines:
-                        line = line.strip()
-                        if not line:
-                            continue
-
-                        parts = line.split('|')
-                        if len(parts) < 1:
-                            continue
-
-                        command = parts[0]
-
-                        if command == 'CLEAR':
-                            self._clear_and_init_files()
-                        elif command == 'WRITE' and len(parts) >= 4:
-                            pattern = parts[1]
-                            sti = parts[2]
-                            lti = parts[3]
-                            self._write_csv_entry(pattern, sti, lti)
-
-                        self.processed_count += 1
-
-                time.sleep(0.1)  # Check every 100ms
-
-            except Exception as e:
-                print(f"CSV processor error: {e}")
-                time.sleep(1)
-
-    def _clear_and_init_files(self):
-        """Clear and initialize CSV and settings files"""
-        # Ensure directory exists
-        self.csv_file.parent.mkdir(parents=True, exist_ok=True)
-
-        # Clear and initialize CSV file
-        with open(self.csv_file, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['timestamp', 'pattern', 'sti', 'lti'])
-
-        # Clear and initialize settings file with original format
-        data = {
-            "AF_SIZE": "0.2",
-            "MIN_AF_SIZE": "500",
-            "AFB_DECAY": "0.05",
-            "AFB_BOTTOM": "50.0",
-            "MAX_AF_SIZE": "12",
-            "AFRentFrequency": "2.0",
-            "FORGET_THRESHOLD": "0.05",
-            "MAX_SIZE": "2",
-            "ACC_DIV_SIZE": "1",
-            "HEBBIAN_MAX_ALLOCATION_PERCENTAGE": "0.05",
-            "LOCAL_FAR_LINK_RATIO": "10.0",
-            "MAX_LINK_NUM": "300.0",
-            "MAX_SPREAD_PERCENTAGE": "0.4",
-            "DIFFUSION_TOURNAMENT_SIZE": "5.0",
-            "SPREAD_HEBBIAN_ONLY": "0.0",
-            "StartingAtomStiRent": "1.0",
-            "StartingAtomLtiRent": "1.0",
-            "TARGET_LTI_FUNDS_BUFFER": "10000.0",
-            "RENT_TOURNAMENT_SIZE": "5.0",
-            "TC_DECAY_RATE": "0.1",
-            "DEFAULT_K": "800",
-            "SPREADING_FILTER": "(MemberLink (Type \"MemberLink\"))",
-            "STARTING_FUNDS_STI": "100000",
-            "FUNDS_STI": "100000",
-            "STARTING_FUNDS_LTI": "100000",
-            "FUNDS_LTI": "100000",
-            "STI_FUNDS_BUFFER": "99900",
-            "LTI_FUNDS_BUFFER": "99900",
-            "TARGET_STI": "99900",
-            "TARGET_LTI": "99900",
-            "STI_ATOM_WAGE": "10",
-            "LTI_ATOM_WAGE": "10",
-            "experiment_run_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f'),
-            "experiment_date": datetime.now().strftime('%Y-%m-%d'),
-            "experiment_status": "running"
-        }
-
-        with open(self.settings_file, 'w') as f:
-            json.dump(data, f, indent=4)
-
-        print(f"CSV and settings files cleared and initialized")
-
-    def _write_csv_entry(self, pattern, sti, lti):
-        """Write a single CSV entry"""
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
-
-        with open(self.csv_file, 'a', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow([timestamp, pattern, sti, lti])
-
-# Global processor instance
-csv_processor = MettalogCSVProcessor()
-
-def start_mettalog_logger():
-    """Start the mettalog logger system"""
-    csv_processor.start_background_processor()
-
-    # Write clear command
-    command_file = Path("experiments/Metta/experiment2/output/csv_commands.txt")
-    command_file.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(command_file, 'w') as f:
-        f.write("CLEAR\n")
-
-    return "logger_started"
-
-def write_mettalog_csv_entry(pattern, sti, lti):
-    """Write a CSV entry command for mettalog"""
-    command_file = Path("experiments/Metta/experiment2/output/csv_commands.txt")
-
-    with open(command_file, 'a') as f:
-        f.write(f"WRITE|{pattern}|{sti}|{lti}\n")
-
-    return "entry_queued"
-
-def stop_mettalog_logger():
-    """Stop the mettalog logger system"""
-    csv_processor.stop_background_processor()
-    return "logger_stopped"
-
-def clear_csv_files_now():
-    """Clear CSV and settings files immediately"""
-    import subprocess
-
-    try:
-        # Call the Python script to clear files
-        result = subprocess.run(['python3', 'clear_csv_files.py'],
-                              capture_output=True, text=True, timeout=10)
-        if result.returncode == 0:
-            print("Files cleared successfully")
-        else:
-            print(f"Error clearing files: {result.stderr}")
-    except Exception as e:
-        print(f"Failed to clear files: {e}")
-
-    return "files_cleared"
-
-def write_csv_entry_now(pattern, sti, lti):
-    """Write a CSV entry immediately"""
-    import subprocess
-
-    try:
-        # Call the Python script to write entry
-        result = subprocess.run(['python3', 'write_csv_entry.py', str(pattern), str(sti), str(lti)],
-                              capture_output=True, text=True, timeout=5)
-        if result.returncode != 0:
-            print(f"Error writing CSV entry: {result.stderr}")
-    except Exception as e:
-        print(f"Failed to write CSV entry: {e}")
-
-    return "entry_written"
-
-def parse_path(file_path: str):
-    """Parse and validate the file path - target experiments/Metta/experiment2/output directly"""
-
+# ============================================================================
+# PATH PARSING AND VALIDATION
+# ============================================================================
+def parse_path(file_path: str) -> str:
+    """
+    Parse and validate file path for Mettalog compatibility
+    
+    Args:
+        file_path (str): Directory path relative to project root
+        
+    Returns:
+        str: Absolute path to the validated directory
+        
+    Raises:
+        TypeError: If file_path is not a string
+        ValueError: If path cannot be resolved or accessed
+        
+    Note: This function stores the validated path in global state
+    for use by other logger functions
+    """
+    # Convert to string and validate type
     file_path = str(file_path)
-
+    
     if not isinstance(file_path, str):
-        raise TypeError(f"parse_path accepts only str instance {type(file_path)}")
-
-    # Get base path and construct target path
+        raise TypeError(f"parse_path accepts only str instance, got {type(file_path)}")
+    
+    # Calculate base path (3 levels up from this file)
+    # Assumes structure: project_root/experiments/utils2/main.py
     base_path = Path(__file__).parent.parent.parent
+    
+    # Construct full path
+    path_str = base_path / file_path
+    
+    # Validate path exists, is directory, and is readable
+    if not path_str.exists() or not path_str.is_dir() or not os.access(path_str, os.R_OK):
+        raise ValueError(f"{path_str} cannot be resolved or accessed")
+    
+    # Store in global state for other functions to use
+    logger_state['logging_directory'] = path_str
+    
+    return str(path_str)
 
-    # Target the specific experiment2 output directory
-    if file_path == "experiments":
-        target_path = base_path / "experiments" / "Metta" / "experiment2"
-    else:
-        target_path = base_path / file_path
-
-    if not target_path.exists() or not target_path.is_dir() or not os.access(target_path, os.R_OK):
-        raise ValueError(f"{target_path} can not be resolved")
-
-    # Store in global state
-    logger_state['logging_directory'] = target_path
-
-    return str(target_path)
-
-def create_file_path(file_path: str):
-    """Create file paths for settings.json and output.csv"""
-
-    # Parse the path first
+# ============================================================================
+# FILE PATH CREATION AND SETUP
+# ============================================================================
+def create_file_path(file_path: str) -> str:
+    """
+    Create and setup file paths for logging output
+    
+    Args:
+        file_path (str): Directory path to setup for logging
+        
+    Returns:
+        str: Formatted string with created file paths
+        
+    Note: Creates 'output' subdirectory and sets up paths for
+    settings.json and output.csv files
+    """
+    # First parse and validate the path
     parse_path(file_path)
-
+    
+    # Get the validated directory from global state
     logging_directory = logger_state['logging_directory']
     if not isinstance(logging_directory, Path):
         raise TypeError("Invalid type for logging directory")
-
-    # Use existing output directory (don't create new one)
+    
+    # Create output subdirectory
     log_dir = logging_directory / "output"
-
+    
+    # Create directory if it doesn't exist
     if not log_dir.exists():
         log_dir.mkdir(parents=True, exist_ok=True)
-
-    # Store paths in global state
+    
+    # Store file paths in global state
     logger_state['setting_path'] = log_dir / "settings.json"
     logger_state['csv_path'] = log_dir / "output.csv"
-
-    print(f"writing outputs to {log_dir.resolve()} Directory")
-
+    
+    # Print confirmation message
+    print(f"Writing outputs to {log_dir.resolve()} Directory")
+    
+    # Return formatted path information
     return f"setting_path = {logger_state['setting_path']}, csv_path = {logger_state['csv_path']}"
 
-def start_logger(directory):
-    """Start the logger - ALWAYS clear files and set up for new experiment"""
-
-    # ALWAYS set logger as started and clear files (every run)
+# ============================================================================
+# LOGGER INITIALIZATION AND CONTROL
+# ============================================================================
+def start_logger(directory: str) -> str:
+    """
+    Initialize the logger system for a new experiment run
+    
+    Args:
+        directory (str): Directory path for logging output
+        
+    Returns:
+        str: Success confirmation message
+        
+    Note: This function:
+    1. Activates logging globally
+    2. Sets up file paths
+    3. Clears existing CSV and settings files
+    4. Prepares for new experiment data
+    """
+    # Activate logging globally
     logger_state['start_logger'] = True
     logger_state['csv_cleared'] = False  # Reset for new experiment
-
-    # Parse path and create file paths - clean directory path by removing extra quotes
+    
+    # Clean directory path (remove any extra quotes)
     clean_directory = str(directory).strip("'\"")
+    
+    # Setup paths and create directories
     parse_path(clean_directory)
     create_file_path(clean_directory)
-
-    # ALWAYS clear existing files on every run
+    
+    # Clear existing files for fresh start
     clear_csv()
     clear_settings()
-
+    
     print(f"Logger started - CSV and settings cleared for new experiment run")
-    return "()"
+    return "logger_started"
 
-def clear_csv():
-    """Clear the CSV file and add header"""
-
+def clear_csv() -> str:
+    """
+    Clear CSV file and write header row
+    
+    Returns:
+        str: Success confirmation
+        
+    Note: Creates new CSV file with proper header:
+    timestamp, word, sti, lti
+    """
     csv_path = logger_state['csv_path']
     if csv_path:
-        # Write CSV header
+        # Write CSV with header row
         with open(csv_path, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(["timestamp", "word", "sti", "lti"])
         logger_state['csv_cleared'] = True
+        print(f"CSV file cleared and initialized: {csv_path}")
+    
+    return "csv_cleared"
 
-def clear_settings():
-    """Clear the settings file"""
-
+def clear_settings() -> str:
+    """
+    Clear settings file
+    
+    Returns:
+        str: Success confirmation
+        
+    Note: Completely empties the settings.json file
+    """
     setting_path = logger_state['setting_path']
     if setting_path and setting_path.exists():
         setting_path.write_text("")
+        print(f"Settings file cleared: {setting_path}")
+    
+    return "settings_cleared"
 
-def save_params(params_data):
-    """Save parameters to settings.json with current timestamp"""
-
+# ============================================================================
+# PARAMETER SAVING AND CONFIGURATION
+# ============================================================================
+def save_params(params_data: str) -> str:
+    """
+    Save experiment parameters to settings.json file
+    
+    Args:
+        params_data (str): Parameter data to save (can be any format)
+        
+    Returns:
+        str: Success confirmation
+        
+    Note: Creates a new settings file with experiment metadata
+    and parameter information. Each run gets a unique timestamp.
+    """
+    # Only save if logging is active
     if not logger_state['start_logger']:
-        return "()"
-
-    # Create new experiment data with current timestamp
+        return "logging_not_active"
+    
+    # Generate current timestamp for this experiment run
     current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+    
+    # Create experiment metadata
     data = {
         'experiment_name': 'experiment2-mettalog',
         'experiment_date': datetime.now().strftime('%Y-%m-%d'),
         'experiment_time': current_time,
         'experiment_run_id': current_time.replace(' ', '_').replace(':', '-'),
-        'experiment_params': str(params_data) if params_data else 'default_params'
+        'experiment_params': str(params_data) if params_data else 'default_params',
+        'experiment_status': 'running'
     }
-
+    
+    # Write to settings file
     setting_path = logger_state['setting_path']
     if setting_path:
-        # ALWAYS create fresh settings file (don't merge with existing)
+        # Always create fresh settings file (don't merge with existing)
         with open(setting_path, 'w') as f:
             json.dump(data, f, indent=4)
-
+        
         print(f"Settings updated with new experiment run: {current_time}")
+    
+    return "params_saved"
 
-    return "()"
-
-def log_word_to_csv(word, sti_value=700.0, lti_value=700.0):
-    """Log a single word to CSV with timestamp"""
-
+# ============================================================================
+# CSV LOGGING FUNCTIONS
+# ============================================================================
+def log_word_to_csv(word: str, sti_value: float = 700.0, lti_value: float = 700.0) -> str:
+    """
+    Log a single word to CSV with timestamp and attention values
+    
+    Args:
+        word (str): The word to log
+        sti_value (float): Short-term importance value (default: 700.0)
+        lti_value (float): Long-term importance value (default: 700.0)
+        
+    Returns:
+        str: Success confirmation
+        
+    Note: This is the main function called by Mettalog's py-atom system
+    to log individual words during experiment execution
+    """
+    # Only log if logging is active
     if not logger_state['start_logger']:
-        return "()"
-
+        return "logging_not_active"
+    
     csv_path = logger_state['csv_path']
     if not csv_path:
-        return "()"
-
+        return "csv_path_not_set"
+    
     # Ensure CSV is initialized with header
     if not logger_state['csv_cleared']:
         clear_csv()
-
-    # Write the word entry
+    
+    # Generate timestamp for this entry
     timestamp = datetime.now().isoformat()
-
+    
     try:
+        # Append word entry to CSV file
         with open(csv_path, 'a', newline='') as f:
             writer = csv.writer(f)
             writer.writerow([timestamp, word, sti_value, lti_value])
+        
+        # Optional: Print confirmation (can be removed for cleaner output)
+        # print(f"Logged word: {word} (STI: {sti_value}, LTI: {lti_value})")
+        
     except Exception as e:
         print(f"Error writing to CSV: {e}")
+        return f"error: {e}"
+    
+    return "word_logged"
 
-    return "()"
-
-def write_to_csv(afatoms_data):
-    """Write attention focus data to CSV - simplified for mettalog"""
-
-    # Always write to the fixed CSV path
+def write_to_csv(afatoms_data: str) -> str:
+    """
+    Write complex attention focus data to CSV
+    
+    Args:
+        afatoms_data (str): Attention focus atoms data from Mettalog
+        
+    Returns:
+        str: Success confirmation
+        
+    Note: This function handles complex attention data structures
+    and parses them into individual CSV entries. It's designed to work
+    with Mettalog's string-based data passing.
+    """
+    # Always write to the fixed CSV path for experiment2
     csv_path = Path("experiments/Metta/experiment2/output/output.csv")
     settings_path = Path("experiments/Metta/experiment2/output/settings.json")
-
+    
     # Ensure directory exists
     csv_path.parent.mkdir(parents=True, exist_ok=True)
-
+    
     # Check if this is the first call (clear files if so)
-    global logger_state
     if not logger_state.get('csv_cleared', False):
-        # Clear and initialize CSV file
+        # Initialize CSV file with header
         with open(csv_path, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(['timestamp', 'pattern', 'sti', 'lti'])
-
-        # Clear and initialize settings file with original format
+        
+        # Initialize settings file with experiment metadata
         current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
-        data = {
-            "AF_SIZE": "0.2",
-            "MIN_AF_SIZE": "500",
-            "AFB_DECAY": "0.05",
-            "AFB_BOTTOM": "50.0",
-            "MAX_AF_SIZE": "12",
-            "AFRentFrequency": "2.0",
-            "FORGET_THRESHOLD": "0.05",
-            "MAX_SIZE": "2",
-            "ACC_DIV_SIZE": "1",
-            "HEBBIAN_MAX_ALLOCATION_PERCENTAGE": "0.05",
-            "LOCAL_FAR_LINK_RATIO": "10.0",
-            "MAX_LINK_NUM": "300.0",
-            "MAX_SPREAD_PERCENTAGE": "0.4",
-            "DIFFUSION_TOURNAMENT_SIZE": "5.0",
-            "SPREAD_HEBBIAN_ONLY": "0.0",
-            "StartingAtomStiRent": "1.0",
-            "StartingAtomLtiRent": "1.0",
-            "TARGET_LTI_FUNDS_BUFFER": "10000.0",
-            "RENT_TOURNAMENT_SIZE": "5.0",
-            "TC_DECAY_RATE": "0.1",
-            "DEFAULT_K": "800",
-            "SPREADING_FILTER": "(MemberLink (Type \"MemberLink\"))",
-            "STARTING_FUNDS_STI": "100000",
-            "FUNDS_STI": "100000",
-            "STARTING_FUNDS_LTI": "100000",
-            "FUNDS_LTI": "100000",
-            "STI_FUNDS_BUFFER": "99900",
-            "LTI_FUNDS_BUFFER": "99900",
-            "TARGET_STI": "99900",
-            "TARGET_LTI": "99900",
-            "STI_ATOM_WAGE": "10",
-            "LTI_ATOM_WAGE": "10",
-            "experiment_run_time": current_time,
+        settings_data = {
+            "experiment_name": "experiment2-mettalog",
             "experiment_date": datetime.now().strftime('%Y-%m-%d'),
-            "experiment_status": "running"
+            "experiment_run_time": current_time,
+            "experiment_status": "running",
+            "data_format": "attention_focus_atoms"
         }
-
+        
         with open(settings_path, 'w') as f:
-            json.dump(data, f, indent=4)
-
+            json.dump(settings_data, f, indent=4)
+        
         logger_state['csv_cleared'] = True
-        print("CSV and settings files cleared and initialized")
-
-    # Now write the CSV data
+        print("CSV and settings files initialized for attention focus data")
+    
+    # Process and write the attention focus data
     with open(csv_path, 'a', newline='') as f:
         writer = csv.writer(f)
-
-        # Process the attention focus data
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
-
-        # Parse the attention focus data from mettalog
+        
+        # Parse attention focus data from Mettalog string format
         data_str = str(afatoms_data)
-
-        # Try to extract atom information from the string representation
+        
+        # Try to extract atom information from string representation
         # Expected format: ((atom1 (AV vlti1 sti lti vlti2)) (atom2 (AV vlti1 sti lti vlti2)) ...)
         if '(' in data_str and 'AV' in data_str:
-            # Parse multiple atoms
             import re
-
+            
             # Find all atom patterns like (atom_name (AV vlti1 sti lti vlti2))
             atom_pattern = r'\(([^()]+)\s+\(AV\s+[^\s]+\s+([^\s]+)\s+([^\s]+)\s+[^\s]+\)\)'
             matches = re.findall(atom_pattern, data_str)
-
+            
             if matches:
+                # Process each matched atom
                 for match in matches:
                     pattern, sti, lti = match
                     pattern = pattern.strip()
                     try:
+                        # Convert to float values
                         sti_val = float(sti)
                         lti_val = float(lti)
                         writer.writerow([timestamp, pattern, sti_val, lti_val])
-                        # Removed terminal output - only write to CSV file
                     except ValueError:
                         # If parsing fails, write as strings
                         writer.writerow([timestamp, pattern, sti, lti])
-                        # Removed terminal output - only write to CSV file
             else:
-                # Fallback: write the raw data
+                # Fallback: write raw data
                 writer.writerow([timestamp, data_str, "0.0", "0.0"])
-                # Removed terminal output - only write to CSV file
         else:
-            # Simple case: just write the data as pattern
+            # Simple case: write data as pattern
             writer.writerow([timestamp, data_str, "0.0", "0.0"])
-            # Removed terminal output - only write to CSV file
+    
+    return "attention_data_written"
 
-    return "wrote"
+# ============================================================================
+# UTILITY FUNCTIONS FOR METTALOG INTEGRATION
+# ============================================================================
+def get_logger_status() -> str:
+    """
+    Get current logger status
+    
+    Returns:
+        str: JSON string with current logger state
+    """
+    status = {
+        'logging_active': logger_state['start_logger'],
+        'csv_cleared': logger_state['csv_cleared'],
+        'logging_directory': str(logger_state['logging_directory']) if logger_state['logging_directory'] else None,
+        'csv_path': str(logger_state['csv_path']) if logger_state['csv_path'] else None,
+        'settings_path': str(logger_state['setting_path']) if logger_state['setting_path'] else None
+    }
+    return json.dumps(status, indent=2)
 
-def clear_csv_file():
-    """Clear the CSV file and write header"""
+def reset_logger() -> str:
+    """
+    Reset logger to initial state
+    
+    Returns:
+        str: Success confirmation
+    """
+    global logger_state
+    logger_state = {
+        'start_logger': False,
+        'logging_directory': None,
+        'setting_path': None,
+        'csv_path': None,
+        'csv_cleared': False
+    }
+    return "logger_reset"
 
-    csv_path = Path("experiments/Metta/experiment2/output/output.csv")
-    csv_path.parent.mkdir(parents=True, exist_ok=True)
+# ============================================================================
+# METTALOG INTEGRATION CONFIRMATION
+# ============================================================================
+# Print confirmation that the module is loaded
+# This helps with debugging Mettalog imports
+print("Mettalog-compatible logger system loaded successfully")
+print("Available functions:")
+print("  - parse_path(file_path)")
+print("  - create_file_path(file_path)")
+print("  - start_logger(directory)")
+print("  - log_word_to_csv(word, sti_value, lti_value)")
+print("  - write_to_csv(afatoms_data)")
+print("  - save_params(params_data)")
+print("  - clear_csv()")
+print("  - clear_settings()")
+print("  - get_logger_status()")
+print("  - reset_logger()")
 
-    with open(csv_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['timestamp', 'pattern', 'sti', 'lti'])
-
-    print(f"CSV file cleared and initialized: {csv_path}")
-    return "cleared"
-
-def write_single_entry(pattern, sti, lti):
-    """Write a single CSV entry"""
-
-    csv_path = Path("experiments/Metta/experiment2/output/output.csv")
-    csv_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Check if file exists and has header
-    file_exists = csv_path.exists() and csv_path.stat().st_size > 0
-
-    with open(csv_path, 'a', newline='') as f:
-        writer = csv.writer(f)
-
-        # Write header if file is empty
-        if not file_exists:
-            writer.writerow(['timestamp', 'pattern', 'sti', 'lti'])
-
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
-        writer.writerow([timestamp, str(pattern), str(sti), str(lti)])
-        print(f"Single CSV entry written: {timestamp},{pattern},{sti},{lti}")
-
-    return "wrote"
-
-def queue_csv_clear():
-    """Queue a CSV clear request"""
-
-    queue_file = Path("experiments/Metta/experiment2/output/csv_queue.json")
-    queue_file.parent.mkdir(parents=True, exist_ok=True)
-
-    # Load existing queue
-    queue_data = {'requests': []}
-    if queue_file.exists():
-        try:
-            with open(queue_file, 'r') as f:
-                queue_data = json.load(f)
-        except:
-            queue_data = {'requests': []}
-
-    # Add clear request
-    queue_data['requests'].append({'action': 'clear'})
-
-    # Save queue
-    with open(queue_file, 'w') as f:
-        json.dump(queue_data, f)
-
-    print("CSV clear request queued")
-    return "queued"
-
-def queue_csv_write(data):
-    """Queue a CSV write request"""
-
-    queue_file = Path("experiments/Metta/experiment2/output/csv_queue.json")
-    queue_file.parent.mkdir(parents=True, exist_ok=True)
-
-    # Load existing queue
-    queue_data = {'requests': []}
-    if queue_file.exists():
-        try:
-            with open(queue_file, 'r') as f:
-                queue_data = json.load(f)
-        except:
-            queue_data = {'requests': []}
-
-    # Add write request
-    queue_data['requests'].append({
-        'action': 'write_data',
-        'data': str(data)
-    })
-
-    # Save queue
-    with open(queue_file, 'w') as f:
-        json.dump(queue_data, f)
-
-    print(f"CSV write request queued: {str(data)[:100]}...")
-    return "queued"
-
-def queue_single_entry(pattern, sti, lti):
-    """Queue a single CSV entry request"""
-
-    queue_file = Path("experiments/Metta/experiment2/output/csv_queue.json")
-    queue_file.parent.mkdir(parents=True, exist_ok=True)
-
-    # Load existing queue
-    queue_data = {'requests': []}
-    if queue_file.exists():
-        try:
-            with open(queue_file, 'r') as f:
-                queue_data = json.load(f)
-        except:
-            queue_data = {'requests': []}
-
-    # Add single entry request
-    queue_data['requests'].append({
-        'action': 'write_single',
-        'pattern': str(pattern),
-        'sti': str(sti),
-        'lti': str(lti)
-    })
-
-    # Save queue
-    with open(queue_file, 'w') as f:
-        json.dump(queue_data, f)
-
-    print(f"Single CSV entry queued: {pattern},{sti},{lti}")
-    return "queued"
+# ============================================================================
+# DIRECT FUNCTION EXPORTS FOR METTALOG
+# ============================================================================
+# Export functions directly to module level for easier py-atom access
+__all__ = [
+    'parse_path', 'create_file_path', 'start_logger', 'log_word_to_csv',
+    'write_to_csv', 'save_params', 'clear_csv', 'clear_settings',
+    'get_logger_status', 'reset_logger'
+]

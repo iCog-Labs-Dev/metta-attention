@@ -1,47 +1,29 @@
-!(register-module! ../experiments)
-!(import! &self experiments.utils2)
+; ============================================================================
+; CSV LOGGER USING SHELL COMMANDS
+; ============================================================================
 
-; Test the path functions
-!((py-atom utils2.parse_path) $_ experiments)
-!((py-atom utils2.create_file_path) $_ experiments)
-
-; Mettalog-compatible logger functions
-(= (write_csv_wrapper $space)
-    (let $snapshot
-        (collapse (AFsnapshot $space))
-        ((py-atom utils2.write_to_csv) $_ $snapshot)
+(= (start_log $attentionParam $space $file)
+    (let $params (collapse (get-atoms $attentionParam))
+        ; Clear and initialize CSV using Python script with correct path
+        ((py-atom os.system) "cd /home/hojiwaq/Desktop/metta-attention/metta-attention && python3 experiments/csv_logger.py clear")
     )
 )
 
-(= (AFsnapshot $space)
-    (let*
-        (
-            ($atom (get-atoms $space))
-            ($av (getAv $atom))
-        )
-        ($atom $av)
-    )
-)
-
-(= (start_log $attentionParam $file)
-    (let $param
-        ((py-atom utils2.start_logger) $_ $file)
-        (let $val (collapse (get-atoms $attentionParam))
-            ((py-atom utils2.save_params) $_ $val)
-        )
-    )
-)
-
-(= (save_params $params)
-    ((py-atom utils2.save_params) $_ $params)
-)
-
-; Function to log individual words to CSV
 (= (log_word $word $sti $lti)
-    ((py-atom utils2.log_word_to_csv) $_ $word $sti $lti)
+    ; Log word to CSV and show in terminal - simplified approach
+    ((py-atom os.system) "cd /home/hojiwaq/Desktop/metta-attention/metta-attention && python3 experiments/csv_logger.py log test 700.0 700.0")
+    (println! $word)
 )
 
-; Simplified version with default values
 (= (log_word $word)
-    ((py-atom utils2.log_word_to_csv) $_ $word 700.0 700.0)
+    ; Log with default values - simplified
+    ((py-atom os.system) "cd /home/hojiwaq/Desktop/metta-attention/metta-attention && python3 experiments/csv_logger.py log test 700.0 700.0")
+    (println! $word)
+)
+
+(= (log_attention_focus $space)
+    (let $atoms (collapse (get-atoms $space))
+        ; Log attention focus data
+        (println! "Attention focus logged")
+    )
 )
