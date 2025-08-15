@@ -177,7 +177,7 @@
 (= (getRandomAtomNotInAF)
    (let*
        (
-           ($allAtoms  (getAllAtomsInBins))
+           ($allAtoms  (getAllAtomsWithBins))
            ($filteredAtoms (filter $allAtoms atomIsNotInAF))
        )
        (if (== $filteredAtoms ())
