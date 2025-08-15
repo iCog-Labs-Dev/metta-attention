@@ -11,15 +11,19 @@
         (
             ($atom (get-atoms $space))
             ($av (getAv $atom))
+            ; (() (println! (atom $atom)))
         ) 
         ($atom $av) 
     )
 )
 
-(= (start_log $attentionParam $file)
+(= (start_log $attentionParam $space $file)
     (let $param
         (start_logger $file)
-        (let $val (collapse (get-atoms $attentionParam)) (save_params $val))
+        (let $atoms
+            (let $val (collapse (get-atoms $attentionParam)) (save_params $val))
+            (let $vals (collapse (get-atoms $space)) (save_params $vals))
+        )
     )
 )
 

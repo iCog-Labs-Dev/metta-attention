@@ -35,3 +35,13 @@
 (= (save_params $params)
     ((py-atom utils2.save_params) $_ $params)
 )
+
+; Function to log individual words to CSV
+(= (log_word $word $sti $lti)
+    ((py-atom utils2.log_word_to_csv) $_ $word $sti $lti)
+)
+
+; Simplified version with default values
+(= (log_word $word)
+    ((py-atom utils2.log_word_to_csv) $_ $word 700.0 700.0)
+)
