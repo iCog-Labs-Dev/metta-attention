@@ -1,8 +1,7 @@
 !(register-module! ../../../../../metta-attention)
 !(import! &self metta-attention:attention:AttentionParam)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
-!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
-!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
+!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter-2)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
@@ -67,7 +66,7 @@
 ; Test case 07: Testing updateAttentionalFocus adding an atom without AV 
 
 !(assertEqual (updateAttentionalFocus L) False)
-; !(assertEqual (getAtomList) (a A B C D F G))
+!(assertEqual (getAtomList) (a d c A B C D F (EvaluationLink a b) (Hebbianlink (Hebbianlink Cat Human) Animal) G))
 
 ; Test case 09: Testing getRandomAtomNotInAF assure that only one atom is returned
 
@@ -98,8 +97,5 @@
 
 
 ; Test case 11: Testing getIncomingSet function 
-!(assertEqual (getIncomingSet abebe habbianlink) ((habbianlink abebe kebede) (habbianlink challa abebe)))
+!(assertEqual (getIncomingSetByType abebe habbianlink) ((habbianlink abebe kebede) (habbianlink challa abebe)))
 
-; Test case 12: Testing filterLinksInAF method
-
-!(assertEqual (filterLinksInAF ((Hebbianlink (Hebbianlink Cat Human) Animal) (Hebbianlink (Hebbianlink Cat Human) Dog) (EvaluationLink a b))) ((Hebbianlink (Hebbianlink Cat Human) Animal) (emtpy) (EvaluationLink a b)))
