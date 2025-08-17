@@ -170,6 +170,28 @@
 (: getMinSTI (-> Number))
 (= (getMinSTI) (let $recentVal (RecentVal) (match $recentVal (recent_min $_) $_)))
 
+; (: getMaxSTI (-> Bool Number))
+; (= (getMaxSTI $avg) 
+
+;     (if $avg
+;       (getAttentionParam RECENT_MAX)
+;       (getMaxSTI)
+;       )
+; )
+
+; (: getMaxSTI (-> Number))
+; (= (getMaxSTI) (getAttentionParam MAX_STI))
+
+; (: getMinSTI (-> Bool Number))
+; (= (getMinSTI $avg)
+;    (if $avg
+;       (getAttentionParam RECENT_MIN)
+;       (getMinSTI)
+;       )
+; )
+
+; (: getMinSTI (-> Number))
+; (= (getMinSTI) (getAttentionParam MIN_STI))
 
 ;Function: getNormalisedZeroToOneSTI
 ;Description: Normalizes an atom's STI based on the minimum and maximum STI values.
