@@ -48,3 +48,37 @@
       ()
     )
 )
+
+
+; optional implementation of recentval using max and min as a global variable in attentionParams instead of recentVal which avoids extra space
+; when updateValue is called, it updates the global variables
+;according to this mathematical relationship between the three:
+    ;recent = ((decay * newValue) + ((decay - 1.0) * recent))
+    ;where: newValue is the value passed as the argument to the update functions. 
+; (: updateMin (-> Number empty))
+; (= (updateMin $newValue)
+;    (let*
+;      (
+;         ($current (getAttentionParam MIN_STI))
+;         ($recent (getAttentionParam RECENT_MIN))
+;         ($decay (getAttentionParam DECAY_MIN))
+;         ($newRecent (+ (* $decay $newValue) (* $recent (- 1.0 $decay))))
+;         ($_ (updateAttentionParam MIN_STI $newValue))
+;       )
+;       (updateAttentionParam RECENT_MIN $newRecent)
+;     )
+; )
+
+; (: updateMax (-> Number empty))
+; (= (updateMax $newValue)
+;    (let*
+;      (
+;         ($current (getAttentionParam MAX_STI))
+;         ($recent (getAttentionParam RECENT_MAX))
+;         ($decay (getAttentionParam DECAY_MAX))
+;         ($newRecent (+ (* $decay $newValue) (* $recent (- 1.0 $decay))))
+;         ($_ (updateAttentionParam MAX_STI $newValue))
+;       )
+;       (updateAttentionParam RECENT_MAX $newRecent)
+;     )
+; )
