@@ -2,15 +2,15 @@
 !(import! &self metta-attention:attention:AttentionParam)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter-2)
 !(import! &self metta-attention:attention-bank:attention-value:get-min-max)
-!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
+; !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 
 ; Test Case 01: Testing Empty atomBin
 ; Ensure getMaxContent and getMinContent return empty lists when no atoms are present
- !(assertEqual (getMaxContent) ())
- !(assertEqual (getMinContent) ())
+ !(assertEqual (getMaxContent (TypeSpace)) ())
+ !(assertEqual (getMinContent (TypeSpace)) ())
 ; Test Case 02: getSize for a Non-Existent Bin
 ; Ensure getSize returns 0 for bins that don't exist
 !(assertEqual (binSize) 0)
@@ -26,9 +26,8 @@
 ; Test Case 03: Testing getMaxContent and getMinContent with Initial Data
 ; Ensure they return correct values when bins are populated
 ; Since Mother and Human has highest and lowest sti, they should have highest and lowest bin respectively.
-
-!(assertEqual (getMaxContent) (Mother))
-!(assertEqual (getMinContent) (Human))
+!(assertEqual (getMaxContent (TypeSpace)) (Mother))
+!(assertEqual (getMinContent (TypeSpace)) (Human))
 
 ; SetUp: setAv values to atoms
 !(setAv (EvaluationLink Dog Cat) (110.0 110.0 1.0)) ;getBin == 38.0
@@ -39,7 +38,7 @@
  ; Test Case 04: Adding Atom to Max Bin
 
  ; Expected: Max bin = (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother))
-!(assertEqual (getMaxContent) (collapse (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother))))
+!(assertEqual (getMaxContent (TypeSpace)) (collapse (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother))))
 
 ; Test Case 05: getMinContent for Multiple Min Bins
 ; Insert another atom with close sti and ensure both "Human" and "Father" are returned
@@ -49,7 +48,7 @@
 
 ;Test with Symbol Atom Type
 ; there may be reversed sequence due to non-deterministic-computation
-!(assertEqual (getMinContent) (Father Human))
+!(assertEqual (getMinContent (TypeSpace)) (Father Human))
 
 ; Test Case 06: Testing getSize Function
 ; Ensure getSize returns correct atom count in bins
