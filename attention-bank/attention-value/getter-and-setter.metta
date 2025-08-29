@@ -32,8 +32,8 @@
 
            ($stiDiff (- $oldSTI $sti))
            ($ltiDiff (-  $oldLTI $lti))
-           ($fundsSTI (getAttentionBank fundsSTI))
-           ($fundsLTI (getAttentionBank fundsLTI))
+           ($fundsSTI (getAttentionParam FUNDS_STI))
+           ($fundsLTI (getAttentionParam FUNDS_LTI))
            ($newstifund (+ $fundsSTI $stiDiff))
            ($newltifund (+ $fundsLTI $ltiDiff))
            ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter
@@ -221,14 +221,7 @@
 ;; globalIncomingSetByType a function that takes in an a pattern and retrives
 ;; all links it is an incoming set in
 (= (globalIncomingSetwithoutType $atom)
-    (collapse 
-        (superpose   
-            (
-				(match &typeSpace (($type $b $atom) $a) ($type $b $atom))
-				(match &typeSpace (($type $atom $b) $a) ($type $atom $b ))
-            )
-        )  
-    )
+    (globalIncomingSetByType $atom $_)
 )
 
 ;; remoeTypeSpace a function that removes an atom from the typeSpace

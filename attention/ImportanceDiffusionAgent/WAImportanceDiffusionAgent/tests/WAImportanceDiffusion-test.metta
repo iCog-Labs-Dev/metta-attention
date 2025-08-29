@@ -22,9 +22,6 @@
 !(stimulate target3 400)
 !(stimulate target4 300)
 
-
-
-
 !(setStv (HEBBIAN_LINK source target1) (0 1))
 !(setStv (HEBBIAN_LINK source target2) (0 1))
 !(setStv (ASYMMETRIC_HEBBIAN_LINK source target3) (0 1))

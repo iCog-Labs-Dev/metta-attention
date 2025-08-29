@@ -35,14 +35,14 @@
 
 ; write the params to a file
 !(updateAttentionParam MAX_AF_SIZE 10.0)
-!(updateAttentionBank targetSti 1000.0)
-!(updateAttentionBank targetLti 1000.0)
-!(updateAttentionBank stiFundsBuffer 1000.0)
-!(updateAttentionBank ltiFundsBuffer 1000.0)
-!(updateAttentionBank fundsSTI 2000.0)
-!(updateAttentionBank fundsLTI 2000.0)
+!(updateAttentionParam TARGET_STI 1000.0) 
+!(updateAttentionParam TARGET_LTI 1000.0) 
+!(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
+!(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
+!(updateAttentionParam FUNDS_STI 2000.0) 
+!(updateAttentionParam FUNDS_LTI 2000.0) 
 
-!(start_log (attentionParam) (space) experiments/Metta/experiment1)
+!(start_log (attentionParam) experiments/Metta/experiment1)
 
 (= (insectPoisonExp $maxim $space $type)
     (
