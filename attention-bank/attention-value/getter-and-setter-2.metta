@@ -1,7 +1,9 @@
 !(bind! &typeSpace (new-space))
-(= (typespace)
+(= (TypeSpace)
     &typeSpace
 )
+
+; updated data structure (atom (((STV mean conf) (AV sti lti vlti)) (Bin bin)))
 ; setAv function accepts a pattern (it could be a symbol or an expression) and attention values(contain STI, LTI and VLTI)
 ; and set the attention value as a type for the pattern. 
 ; then the pattern will be stored with attention value type in a space called typespace.
@@ -26,7 +28,7 @@
                         )
                       (if (== $stv %Undefined%)
                           (add-atom &typeSpace ($pattern ((AV $sti $lti $vlti) (Bin $bin)) ))
-                          (add-atom &typeSpace ($pattern ($stv (AV $sti $lti $vlti) (Bin $bin)) )))
+                          (add-atom &typeSpace ($pattern (($stv (AV $sti $lti $vlti)) (Bin $bin)) )))
                    )
                 )
            )
@@ -58,7 +60,7 @@
               )
             (if (== $av %Undefined%)
                 (add-atom &typeSpace ($pattern (STV $mean $conf)))
-                (add-atom &typeSpace ($pattern ( (STV $mean $conf) $av (Bin $bin))))))
+                (add-atom &typeSpace ($pattern ( ((STV $mean $conf) $av) (Bin $bin))))))
     )
 )
 
@@ -84,7 +86,7 @@
  (case (getValueType $pattern)
    (
      ( ((AV $a $b $c) (Bin $bin)) (AV $a $b $c))
-     ( ((STV $a $b) (AV $x $y $z) (Bin $bin)) (AV $x $y $z))
+     ( (((STV $a $b) (AV $x $y $z)) (Bin $bin)) (AV $x $y $z))
      ($else %Undefined%)
      )
  )
@@ -95,7 +97,7 @@
 (case (getValueType $pattern)
   (
     ( ((AV $a $b $c) (Bin $bin)) $bin)
-    ( ((STV $a $b) (AV $x $y $z) (Bin $bin)) $bin)
+    ( (((STV $a $b) (AV $x $y $z)) (Bin $bin)) $bin)
     ($else %Undefined%)
     )
 )
@@ -111,7 +113,7 @@
         (case (getValueType $pattern)
           (
             ( (STV $a $b) (STV $a $b))
-            ( ((STV $a $b) (AV $x $y $z) (Bin $bin)) (STV $a $b))
+            ( (((STV $a $b) (AV $x $y $z)) (Bin $bin)) (STV $a $b))
             ($else %Undefined%)
             )
         )
@@ -279,21 +281,13 @@
 ; finds all atoms that is found in the specific bin
 (: getAtomsByBin (-> Number Expression))
 (= (getAtomsByBin $binNumber)
-    (let* (
-            ($withSTV (collapse (match (typespace) ($patt ($s $av (Bin $binNumber))) $patt)) )
-            ($nostv (collapse (match (typespace) ($patt ($av (Bin $binNumber))) $patt)))
-            ) (union-atom $withSTV $nostv))
+    (collapse (match (TypeSpace) ($patt ($val (Bin $binNumber))) $patt))
 )
 
 ; return all atoms that have AV/bin number 
 (: getAllAtomsWithBins (-> Expression))
 (= (getAllAtomsWithBins)
-    (let* ( 
-            ($withSTV (collapse (match (typespace) ($patt ((STV $s) $av $bin)) $patt)) )
-            ($nostv (collapse (match (typespace) ($patt ($av $bin)) $patt)))
-        )   
-        (union-atom $withSTV $nostv)
-    )
+     (collapse (match (TypeSpace) ($patt ($val (Bin $binNumber))) $patt))
 )
 
 ; Recursively collects all atoms from bins indexed between $lower and $higher, inclusive.
