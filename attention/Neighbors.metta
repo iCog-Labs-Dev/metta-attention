@@ -22,7 +22,7 @@
 )
 
 (= (getSourceNeighbors $source $type $space)
-    (if (== $type UNORDERED_LINK)
+    (if (isUnorderLink $type)
         ()
         (let*
             (
@@ -54,7 +54,7 @@
 )
 
 (= (getTargetNeighbors $source $type $space)
-    (if (== $type UNORDERED_LINK)
+    (if (isUnorderLink $type)
         ()
         (let*
             (
@@ -96,4 +96,14 @@
             )
         )
     )
+)
+
+; Function: isUnorderLink
+; Description: returns true if an is a type of Unorderlink
+; Parameters: 
+;   $type: An atom that is expected to describe the type of an expression atom
+; Returns: True is an atom is an unorderlink and Fasle if it is not
+(: isUnorderLink (-> Atom Bool))
+(= (isUnorderLink $type)
+    (unify (SYMMETRIC_HEBBIAN_LINK SYMMETRIC_INVERSE_HEBBIAN_LINK HEBBIAN_LINK) $type True False)
 )
