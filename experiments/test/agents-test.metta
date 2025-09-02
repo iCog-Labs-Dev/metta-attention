@@ -17,10 +17,9 @@
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
 
-!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
+!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter-2)
 
-!(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
-!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
+!(import! &self metta-attention:attention-bank:attention-value:get-min-max)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
@@ -46,7 +45,7 @@
 ; ================== assertions About inital state of Ecan spaces =============
 !(assertEqual (getAtomList) ())
 !(assertEqual (collapse (get-atoms &newAtomInAV)) ())
-!(assertEqual (collapseAtomBin (atomBin)) ())
+!(assertEqual (getAllAtomsWithBins) ())
 !(assertEqual (match &timer (firstTime $x) $x) True)
 
 
@@ -58,7 +57,9 @@
 !(assertEqual (getLti Ants) 600)
 !(assertEqual (getSti (SimilarityLink abamectin Ants)) 240)
 !(assertEqual (getLti (SimilarityLink abamectin Ants)) 0)
-!(assertEqual (collapseAtomBin (atomBin)) ((52.0 (Ants)) (47.0 ((SimilarityLink abamectin Ants)))))
+!(assertEqual (getAllAtomsWithBins) ((SimilarityLink abamectin Ants) Ants))
+!(assertEqual (getBin Ants) 52.0)
+!(assertEqual (getBin (SimilarityLink abamectin Ants)) 47.0)
 
 !(assertEqual (collapse (get-atoms &newAtomInAV)) ())
 
@@ -71,6 +72,7 @@
     )
     5
 )
+
 
 !(stimulate aflatoxin 30)
 !(test-superpose)
