@@ -19,8 +19,7 @@
 
 !(import! &self attention-bank:attention-value:getter-and-setter)
 
-!(import! &self attention-bank:bank:atom-bins:get-min-max-content)
-!(import! &self attention-bank:bank:atom-bins:atombins)
+!(import! &self attention-bank:attention-value:get-min-max)
 !(import! &self attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self attention-bank:bank:importance-index:importance-index)
 !(import! &self attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)

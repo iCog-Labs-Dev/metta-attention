@@ -2,8 +2,7 @@
 !(import! &self metta-attention:attention:ForgettingAgent:ForgettingAgent)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention:AttentionParam)
-!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
-!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
+!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter-2)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
@@ -84,7 +83,7 @@
 !(assertEqual (getAttentionParam FUNDS_STI) 99174.80000000002)
 
 
-!(forgettingAgent-Run (atomBin))
+!(forgettingAgent-Run (TypeSpace))
 
 
 !(let*
