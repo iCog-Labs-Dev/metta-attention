@@ -5,7 +5,7 @@
 ;;            $AForWA: a flag if the calculation to use is for AF or WA
 ;; Return : trades sti value from source to target
 
-; (: diffuseAtom (-> Atom Grounded Symbol Atom))
+(: diffuseAtom (-> Grounded Grounded Symbol Atom))
 (= (diffuseAtom $atom $space $AForWA)
     (let*
         (
@@ -166,8 +166,6 @@
             ($decomposedAdjacentVector (superpose $adjacentVector))
             (($firstA $secondA) $decomposedAdjacentVector)
             ($resultone (let $diffusionAmountA (* $hebbianMaximumLinkAllocation $secondA) ($firstA $diffusionAmountA)))
-            ($habbeanDiffusionUsed $secondA)
-
         )
         $resultone
     )

@@ -28,7 +28,7 @@
 ;; Parameters $space: The space that will be used to find the diffusion source vector
 ;; Return : The diffusion get called
 
-(: spreadImportanceWA (-> Grounded Empty))
+(: spreadImportanceWA (-> Grounded ()))
 (= (spreadImportanceWA $space)
     (let $diffusionSourceVector (collapse (diffusionSourceVectorWA))
         (if (== (size-atom $diffusionSourceVector) 0)
@@ -65,7 +65,7 @@
 ;; Parameters $space: The space that will be used to find the diffusion source vector
 ;; Return : The spreadImportanceWA function is called
 
-(: WAImportanceDiffusionAgent-Run (-> Grounded Empty))
+(: WAImportanceDiffusionAgent-Run (-> Grounded ()))
 (= (WAImportanceDiffusionAgent-Run $space)
     (spreadImportanceWA $space)
 )

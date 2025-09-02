@@ -20,7 +20,7 @@
 ;($index ((count $cnt_val) (index $idx_val) (_size $size_val) (update_rate $update_rate_val) (last_update $last_update_val)))
 ;I used _size instead of size because size is use in metta as a function name
 
-(: updateBin (-> Atom empty))
+(: updateBin (-> Atom ()))
 (= (updateBin $atom)
     (let* (
             ($index (importanceBin (getSti $atom)))
@@ -39,7 +39,7 @@
     )
 )
 
-(: updateExistingBin (-> Number empty))
+(: updateExistingBin (-> Number ()))
 (= (updateExistingBin $index)
     (let (($cnt $cntVal) ($idx $idxVal) ($size $sizeVal) ($updateRate $updateRateVal) ($lastUpdate $lastUpdateVal)) 
             (match &atomBinInfo ($index $info) 
@@ -66,7 +66,6 @@
             ($index (importanceBin (getSti $atom)))
             ($averageElapsedTime (calcElapsedTime $index))
             ($res (updateBin $atom))
-            
           )
         $averageElapsedTime
     )
@@ -78,7 +77,7 @@
         (let (($cnt $cntVal) ($idx $idxVal) ($size $sizeVal) ($updateRate $updateRateVal) ($lastUpdate $lastUpdateVal)) 
                 (match &atomBinInfo ($index $info) $info)
                 (if (== $updateRateVal 0)
-                    ("updateRate can not be zero")
+                    0.0 
                     (/ $sizeVal $updateRateVal)
                 )
         
