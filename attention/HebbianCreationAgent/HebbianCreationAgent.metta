@@ -14,7 +14,7 @@
 ;   $space3: resolves to newAtomInAV where atoms that are new to attentionalFocus are stored
 ;Returns: empty
 
-(: HebbianCreationAgent-Run(-> Grounded Grounded Grounded ()))
+(: HebbianCreationAgent-Run (-> Grounded Grounded Grounded Empty))
 (= (HebbianCreationAgent-Run $space $space2 $space3)
     ; if the attentional focus is empty no work is done
     (if ( == (attentionalFocusSize)  0)
@@ -115,7 +115,7 @@
 ;Parameters: $number- Number of times to remove links
 ;Returns: empty
 
-(:removeLinkRecursively(-> Number ()))
+(: removeLinkRecursively (-> Number Expression))
 ( = (removeLinkRecursively $num)
     (if ( or (== $num 0) (== 0 (attentionalFocusSize)))
         ()
@@ -147,7 +147,7 @@
 ;Parameters: $source- Atom, $farLinks- Number of links to be created
 ;Returns: empty
 
-(:addFromOutSideAF(-> Atom Number ()))
+(:addFromOutSideAF(-> Atom Number Empty))
 ( = (addFromOutSideAF  $source $farLinks)
     (if ( == $farLinks 0 )
         ()
@@ -185,7 +185,7 @@
 ;Parameters: $source- Atom, $target- Atom
 ;Returns: empty
 
-(: addHebbian (-> Atom Atom ()))
+(: addHebbian (-> Atom Atom Empty))
 (= (addHebbian $source $target)
     (let $link (ASYMMETRIC_HEBBIAN_LINK $source $target)
         (setStv $link (0.5 0.1))
