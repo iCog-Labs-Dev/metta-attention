@@ -2,7 +2,7 @@
 
 ## Overview
 
-This module is used to set and retrive the AV and STV values of an atom.
+This module is used to set and retrive the AV, STV and bin values of an atom.
 
 ## Setting AV
 
@@ -17,8 +17,7 @@ to allocate to it.
 To set an AV of an atom
 - The system retrives the atoms *STI*, *LTI* and *VLTI* if it has if not it defaults 
 to zero
-- It then updates the atom-bin space to ensure that the atom is placed in the appropriate
-bin
+- It then calculates the bin of an atom
 - We check the value of the atom and check if it has prior AV or STV
     - If the atom is has no prior *AV* or *STV* it simply adds the atom to the
     typespace space.
@@ -55,3 +54,7 @@ so we dont need to consider if it is within funds value.
 - If the atoms is found the old value is removed and added **typeSpace**.
 - If the atom is not found it is simply added to the **typeSpace**.
 
+## modified atom structure
+
+(atom (((STV mean conf) (AV sti lti vlti)) (Bin binNumber)))
+we removed atombin space. now all information of an atom is stored in typespace.
