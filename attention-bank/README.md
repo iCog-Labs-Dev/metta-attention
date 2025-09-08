@@ -5,28 +5,23 @@ will be used to enable to create a platfrom for impelment agents.
 
 The main functionality of the attention bank are
 1. Managing the attentional Focus space
-2. Managing the atomBins space
-3. Managing the typeSpace
-4. Creating stocastic operations for operating over non-attentioanl focus atoms
+2. Managing the typeSpace
+3. Creating stocastic operations for operating over non-attentioanl focus atoms
 
 ## Spaces
 
 Their are multiple spaces used for the implementation of ECAN the main spaces are
 
-```
-                    ___________________
-                   |                   |
-                   | Attentional Focus |
-            _______|___________________|_______
+```         ___________________________________
            |                                   |
-           |             Atom Bins             |
+           |          Attentional focus        |
      ______|___________________________________|______
     |                                                 |
     |                   Type Space                    |
     |_________________________________________________|
 ```
 
-The above illustration aims to show the highrarchy of the 3 spaces considerd to 
+The above illustration aims to show the hierarchy of the 2 spaces considerd to 
 be pivotal
 
 ### **Attentional Focus**:
@@ -38,20 +33,11 @@ be pivotal
     lowest STI
 - Atoms storage is not sturcured but should only be done via the setAv function
 to ensure that all checks are made when the atom is added.
-
-### **atomBin**:
-- The atomBin space is used as an intermideary.
-- It holds all atoms that have an AV value set.
-- The atom bin is strucutred to as a mimick as a sparse matrix that holds atoms
-of the same with similar sti values in the same expression atom.
-- The importance index module is responsible for calculating which bin an atom
-should be place in 
-- For further clarification look at the [atom-bins](atom-bins/README.md) module located in the bank
-directory 
+ 
 
 ### **TypeSpace**:
 - This is a space that holds all atoms that have **AV**, **STV** or both.
-- This space is responsible for storing the **AV** and **STV** as types which
+- This space is responsible for storing the **AV**, **bin** and **STV** as types which
 are defined in the **[types.metta](../../types.metta)** function defined in the project root.
 - This space is used to store links such as **ASYMMETRIC_HEBBIAN_LINK** which 
 will be created by the hebbian creation agent used for diffusion.
