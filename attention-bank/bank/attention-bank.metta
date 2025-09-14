@@ -97,7 +97,6 @@
    (let*(
          ($stiUpdated (updateAttentionParam FUNDS_STI $newSTIFund))
          ($ltiUpdated (updateAttentionParam FUNDS_LTI $newLTIFund))
-         ($afUpdated (updateAttentionalFocus $pattern))
          ($globalUpdate (update &typeSpace))
         )
         ()
