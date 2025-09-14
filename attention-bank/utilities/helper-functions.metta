@@ -170,8 +170,28 @@
                ($smaller (filterLess $pivot $rest)) ; Elements smaller than pivot
                ($greater (filterGreaterEqual $pivot $rest)) ; Elements greater or equal to pivot
                ($greaterRemaining (sort $greater))
+               ($x (sort $smaller))
+               ($y (cons-atom $pivot $greaterRemaining))
            )
-           (union-atom (sort $smaller) (cons-atom $pivot $greaterRemaining)  ) ; Recursively sort and combine
+           (union-atom $x $y) ; Recursively sort and combine
+       )
+   )
+)
+
+(= (sortDecend $list)
+   (if (== $list ())
+       () ; Base case: empty list is already sorted
+       (let*
+           (
+               ($pivot (car-atom $list)) ; Split into pivot and rest
+               ($rest (cdr-atom $list))
+               ($smaller (filterLess $pivot $rest)) ; Elements smaller than pivot 2 7 3 3
+               ($greater (filterGreaterEqual $pivot $rest)) ; Elements greater or equal to pivot 9 7 3
+               ($greaterRemaining (sortDecend $greater))
+               ($x (sortDecend $smaller))
+               ($y (cons-atom $pivot $x))
+           )
+           (union-atom $greaterRemaining $y) ; Recursively sort and combine
        )
    )
 )
@@ -257,28 +277,27 @@
 
 ;function to reverse an expression 
 
-(= (reverseExpr $x ) (collapse (union (superpose $x) (superpose ())))) 
-
+(= (reverseExpr $x ) (collapse (union (superpose $x) (superpose ()))))
 ; Description: the function takes a list of atoms and experessions 
 ;              and returns a new list wich contatins only symobls
 ; params:
-;		$atoms: list of symbols and expressions
+;    $atoms: list of symbols and expressions
 ; return: list of symbols
 (: removeLinksfromList (-> List List))
 (= (removeLinksfromList $atoms)
-	(if (== $atoms ())
-		()
-		(let* 
-			(
-				($head (car-atom $atoms))
-				($tail (cdr-atom $atoms))
-			)
-			(if (== (get-metatype $head) Symbol)
-				(concatTuple ($head) (removeLinksfromList $tail))	
-				(removeLinksfromList $tail)
-			)
-		)
-	)
+  (if (== $atoms ())
+    ()
+    (let* 
+      (
+        ($head (car-atom $atoms))
+        ($tail (cdr-atom $atoms))
+      )
+      (if (== (get-metatype $head) Symbol)
+        (concatTuple ($head) (removeLinksfromList $tail))  
+        (removeLinksfromList $tail)
+      )
+    )
+  )
 )
 
 

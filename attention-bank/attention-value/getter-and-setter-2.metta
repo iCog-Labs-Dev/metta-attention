@@ -122,8 +122,7 @@
 
 
 ; getMean retrieves mean from a pattern
-; i.e !(getMean A)  output: 1 
-
+; i.e !(getMean A)  output: 1
 (: getMean (-> Atom Number))
 (= (getMean $pattern)
     (case (getStv $pattern)
@@ -304,4 +303,22 @@
       (union-atom $vals $rest)
     )
   )
+)
+(= (getBinList $space)
+    (let $x (collapse (unique (match $space ($patt ($val (Bin $num))) $num))) $x)
+)
+(= (getNatoms $atoms $n)
+    (if (or (== $n 0) (== $atoms ()))
+        ()
+        (let* (
+            (($head $tail) (decons-atom $atoms))
+            ($hasStv (collapse (match (TypeSpace) ($a (($s $a) ($b))))))
+            ($atom (if (> (size-atom $hasStv) 0) 
+                        (collapse (match (TypeSpace) ($patt (($stv (AV ($head $lti $vlti))) $y)) $patt))
+                        (collapse (match (TypeSpace) ($patt ( (AV ($head $lti $vlti)) $y)) $patt))
+                        ))
+            ($res (getNatoms $tail (- $n 1))))
+        (union-atom $atom $res)
+        )
+    )
 )
