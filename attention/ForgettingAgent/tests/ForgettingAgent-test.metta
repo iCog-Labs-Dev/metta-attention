@@ -100,4 +100,14 @@
 
 !(assertEqual (getAttentionParam FUNDS_STI) 99468.40000000002)
 
-!(assertEqual (let $a (getAtomsInRemoveSpace) (size-atom $a)) 16)
+(getAtomsInTypeSpace)
+!(let $atoms
+    (getAtomsInTypeSpace) 
+    (assertEqual 
+        (subtraction-atom 
+            $atoms
+            (a b e f i j A B C D E F G H I J L M N o p (ASYMMETRIC_HEBBIAN_LINK a b) (ASYMMETRIC_HEBBIAN_LINK e f) (SYMMETRIC_HEBBIAN_LINK A B) (SYMMETRIC_HEBBIAN_LINK C D) (SYMMETRIC_HEBBIAN_LINK E F) (SYMMETRIC_HEBBIAN_LINK G H))
+        )
+        ()
+    )
+)
