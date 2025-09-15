@@ -1,10 +1,3 @@
-!(bind! &removeSpace (new-space)) ; a new space to store removed atoms
-
-(: RemoveSpace (-> Grounding::space))
-(= (RemoveSpace)
-	&removeSpace
-)
-
 ; Description: a function to remove atoms that have low Lti values from the typeSpace
 ; params:
 ;		None
@@ -141,10 +134,12 @@
 					(let*
 						(
 							($size (size-atom $niset))
-							(() (globalRemoveAtom $head $niset))
 							($newCount (+ (+ 1 $count ) $size))
 						)
-						(checkThenRemoveAtom $tail $removalAmount $newCount)
+                        ( 
+                            (globalRemoveAtom $head $niset)
+						    (checkThenRemoveAtom $tail $removalAmount $newCount)
+                        )
 					)
 					(checkThenRemoveAtom $tail $removalAmount $count)
 				)
@@ -179,18 +174,16 @@
 ; return: None
 (: globalRemoveAtom (-> Atom List empty))
 (= (globalRemoveAtom $head $niset) 
-	(let*
+	(let $bin 
+        (importanceBin (getSti $head))
 		(
-            (() (refundAV $head))
-			(() (add-atom &removeSpace (: $head ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))))
-            (() (removeNewAtomAV $head))
-			(() (extractAtomRecursive $niset))
-			(() (removeAtomAttentionalfocus $head))
-			($bin (importanceBin (getSti $head)))
-			($_ (removeAtom $bin $head))
-			(() (removeTypeSpace $head))
-		)
-		()
+            (refundAV $head)
+            (removeAtom $bin $head)
+            (removeNewAtomAV $head)
+            (extractAtomRecursive $niset)
+            (removeAtomAttentionalfocus $head)
+            (removeTypeSpace $head)
+        )
 	)
 )
 
@@ -207,15 +200,19 @@
 			(
 				($head (car-atom $atoms))
 				($tail (cdr-atom $atoms))
-                (() (refundAV $head))
-				(() (add-atom &removeSpace (: $head ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))))
 				($bin (importanceBin (getSti $head)))
-				($_ (removeAtom $bin $head))
-				(() (removeAtomAttentionalfocus $head))
-				(() (removeTypeSpace $head))
-                (() (removeNewAtomAV $head))
 			)
-			(extractAtomRecursive $tail)
+            (
+                (removeAtom $bin $head)
+                (refundAV $head)
+                (removeAtomAttentionalfocus $head)
+                (removeTypeSpace $head)
+                (removeNewAtomAV $head)
+                (removeAtomAttentionalfocus $head)
+                (removeTypeSpace $head)
+                (removeNewAtomAV $head)
+                (extractAtomRecursive $tail)
+            )
 		)
 	)
 )
@@ -230,107 +227,4 @@
         ()
         (setAv $atom (0 0 0))
     )
-)
-; Description: a wrapper for getRemoveValueType-helper it collapses the result and retunrs undefined or value type
-; params:
-;	$pattern: an atom whose attention and truth value to be searched
-; return: and expresion fo the AV, STV or both values or undefined
-(: getRemoveValueType (-> Atom Type))
-(= (getRemoveValueType $pattern) 
-	(let $a 
-		(collapse (getRemoveValueType-helper $pattern))
-		(if (== $a ())
-			%Undefined%
-			(car-atom $a)
-		)
-	)
-)
-
-; Description: get the value of an atom's AV or STV mainly used to remove non-determinism from get-type
-; params:
-;	$pattern: an atom whose attention and truth value to be searched
-; return: an expression for the AV, STV, both values or empty
-(: getRemoveValueType-helper (-> Atom Type))
-(= (getRemoveValueType-helper $pattern) 
-	(let $a 
-		(get-type-space &removeSpace $pattern) 
-		(unify $a  
-			(AV $sti $lti $vlti) 
-			(AV $sti $lti $vlti)
-			(unify $a
-				(STV $mean $conf)
-				(STV $mean $conf)
-				(unify $a
-					((STV $mean $conf) (AV $sti $lti $vlti))
-					((STV $mean $conf) (AV $sti $lti $vlti))
-					(empty)
-				)
-			)
-		)
-	)
-)
-
-; Description: get the AV value of a specific atom
-; params: 
-;	$pattern: an atom whose attention value to be returned
-; return: AV value of the atom
-(= (getRemoveAV $pattern)
-	(let $type (getRemoveValueType $pattern)
-		(if (== $type $Undefined$)
-			%Undefined%
-			(unify $type
-				(AV $sti $lit $vlti)
-				(AV $sti $lit $vlti)
-				(unify $type
-					((STV $mean $conf) (AV $sti $lit $vlti))
-					(AV $sti $lit $vlti)
-					%Undefined%
-				)	
-			)	
-
-		)
-	)
-)
-
-; Description: retrive the Lti value of an atom in the removeSpace
-; params:
-; 	$pattern: atom whos Lti is to be retrieved
-; return: Number value of describing the Lti
-(: getRemoveLti ( -> Atom Number))
-(= (getRemoveLti $pattern)
-	(let (AV $sti $lti $vlti) (getRemoveAV $pattern) $lti)
-)
-
-
-; Description: retrive the STI value of an atom in the removeSpace
-; params:
-; 	$pattern: atom whos STI is to be retrieved
-; return: Number value of describing the STI
-(= (getRemoveSTI $pattern)
-	(let (AV $sti $lti $vlti) (getRemoveAV $pattern) $lti)
-)
-
-; Description: returns a list of atoms patterns by extracitng the STV and AV values from original atoms
-; params:
-;	None
-; return: list of atoms patterns
-(: getAtomsInRemoveSpace-helper (-> List))
-(= (getAtomsInRemoveSpace-helper) 
-	(let $a 
-		(get-atoms &removeSpace)
-		(unify $a
-			(: $pattern $x)
-			$pattern
-			(empty)
-		)
-	)
-)
-
-; Description : getAtomsInRemoveSpace is a function that returns a list of patterns in typespace
-; params:
-;	None
-; return: List of patterns in the removeSpace without thier types in and is more deterministic than matching
-(: getAtomsInRemoveSpace (-> List))
-(= (getAtomsInRemoveSpace) 
-	(collapse (getAtomsInRemoveSpace-helper))
 )
