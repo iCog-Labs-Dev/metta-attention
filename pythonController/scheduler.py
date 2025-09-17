@@ -2,11 +2,11 @@ import concurrent.futures
 import logging
 import random
 from pathlib import Path
-
+from typing import Any, Iterator
 from .agent_base import Agentrun
 
 class ParallelScheduler:
-    def __init__(self, metta, paths, log_file="af_agent.log"):
+    def __init__(self, metta: Any, paths: str, log_file:str = "af_agent.log"):
         self.agent_creators = {}  # Stores agent creator functions
         self.agent_instances = {}  # Stores actual agent instances
         self.metta = metta
@@ -28,7 +28,7 @@ class ParallelScheduler:
                             format='%(asctime)s - %(levelname)s - %(message)s')
         logging.info("Starting ParallelScheduler")
 
-    def run_metta_file(self, path):
+    def run_metta_file(self, path: Path) -> None:
         data_file_path = path
         try:
             with open(data_file_path, 'r') as f:
@@ -41,7 +41,7 @@ class ParallelScheduler:
         except Exception as e:
             print(f"Error loading data from file: {e}")
 
-    def get_absolute_path(self, relative_path):
+    def get_absolute_path(self, relative_path: str) -> Path:
         """ takes a string of file path and resolves it relaitve metta-atention"""
 
         if isinstance(relative_path, str):
@@ -50,7 +50,7 @@ class ParallelScheduler:
         else:
             raise TypeError("file path must be instance of str")
 
-    def load_imports(self, import_path):
+    def load_imports(self, import_path: str) -> None:
         """ imports any file into the metta space """ 
         if ".metta" in import_path.split("/")[-1]:
             resolved_path = self.get_absolute_path(import_path)
@@ -58,7 +58,7 @@ class ParallelScheduler:
         else:
             raise ValueError(f"load_imports only accepts .metta file {import_path}")
 
-    def load_sent_files(self, file_paths):
+    def load_sent_files(self, file_paths: list[str]) -> None:
         """ takes a list of files to read for ECAN stimulation """
 
         if isinstance(file_paths, list):
@@ -70,7 +70,7 @@ class ParallelScheduler:
         else:
             raise TypeError("load_sent_files sentence argument must be list instance")
 
-    def create_word_list(self):
+    def create_word_list(self) -> None:
         """ populates self.word_list by list of words to be chosen randomly """
         for file in self.sent_paths:
             with open(file, 'r') as f:
@@ -85,7 +85,7 @@ class ParallelScheduler:
         else:
             raise TypeError("argument to random_word must be int instance")
 
-    def update_attention_param(self, param, new_value):
+    def update_attention_param(self, param: str, new_value: Any) -> None:
         """ Updates ECAN hyperparameters """
 
         params = [   
@@ -130,7 +130,7 @@ class ParallelScheduler:
         else:
             raise TypeError("function takes str as first argument")
 
-    def start_logger(self, directory):
+    def start_logger(self, directory: str) -> None:
         """ makes a call to the save_param function in utilities """
 
         if not isinstance(directory, str):
@@ -138,14 +138,14 @@ class ParallelScheduler:
 
         self.metta.run(f"!(start_log (attentionParam) {directory})")
 
-    def register_agent(self, agent_id, agent_creator):
+    def register_agent(self, agent_id: str, agent_creator) -> None:
         """ Register an agent factory function (not instance) """
         self.agent_creators[agent_id] = agent_creator
         self.agent_instances[agent_id] =  agent_creator()
         logging.info(f"Registered agent: {agent_id}")
         print(f"Registered agent: {agent_id}")
 
-    def get_or_create_agent(self, agent_id: str):
+    def get_or_create_agent(self, agent_id: str) -> Any:
         """ Get existing agent or create a new one if not exists """
         if agent_id not in self.agent_instances:
             if agent_id in self.agent_creators:
@@ -159,7 +159,7 @@ class ParallelScheduler:
         
         return self.agent_instances[agent_id]
 
-    def log_af_state(self, agent: Agentrun, agent_id: str):
+    def log_af_state(self, agent: Agentrun, agent_id: str) -> None:
         """Logs the attentionalFocus state of the AFImportanceDiffusionAgent."""
 
         try:
@@ -174,7 +174,7 @@ class ParallelScheduler:
             print(f"Error logging attentionalFocus: {e}")
         
         
-    def word_reader(self):
+    def word_reader(self) -> Iterator[str]:
         """ Generator function reads all files in the sent_path obj instance
         and yields a word until finished """
         data = self.sent_paths
@@ -197,7 +197,7 @@ class ParallelScheduler:
         """ Retrives obects value used for stimlation """
         return self.stimulate_value
 
-    def stimulate_data(self, word, value):
+    def stimulate_data(self, word: str, value: int) -> Any:
         """ recives a word and a value and stimulates that value """
 
         if isinstance(word, str) and isinstance(value, int):
@@ -206,7 +206,7 @@ class ParallelScheduler:
 
         raise TypeError("accepts str and int respectivly")
 
-    def run_continuously(self):
+    def run_continuously(self) -> None:
         """ Run all agents continuously in parallel without stopping """
         if not self.agent_creators:
             logging.warning("No agents registered!")
@@ -243,7 +243,7 @@ class ParallelScheduler:
             logging.error(f"Exception in run_continuously: {e}")
             print(f"Exception in run_continuously: {e}")
 
-    def run_iterativly(self, iteration:int, switch:int):
+    def run_iterativly(self, iteration:int, switch:int) -> None:
 
         if not isinstance(iteration, int):
             raise TypeError(f"run_iterativly expects int argument but {type(iteration)} was given")
