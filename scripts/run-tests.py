@@ -13,7 +13,7 @@ YELLOW = "\033[93m"
 MAGENTA = "\033[95m"
 
 
-def extract_and_print(result, path) -> bool:
+def extract_and_print(result, path: pathlib.Path) -> bool:
     output = result.stdout if result.returncode == 0 else result.stderr
     # Remove the specified substring
     extracted = output.replace("[()]\n", "")
@@ -34,7 +34,7 @@ def extract_and_print(result, path) -> bool:
 
 
 # Function to print ASCII art
-def print_ascii_art(text):
+def print_ascii_art(text: str) -> None:
     art = f"""
                 {text}
            """
@@ -42,15 +42,15 @@ def print_ascii_art(text):
 
 
 # Define the command to run with the test files
-metta_run_command = "metta"
+metta_run_command: str = "metta"
 
 
-root = pathlib.Path(".")
+root: pathlib.Path = pathlib.Path(".")
 
 testMettaFiles = root.rglob("*-test.metta")
-total_files = 0
-results = []
-fails = 0
+total_files: int = 0
+results: list = []
+fails: int = 0
 
 # Print ASCII art title
 print_ascii_art("Test Runner")

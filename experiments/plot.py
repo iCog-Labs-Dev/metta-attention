@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Union
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -8,7 +9,7 @@ import sys
 
 class Plotter:
 
-    def __init__(self, output_path):
+    def __init__(self, output_path: Union[str, Path]):
         self.output_path = Path(output_path).parent.resolve()
         self.data_path = self.get_data_path()
         self.params = self.read_params()
@@ -16,7 +17,7 @@ class Plotter:
         self.data_frame = self.read_csv()
         self.plot()
     
-    def get_data_path(self):
+    def get_data_path(self) -> Path:
         data_path = self.output_path.parent / 'data'
         if not data_path.exists() or not data_path.is_dir():
             raise FileNotFoundError(f"No {data_path} directory found")
@@ -27,7 +28,7 @@ class Plotter:
             raise ValueError(f"Multiple words.json files found at {data_path}")
         return file_paths[0]
 
-    def read_params(self):
+    def read_params(self) -> dict:
         settings_path = self.output_path / 'settings.json'
         if not settings_path.exists():
             raise FileNotFoundError(f"No {settings_path} found in output directory")
@@ -35,11 +36,11 @@ class Plotter:
             setting_json = json.load(f)
         return setting_json
 
-    def create_category(self):
+    def create_category(self) -> dict:
         with open(self.data_path, 'r') as f:
             return json.load(f)
 
-    def categorize_pattern(self, pattern):
+    def categorize_pattern(self, pattern) -> str:
         pattern = str(pattern)
         word_category = self.categories
         word = pattern.split()[0].lstrip("(")
@@ -48,7 +49,7 @@ class Plotter:
                 return category
         return 'Entered through spreading'
 
-    def read_csv(self):
+    def read_csv(self) -> pd.DataFrame:
         csv = self.output_path / 'output.csv'
         df = pd.read_csv(csv, parse_dates=['timestamp'])
         df['category'] = df['pattern'].apply(self.categorize_pattern)
@@ -57,7 +58,7 @@ class Plotter:
         af_size = int(float(self.params['MAX_AF_SIZE']))
         return category_counts / af_size
 
-    def plot(self):
+    def plot(self) -> None:
         category_counts = self.data_frame
 
         # === 1. Smoothing ===
