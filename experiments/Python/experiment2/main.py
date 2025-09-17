@@ -12,7 +12,7 @@ sys.path.insert(0, BASE_DIR)
 
 from pythonController import ParallelScheduler, Agentrun
 
-def main():
+def main() -> None:
 
     # create Base dir to allow robust agent path defination
     base_path = os.path.join(BASE_DIR, "attention/")
