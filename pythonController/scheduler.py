@@ -4,12 +4,12 @@ import random
 from pathlib import Path
 from typing import Any, Iterator
 from .agent_base import Agentrun
-
+from hyperon import metta
 class ParallelScheduler:
-    def __init__(self, metta: Any, paths: str, log_file:str = "af_agent.log"):
+    def __init__(self, metta_instance: metta, paths: str, log_file:str = "af_agent.log"):
         self.agent_creators = {}  # Stores agent creator functions
         self.agent_instances = {}  # Stores actual agent instances
-        self.metta = metta
+        self.metta = metta_instance
 
         # default stimulate value
         self.stimulate_value = 200
@@ -85,7 +85,7 @@ class ParallelScheduler:
         else:
             raise TypeError("argument to random_word must be int instance")
 
-    def update_attention_param(self, param: str, new_value: Any) -> None:
+    def update_attention_param(self, param: str, new_value: float) -> None:
         """ Updates ECAN hyperparameters """
 
         params = [   
