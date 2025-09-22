@@ -116,7 +116,7 @@
                     (if (== (get-metatype $target) Expression)
                         (if (== (car-atom $target) HEBBIAN_LINK)
                             ()
-                            (if (and (not (== (getStv (ASYMMETRIC_HEBBIAN_LINK $source $target) %Undefined%))) (== $target $source)) ;If the link exists dont add it again 
+                            (if (and (not (== (getStv (ASYMMETRIC_HEBBIAN_LINK $source $target)) %Undefined%)) (== $target $source)) ;If the link exists dont add it again 
                                 ()
                                 (
                                     (addHebbian $source $target )
@@ -124,7 +124,7 @@
                                 )
                             )
                         )
-                        (if (and (not (== (getStv (ASYMMETRIC_HEBBIAN_LINK $source $target) %Undefined%))) (== $target $source)) ;If the link exists dont add it again 
+                        (if  (and (not (== (getStv (ASYMMETRIC_HEBBIAN_LINK $source $target)) %Undefined%)) (== $target $source)) ;If the link exists dont add it again 
                             ()
                             (
                                 (addHebbian $source $target )
