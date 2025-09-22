@@ -55,15 +55,16 @@
 !(stimulate Frog 200)
 !(stimulate Animal 200)
 !(stimulate alive 200)
-!(stimulate (EVALUATION_LINK animal slimy) 200)
+!(stimulate (EVALUATION_LINK animal slimy) 100)
 
-!(assertEqual (let $size ("Before The Hebbian Creation " (collapse (get-atoms (newAtomInAV)))) (size-atom $size)) 2)
-
-!(HebbianCreationAgent-Run (TypeSpace) (attentionalFocus) (newAtomInAV))
+!(HebbianCreationAgent-Run (TypeSpace))
 
 ;;Confirm that only n*(n-1) = 12 AsymmetricHebbianLinks were formed,
 ;;indicating that none incorrectly include "slimy" nor the dummy atoms
-!(assertEqual (attentionalFocusSize) 4)
+!(let $afAtoms
+    (getAfAtoms)
+    (assertEqual (size-atom $afAtoms) 4)
+)
 
 !(assertEqual   
     (let $atoms (collapse 
@@ -72,4 +73,3 @@
     12
 )
 
-!(assertEqual (collapse ("After The Hebbian Creation " (get-atoms (newAtomInAV)))) ())
