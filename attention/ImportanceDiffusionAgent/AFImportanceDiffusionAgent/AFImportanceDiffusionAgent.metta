@@ -4,14 +4,20 @@
 
 ; (: diffusionSourceVector (-> Grounded Atom))
 (= (diffusionSourceVector $list)
-    (let $q (collapse (let*
-        (
-        ($superposed (superpose $list))
-        ($x (unify (HEBBIAN_LINK $a1 $a2) $superposed (HEBBIAN_LINK $a1 $a2) ()))
-        ($y (unify $a $superposed (if (== (get-metatype $a) Expression) () $a) ()))
+    (collapse 
+        (let
+            $temp 
+            (superpose $list)
+            (if (== (get-metatype $temp) Expression)
+                (if (== (car-atom $temp) HEBBIAN_LINK)
+                    (empty)
+                    $temp
+                )
+                $temp
+                
+            )
         )
-         (if (and (== $y ()) (== $x ())) Empty (cons-atom $y $x))
-    )) (flatten $q))
+    ) 
 )
 
 
@@ -31,7 +37,7 @@
 
 ; (: spreadImportance (-> Grounded Grounded Empty))
 (= (spreadImportance $space)
-    (let $diffusionSourceVector (diffusionSourceVector (afAtoms))
+    (let $diffusionSourceVector (diffusionSourceVector (getAfAtoms))
         (let ($atom $atomToReceive $stiGiven)
             (diffuseAtom (superpose $diffusionSourceVector) $space AF)
                 (tradeSti $atom $atomToReceive $stiGiven)
