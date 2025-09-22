@@ -5,7 +5,10 @@
             ($allAtoms (getAllAtomsWithBins))
         ) 
         (if (not (<= $afSize (size-atom $allAtoms)))
-                $allAtoms
+                (let $wrote
+                    (write_csv_wrapper $allAtoms)
+                    $allAtoms
+                )
                 (getAfAtomsHelper $afSize)
         )
     )
@@ -20,8 +23,10 @@
             ($minAtomsSti (getAtomsByBin $min))
             ($sortedMinList (sortAtomsDescending $minAtomsSti))
             ($lastAtoms (getNatoms $sortedMinList $remainSize)); getting the first $size number of atoms
+            ($afAtoms (union-atom $atomsList $lastAtoms))
+            ($wrote (write_csv_wrapper $afAtoms)) ; log to csv if logger is configured via start_log
         ) 
-        (union-atom $atomsList $lastAtoms)
+       $afAtoms 
     )
 )
 

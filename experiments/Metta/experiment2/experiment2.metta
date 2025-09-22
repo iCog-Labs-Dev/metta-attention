@@ -20,7 +20,6 @@
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 
 !(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
-!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
@@ -71,5 +70,3 @@
 )
 
 !(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x))
-!(getAtomList)
-!(get-atoms (TypeSpace))
