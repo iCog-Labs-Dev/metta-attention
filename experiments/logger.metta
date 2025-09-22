@@ -1,18 +1,21 @@
 !(import! &self utils)
-(= (write_csv_wrapper $space)
+(= (write_csv_wrapper $afAtoms)
     (let $snapshot
-        (collapse (AFsnapshot $space))
+        (collapse (AFsnapshot $afAtoms))
         (write_to_csv $snapshot)
     )
 )
 
-(= (AFsnapshot $space)
-    (let* 
-        (
-            ($atom (get-atoms $space))
-            ($av (getAv $atom))
-        ) 
-        ($atom $av) 
+(= (AFsnapshot $afAtoms)
+    (if (== $afAtoms ())
+        ()
+        (let* 
+            (
+                ($atom (superpose $afAtoms))
+                ($av (getAv $atom))
+            ) 
+            ($atom $av) 
+        )
     )
 )
 
