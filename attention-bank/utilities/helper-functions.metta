@@ -354,3 +354,35 @@
         ()
     )
 )
+
+(= (sortAtomsDescending $atoms) 
+    (if (== $atoms ())
+		()
+		(let*
+			(
+				($pivot (car-atom $atoms))
+				($tail (cdr-atom $atoms))
+				($lesser (binaryFilter lessThanSti  $pivot $tail))
+				($greater (binaryFilter greaterThanSti  $pivot $tail))
+                ($sortedLesser (sortAtomsDescending $lesser))
+                ($sortedGreater (sortAtomsDescending $greater))
+			)	
+           (concatTuple $sortedGreater (cons-atom $pivot $sortedLesser))
+		)
+	)
+
+)
+
+(= (lessThanSti $elem $pivot)
+    (if (or (== $elem ()) (== $pivot ()))
+		False
+	    (<= (getSti $elem) (getSti $pivot))
+    )   
+)
+
+(= (greaterThanSti $elem $pivot)
+    (if (or (== $elem ()) (== $pivot ()))
+		False
+	    (> (getSti $elem) (getSti $pivot))
+    )   
+)

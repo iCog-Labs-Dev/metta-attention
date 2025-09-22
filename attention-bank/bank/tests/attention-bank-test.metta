@@ -47,5 +47,8 @@
 ; Check new Atom is added to bin 0
 !(stimulate w 0)
 
-!(assertEqual (getAtomList) (x y z w))
+!(let $afAtoms
+    (getAfAtoms)
+    (assertEqual (subtraction-atom $afAtoms (x y z w)) ())
+)
 

@@ -1,24 +1,28 @@
-(= (afAtoms)
+(= (getAfAtoms)
     (let*
         (
-        ($afSize (getAttentionParam MAX_AF_SIZE))
-        ($allAtoms (getAllAtomsWithBins))
-        ) ( if (not (< $afSize (size-atom $allAtoms)))
+            ($afSize (getAttentionParam MAX_AF_SIZE))
+            ($allAtoms (getAllAtomsWithBins))
+        ) 
+        (if (not (<= $afSize (size-atom $allAtoms)))
                 $allAtoms
-                (afAtomsHelper $afSize)
-    ))
+                (getAfAtomsHelper $afSize)
+        )
+    )
 )
 
-(= (afAtomsHelper $size)
-    (let* (
-        ($binList (sortDecend (getBinList (TypeSpace))))
-        (($min $atomsList) (minBin  $binList $size ()));getting the last bin and atoms in above the min bin
-        ($remainSize (- $size (size-atom $atomsList))) ;calculate remaining number of atoms
-        ($minAtomsSti (let $m (getAtomsByBin $min) (collapse (unique (getSti (superpose $m))))))
-        ($sortedMinList (sortDecend $minAtomsSti))
-        ($lastAtoms (getNatoms $sortedMinList $remainSize)); getting the first $size number of atoms
-        ) (union-atom $atomsList $lastAtoms)
-        )
+(= (getAfAtomsHelper $size)
+    (let* 
+        (
+            ($binList (sortDecend (getBinList (TypeSpace))))
+            (($min $atomsList) (minBin  $binList $size ())) ; getting the last bin and atoms in above the min bin
+            ($remainSize (- $size (size-atom $atomsList))) ; calculate remaining number of atoms
+            ($minAtomsSti (getAtomsByBin $min))
+            ($sortedMinList (sortAtomsDescending $minAtomsSti))
+            ($lastAtoms (getNatoms $sortedMinList $remainSize)); getting the first $size number of atoms
+        ) 
+        (union-atom $atomsList $lastAtoms)
+    )
 )
 
 (= (minBin $binList $size $acc)
@@ -40,11 +44,20 @@
 
 
 (= (getRandomAtomNotInAF)
-    (let* ( ($afAtoms (afAtoms))
-            ($min (getAllMinSTI $afAtoms))
+    (let* 
+        ( 
+            ($afAtoms (getAfAtoms))
             ($atoms (getAllAtomsWithBins))
-            ($filtered (filterContents $atoms 0 (- $min 0.0000001)))
-    )   (getRandHelp $filtered)
+            ($outsideAf (subtraction-atom $atoms $afAtoms))
+            ($size (size-atom $outsideAf))
+        )   
+        (if (== $size 0)
+            ()
+            (let $rand 
+                (random-int 0 $size)
+                (index-atom $outsideAf $rand)
+            )
+        )
     )
 )
 
@@ -64,7 +77,7 @@
 )
 (= (getRandInAf)
     (let $atoms 
-            (afAtoms)
+            (getAfAtoms)
             (if (== (size-atom $atoms) 0)
                 ()
             (let $rand (random-int 0 (size-atom $atoms))
@@ -74,26 +87,27 @@
 )
 
 (= (isAtomInAf $atom)
-    (let $x (getAllMinSTI (afAtoms)) (< (getSti $x) (getSti $atom)))
+    (let $x (getAllMinSTI (getAfAtoms)) (< (getSti $x) (getSti $atom)))
 )
 
-(= (getIncomingByType $atom $type)
-    (let $list (afAtoms)
-    (collapse 
-    (let*
-        (
-        ($x (superpose $list))
-        ($y (unify ($type $elem $atom) $x ($type $elem $atom) ()))
-        ($l (unify ($type $atom $z) $x ($type $atom $z) ()))
-        ) 
-        (if (and (== $y ()) (== $l ())) Empty (union-atom $y $l))
-         
-    ))
+(= (getIncomingByType $type $atom)
+    (let $list 
+        (getAfAtoms)
+        (collapse 
+            (let*
+                (
+                    ($x (superpose $list))
+                    ($y (unify ($type $elem $atom) $x ($type $elem $atom) ()))
+                    ($l (unify ($type $atom $z) $x ($type $atom $z) ()))
+                ) 
+                (if (and (== $y ()) (== $l ())) Empty (union-atom $y $l))
+            )
+        )
     )
 )
 
 (= (getIncoming $atom)
-    (let $list (afAtoms)
+    (let $list (getAfAtoms)
     (collapse 
         (let*
             (

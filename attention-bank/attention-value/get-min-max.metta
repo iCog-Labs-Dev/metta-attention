@@ -3,7 +3,7 @@
 (: getMaxContent (-> Grounded Expression))
 (= (getMaxContent $space)
     (let $bins 
-         (collapse (match $space ($patt ($val (Bin $binNumber))) $binNumber))
+         (getBinList)
          (if (== $bins ()) 
             () 
             (let $max 
@@ -20,7 +20,7 @@
 (: getMinContent (-> Grounded Expression))
 (= (getMinContent $space)
     (let $bins 
-         (collapse (unique (match $space ($patt ($val (Bin $binNumber))) $binNumber)))
+         (getBinList)
          (if (== $bins ()) 
             () 
             (let $min 

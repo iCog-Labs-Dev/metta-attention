@@ -238,7 +238,7 @@
 (= (getNormalisedSTI $atom)
    (let*
        (
-          ($atoms (afAtoms))
+          ($atoms (getAfAtoms))
            ($s (getSti $atom))
            ($afMax  (getAllMaxSTI $atoms))
            ($normaliser
@@ -270,7 +270,7 @@
 (= (getNormalisedSTI $atom $average $clip)
    (let*
        (
-           ($atoms (afAtoms))
+           ($atoms (getAfAtoms))
            ($s (getSti $atom))
            ($afMax  (getAllMaxSTI $atoms))
            ($diff (- $s $afMax))

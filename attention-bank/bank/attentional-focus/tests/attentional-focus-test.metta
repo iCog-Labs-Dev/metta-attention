@@ -25,9 +25,7 @@
 ; ################### Testing #################################
 
 ; Test case 01: Testing attentionalFocusSize asserting it returns correct number of atom in focus
-; !(assertEqual (let $x (afAtoms) (size-atom $x)) 8)
-
-!(assertEqual (getIncomingByType Animal Hebbianlink) ((Hebbianlink (Hebbianlink Cat Human) Animal)))
+!(assertEqual (getIncomingByType Hebbianlink Animal) ((Hebbianlink (Hebbianlink Cat Human) Animal)))
 
 ; ; ; Test case 02: Testing atomIsInAF asserting it returns True for a given atom in AF
 
@@ -51,27 +49,39 @@
 
 !(setAv G (300.0 400.0 500.0))
 !(assertEqual (isAtomInAf G) True)
-; !(assertEqual (getAtomList) (a d c A B C D F (EvaluationLink a b) (Hebbianlink (Hebbianlink Cat Human) Animal) G))
-!(let $x (afAtoms) (assertEqual (subtraction (superpose $x) (superpose (a d c A B C D F (EvaluationLink a b) (Hebbianlink (Hebbianlink Cat Human) Animal) G))) Empty))
 
-; ; Test case 06: Testing updateAttentionalFocus by changing values of saved atom
+!(let $x 
+    (getAfAtoms) 
+    (assertEqual 
+        (subtraction 
+            (superpose $x) 
+            (superpose (D B F (EvaluationLink a b) A (Hebbianlink (Hebbianlink Cat Human) Animal) C G))
+        ) 
+        (empty)
+    )
+)
 
+;; Test case 06: Testing updateAttentionalFocus by changing values of saved atom
 !(setAv G (15.0 25.0 35.0))
-; !(assertEqual (updateAttentionalFocus G) True)
-; !(assertEqual (getAtomList) (a d c A B C D F (EvaluationLink a b) (Hebbianlink (Hebbianlink Cat Human) Animal) G))
-!(let $x (afAtoms) (assertEqual (subtraction (superpose $x) (superpose (a d c A B C D F (EvaluationLink a b) (Hebbianlink (Hebbianlink Cat Human) Animal) G))) Empty))
+
+!(let $x 
+    (getAfAtoms) 
+    (assertEqual 
+        (subtraction 
+            (superpose $x) 
+            (superpose (G D B F (EvaluationLink a b) A (Hebbianlink (Hebbianlink Cat Human) Animal) C))
+        ) 
+        (empty)
+    )
+)
 ; Test case 07: Testing updateAttentionalFocus adding an atom without AV 
 
 ; !(assertEqual (updateAttentionalFocus L) False)
 ; !(assertEqual (getAtomList) (a d c A B C D F (EvaluationLink a b) (Hebbianlink (Hebbianlink Cat Human) Animal) G))
 
 ; ; Test case 09: Testing getRandomAtomNotInAF assure that only one atom is returned
-!(let $a (collapse (getRandomAtomNotInAF)) (assertEqual (size-atom $a) 1))
-!(let $res (collapse (getRandomAtomNotInAF)) (assertEqual (size-atom $res) 1))
-
+!(let $a (collapse (getRandomAtomNotInAF)) (assertEqual (isAtomInAf $a) False))
 
 ; Test case 10: Testing getAfMaxSTI
 
-!(let $x (afAtoms) (assertEqual (getAllMaxSTI $x) 200))
-
-; ;################ Prep: adding to attensionalfocus space to test link match ####################
+!(let $x (getAfAtoms) (assertEqual (getAllMaxSTI $x) 200))

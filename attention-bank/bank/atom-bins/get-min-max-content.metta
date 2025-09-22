@@ -4,19 +4,15 @@
 
 (: getMaxContent (-> List))
 (= (getMaxContent)
-    (let* (
-        ($atombin (atomBin))
-        ($numbers (collapse (match $atombin ($y $x) $y)))
+    (let $numbers 
+        (getBinList (TypeSpace))
+        (if (== $numbers ()) 
+            ()
+            (let $max 
+                (max-atom $numbers)
+                (getAtomsByBin $max)
+            )
         )
-    (if (== $numbers ()) (Empty Bin) (
-        let* (
-        ($max (max-atom $numbers))
-        ($content (match (atomBin) ($max $x)  $x))
-        )
-
-        $content
-    )
-    )
     )
 )
 
@@ -26,46 +22,18 @@
 
 (: getMinContent (-> List))
 (= (getMinContent)
-    (let* (
-        ($atombin (atomBin))
-        ($numbers (collapse (match $atombin ($y $x) $y)))
+    (let $numbers 
+        (getBinList (TypeSpace))
+        (if (== $numbers ()) 
+            ()
+            (let $max 
+                (min-atom $numbers)
+                (getAtomsByBin $max)
+            )
         )
-    (if (== $numbers ()) (Empty Bin) (
-        let* (
-        ($min (min-atom $numbers))
-        ($content (match (atomBin) ($min $x)  $x))
-        )
-
-        $content
-    )
-    )
-    )
-)
-; this function takes a bin number and return the number of atoms found in that bin
-; it used size helper function to count the number of atoms found in the bin
-(= (getSize $binNumber)
-    (let* (
-        ($atoms (match (atomBin) ($binNumber $x) $x))
-    )
-        (size-atom $atoms)
     )
 )
 
-;Function: binSize
-;Description: Calculates the total number of atoms across all bins in &atombin space.
-;             It retrieves all bin indices and computes the cumulative sum of their sizes.
-;Parameters: None.
-;Returns: The total number of atoms across all bins.
-(: binSize (-> Number))
-(= (binSize)
-   (let* (
-      ($atombin (atomBin))
-      ($indices (collapse (match $atombin ($x $y) $x)))
-      ($binsSize (sumSizes $indices)) 
-    )
-    $binsSize
-  )
-)
 
 ;Function: sumSizes
 ;Description: Recursively computes the total number of atoms across all bins in a given list of bin indices.
