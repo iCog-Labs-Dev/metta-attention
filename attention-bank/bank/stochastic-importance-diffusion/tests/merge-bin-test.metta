@@ -1,7 +1,7 @@
 ! (register-module! ../../../../../metta-attention)
 !(import! &self metta-attention:attention:AttentionParam)
 ! (import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:merge-bin)
-! (import! &self metta-attention:attention-bank:attention-value:getter-and-setter-2)
+! (import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 ! (import! &self metta-attention:attention-bank:bank:attention-bank)
 ! (import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 ! (import! &self metta-attention:attention-bank:utilities:helper-functions)
