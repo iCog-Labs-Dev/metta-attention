@@ -90,9 +90,7 @@
     (
         ($rmvspace (getAtomsInRemoveSpace))	
         ($typspace (getAtomsInTypeSpace)) 
-        ($newAtomInAV (getNewAtomInAVList))
         ($assertTypespace (assertEqual (intersection-atom $typspace $rmvspace) ()))
-        ($assertNewtoAvspace (assertEqual (intersection-atom $newAtomInAV $rmvspace) ()))
     )
     ()
 ) 

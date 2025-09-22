@@ -31,12 +31,7 @@
 !(add-atom &attentionParam  (TARGET_LTI 10000))
 !(add-atom &attentionParam  (STI_ATOM_WAGE 10))
 !(add-atom &attentionParam  (LTI_ATOM_WAGE 10))
-; !(add-atom &attentionParam  (MIN_STI 0.0)) ; used for recentVal optional implementation
-; !(add-atom &attentionParam  (RECENT_MIN 0.0))
-; !(add-atom &attentionParam  (RECENT_MAX 0.0))
-; !(add-atom &attentionParam  (MAX_STI 0.0))
-; !(add-atom &attentionParam  (DECAY_MIN 1))
-; !(add-atom &attentionParam  (DECAY_MAX 1))
+
 (: getAttentionParam (-> Symbol Number))
 (= (getAttentionParam $param)
    (match &attentionParam ($param $x) $x)
