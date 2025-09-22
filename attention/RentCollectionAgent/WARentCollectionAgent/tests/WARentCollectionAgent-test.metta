@@ -4,7 +4,7 @@
 !(import! &self metta-attention:attention-bank:attention-value:get-min-max)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
-!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter-2)
+!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 !(import! &self metta-attention:attention:RentCollectionAgent:RentCollectionBaseAgent:RentCollectionBaseAgent)
 !(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
