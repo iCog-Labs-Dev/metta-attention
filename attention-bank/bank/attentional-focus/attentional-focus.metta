@@ -143,8 +143,8 @@
 ;   $atom: The atom for which to find incoming links.
 ;   $type: The type of link to consider.
 ; Returns: A list of incoming links of the specified type.
-
-(= (getIncomingByType $type $atom)
+(: getIncomingSetByType (-> Atom Type Expression))
+(= (getIncomingSetByType $atom $type)
     (let $list 
         (getAfAtoms)
         (collapse 
@@ -160,16 +160,3 @@
     )
 )
 
-(= (getIncoming $atom)
-    (let $list (getAfAtoms)
-    (collapse 
-        (let*
-            (
-            ($x (superpose $list))
-            ($y (unify ($type $elem $atom) $x ($type $elem $atom) ()))
-            ($l (unify ($type $atom $z) $x ($type $atom $z) ()))
-            ) 
-            (if (and (== $y ()) (== $l ())) Empty (union-atom $y $l))
-        )
-    ))
-)
