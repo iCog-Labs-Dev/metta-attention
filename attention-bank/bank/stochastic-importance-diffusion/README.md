@@ -3,8 +3,8 @@
 ## Overview
 
 The main usage of this **Stochastic-importance** is to allow **ECAN** to operate
-more efficently over atoms in the **atom-bin** but not in the **attentionalFocus**
-space by working only with atoms randomly selected rather than all atoms.
+more efficently over atoms in the **typeSpace** but not in the **attentionalFocus**
+list by working only with atoms randomly selected rather than all atoms.
 
 ## Spaces
 

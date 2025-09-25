@@ -8,7 +8,7 @@
 
 
 ; Test case 01: testing attention value setter(setAv) function for symbol atom type and 
-;testing that atoms are inserted to atombins and attentional focus space when av is set to them
+
 !(assertEqual (getAttentionParam FUNDS_STI) 100000)
 !(assertEqual (getAttentionParam FUNDS_LTI) 100000)
 !(setAv A (200 200 0)) 
