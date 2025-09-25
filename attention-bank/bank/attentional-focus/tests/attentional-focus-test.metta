@@ -25,7 +25,7 @@
 ; ################### Testing #################################
 
 ; Test case 01: Testing attentionalFocusSize asserting it returns correct number of atom in focus
-!(assertEqual (getIncomingByType Hebbianlink Animal) ((Hebbianlink (Hebbianlink Cat Human) Animal)))
+!(assertEqual (getIncomingSetByType Animal Hebbianlink) ((Hebbianlink (Hebbianlink Cat Human) Animal)))
 
 ; ; ; Test case 02: Testing atomIsInAF asserting it returns True for a given atom in AF
 
