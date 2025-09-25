@@ -6,7 +6,7 @@
 (: getMaxContent (-> Grounded Expression))
 (= (getMaxContent $space)
     (let $bins 
-         (getBinList)
+         (getBinList $space)
          (if (== $bins ()) 
             () 
             (let $max 
@@ -25,7 +25,7 @@
 (: getMinContent (-> Grounded Expression))
 (= (getMinContent $space)
     (let $bins 
-         (getBinList)
+         (getBinList $space)
          (if (== $bins ()) 
             () 
             (let $min 
