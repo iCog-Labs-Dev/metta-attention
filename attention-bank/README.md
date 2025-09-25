@@ -4,36 +4,14 @@ The attention bank is the back bone of the ECAN project its main functionality
 will be used to enable to create a platfrom for impelment agents.
 
 The main functionality of the attention bank are
-1. Managing the attentional Focus space
+1. Managing the attentional focus
 2. Managing the typeSpace
 3. Creating stocastic operations for operating over non-attentioanl focus atoms
 
-## Spaces
-
-Their are multiple spaces used for the implementation of ECAN the main spaces are
-
-```         ___________________________________
-           |                                   |
-           |          Attentional focus        |
-     ______|___________________________________|______
-    |                                                 |
-    |                   Type Space                    |
-    |_________________________________________________|
-```
-
-The above illustration aims to show the hierarchy of the 2 spaces considerd to 
-be pivotal
 
 ### **Attentional Focus**:
-- A space whose size is controlled by a constant MAX_AF_SIZE in AtentionParam.
-- The space only accepts only atoms that have AV values set
-- New atoms will only be accepted if
-    - The space is not full
-    - if the space is full the new atoms has higher STI than the atom with the
-    lowest STI
-- Atoms storage is not sturcured but should only be done via the setAv function
-to ensure that all checks are made when the atom is added.
- 
+- A function which returns expression of atoms. the expression size is controlled by a constant MAX_AF_SIZE in AtentionParam.
+- The expression holds atoms which have high importance
 
 ### **TypeSpace**:
 - This is a space that holds all atoms that have **AV**, **STV** or both.
