@@ -58,3 +58,9 @@ so we dont need to consider if it is within funds value.
 
 (atom (((STV mean conf) (AV sti lti vlti)) (Bin binNumber)))
 we removed atombin space. now all information of an atom is stored in typespace.
+
+## getter functions
+    - getAv, getStv, getSti, getLti, getVlti and getBin used to get value of atom
+    - getAtomsInTypespace
+    - getAllAtomsWithBins, getAtomsByBin and getContent filter atoms by bin
+    - getNatoms; gets n # of atoms from list

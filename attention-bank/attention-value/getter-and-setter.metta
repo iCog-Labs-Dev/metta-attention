@@ -93,6 +93,7 @@
 
 )
 
+; get the bin number of specific atom
 (= (getBin $pattern)
 (case (getValueType $pattern)
   (
@@ -277,19 +278,33 @@
         (size-atom $atoms)
     )
 )
-; finds all atoms that is found in the specific bin
+
+; Function: getAtomsByBin
+; Description: finds all atoms that is found in the specific bin
+; parameters: 
+;             - $binNumber: the bin number we will use to search atoms
+; Returns: expression of atoms that have $binNumber bin
+
 (: getAtomsByBin (-> Number Expression))
 (= (getAtomsByBin $binNumber)
     (collapse (match (TypeSpace) ($patt ($val (Bin $binNumber))) $patt))
 )
 
-; return all atoms that have AV/bin number 
+; Function: getAllAtomsWithBins
+; Description: finds all atoms which have bin number
+; Parameters: None
+; Returns: Expression of atoms that have AV/bin number 
 (: getAllAtomsWithBins (-> Expression))
 (= (getAllAtomsWithBins)
      (collapse (match (TypeSpace) ($patt ($val (Bin $binNumber))) $patt))
 )
 
-; Recursively collects all atoms from bins indexed between $lower and $higher, inclusive.
+; Function: getContent
+; Description:  Recursively collects all atoms from bins indexed between $lower and $higher, inclusive.
+; Parameters: 
+;             - $lower: the lower bin number of the range
+;             - $higher: the higher bin number from the range
+
 (: getContent (-> Number Number Expression))
 (= (getContent $lower $higher)
   (if (> $lower $higher)
@@ -304,9 +319,23 @@
     )
   )
 )
+
+; Function: getbinList
+; Description: finds all bin numbers that contain at least one atom
+; Parameters: space which we get bin numbers (TypeSpace)
+; Returns: list of bin numbers
+
+(: getBinList (-> Grounded Expression))
 (= (getBinList $space)
     (let $x (collapse (unique (match $space ($patt ($val (Bin $num))) $num))) $x)
 )
+
+; Function: getnatoms
+; Description: get n number of atoms from list of atoms
+; Parameters: 
+;             $atoms: list of atoms which it iterates
+;             $n: the number of atoms it finds
+; Return: expression of $n atoms
 (= (getNatoms $atoms $n)
     (if (or (== $n 0) (== $atoms ()))
         ()

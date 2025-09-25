@@ -3,7 +3,7 @@
 ## Overview
 
 This module impelemnts functions that are used to increase the functionality of
-the atom-bins space.
+the typespace and bin calculation.
 
 ## Functions
 
@@ -14,7 +14,7 @@ The functions in the module can be classifed as doing the following actions
 
 ### Retrive
 
-The module's Retrival functions retrive different values from the **atom-bin**
+The module's Retrival functions retrive different values from the **TypeSpace**
 space to allow other functions to work.
 
 The functions can retrive the number of total bins, the amount of atoms in a bin

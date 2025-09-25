@@ -2,39 +2,23 @@
 
 ## Overview
 
-The attnentional-focus module is a module used to define the **attentionalFocus**
-and **newAtomInAV** spaces and defines functions that interact with these spaces.
+The attentional-focus module is a module used to define atoms in **attentionalFocus**.
 
-## Spaces
+## attentionalFocus
 
-### attentionalFocus
-
-The **attentionalFoucs** (**AF**) is a space whose size is dictatied by the **MAX_AF_SIZE**
+The **attentionalFoucs** (**AF**) is a list whose size is dictatied by the **MAX_AF_SIZE**
 located in the [AttentionParam](../../../attention/agents/mettaAgents/AttentionParam.metta)
 
-The space is used to store all atoms that are deemed to be important by the value
-of the STI. If the spapce is full and only atoms having STI values bigger than
-the atom with the smallest STI are allowed to enter.
+The expresssion is used to store all atoms that are deemed to be important by the value
+of the STI. 
 
-### newAtomInAV
+we can get those atoms by using getAfAtoms which returns top **MAX_AF_SIZE** number of atoms in typespace.
 
-The **newAtomInAV** space is used to store atoms that are new to be sored into
-the **AF**. 
-
-This space is mainly used by the [HebbianCreation agent](../../../attention/agents/mettaAgents/HebbianCreationAgent/README.md) to ensure that is does not 
-work over the whole **AF** space but only atoms that are newly entered to the 
-AF.
 
 ## Functions
 
-The functions in the module can be classifed as doing the following actions
+The functions in the module are used 
+ - to get atoms that should be in af
+ - get random atom in and not in af
+ - get atoms with specific links in af
 
-1. Create
-2. Retrive
-3. Update
-4. Delete
-
-and utility function to facilitate the above overall functionalities.
-
-The above functionality is provided to interacct with the **AF** space. The
-**newAtomInAV** has function to Create and Retriv.

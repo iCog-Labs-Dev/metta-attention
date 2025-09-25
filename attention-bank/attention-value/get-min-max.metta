@@ -1,4 +1,7 @@
-; this function take atoms from space and return atoms found inside the largest bin index
+; Function: getMaxContent
+; Description: this function take atoms from space and find atoms in the largest bin index
+; Parameters: $space
+; Returns: expression of atoms in largest bin
 
 (: getMaxContent (-> Grounded Expression))
 (= (getMaxContent $space)
@@ -14,8 +17,10 @@
     )
 )
 
-
-; this function take atoms from typespace space and return atoms found inside the smallest bin index
+; Function: getMaxContent
+; Description: this function take atoms from space and find atoms in the lowest bin index
+; Parameters: $space
+; Returns: expression of atoms in lowest bin
 
 (: getMinContent (-> Grounded Expression))
 (= (getMinContent $space)
@@ -30,7 +35,12 @@
         )
     )
 )
-; this function takes a bin number and return the number of atoms found in that bin
+
+; Function: getSize
+; Description: takes a bin number and calculate the size of atoms found in that bin
+; Parameters: $binNumber
+; Returns: size of atoms
+
 (: getSize (-> Number Number))
 (= (getSize $binNumber)
     (let 
