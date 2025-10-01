@@ -1,1 +1,1 @@
-!(AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace))
+!(AFImportanceDiffusionAgent-Run (TypeSpace))
