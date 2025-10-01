@@ -38,7 +38,7 @@
 !(spaceAdder)
 
 ; write the params to a file
-!(start_log (attentionParam) experiments/Metta/experiment2)/home/blightg/Documents/Icog/metta-attention/.venv/
+!(start_log (attentionParam) experiments/Metta/experiment2)
 
 (= (insectPoisonReadExp $space $type $expr)
     (
