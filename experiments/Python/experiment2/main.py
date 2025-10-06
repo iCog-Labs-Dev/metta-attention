@@ -47,7 +47,7 @@ def main() -> None:
     print("\nRegistering agents...")
 
     scheduler.register_agent("test-superpose",
-        lambda: Agentrun(metta=metta, path=os.path.join(base_path, "../experiments/Agents-runner.metta")))
+        lambda: Agentrun(metta_instance==metta, path=os.path.join(base_path, "../experiments/Agents-runner.metta")))
 
 
     print("\nAgent System Ready!")
