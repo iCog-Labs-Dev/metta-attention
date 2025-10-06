@@ -1,11 +1,11 @@
 from hyperon.exts.agents import AgentObject
 from typing import Optional, Any
-from hyperon import metta
+from hyperon import MeTTa
 class Agentrun(AgentObject):
 
     def __init__(
         self,
-        metta_instance: Optional[metta] = None,
+        metta_instance: Optional[MeTTa] = None,
         path: Optional[str] = None,
         atoms: Optional[dict] = {},
         include_paths: Optional[list[str]] = None,
