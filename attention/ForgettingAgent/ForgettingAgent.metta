@@ -171,15 +171,15 @@
 ; return: None
 (: globalRemoveAtom (-> Atom List empty))
 (= (globalRemoveAtom $head $niset) 
-	(let $bin 
-        (importanceBin (getSti $head))
+	(let*
 		(
             (() (refundAV $head))
-			(() (add-atom &removeSpace (: $head ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))))
-			(() (extractAtomRecursive $niset))
-			(() (removeTypeSpace $head))
 		)
-		()
+		(
+			(extractAtomRecursive $niset)
+			(removeTypeSpace $head)
+        )
+
 	)
 )
 
@@ -197,20 +197,9 @@
 				($head (car-atom $atoms))
 				($tail (cdr-atom $atoms))
                 (() (refundAV $head))
-				(() (add-atom &removeSpace (: $head ((STV 0.0 0.0) (AV 0.0 0.0 0.0)))))
 				(() (removeTypeSpace $head))
 			)
-            (
-                (removeAtom $bin $head)
-                (refundAV $head)
-                (removeAtomAttentionalfocus $head)
-                (removeTypeSpace $head)
-                (removeNewAtomAV $head)
-                (removeAtomAttentionalfocus $head)
-                (removeTypeSpace $head)
-                (removeNewAtomAV $head)
-                (extractAtomRecursive $tail)
-            )
+			(extractAtomRecursive $tail)
 		)
 	)
 )
