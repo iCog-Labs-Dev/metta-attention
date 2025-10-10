@@ -12,7 +12,7 @@ sys.path.insert(0, BASE_DIR)
 
 from pythonController import ParallelScheduler, Agentrun
 
-def main():
+def main() -> None:
 
     # create Base dir to allow robust agent path defination
     base_path = os.path.join(BASE_DIR, "attention/")
@@ -47,7 +47,7 @@ def main():
     print("\nRegistering agents...")
 
     scheduler.register_agent("test-superpose",
-        lambda: Agentrun(metta=metta, path=os.path.join(base_path, "../experiments/Agents-runner.metta")))
+        lambda: Agentrun(metta_instance==metta, path=os.path.join(base_path, "../experiments/Agents-runner.metta")))
 
 
     print("\nAgent System Ready!")

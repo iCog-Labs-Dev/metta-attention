@@ -1,8 +1,16 @@
 from hyperon.exts.agents import AgentObject
-
+from typing import Optional, Any
+from hyperon import MeTTa
 class Agentrun(AgentObject):
 
-    def __init__(self, metta=None, path=None, atoms={}, include_paths=None, code=None):
+    def __init__(
+        self,
+        metta_instance: Optional[MeTTa] = None,
+        path: Optional[str] = None,
+        atoms: Optional[dict] = {},
+        include_paths: Optional[list[str]] = None,
+        code: Optional[str] = None
+    ) -> None:
         """
         Initialize the Agentrun instance.
         
@@ -14,13 +22,13 @@ class Agentrun(AgentObject):
         """
         # Call the parent class's __init__ with all parameters
         super().__init__(path=path, atoms=atoms, include_paths=include_paths, code=code)
-        self._metta=metta
+        self._metta=metta_instance
         if self._metta is None:
             self._create_metta()
         else:
             self._load_code()
 
-    def run(self):
+    def run(self) -> Any:
         """Runs the agent by executing the loaded MeTTa script."""
         if self._code is None:
             print(f"Agent {self.name()} has no code to execute.")
