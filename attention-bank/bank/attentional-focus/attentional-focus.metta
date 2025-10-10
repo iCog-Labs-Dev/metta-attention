@@ -109,12 +109,12 @@
     )
 )
 
-; Function: getRandInAf
+; Function: getRandomAtomInAF
 ; Description: 
 ;             -  Retrives at atom at random from the attentionalFocus
 ; Parameters: None
 ; Returns: A unit Atom in Af is empty or a random atom 
-(= (getRandInAf)
+(= (getRandomAtomInAF)
     (let $atoms 
             (getAfAtoms)
             (if (== (size-atom $atoms) 0)
