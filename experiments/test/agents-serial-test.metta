@@ -17,9 +17,8 @@
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
 
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
+!(import! &self metta-attention:attention-bank:attention-value:get-min-max)
 
-!(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
-!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
@@ -44,14 +43,10 @@
 
 
 ; ================== assertions About inital state of Ecan spaces =============
-!(assertEqual (getAtomList) ())
-!(assertEqual (collapse (get-atoms &newAtomInAV)) ())
-!(assertEqual (collapseAtomBin (atomBin)) ())
-
+!(assertEqual (getAfAtoms) ())
 
 ; ======================= inital stimulation of Atom ==========================
 !(stimulate Ants 30)
-
 
 ; ========================== RentCollectionAgent ==============================
 !(assertEqual (match &timer (firstTime $x) $x) True)
@@ -64,24 +59,20 @@
 
 
 ; ======================== AFImportanceDiffusionAgent =========================
-!(AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace))
+!(AFImportanceDiffusionAgent-Run (TypeSpace))
 
 ; => assert changes to attentional focus and atoms sti lti and bin
-!(assertEqual (getAtomList) (Ants (SimilarityLink abamectin Ants)))
+!(assertEqual (getAfAtoms) ((SimilarityLink abamectin Ants) Ants))
 !(assertEqual (getSti Ants) 360)
 !(assertEqual (getLti Ants) 600)
 !(assertEqual (getSti (SimilarityLink abamectin Ants)) 240)
 !(assertEqual (getLti (SimilarityLink abamectin Ants)) 0)
-!(assertEqual (collapseAtomBin (atomBin)) ((52.0 (Ants)) (47.0 ((SimilarityLink abamectin Ants)))))
-
+!(assertEqual (getAllAtomsWithBins) ((SimilarityLink abamectin Ants) Ants))
 
 ; ======================== HebbianCreationAgent =========================
-!(assertEqual (collapse (get-atoms &newAtomInAV)) (Ants (SimilarityLink abamectin Ants)))
-
-!(HebbianCreationAgent-Run (TypeSpace) (attentionalFocus) (newAtomInAV))
+!(HebbianCreationAgent-Run (TypeSpace))
 
 ; => assert the state of newAtomInAV and number of ASYMMETRIC_HEBBIAN_LINK
-!(assertEqual (collapse (get-atoms &newAtomInAV)) ())
 !(assertEqual 
     (let $asym 
         (collapse (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $x $y) $z) (ASYMMETRIC_HEBBIAN_LINK $x $y))) 
@@ -93,7 +84,6 @@
 
 ; ======================== HebbianUpdatingAgent =========================
 !(HebbianUpdatingAgent-Run (TypeSpace))
-
 ; => assert the number of unique Stv values has increased
 !(let* 
     (
@@ -108,27 +98,31 @@
 !(stimulate aflatoxin 30)
 
 ; ========================== RentCollectionAgent ==============================
+!(assertEqual (getAttentionParam FUNDS_STI) 980)
 !(AFRentCollectionAgent-run)
 
-; => assert lti is changed for atoms
-!(assertEqual ( < (getLti Ants) 600) True)
+; => assert FUNDS_STI retrived from atoms
+!(assertEqual (> (getAttentionParam FUNDS_STI) 980) True)
 
 ; ======================== AFImportanceDiffusionAgent =========================
-!(AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace))
+!(AFImportanceDiffusionAgent-Run (TypeSpace))
 
 ; => assert changes to attentional focus and atoms sti lti and bin
-!(assertEqual (getAtomList) 
-    (Ants (SimilarityLink abamectin Ants) aflatoxin abamectin (SimilarityLink aldicarb aflatoxin)))
+!(let $afAtoms
+    (getAfAtoms)
+    (assertEqual
+        (subtraction-atom 
+            $afAtoms
+            (Ants (SimilarityLink abamectin Ants) aflatoxin abamectin (SimilarityLink aldicarb aflatoxin))
+        )
+        ()
+    )
+)
 !(assertEqual (getLti (SimilarityLink abamectin Ants)) 0)
 
 ; ======================== HebbianCreationAgent =========================
-!(assertEqual (collapse (get-atoms &newAtomInAV)) 
-    (aflatoxin Ants (SimilarityLink abamectin Ants) abamectin (SimilarityLink aldicarb aflatoxin)))
+!(HebbianCreationAgent-Run (TypeSpace))
 
-!(HebbianCreationAgent-Run (TypeSpace) (attentionalFocus) (newAtomInAV))
-
-; => assert the state of newAtomInAV and number of ASYMMETRIC_HEBBIAN_LINK
-!(assertEqual (collapse (get-atoms &newAtomInAV)) ())
 !(assertEqual 
     (let $asym 
         (collapse (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $x $y) $z) (ASYMMETRIC_HEBBIAN_LINK $x $y))) 

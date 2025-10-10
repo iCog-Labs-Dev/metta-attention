@@ -7,7 +7,6 @@
 !(import! &self metta-attention:attention-bank:utilities:recentVal)
 !(import! &self metta-attention:attention:HebbianUpdatingAgent:HebbianUpdatingAgent)
 !(import! &self metta-attention:attention:AttentionParam)
-!(import! &self metta-attention:attention-bank:utilities:recentVal)
 
 
 ;################ Prep: giving atoms mean and confidence ####################
