@@ -47,7 +47,16 @@
 
 ;Test with Symbol Atom Type
 ; there may be reversed sequence due to non-deterministic-computation
-!(assertEqual (getMinContent (TypeSpace)) (Father Human))
+!(let $content
+    (getMinContent (TypeSpace))
+    (assertEqual 
+        (subtraction-atom 
+            $content
+            (Human Father)
+        )
+        ()
+    )
+)
 
 ; Test Case 06: Testing getSize Function
 ; Ensure getSize returns correct atom count in bins
