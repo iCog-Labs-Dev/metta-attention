@@ -174,9 +174,7 @@
 	(let $bin 
         (importanceBin (getSti $head))
 		(
-            (() (refundAV $head))
-		)
-		(
+            (refundAV $head)
 			(extractAtomRecursive $niset)
 			(removeTypeSpace $head)
         )
@@ -197,9 +195,9 @@
 			(
 				($head (car-atom $atoms))
 				($tail (cdr-atom $atoms))
-        (() (refundAV $head)
+                (() (refundAV $head))
 			)
-      (removeTypeSpace $head)
+            (removeTypeSpace $head)
 		)
 	)
 )
