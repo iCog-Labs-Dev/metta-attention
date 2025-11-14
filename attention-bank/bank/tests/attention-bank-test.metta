@@ -1,14 +1,11 @@
-!(register-module! ../../../../metta-attention)
-!(import! &self metta-attention:attention:AttentionParam)
-!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
-
-!(import! &self metta-attention:attention-bank:bank:attention-bank)
-!(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
-
-!(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
-
-!(import! &self metta-attention:attention-bank:utilities:helper-functions)
-!(import! &self metta-attention:attention-bank:utilities:recentVal)
+!(import! &self ../../../../PeTTa/lib/lib_he)
+!(import! &self ../../../../metta-attention/attention/AttentionParam)
+!(import! &self ../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
+!(import! &self ../../../../metta-attention/attention-bank/bank/attention-bank)
+!(import! &self ../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
+!(import! &self ../../../../metta-attention/attention-bank/bank/attentional-focus/attentional-focus)
+!(import! &self ../../../../metta-attention/attention-bank/utilities/helper-functions)
+!(import! &self ../../../../metta-attention/attention-bank/utilities/recentVal)
 
 ; Example usage to compute STI and LTI wages
 !(assertEqual (calculateSTIWage) 20.0)
@@ -24,7 +21,7 @@
 !(stimulate x 1.5)
 
 ; Retrieve the updated AttentionValue
-!(assertEqual (getAv x) (AV 230.0 230.0 0))
+!(assertEqual (getAv x) (AV 230.0 230.0 0.0))
 
 ; Check updated funds
 !(assertEqual (getAttentionParam FUNDS_STI) 99370.0)
@@ -34,7 +31,7 @@
 !(stimulate x 2)
 
 ; Retrieve the updated AttentionValue
-!(assertEqual (getAv x) (AV 270.0 270.0 0))
+!(assertEqual (getAv x) (AV 270.0 270.0 0.0))
 
 ; Check updated funds
 !(assertEqual (getAttentionParam FUNDS_STI) 99330.0)

@@ -1,11 +1,11 @@
-!(register-module! ../../../../../metta-attention)
-!(import! &self metta-attention:attention:AttentionParam)
-!(import! &self metta-attention:attention-bank:utilities:helper-functions)
-!(import! &self metta-attention:attention-bank:utilities:recentVal)
-!(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
-!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
-!(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
-!(import! &self metta-attention:attention-bank:bank:attention-bank)
+!(import! &self ../../../../../PeTTa/lib/lib_he)
+!(import! &self ../../../../../metta-attention/attention/AttentionParam)
+!(import! &self ../../../../../metta-attention/attention-bank/utilities/helper-functions)
+!(import! &self ../../../../../metta-attention/attention-bank/utilities/recentVal)
+!(import! &self ../../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
+!(import! &self ../../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
+!(import! &self ../../../../../metta-attention/attention-bank/bank/attentional-focus/attentional-focus)
+!(import! &self ../../../../../metta-attention/attention-bank/bank/attention-bank)
 
 
 ;###################### Prep: adding atoms to the atom bin #####################
@@ -22,16 +22,16 @@
 ;########################### Testing ###########################################
 
 ; Test case 01: Testing importanceBin with different number value
-!(assertEqual (importanceBin -5.0)  0.0)    ; Should return 0
-!(assertEqual (importanceBin 10.0)   10.0)   ; Should return 10 (direct assignment)
-!(assertEqual (importanceBin 20.0)  20.0)    ; Should calculate based on group logic 18
-!(assertEqual (importanceBin 50.0) 29.0)    ; Should calculate based on group logic 29
+!(assertEqual (importanceBin -5.0)  0)    ; Should return 0
+!(assertEqual (importanceBin 10.0)   10)   ; Should return 10 (direct assignment)
+!(assertEqual (importanceBin 20.0)  20)    ; Should calculate based on group logic 18
+!(assertEqual (importanceBin 50.0) 29)    ; Should calculate based on group logic 29
 
 
 ; Test case 02: Testing getHandleSet,getContent and filterContents functions
 
 !(assertEqual (getHandleSet 20 40) ((EvaluationLink a b) another Animals (Hebbianlink (Hebbianlink Human Cat) Animal)))
-!(assertEqual (filterContents ((EvaluationLink a b) another Animals ) 10 25) (() another (EvaluationLink a b)))
+!(assertEqual (filterContents ((EvaluationLink a b) another Animals ) 10 25) ((EvaluationLink a b) another ()))
 !(assertEqual (getHandleSet 11 26) ((EvaluationLink a b) another))
 !(assertEqual (getContent 20 30) ((EvaluationLink a b) another Animals (Hebbianlink (Hebbianlink Human Cat) Animal)) )
 

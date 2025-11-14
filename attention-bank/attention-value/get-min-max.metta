@@ -3,7 +3,7 @@
 ; Parameters: $space
 ; Returns: expression of atoms in largest bin
 
-(: getMaxContent (-> Grounded Expression))
+; (: getMaxContent (-> Grounded Expression))
 (= (getMaxContent $space)
     (let $bins 
          (getBinList $space)
@@ -22,7 +22,7 @@
 ; Parameters: $space
 ; Returns: expression of atoms in lowest bin
 
-(: getMinContent (-> Grounded Expression))
+; (: getMinContent (-> Grounded Expression))
 (= (getMinContent $space)
     (let $bins 
          (getBinList $space)

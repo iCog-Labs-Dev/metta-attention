@@ -38,10 +38,10 @@
 )
 
 
-(: updateAttentionParam (-> Symbol Number empty))
+; (: updateAttentionParam (-> Symbol Number empty))
 (= (updateAttentionParam $param $newValue)
    (match &attentionParam ($param $x)
-      (let ()
+      (let $t
            (remove-atom &attentionParam ($param $x))
            (add-atom &attentionParam ($param $newValue))
       )

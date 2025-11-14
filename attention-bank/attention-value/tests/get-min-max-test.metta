@@ -1,11 +1,10 @@
-!(register-module! ../../../../metta-attention)
-!(import! &self metta-attention:attention:AttentionParam)
-!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
-!(import! &self metta-attention:attention-bank:attention-value:get-min-max)
-!(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
-!(import! &self metta-attention:attention-bank:utilities:helper-functions)
-!(import! &self metta-attention:attention-bank:bank:attention-bank)
-
+!(import! &self ../../../../PeTTa/lib/lib_he)
+!(import! &self ../../../../metta-attention/attention/AttentionParam)
+!(import! &self ../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
+!(import! &self ../../../../metta-attention/attention-bank/attention-value/get-min-max)
+!(import! &self ../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
+!(import! &self ../../../../metta-attention/attention-bank/utilities/helper-functions)
+!(import! &self ../../../../metta-attention/attention-bank/bank/attention-bank)
 ; Test Case 01: Testing Empty atomBin
 ; Ensure getMaxContent and getMinContent return empty lists when no atoms are present
  !(assertEqual (getMaxContent (TypeSpace)) ())
@@ -63,10 +62,10 @@
 ; Expected: Bin 38 has 3 atoms, Bin 45 has 2 atoms, Bin 56 has 1 atoms, Bin 65 has 1 atom
 !(setAv Humaner (104.0 220.0 1.0))
 !(setAv Doger (201.0 230.0 1.0))
-!(assertEqual (getSize 37.0) 3)
-!(assertEqual (getSize 45.0) 2)
-!(assertEqual (getSize 56.0) 1)
-!(assertEqual (getSize 65.0) 1)
+!(assertEqual (getSize 37) 3)
+!(assertEqual (getSize 45) 2)
+!(assertEqual (getSize 56) 1)
+!(assertEqual (getSize 65) 1)
 
 ; Test Case 07: Testing binSize Function
 ; Ensure binSize correctly returns the total number of atoms across all bins
