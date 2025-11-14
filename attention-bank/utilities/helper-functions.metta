@@ -44,7 +44,7 @@
 ;          $pivot: The reference atom for comparison.
 ;          $tuple: A list of atoms to filter.
 ;Returns: A filtered list of atoms satisfying the comparison condition.
-(: binaryFilter (-> (-> Atom Atom Bool) Atom Expression Expression))
+; (: binaryFilter (-> (-> Atom Atom Bool) Atom Expression Expression))
 (= (binaryFilter $f $pivot $tuple)
    (if (== $tuple ())  
        ()
@@ -77,10 +77,11 @@
             
         )
         
-        (if (<= $int_num (GroupNum))
+        (let $x (eval (GroupNum))
+         (if (<= $int_num $x)
             $int_num
-            (GroupNum)
-        )
+            $x
+        ))
     )
    )
 )
@@ -137,16 +138,16 @@
     )
 )
 
-(: flatten (-> Expression Expression))
-(= (flatten $expr)
+(: flattener (-> Expression Expression))
+(= (flattener $expr)
    (if (== $expr ()) 
        () 
        (let* (($head (car-atom $expr))
               ($tail (cdr-atom $expr))
               ($flattened-head (if (== (get-metatype $head) Expression)
-                                   (flatten $head)
+                                   (flattener $head)
                                    (cons-atom $head ())))
-              ($flattened-tail (flatten $tail)))
+              ($flattened-tail (flattener $tail)))
          (union-atom $flattened-head $flattened-tail)))
 )
 
@@ -160,7 +161,7 @@
    (collapse (unique (superpose $list)))
 )
 
-(= (sort $list)
+(= (sorter $list)
    (if (== $list ())
        () ; Base case: empty list is already sorted
        (let*
@@ -169,8 +170,8 @@
                ($rest (cdr-atom $list))
                ($smaller (filterLess $pivot $rest)) ; Elements smaller than pivot
                ($greater (filterGreaterEqual $pivot $rest)) ; Elements greater or equal to pivot
-               ($greaterRemaining (sort $greater))
-               ($x (sort $smaller))
+               ($greaterRemaining (sorter $greater))
+               ($x (sorter $smaller))
                ($y (cons-atom $pivot $greaterRemaining))
            )
            (union-atom $x $y) ; Recursively sort and combine
@@ -277,7 +278,7 @@
 
 ;function to reverse an expression 
 
-(= (reverseExpr $x ) (collapse (union (superpose $x) (superpose ()))))
+(= (reverseExpr $list) (foldl-atom $list () $i $c (cons-atom $c $i)))
 ; Description: the function takes a list of atoms and experessions 
 ;              and returns a new list wich contatins only symobls
 ; params:
@@ -302,15 +303,15 @@
 
 
 (= (getStiHelper $atoms)
-    (let* (
-        ($vals (getSti (superpose $atoms)))
-    )
+    (let
+        $vals (eval (getSti (superpose $atoms)))
+    
     $vals
     )
 )
 
 ; a function that find the maximum STI value of the  given atoms
-(: getAllMaxSTI  (-> Expression Number))
+; (: getAllMaxSTI  (-> Expression Number))
 (= (getAllMaxSTI $atoms)
    (if (== $atoms ())
             0.0

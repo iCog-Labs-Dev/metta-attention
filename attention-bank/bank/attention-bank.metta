@@ -59,7 +59,7 @@
 ;     $pattern: The atom receiving the stimulus.
 ;     $stimulus: The factor by which STI and LTI will be adjusted.
 ;Returns: Nothing (updates the atom and related values)
-(: stimulate (-> Atom Number empty))
+; (: stimulate (-> Atom Number empty))
 (= (stimulate $pattern $stimulus)
    (let* (
            ($sti (getSti $pattern))
@@ -92,7 +92,7 @@
 ;Returns: The result of updating the atomBin.
 
 
-(: attentionValueChanged (-> Atom Number Number Expression))
+; (: attentionValueChanged (-> Atom Number Number Expression))
 (= (attentionValueChanged $pattern $newSTIFund $newLTIFund)
    (let*(
          ($stiUpdated (updateAttentionParam FUNDS_STI $newSTIFund))

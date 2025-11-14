@@ -1,13 +1,13 @@
-!(register-module! ../../../../../metta-attention)
-!(import! &self metta-attention:attention:AttentionParam)
-!(import! &self metta-attention:attention-bank:utilities:helper-functions)
-!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
-!(import! &self metta-attention:attention-bank:bank:attention-bank)
-!(import! &self metta-attention:attention-bank:attention-value:get-min-max)
-!(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
-!(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
-!(import! &self metta-attention:attention-bank:utilities:recentVal)
-##################### Prep: inserting Atoms in attentional focus ####################
+!(import! &self ../../../../../PeTTa/lib/lib_he)
+!(import! &self ../../../../../metta-attention/attention/AttentionParam)
+!(import! &self ../../../../../metta-attention/attention-bank/utilities/helper-functions)
+!(import! &self ../../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
+!(import! &self ../../../../../metta-attention/attention-bank/bank/attention-bank)
+!(import! &self ../../../../../metta-attention/attention-bank/attention-value/get-min-max)
+!(import! &self ../../../../../metta-attention/attention-bank/bank/attentional-focus/attentional-focus)
+!(import! &self ../../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
+!(import! &self ../../../../../metta-attention/attention-bank/utilities/recentVal)
+; ##################### Prep: inserting Atoms in attentional focus ####################
 ; Test attentional focus
 !(setAv a (1.0 0.0 0.0))
 !(setAv d (7.0 4.0 0.0))
@@ -83,5 +83,4 @@
 !(let $a (collapse (getRandomAtomNotInAF)) (assertEqual (isAtomInAf $a) False))
 
 ; Test case 10: Testing getAfMaxSTI
-
-!(let $x (getAfAtoms) (assertEqual (getAllMaxSTI $x) 200))
+!(assertEqual (getAllMaxSTI getAfAtoms) 200.0)

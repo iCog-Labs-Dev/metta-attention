@@ -12,19 +12,19 @@
 ; we can get the type of the symbol animal using the function getValueType an it returns (AV 399 400 1).
 ; which means the atom called Animal now has STI = 399, LTI = 400 and VLTI = 1
 
-(: setAv (-> Atom (Number Number Number) Atom))
+; (: setAv (-> Atom (Number Number Number) Atom))
 (= (setAv $pattern ($sti $lti $vlti))
     (let* (
         ($oldSti (getSti $pattern))
         ($oldLti (getLti $pattern))
-        ($bin    (importanceBin $sti))
+        ($bin   (eval (importanceBin $sti)))
         ($res (if (== (getValueType $pattern) %Undefined%)
                 (add-atom &typeSpace ($pattern ((AV $sti $lti $vlti) (Bin $bin)) ))   
                    (let* 
                         (
                            ($stv (getStv $pattern))
                            ($value (match &typeSpace ($pattern $_) ($pattern $_)))
-                           (() (remove-atom &typeSpace $value))
+                           ($u (remove-atom &typeSpace $value))
                         )
                       (if (== $stv %Undefined%)
                           (add-atom &typeSpace ($pattern ((AV $sti $lti $vlti) (Bin $bin)) ))
@@ -39,7 +39,8 @@
            ($fundsLTI (getAttentionParam FUNDS_LTI))
            ($newstifund (+ $fundsSTI $stiDiff))
            ($newltifund (+ $fundsLTI $ltiDiff))
-           ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter
+           ($updater (eval (attentionValueChanged $pattern $newstifund $newltifund)))  ; Update attentional focus and global paremeter
+           
     )
    ()
 ))
@@ -47,33 +48,36 @@
  ; set_stv function accepts a pattern/node with the truthvalues
  ; and set the simple truth value to the pattern/node.
  ; i.e !(set_stv A (0.1 0.9))
-(: setStv (-> Atom (Number Number) Atom))
+; (: setStv (-> Atom (Number Number) Atom))
 (= (setStv $pattern ($mean $conf))
+    (let $space (TypeSpace)
     (if (== (getValueType $pattern) %Undefined%)
-        (add-atom &typeSpace ($pattern (STV $mean $conf)))
+        (add-atom $space ($pattern (STV $mean $conf)))
          (let* 
             (
                 ($av (getAv $pattern))
                 ($bin (getBin $pattern))
-                ($value (match &typeSpace ($pattern $_) ($pattern $_)))
-                (() (remove-atom &typeSpace $value))
+                ($value (match $space ($pattern $_) ($pattern $_)))
+                ($b (remove-atom $space $value))
               )
             (if (== $av %Undefined%)
-                (add-atom &typeSpace ($pattern (STV $mean $conf)))
-                (add-atom &typeSpace ($pattern ( ((STV $mean $conf) $av) (Bin $bin))))))
+                (add-atom $space ($pattern (STV $mean $conf)))
+                (add-atom $space ($pattern ( ((STV $mean $conf) $av) (Bin $bin))))))
     )
-)
+))
 
 
 
 (= (getValueType $pattern) 
-	(let $a 
-		(collapse (match &typeSpace ($pattern $value) $value))
-		(if (== $a ())
-			%Undefined%
-			(car-atom $a)
-		)
+	(let $space (TypeSpace) 
+        (let $a 
+            (collapse (match $space ($pattern $value) $value))
+            (if (== $a ())
+                %Undefined%
+                (car-atom $a)
+            )
 	)
+)
 )
 
  ; getAv function accepts a pattern/atom (it could be a symbol or an expression) and 
@@ -145,7 +149,7 @@
 ; getSti retrieves STI from a pattern
 ; i.e !(getSti A)  output: 400 
 
-(: getSti (-> Atom Number))
+; (: getSti (-> Atom Number))
 (= (getSti $pattern)
     (case (getAv $pattern)
         ((%Undefined% 0)
@@ -158,7 +162,7 @@
 ; getLti retrieves LT from a pattern
 ; i.e !(getLti A)  output: 400 
 
-(: getLti (-> Atom Number))
+; (: getLti (-> Atom Number))
 (= (getLti $pattern)
     (case (getAv $pattern)
         ((%Undefined% 0)
@@ -169,7 +173,7 @@
 ; getVlti retrieves VLTI from a pattern
 ; i.e !(getLti A)  output: 1
 
-(: getVlti (-> Atom Number))
+; (: getVlti (-> Atom Number))
 (= (getVlti $pattern)
     (case (getAv $pattern)
         ((%Undefined% 0)
@@ -184,7 +188,7 @@
 ;;setSTI function accepts a pattern/node with an Sti value to replace the original
 ;;and set the Sti to the pattern/node.
 ; i.e !(setSti A 500)
-(: setSti (-> Atom Number Atom)) 
+; (: setSti (-> Atom Number Atom)) 
 (= (setSti $pattern $newSti)
     (case (getAv $pattern)
         ((%Undefined% (setAv $pattern ($newSti 0 0)))
@@ -195,7 +199,7 @@
 ;;setLti fnction accepts a pattern/node with an Lti value to replace the original
 ;;and set the Lti to the pattern/node.
 ; i.e !(setLti A 500)
-(: setLti (-> Atom Number Atom)) 
+; (: setLti (-> Atom Number Atom)) 
 (= (setLti $pattern $newLTI)
     (case (getAv $pattern)
         ((%Undefined% (setAv $pattern  (0 $newLTI 0)))
@@ -206,7 +210,7 @@
 ;;setVlti fnction accepts a pattern/node with an VLti value to replace the original
 ;;and set the VLti to the pattern/node.
 ; i.e !(setVlti A 500)
-(: setVlti (-> Atom Number Atom)) 
+; (: setVlti (-> Atom Number Atom)) 
 (= (setVlti $pattern $newVLTI)
     (case (getAv $pattern)
         ((%Undefined% (setAv $pattern  (0 0 $newVLTI)))
@@ -237,7 +241,7 @@
 
 ;; remoeTypeSpace a function that removes an atom from the typeSpace
 ;; used in Forgettingagent
-(: removeTypeSpace (-> Atom empty))
+; (: removeTypeSpace (-> Atom empty))
 (= (removeTypeSpace $atom) 
 	(let $a 
 		(getValueType $atom)
@@ -250,15 +254,10 @@
 
 
 ;; used to return all atoms that have an stv or an AV in typespace
-(: getAtomsInTypeSpace-helper (-> Expression))
+; (: getAtomsInTypeSpace-helper (-> Expression))
 (= (getAtomsInTypeSpace-helper) 
-	(let $a 
-		(get-atoms &typeSpace)
-		(unify $a
-			($pattern $x)
-			$pattern
-			(empty)
-		)
+	(let $space (TypeSpace)
+		(match $space ($pattern $x) $pattern)
 	)
 )
 
@@ -325,9 +324,9 @@
 ; Parameters: space which we get bin numbers (TypeSpace)
 ; Returns: list of bin numbers
 
-(: getBinList (-> Grounded Expression))
+; (: getBinList (-> Grounded Expression))
 (= (getBinList $space)
-    (let $x (collapse (unique (match $space ($patt ($val (Bin $num))) $num))) $x)
+    (let $x (unique-atom (collapse (match $space ($patt ($val (Bin $num))) $num))) $x)
 )
 
 ; Function: getnatoms
