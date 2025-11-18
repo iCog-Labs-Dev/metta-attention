@@ -1,1 +1,1 @@
-!(HebbianCreationAgent-Run (TypeSpace) (attentionalFocus) (newAtomInAV))
+!(HebbianCreationAgent-Run (TypeSpace))

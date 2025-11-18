@@ -1,299 +1,162 @@
-!(bind! &attentionalFocus (new-space))
-!(bind! &newAtomInAV (new-space))
-(= (attentionalFocus) &attentionalFocus)
-(= (newAtomInAV) &newAtomInAV)
+; Function:  getAfAtoms
+; description: 
+;             - get maximum af size from params & all atoms in typespace that have bin 
+;             - if atoms in typespace are less than in af, it returns all atoms
+;             - else finds N numner of max sti atoms. where n = MAX_AF_SIZE
+;             - finally write the atoms on csv
+; Parameter: None
+; Return: expression of atoms that has high importance
 
-;Function: atomIsInAF
-;Description: Checks if a given atom is in the attentional focus space.
-;Parameters:
-;         $atom: The atom to check.
-;Returns: True if the atom is in attentional focus space, otherwise False.
-
-(: atomIsInAF (-> Atom Bool))
-(= (atomIsInAF $atom)
-   (if  (== (collapse (match &attentionalFocus $atom $atom)) ())
-        False
-        True
-    )
-)
-
-;Function: atomIsNotInAF
-;Description: gives list of atoms not in the atentional focus.
-;Parameters:
-;          list of atoms
-;Returns: return list of atoms not in the atentional focus
-
-
-(: atomIsNotInAF (-> Expression Expression))
-(= (atomIsNotInAF $list)
-
-   (collapse 
-        (let $x (superpose $list)
-            (if (atomIsInAF $x) 
-                (empty) 
-                $x
-            )
+(: getAfAtoms (-> Expression))
+(= (getAfAtoms)
+    (let*
+        (
+            ($afSize (getAttentionParam MAX_AF_SIZE))
+            ($allAtoms (getAllAtomsWithBins))
         ) 
-   )
-)
-
-;Function: addAtomToAF
-;Description:
-;           if the atom has neither AV nor STV,it returns an error message
-;           if an atom is valid,it will add it to the attentional focus space. 
-;           if an atom is new to the AF and isnt in newAtomIAV 
-;Parameters:
-;          $atom: The atom to add.
-;Returns: A message indicating success or failure.
-(: addAtomToAF (-> Atom Bool))
-(= (addAtomToAF $atom)
-   (if (== (getValueType $atom) %Undefined%)
-       False
-       (let* 
-            (
-                (() (add-atom &attentionalFocus $atom))
-                (() (if (contains (getNewAtomInAVList) $atom)
-                        ()
-                        (let $wrote
-                            (write_csv_wrapper (attentionalFocus))
-                            (add-atom &newAtomInAV $atom)
-                        )
-                    )
+        (if (not (<= $afSize (size-atom $allAtoms)))
+                (let $wrote
+                    (write_csv_wrapper $allAtoms)
+                    $allAtoms
                 )
-            )
-            True
+                (getAfAtomsHelper $afSize)
         )
-   )
+    )
 )
 
-;Function: getAtomList
-;Description: Retrieves a list of all atoms currently in attentional focus space.
-;Parameters: None.
-;Returns: A list of atoms in attentional focus space.
-(: getAtomList (-> Expression))
-(= (getAtomList)
-   (collapse (get-atoms &attentionalFocus))
+; Function: getAfAtomsHelper
+; Description: 
+;             - this helper function finds top $size number of atoms  by iterating through bin numbers list from highest to lowest
+;             - get bin numbers list, sort in decending and iterate on them until it gets #max-af-size atoms
+;             - iterate over the last bin until it gets the required number of atoms
+;             - finally write the atoms it gets on csv file
+; Parameters: 
+;            - $size: the number of atom we want to get
+; Return:   expression of atoms that should be in attentional focus
+
+(: getAfAtomsHelper (-> Number Expression))
+(= (getAfAtomsHelper $size)
+    (let* 
+        (
+            ($binList (sortDecend (getBinList (TypeSpace))))
+            (($min $atomsList) (minBin  $binList $size ())) ; getting the last bin and atoms in above the min bin
+            ($remainSize (- $size (size-atom $atomsList))) ; calculate remaining number of atoms
+            ($minAtomsSti (getAtomsByBin $min))
+            ($sortedMinList (sortAtomsDescending $minAtomsSti))
+            ($lastAtoms (getNatoms $sortedMinList $remainSize)); getting the first $size number of atoms
+            ($afAtoms (union-atom $atomsList $lastAtoms))
+            ($wrote (write_csv_wrapper $afAtoms)) ; log to csv if logger is configured via start_log
+        ) 
+       $afAtoms 
+    )
 )
 
-;Function: getNewAtomInAVList
-;Description: Retrieves a list of all atoms currently in the newAtomInAV space.
-;Parameters: None.
-;Returns: A list of atoms in newAtomInAV space.
-(: getNewAtomInAVList (-> Expression))
-(= (getNewAtomInAVList)
-   (collapse (get-atoms &newAtomInAV))
-)
+; Function: minBin
+; Description: 
+;             - is a function that iterates over bin list which is sorted in decending
+;             - for each bin it finds atoms and append 
+;             - if the bin list is empty, it returns -1 as the last bin it gets and the accumulater
+;             - if the number of atoms >= $size returns the bin number last time it iterated and atoms that has been accumulated
+; Return:   
+;            - The bin number it has stopped iterating and the accumulated list of atoms
 
-;Function: attentionalFocusSize
-;Description: Returns the total number of atoms in the attentional focus space
-;Parameters: None
-;Returns: The number of atoms in attentional focus space
-(: attentionalFocusSize (-> Number))
-(= (attentionalFocusSize)
-   (let $atomList (getAtomList)
-    (size-atom $atomList)
-   )
-)
+;  Parameters: 
+;             -   $binList: list of bin numbers
+;             -   $size: the number of atoms we want to find
+;             -   $acc: accumulator which stores atom while iterating (usually ())
 
-
-(= (getLowestStiAtomInAFHelper $atoms $minAtom $minSTI)
-    (if (== $atoms ())
-        $minAtom
+(: minBin (-> Expression Number Expression Expression))
+(= (minBin $binList $size $acc)
+        (if (== $binList ())
+            (-1 $acc)
         (let* (
-            ($current (car-atom $atoms))
-            ($sti (getSti $current))
-            ($newMinAtom (if (< $sti $minSTI) $current $minAtom))
-            ($newMinSTI (if (< $sti $minSTI) $sti $minSTI))
-        )
-        (getLowestStiAtomInAFHelper (cdr-atom $atoms) $newMinAtom $newMinSTI))
-    )
+                (($bin $tail) (decons-atom $binList))
+                ($atoms (getAtomsByBin $bin))
+                ($atomsList (union-atom $atoms $acc))
+                )
+            (if (< $size (size-atom $atomsList))
+                ($bin $acc)
+                (minBin $tail $size $atomsList)
+            )
+    )   )
 )
 
-;Function: getLowestStiAtomInAF
-;Description: Goes through the AF and returns the Atom with the lowest Sti
-;Parameters: None
-;Returns: An Atom that has the lowerst sti in attentional focus.
+; Function: getRandomAtomNotInAF
+; Description: 
+;             -  finds atoms in af and then atoms in typespac
+;             - subtract them to get atoms that only found in typespace
+;             - then choose random atom from them
+; Parameter: None
+; Returns: 
+;         - atom that found in typespace but not in af
 
-(: getLowestStiAtomInAF (-> Atom))
-(= (getLowestStiAtomInAF)
-    (let $atoms (getAtomList)
-        (if (== $atoms ())
-            ()
-            (let $atom (car-atom $atoms) (getLowestStiAtomInAFHelper $atoms (car-atom $atoms) (getSti $atom)))
-        )
-    )
-)
-
-;the function below updates the attentional focus with a new atom
-;the RemoveAFSignal() and AddAFSignal() functions have been skipped in this function because it appears to primarily 
-;serve logging the additional and removal of an atom as i reviewed in the example/AtomSpaceEventSubscribeExample.cc
-;and we may implement it in the future if needed
-
-;Function: updateAttentionalFocus
-;Description: Updates the attentional focus by adding a new atom, 
-;             or replacing the lowest STI atom if the attentional focus is full.
-;Parameters:
-;          $atom: The atom to be added or updated.
-;Returns: Nothing if no update occurs, otherwise the atom is added.
-(: updateAttentionalFocus (-> Atom ()))
-(= (updateAttentionalFocus $atom)
-   (let*
-       (
-        
-           ($maxSize (getAttentionParam MAX_AF_SIZE)) 
-           ($sti (getSti $atom)) 
-           ($currentSize (attentionalFocusSize)) 
-           ($isInAF (atomIsInAF $atom)) ; Check if atom is already in AF
-       )
-
-       (if $isInAF
-           ; Case 1: Atom is already in AF, update its value
-           (let ()
-               (remove-atom &attentionalFocus $atom)
-               (addAtomToAF $atom)
-           )
-           (if (< $currentSize $maxSize)
-               ; Case 2: AF is not full, add the new atom
-               (addAtomToAF $atom)
-               (let $lowestAtom (getLowestStiAtomInAF) ; Only compute if needed
-                    (if (> $sti (getSti $lowestAtom))  ; Case 3: Replace if better
-                        (let ()
-                            (remove-atom &attentionalFocus $lowestAtom)
-                            (addAtomToAF $atom)
-                        )
-                        () ; Case 4: Atom not added
-                    )
-               )
-           )
-       )
-   )
-)
-
-;Function: getRandomAtomNotInAF
-;Description: Retrieves a random atom that is not in attentional focus.
-;Parameters: None.
-;Returns: A randomly selected atom from outside attentional focus.
 (: getRandomAtomNotInAF (-> Symbol))
 (= (getRandomAtomNotInAF)
-   (let*
-       (
-           ($allAtoms  (getAllAtomsInBins))
-           ($filteredAtoms (filter $allAtoms atomIsNotInAF))
-       )
-       (if (== $filteredAtoms ())
-          ()
-        (let*
-               (
-                   ($randInt (random-int 0 (size-atom $filteredAtoms)))
-                   ($randomAtom (index-atom $filteredAtoms $randInt))
-               )
-             $randomAtom
-           )
-       )
-   )
-)
-
-
-;;; Function: getIncomingSet
-;;; Description: Retrieves the set of incoming links of a specific type for a given atom,
-;;;              filtering out links not in the attentional focus (AF).
-;;; Parameters:
-;;;   $atom: The atom for which to find incoming links.
-;;;   $type: The type of link to consider.
-;;; Returns: A list of incoming links that are in the AF.
-
-(: getIncomingSet (-> Atom Type List))
-(= (getIncomingSet $atom $type)
-    (let* (
-          ($incoming_set (getIncomingSetByType $atom $type))
-          ($filtered_set (filterLinksInAF $incoming_set))
-           )
-        $filtered_set
-    )
-)
-;!!!the filtered set needs sorting by STI value
-
-;;; Function: filterLinksInAF
-;;; Description: Filters a list of links, returning only those that are in the attentional focus (AF).
-;;; Parameters:
-;;;   $incoming_set: A list of incoming links to filter.
-;;; Returns: A new list containing only the links that are in the AF.
-(: filterLinksInAF (-> List List))
-(= (filterLinksInAF $incoming_set)
-    (let $atoms (collapse (filterLinksInAFHelper $incoming_set))
-        $atoms
-    )
-)
-; function filterLinksInAFHelper
-; return list of atom that is not in AF
-(: filterLinksInAFHelper (-> List List))
-(= (filterLinksInAFHelper $incoming_set)
-    (let $atom (superpose $incoming_set)
-        (if (atomIsInAF $atom)
-            $atom
-            (emtpy)
+    (let* 
+        ( 
+            ($afAtoms (getAfAtoms))
+            ($atoms (getAllAtomsWithBins))
+            ($outsideAf (subtraction-atom $atoms $afAtoms))
+            ($size (size-atom $outsideAf))
+        )   
+        (if (== $size 0)
+            ()
+            (let $rand 
+                (random-int 0 $size)
+                (index-atom $outsideAf $rand)
+            )
         )
     )
 )
 
-;;; Function: getIncomingSetByType
-;;; Description: Retrieves the set of incoming links of a specific type for a given atom
-;;;              without filtering based on the attentional focus.
-;;; Parameters:
-;;;   $atom: The atom for which to find incoming links.
-;;;   $type: The type of link to consider.
-;;; Returns: A list of incoming links of the specified type.
+; Function: getRandomAtomInAF
+; Description: 
+;             -  Retrives at atom at random from the attentionalFocus
+; Parameters: None
+; Returns: A unit Atom in Af is empty or a random atom 
+(= (getRandomAtomInAF)
+    (let $atoms 
+            (getAfAtoms)
+            (if (== (size-atom $atoms) 0)
+                ()
+            (let $rand (random-int 0 (size-atom $atoms))
+            (index-atom $atoms $rand)))
+    
+    )
+)
 
-(: getIncomingSetByType (-> Atom Type List))
+; Function: isAtomInAf
+; Description: 
+;             -  Checks if a given atom is in the attentional focus atoms list
+; Parameters:
+;             $atom: The atom to check.
+;Returns: True if the atom is in attentional focus list, otherwise False.
+
+(: isAtomInAf (-> Symbol Bool))
+(= (isAtomInAf $atom)
+    (let $x (getAllMinSTI (getAfAtoms)) (< (getSti $x) (getSti $atom)))
+)
+; Function: getIncomingSetByType
+; Description: Retrieves the set of incoming links of a specific type for a given atom
+;              without filtering based on the attentional focus.
+; Parameters:
+;   $atom: The atom for which to find incoming links.
+;   $type: The type of link to consider.
+; Returns: A list of incoming links of the specified type.
+(: getIncomingSetByType (-> Atom Type Expression))
 (= (getIncomingSetByType $atom $type)
-    (collapse 
-        (superpose   
-            (
-                (match &attentionalFocus ($type $atom $b) ($type $atom $b))
-                (match &attentionalFocus ($type $b $atom) ($type $b $atom))
+    (let $list 
+        (getAfAtoms)
+        (collapse 
+            (let*
+                (
+                    ($x (superpose $list))
+                    ($y (unify ($type $elem $atom) $x ($type $elem $atom) ()))
+                    ($l (unify ($type $atom $z) $x ($type $atom $z) ()))
+                ) 
+                (if (and (== $y ()) (== $l ())) Empty (union-atom $y $l))
             )
-        )  
-    )
-)
-
-;;; Function: getRandomAtomInAF
-;;; Descriptions: Retrives at atom at random from the attentionalFocus
-;;; Parameters: None
-;;; Returns: A unit Atom in Af is empty or a random atom 
-(: getRandomAtomInAF (-> Atom))
-( = (getRandomAtomInAF)
-    (if  (== (attentionalFocusSize) 0)
-        ()
-        ;else
-        ( let*( ($randomNumber (random-int 0 (attentionalFocusSize) ))
-            ($atoms (getAtomList))
-            ($randomAtom (index-atom $atoms $randomNumber))
-            )
-        $randomAtom
         )
     )
 )
 
-
-;;; Function: removeAtomAttentionalfocus
-;;; Description: removes an atom from the attentionalFocus space
-;;; Parameters:
-;;;     $atom: The atom to be removed from AF
-;;; Returns: A unit-atom
-(: removeAtomAttentionalfocus (-> atom empty))
-(= (removeAtomAttentionalfocus $atom)
-	(if (atomIsInAF $atom)
-		(remove-atom &attentionalFocus $atom)
-		()
-	)
-)
-
-;;; Function: removeNewAtomAv
-;;; Description: removes an atom from the newAtonInAv space
-;;; Parameters:
-;;;     $atom: The atom to be removed from AF
-;;; Returns: A unit-atom
-(: removeNewAtomAV (-> atom ()))
-(= (removeNewAtomAV $head)
-    (remove-atom &newAtomInAV $head)
-)

@@ -5,7 +5,6 @@
 !(import! &self metta-attention:attention:RentCollectionAgent:RentCollectionBaseAgent:RentCollectionBaseAgent)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
-!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 
 ;calculate rent before atoms stimulated

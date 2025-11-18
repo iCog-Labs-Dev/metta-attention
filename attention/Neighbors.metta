@@ -21,89 +21,19 @@
     )
 )
 
-(= (getSourceNeighbors $source $type $space)
-    (if (isUnorderLink $type)
-        ()
-        (let*
-            (
-                ($incomingSet (getAllIncomingSetsForHCA $source $space))
-                ($sourceNeighbors (getSourceNeighborRecursively $incomingSet $source $type))
-            )
-        $sourceNeighbors
+(= (getTargetNeighbors $target $type $space)
+    (collapse (match $space 
+        (($type $x $target) $value) 
+        (filterTarget ($type $x $target))
+    ))
+)
+
+(= (filterTarget $link)
+    (let ($type $x $target)
+        $link
+        (if (or (== $type UNORDERED_LINK) (== $x $target))
+            (empty)
+            $x
         )
     )
-)
-
-(= (getSourceNeighborRecursively $incomingSet $source $type)
-    (if (== () $incomingSet)
-        ()
-        (concatTuple ((getSourceNeighbor  (car-atom $incomingSet) $source $type)) (getSourceNeighborRecursively (cdr-atom $incomingSet) $source $type) )
-    )
-)
-
-(= (getSourceNeighbor $atom $source $type )
-    (let ($link $newSource $target) $atom
-        (if (== $link $type)
-            (if (not (== $newSource $source))
-                $newSource
-                ()
-            )
-            ()
-        )
-    )
-)
-
-(= (getTargetNeighbors $source $type $space)
-    (if (isUnorderLink $type)
-        ()
-        (let*
-            (
-                ($incomingSet (getAllIncomingSetsForHCA $source $space))
-                ($sourceNeighbors (getTargetNeighborRecursively $incomingSet $source $type))
-            )
-        $sourceNeighbors
-        )
-    )
-)
-
-(= (getTargetNeighborRecursively $incomingSet $source $type)
-    (if (== () $incomingSet)
-        ()
-        (concatTuple ((getTargetNeighbor  (car-atom $incomingSet) $source $type)) (getTargetNeighborRecursively (cdr-atom $incomingSet) $source $type) )
-    )
-)
-
-(= (getTargetNeighbor $atom $source $type )
-    (let ($link $newSource $target) $atom
-        (if (== $link $type)
-            (if (not (== $target $source))
-                $target
-                ()
-            )
-            ()
-        )
-    )
-)
-
-
-(: getAllIncomingSetsForHCA (-> Atom Grounded List))
-(= (getAllIncomingSetsForHCA $atom $space)
-    (collapse
-        (superpose
-            (
-                (match $space (($type $atom $b) $Value) ($type $atom $b))
-                (match $space (($type $b $atom) $Value) ($type $b $atom))
-            )
-        )
-    )
-)
-
-; Function: isUnorderLink
-; Description: returns true if an is a type of Unorderlink
-; Parameters: 
-;   $type: An atom that is expected to describe the type of an expression atom
-; Returns: True is an atom is an unorderlink and Fasle if it is not
-(: isUnorderLink (-> Atom Bool))
-(= (isUnorderLink $type)
-    (unify (SYMMETRIC_HEBBIAN_LINK SYMMETRIC_INVERSE_HEBBIAN_LINK HEBBIAN_LINK) $type True False)
 )

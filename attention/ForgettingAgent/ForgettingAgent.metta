@@ -10,7 +10,7 @@
             ($maxSize (getAttentionParam MAX_SIZE))
             ($accDivSize (getAttentionParam ACC_DIV_SIZE))
             ($forgetThreshold (getAttentionParam FORGET_THRESHOLD))
-			($atoms (collapseBin $space))
+			($atoms (getAllAtomsWithBins))
 			($size (countAtomsInTypeSpace)) 
 			($removalAmount (- $size (- $maxSize $accDivSize)))
 			($filteredatom (filterByLti $atoms $forgetThreshold))
@@ -24,9 +24,6 @@
 	)
 )
 
-(= (collapseBin $space)
-	(collapse (let $a (match $space ($x $y) $y) (superpose $a)))
-)
 
 ; Description : a function to filter atoms that are below a the forgetThreshold
 ; params :
@@ -178,12 +175,10 @@
         (importanceBin (getSti $head))
 		(
             (refundAV $head)
-            (removeAtom $bin $head)
-            (removeNewAtomAV $head)
-            (extractAtomRecursive $niset)
-            (removeAtomAttentionalfocus $head)
-            (removeTypeSpace $head)
+			(extractAtomRecursive $niset)
+			(removeTypeSpace $head)
         )
+
 	)
 )
 
@@ -200,19 +195,9 @@
 			(
 				($head (car-atom $atoms))
 				($tail (cdr-atom $atoms))
-				($bin (importanceBin (getSti $head)))
+                (() (refundAV $head))
 			)
-            (
-                (removeAtom $bin $head)
-                (refundAV $head)
-                (removeAtomAttentionalfocus $head)
-                (removeTypeSpace $head)
-                (removeNewAtomAV $head)
-                (removeAtomAttentionalfocus $head)
-                (removeTypeSpace $head)
-                (removeNewAtomAV $head)
-                (extractAtomRecursive $tail)
-            )
+            (removeTypeSpace $head)
 		)
 	)
 )

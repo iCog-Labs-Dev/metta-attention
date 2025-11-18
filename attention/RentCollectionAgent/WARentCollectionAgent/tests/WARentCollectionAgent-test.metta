@@ -1,8 +1,7 @@
 !(register-module! ../../../../../metta-attention)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention:AttentionParam)
-!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
-!(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
+!(import! &self metta-attention:attention-bank:attention-value:get-min-max)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
@@ -36,11 +35,3 @@
 !(assertEqual (getSti c)  30000.0)
 !(assertEqual (getSti d) 2900.0)
 !(assertEqual (getSti (Hebbianlink a b)) 355.0)
-
-
-
-
-
-
-
-

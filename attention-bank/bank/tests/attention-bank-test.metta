@@ -4,7 +4,6 @@
 
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
-!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 
@@ -48,5 +47,8 @@
 ; Check new Atom is added to bin 0
 !(stimulate w 0)
 
-!(assertEqual (getAtomList) (x y z w))
+!(let $afAtoms
+    (getAfAtoms)
+    (assertEqual (subtraction-atom $afAtoms (x y z w)) ())
+)
 

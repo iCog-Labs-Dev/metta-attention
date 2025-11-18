@@ -14,60 +14,42 @@
 ;   $space3: resolves to newAtomInAV where atoms that are new to attentionalFocus are stored
 ;Returns: empty
 
-(: HebbianCreationAgent-Run (-> Grounded Grounded Grounded Empty))
-(= (HebbianCreationAgent-Run $space $space2 $space3)
+(: HebbianCreationAgent-Run(-> Grounded empty))
+(= (HebbianCreationAgent-Run $space)
     ; if the attentional focus is empty no work is done
     (if ( == (attentionalFocusSize)  0)
         ()
         (let $source 
-                    (let*
-                        (
-                            ($afAtoms (getNewAtomInAVList))
-                            ($rm (collapse (removeAtomFromNewAVList (superpose $afAtoms) $space3)))
-                        )
-                            (superpose $afAtoms)
-                    ) 
+            (let $afAtoms 
+                (getAfAtoms)
+                (superpose $afAtoms)
+            ) 
             (if  (unify (get-metatype $source) Expression (==  HEBBIAN_LINK (car-atom $source)) False)
                 () ; if already hebbian_link nothing is done
                 (
                     (let*
                         (
-                            ($removeHebbian (removeHebbianLinksfromAF (collapse (match $space2 (HEBBIAN_LINK $a $b) (HEBBIAN_LINK $a $b))))) 
                             ($existingAsSourceHS  (getTargetNeighbors $source ASYMMETRIC_HEBBIAN_LINK $space)) ;;need to check if we should use source or sourceAtom
-                            ($existingAsTarget  (getSourceNeighbors $source ASYMMETRIC_HEBBIAN_LINK $space))
-                            ($needToBeSource ( setDifference $existingAsSourceHS) )
-                            ($needToBeTarget  (setDifference $existingAsTarget))
-                            ($count (size-atom $needToBeTarget ))
-                            ($_ (collapse 
-                                (let $target (superpose $needToBeSource)
-                                        (if (not (== $target $source)) 
-                                            (addHebbian $source $target)
-                                            ()
-                                        )
-                                ) 
-                                )
-                            )
-   
-                            ($__ (collapse 
-                                    (let $x (superpose $needToBeTarget)
-                                        (if (not (== $x $source)) 
-                                            (addHebbian $source $x)
-                                            ()
-                                        )
-                                    ) 
-                                )
-                            )
+                            ($needToBeTarget  (subtraction-atom $afAtoms $existingAsSourceHS))
+                            ($count (size-atom $needToBeTarget))
                             ($farLinks (/ $count localToFarLinks )) ;round by default
-                            ($___ (addFromOutSideAF $source $farLinks))
                             ($incomingSet (getIncomingSetByType $source HEBBIAN_LINK)) ;should I add other types of hebbian links?
                             ($maxLinkNum (getAttentionParam MAX_LINK_NUM))
                         )
                         (
+                            (collapse 
+                                (let $target (superpose $needToBeTarget)
+                                        (if (not (== $target $source)) 
+                                            (addHebbian $target $source)
+                                            ()
+                                        )
+                                ) 
+                            )
+                            (addFromOutSideAF $source $farLinks)
                             (if (> (size-atom $incomingSet) $maxLinkNum )
                                 (removeLinkRecursively (- (size-atom $incomingSet) $maxLinkNum))
                                 ()
                             )
-                            ()
                         )
                     )
                 )
@@ -75,21 +57,6 @@
         )
     )
 )
-
-;;Function: removeHebbianLinksfromAF
-;;Description: removes Hebbian Links from the AF
-;;Parameters: Atom
-;;Return: Empty
-
-; (: removeHebbianLinksfromAF (-> Link Empty))
-(= (removeHebbianLinksfromAF $links)
-    (if (== $links ())
-        ()
-        (let $superposed (superpose $links) 
-            (remove-atom (attentionalFocus) $superposed))
-    )
-)
-
 
 ;Function: getSourceAtom
 ;Description: returns the source atom of a link
@@ -122,7 +89,7 @@
         (let*
             (
                 ($randomAtom (getRandomAtomInAF))
-                ($x (let $temp (remove-atom (attentionalFocus) $randomAtom) $temp))
+                ($x (let $temp (remove-atom (Typespace) $randomAtom) $temp))
             )
             (removeLinkRecursively (- $num 1))
         )
@@ -137,7 +104,7 @@
 
 (:setDifference (-> List List))
 ( = (setDifference  $IncomingList)
-    (let $atomList (getAtomList)
+    (let $atomList (getAfAtoms)
         (subtraction-atom $atomList $IncomingList )
     )
 )
@@ -152,13 +119,13 @@
     (if ( == $farLinks 0 )
         ()
         (let $target (getRandomAtomNotInAF)
-            (if (== %Undefined% $target)
+            (if (== () $target)
                 ()
                 (
                     (if (== (get-metatype $target) Expression)
                         (if (== (car-atom $target) HEBBIAN_LINK)
                             ()
-                            (if (or (atomIsInAF (ASYMMETRIC_HEBBIAN_LINK $source $target)) (== $target $source)) ;If the link exists dont add it again 
+                            (if (and (not (== (getStv (ASYMMETRIC_HEBBIAN_LINK $source $target)) %Undefined%)) (== $target $source)) ;If the link exists dont add it again 
                                 ()
                                 (
                                     (addHebbian $source $target )
@@ -166,7 +133,7 @@
                                 )
                             )
                         )
-                        (if (or (atomIsInAF (ASYMMETRIC_HEBBIAN_LINK $source $target)) (== $target $source));If the link exists dont add it again 
+                        (if  (and (not (== (getStv (ASYMMETRIC_HEBBIAN_LINK $source $target)) %Undefined%)) (== $target $source)) ;If the link exists dont add it again 
                             ()
                             (
                                 (addHebbian $source $target )

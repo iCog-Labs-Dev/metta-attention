@@ -14,7 +14,7 @@
 ; Returns: A list of atoms in attentional focus.
 (: selectAFTargets (-> Expression))
 (= (selectAFTargets)
-    (getAtomList)
+    (getAfAtoms)
 )
 
 ; Function: collectRent

@@ -2,22 +2,22 @@
 ;; Parameters $space: The space that will be used to find the diffusion source vector
 ;; Return : The diffusion source vector
 
-(: diffusionSourceVector (-> Grounded Atom))
-(= (diffusionSourceVector $space)
-    (let*
-        (
-            ($atoms (collapse (let $temp (match $space $x $x)
-                (if (== (get-metatype $temp) Expression)
-                    (if (== (car-atom $temp) HEBBIAN_LINK)
-                        (empty)
-                        $temp
-                    )
+; (: diffusionSourceVector (-> Grounded Atom))
+(= (diffusionSourceVector $list)
+    (collapse 
+        (let
+            $temp 
+            (superpose $list)
+            (if (== (get-metatype $temp) Expression)
+                (if (== (car-atom $temp) HEBBIAN_LINK)
+                    (empty)
                     $temp
-                    
-                ))))
+                )
+                $temp
+                
+            )
         )
-        $atoms
-    )
+    ) 
 )
 
 
@@ -35,11 +35,11 @@
 ;;            $space2: The space that will be used to find incomingSets
 ;; Return : The diffusion get called
 
-(: spreadImportance (-> Grounded Grounded Empty))
-(= (spreadImportance $space $space2)
-    (let $diffusionSourceVector (diffusionSourceVector $space)
+; (: spreadImportance (-> Grounded Grounded Empty))
+(= (spreadImportance $space)
+    (let $diffusionSourceVector (diffusionSourceVector (getAfAtoms))
         (let ($atom $atomToReceive $stiGiven)
-            (diffuseAtom (superpose $diffusionSourceVector) $space2 AF)
+            (diffuseAtom (superpose $diffusionSourceVector) $space AF)
                 (tradeSti $atom $atomToReceive $stiGiven)
             )
     )
@@ -50,7 +50,7 @@
 ;;            $space2: The space that will be used to find incomingSets
 ;; Return : The spreadImportance function is called
 
-(: AFImportanceDiffusionAgent-Run (-> Grounded Grounded Empty))
-(= (AFImportanceDiffusionAgent-Run $space $space2)
-    (spreadImportance $space $space2)
+; (: AFImportanceDiffusionAgent-Run (-> Grounded Grounded Empty))
+(= (AFImportanceDiffusionAgent-Run $space)
+    (spreadImportance $space)
 )

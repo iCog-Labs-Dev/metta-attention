@@ -19,8 +19,7 @@
 
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 
-!(import! &self metta-attention:attention-bank:bank:atom-bins:get-min-max-content)
-!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
+!(import! &self metta-attention:attention-bank:attention-value:get-min-max)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
@@ -34,6 +33,7 @@
 !(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
 !(updateAttentionParam FUNDS_STI 2000.0) 
 !(updateAttentionParam FUNDS_LTI 2000.0) 
+!(updateAttentionParam AFRentFrequency 9.0)
 
 ; =================== Set links containing prior to testing ==============
 !(setStv (SimilarityLink abamectin  Ants) (0.245 0.9))
@@ -44,27 +44,27 @@
 !(setStv (ASYMMETRIC_HEBBIAN_LINK  alcohol  acetamiprid) (0.253 0.9))
 
 ; ================== assertions About inital state of Ecan spaces =============
-!(assertEqual (getAtomList) ())
-!(assertEqual (collapse (get-atoms &newAtomInAV)) ())
-!(assertEqual (collapseAtomBin (atomBin)) ())
+!(assertEqual (getAfAtoms) ())
+!(assertEqual (getAllAtomsWithBins) ())
 !(assertEqual (match &timer (firstTime $x) $x) True)
 
 
 !(stimulate Ants 30)
 !(test-superpose)
 
-!(assertEqual (getAtomList) (Ants (SimilarityLink abamectin Ants)))
+!(assertEqual (getAfAtoms) ((SimilarityLink abamectin Ants) Ants))
 !(assertEqual (getSti Ants) 360)
 !(assertEqual (getLti Ants) 600)
 !(assertEqual (getSti (SimilarityLink abamectin Ants)) 240)
 !(assertEqual (getLti (SimilarityLink abamectin Ants)) 0)
-!(assertEqual (collapseAtomBin (atomBin)) ((52.0 (Ants)) (47.0 ((SimilarityLink abamectin Ants)))))
+!(assertEqual (getAllAtomsWithBins) ((SimilarityLink abamectin Ants) Ants))
+!(assertEqual (getBin Ants) 52.0)
+!(assertEqual (getBin (SimilarityLink abamectin Ants)) 47.0)
 
-!(assertEqual (collapse (get-atoms &newAtomInAV)) ())
 
 !(assertEqual (match &timer (firstTime $x) $x) False)
 
-!(assertEqual 
+(assertEqual 
     (let $asym 
         (collapse (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $x $y) $z) (ASYMMETRIC_HEBBIAN_LINK $x $y))) 
         (size-atom $asym)
@@ -72,16 +72,26 @@
     5
 )
 
+
 !(stimulate aflatoxin 30)
+!(assertEqual (getAttentionParam FUNDS_STI) 980)
+
 !(test-superpose)
 
-!(assertEqual (getAtomList) 
-    (Ants (SimilarityLink abamectin Ants) aflatoxin abamectin (SimilarityLink aldicarb aflatoxin)))
-!(assertEqual (< (getLti Ants) 600) True) 
-!(assertEqual (getLti (SimilarityLink abamectin Ants)) 0)
-!(assertEqual (getLti aflatoxin) 420.0)
+!(assertEqual (> (getAttentionParam FUNDS_STI) 980) True)
 
-!(assertEqual (collapse (get-atoms &newAtomInAV)) ())
+!(let $afAtoms
+    (getAfAtoms)
+    (assertEqual
+        (subtraction-atom 
+            $afAtoms
+            (Ants (SimilarityLink abamectin Ants) aflatoxin abamectin (SimilarityLink aldicarb aflatoxin))
+        )
+        ()
+    )
+)
+
+!(assertEqual (getLti (SimilarityLink abamectin Ants)) 0)
 
 !(assertEqual 
     (let $asym 

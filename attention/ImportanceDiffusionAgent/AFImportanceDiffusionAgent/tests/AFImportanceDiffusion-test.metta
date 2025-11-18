@@ -2,7 +2,6 @@
 !(import! &self metta-attention:attention:AttentionParam)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
-!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
@@ -40,7 +39,7 @@
 
 
 ;########################## Running the AF Importance Diffusion Agent #############################
-!(AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace))
+!(AFImportanceDiffusionAgent-Run (TypeSpace))
 ;########################## Testing the STI values #############################
 !(assertEqual (getSti source) 6000.0)
 !(assertEqual (getSti target1) 8000.0)
@@ -64,7 +63,7 @@
 !(assertEqual (getSti (INHERITANCE_LINK target3 (ASYMMETRIC_HEBBIAN_LINK sorce target4))) 1600)
 
 ; ;########################## Running the AF Importance Diffusion Agent #############################
-!(AFImportanceDiffusionAgent-Run (attentionalFocus) (TypeSpace))
+!(AFImportanceDiffusionAgent-Run (TypeSpace))
 ; ;########################## Testing the STI values #############################
 !(assertEqual (getSti source) 5998.9000000000015)
 !(assertEqual (getSti target1) 8000.0)

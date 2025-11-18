@@ -5,7 +5,6 @@
 !(import! &self metta-attention:attention:RentCollectionAgent:RentCollectionBaseAgent:RentCollectionBaseAgent)
 !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
 !(import! &self metta-attention:attention-bank:utilities:helper-functions)
-!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
 !(import! &self metta-attention:attention:RentCollectionAgent:AFRentCollectionAgent:AFRentCollectionAgent)
 !(stimulate b 3000.0)
@@ -23,7 +22,7 @@
 !(AFRentCollectionAgent-run)
 
 ;Sleep for the computed time to match C++ behavior
-! ((py-atom time.sleep) (/ 1.0 5.0))
+! ((py-atom time.sleep) (/ 1.0 6.0))
 !(AFRentCollectionAgent-run)
 
 ;the sti value of the atoms must be lower and Python’s time.time() is only precise up to ~1e-6 or less,
