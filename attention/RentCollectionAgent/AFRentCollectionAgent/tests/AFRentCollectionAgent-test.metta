@@ -43,7 +43,7 @@
 ; !(hello)
 
 ;Sleep for the computed time to match C++ behavior
-!(py-call (time.sleep 0.2))
+!(py-call (time.sleep (/ 2.0 6.0)))
 ; !(sleep (/ 1.0 6.0))
 !(AFRentCollectionAgent-run)
 
@@ -52,9 +52,9 @@
 !(getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)))
 
 
-; !(assertEqual (approxEqual (getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 30.9 1.6) True)
-; !(assertEqual (approxEqual (getSti b) 59998.7 1.6) True)
-; !(assertEqual (approxEqual (getSti c) 29998.7 1.6) True)
-; !(assertEqual (approxEqual (getSti d) 2898.71 1.6) True)
-; !(assertEqual (approxEqual (getSti (Hebbianlink a b)) 353.725 1.6) True)
+!(assertEqual (approxEqual (getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 30.9 1.6) True)
+!(assertEqual (approxEqual (getSti b) 59998.7 1.6) True)
+!(assertEqual (approxEqual (getSti c) 29998.7 1.6) True)
+!(assertEqual (approxEqual (getSti d) 2898.71 1.6) True)
+!(assertEqual (approxEqual (getSti (Hebbianlink a b)) 353.725 1.6) True)
 

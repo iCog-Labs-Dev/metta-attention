@@ -38,11 +38,13 @@
           ($5 (println! (this is lastupdatee time $lastUpdate)))
           ($elapsedTime (* (- $currentTime $lastUpdate) 1000000))
           ($6 (println! (this is elapsed time $elapsedTime)))
-
           ($timeThreshold (/ 1000000 $updateFreq))
           ($multiplier (/ $updateFreq 1000000))
+          ($6 (println! (this is time difference (- $timeThreshold $elapsedTime))))
+          ($timeres (let $resul (match &timer (firstTime $bool) $bool) $resul))
+          ($10 (println! (this much result $timeres) ))
       )
-      (if (match &timer (firstTime $x) $x)
+      (if ($timeres)
           (
             (setFirstTime False)
             (setLastUpdate $currentTime)
@@ -51,8 +53,9 @@
               (empty)
               (let*
                   (
+                    ($8 (println! (inside collect if)))
                     ($w (* $elapsedTime $multiplier))
-                    ($7 (println! (this is w man $w))) 
+                    ($7 (println! (this is w $w))) 
                     ($lists (superpose $targetSet))
                   )
                   (
@@ -77,6 +80,7 @@
    (let*
         (
           ($sti (getSti $atom))
+          ($atomss (println! (this is atom $atom)))
           ($lti (getLti $atom))
           ($stiAtomRent (getAttentionParam StartingAtomStiRent))
           ($ltiAtomRent (getAttentionParam StartingAtomLtiRent))
