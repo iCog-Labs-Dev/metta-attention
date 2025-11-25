@@ -25,9 +25,16 @@
 ;; Parameters $atom: The atom that will be used to calculate the diffusion amount
 ;; Return : The diffusion amount
 
-(: calculateDiffusionAmount (-> Atom Number))
+; (: calculateDiffusionAmount (-> Atom Number))
 (= (calculateDiffusionAmount $atom)
-    (* (getSti $atom) (getAttentionParam MAX_SPREAD_PERCENTAGE))
+    ; (eval (* (getSti $atom) (getAttentionParam MAX_SPREAD_PERCENTAGE)))
+     (let*
+     (
+        ($res (* (getSti $atom) (getAttentionParam MAX_SPREAD_PERCENTAGE)) )
+        ($1 (println! (calculated amount $res)))
+     )
+     $res
+     )
 )
 
 ;;This function will retrieve the diffusion source vector from AF and then call the diffuseAtom function to diffuse the atoms
@@ -37,12 +44,30 @@
 
 ; (: spreadImportance (-> Grounded Grounded Empty))
 (= (spreadImportance $space)
-    (let $diffusionSourceVector (diffusionSourceVector (getAfAtoms))
-        (let ($atom $atomToReceive $stiGiven)
-            (diffuseAtom (superpose $diffusionSourceVector) $space AF)
-                (tradeSti $atom $atomToReceive $stiGiven)
-            )
-    )
+     ; (let $diffusionSourceVector (diffusionSourceVector (getAfAtoms))
+        ; (let ($atom $atomToReceive $stiGiven)
+        ;     (diffuseAtom (superpose $diffusionSourceVector) $space AF)
+        ;         (tradeSti $atom $atomToReceive $stiGiven)
+        ;     )
+        (let*
+        (
+            ($diffusionSourceVector  (diffusionSourceVector (getAfAtoms)) )
+            ($4 (println! (diffusion vector output $diffusionSourceVector)))
+            ($atoms (collapse 
+                (let $atom
+                    (superpose $diffusionSourceVector)
+                    (diffuseAtom $atom $space AF))
+                )
+            ) 
+            ($2 (println! (diffuse atom output $atoms )))
+            ($res (let ($atom $atomToReceive $stiGiven)
+                (superpose $atoms)
+                (tradeSti $atom $atomToReceive $stiGiven) ))
+            ($3 (println! (trade sti output $res)))
+        )
+        $res
+        )
+    ; )
 )
 
 ;; This function is the entry point to the AFImportance Diffusion Agent

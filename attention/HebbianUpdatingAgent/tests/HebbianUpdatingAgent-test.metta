@@ -1,12 +1,24 @@
-!(register-module! ../../../../metta-attention)
-!(import! &self metta-attention:attention-bank:utilities:helper-functions)
-!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
-!(import! &self metta-attention:attention-bank:bank:attention-bank)
-!(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
-!(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
-!(import! &self metta-attention:attention-bank:utilities:recentVal)
-!(import! &self metta-attention:attention:HebbianUpdatingAgent:HebbianUpdatingAgent)
-!(import! &self metta-attention:attention:AttentionParam)
+; !(register-module! ../../../../metta-attention)
+; !(import! &self metta-attention:attention-bank:utilities:helper-functions)
+; !(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
+; !(import! &self metta-attention:attention-bank:bank:attention-bank)
+; !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
+; !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
+; !(import! &self metta-attention:attention-bank:utilities:recentVal)
+; !(import! &self metta-attention:attention:HebbianUpdatingAgent:HebbianUpdatingAgent)
+; !(import! &self metta-attention:attention:AttentionParam)
+
+
+!(import! &self ../../../../PeTTa/lib/lib_he)
+!(import! &self ../../../../metta-attention/attention/AttentionParam)
+!(import! &self ../../../../metta-attention/attention-bank/utilities/helper-functions)
+!(import! &self ../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
+!(import! &self ../../../../metta-attention/attention-bank/bank/attention-bank)
+!(import! &self ../../../../metta-attention/attention-bank/bank/attentional-focus/attentional-focus)
+!(import! &self ../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
+!(import! &self ../../../../metta-attention/attention-bank/utilities/recentVal)
+!(import! &self ../../../../metta-attention/attention/Neighbors)
+!(import! &self ../../../../metta-attention/attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
 
 
 ;################ Prep: giving atoms mean and confidence ####################

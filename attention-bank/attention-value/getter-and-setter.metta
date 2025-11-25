@@ -35,10 +35,13 @@
 
            ($stiDiff (- $oldSti $sti))
            ($ltiDiff (- $oldLti $lti))
+        ;    ($_ (println! (lti $ltiDiff)))
            ($fundsSTI (getAttentionParam FUNDS_STI))
            ($fundsLTI (getAttentionParam FUNDS_LTI))
            ($newstifund (+ $fundsSTI $stiDiff))
            ($newltifund (+ $fundsLTI $ltiDiff))
+        ;    ($hello (println! (new sti $newstifund)))
+        ; ($hi (println! (inside setAv)))
            ($updater (eval (attentionValueChanged $pattern $newstifund $newltifund)))  ; Update attentional focus and global paremeter
            
     )
@@ -128,7 +131,7 @@
 
 ; getMean retrieves mean from a pattern
 ; i.e !(getMean A)  output: 1
-(: getMean (-> Atom Number))
+; (: getMean (-> Atom Number))
 (= (getMean $pattern)
     (case (getStv $pattern)
             ((%Undefined% 0)
@@ -138,7 +141,7 @@
 
 ; getConfidence retrieves Confidence from a pattern
 ; i.e !(getConfidence A)  output: 0.9 
-(: getConfidence (-> Atom Number))
+; (: getConfidence (-> Atom Number))
 (= (getConfidence $pattern)
     (case (getStv $pattern)
         ((%Undefined% 0)
@@ -152,7 +155,7 @@
 ; (: getSti (-> Atom Number))
 (= (getSti $pattern)
     (case (getAv $pattern)
-        ((%Undefined% 0)
+        ((%Undefined% 0.0)
         ((AV $sti $lti $vlti) $sti))
     )
 
@@ -165,7 +168,7 @@
 ; (: getLti (-> Atom Number))
 (= (getLti $pattern)
     (case (getAv $pattern)
-        ((%Undefined% 0)
+        ((%Undefined% 0.0)
         ((AV $sti $lti $vlti) $lti))
     )
 )
@@ -265,7 +268,7 @@
 ; params:
 ;	None
 ; return: Expression of patterns in the typeSpace without their types in and is more deterministic than matching
-(: getAtomsInTypeSpace (-> Expression))
+; (: getAtomsInTypeSpace (-> Expression))
 (= (getAtomsInTypeSpace) 
 	(collapse (getAtomsInTypeSpace-helper))
 )
@@ -284,7 +287,7 @@
 ;             - $binNumber: the bin number we will use to search atoms
 ; Returns: expression of atoms that have $binNumber bin
 
-(: getAtomsByBin (-> Number Expression))
+; (: getAtomsByBin (-> Number Expression))
 (= (getAtomsByBin $binNumber)
     (collapse (match (TypeSpace) ($patt ($val (Bin $binNumber))) $patt))
 )
@@ -293,7 +296,7 @@
 ; Description: finds all atoms which have bin number
 ; Parameters: None
 ; Returns: Expression of atoms that have AV/bin number 
-(: getAllAtomsWithBins (-> Expression))
+; (: getAllAtomsWithBins (-> Expression))
 (= (getAllAtomsWithBins)
      (collapse (match (TypeSpace) ($patt ($val (Bin $binNumber))) $patt))
 )
@@ -304,7 +307,7 @@
 ;             - $lower: the lower bin number of the range
 ;             - $higher: the higher bin number from the range
 
-(: getContent (-> Number Number Expression))
+; (: getContent (-> Number Number Expression))
 (= (getContent $lower $higher)
   (if (> $lower $higher)
     ()  

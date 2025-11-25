@@ -1,5 +1,7 @@
-(bind! tcDecayRate 0.1)
-(bind! DEFAULT_K 800)
+; (bind! tcDecayRate 0.1)
+; (bind! DEFAULT_K 800)
+(= (tcDecayRate) 0.1)
+(= (DEFAULT_K) 800)
 
 ;;; Function: HebbianUpdatingAgent-Run
 ;;; Description: Main Function to run the Hebbian Updating Agent.
@@ -8,7 +10,7 @@
 ;;; Example: (HebbianUpdatingAgent-Run)
 ;;;          Returns: update STV for the Hebbian link between A and some atom
 
-(: HebbianUpdatingAgent-Run (-> Grounded Atom))
+; (: HebbianUpdatingAgent-Run (-> Grounded Atom))
 (= (HebbianUpdatingAgent-Run $space)
     (let $atoms (getAtomList)
         (if (== $atoms ())
@@ -28,7 +30,7 @@
 ;;; Example: (updateHebbianLinks A)
 ;;;          Returns: updates STV for the Hebbian link between A and some atom
 
-(: updateHebbianLinks (-> Atom Grounded Atom))
+; (: updateHebbianLinks (-> Atom Grounded Atom))
 (= (updateHebbianLinks $source $space)
     (let*
         (
@@ -43,8 +45,11 @@
                         (if (== $source $head)
                             (let*
                                 (
-                                    ($tcDecayRate (getAttentionParam TC_DECAY_RATE))
+                                    ($tcDecayRate (eval (getAttentionParam TC_DECAY_RATE)))
                                     ($new-tc (targetConjunction $outgoing))
+                                    ; ($_ (println! (tc decay $tcDecayRate)))
+                                    ; ($_ (println! (target out $new-tc)))
+
                                     (($STV $old-tc $conf) (getStv $iset))
                                     ($tc (+ (* $tcDecayRate $new-tc) (* (- 1.0 $tcDecayRate) $old-tc)))
                                     ($create-tv ($tc 0.1))
@@ -60,6 +65,7 @@
             )
             ()
         )
+        
     )
 )
 
@@ -72,13 +78,18 @@
 ;;; Example: (targetConjunction (A B))
 ;;;          Returns Number
 
-(: targetConjunction (-> Atom Number))
+; (: targetConjunction (-> Atom Number))
 (= (targetConjunction $outgoing)
     (let*
         (
             (($source $target) $outgoing)
             ($normsti_i (getNormalisedZeroToOneSTI $source True True))
+            ; ($_ (println! (normalised i $source $normsti_i)))
+
             ($normsti_j (getNormalisedZeroToOneSTI $target True True))
+            ; ($_ (println! (normalised j $normsti_j)) )
+            ; ($_ (println! (target $target)))
+
             ($conj (+ (* $normsti_i $normsti_j) (* (- $normsti_j $normsti_i) (abs-math (- $normsti_j $normsti_i)))))
             ($ret_conj (/ (+ $conj 1.0) 2.0))
         )
@@ -96,14 +107,14 @@
 ;;; Example: (mergeCalculation (STV 0.1 0.9) (STV 0.3 0.9) PLN_BOOK_REVISION)
 ;;;          Returns (STV 0.0105976 0.9)
 
-(: mergeCalculation (-> STV STV Symbol STV))
+; (: mergeCalculation (-> STV STV Symbol STV))
 (= (mergeCalculation $stv1 $stv2 $formula-to-use)
     (case $formula-to-use
         (
             (PLN_BOOK_REVISION
                 (let*
                     (
-                        ($defaultK (getAttentionParam DEFAULT_K))
+                        ($defaultK (call (getAttentionParam DEFAULT_K)))
                         (($mean1 $conf1) $stv1)
                         (($mean2 $conf2) $stv2)
                         ($cf (min-atom ($conf1 0.9999998)))
@@ -132,7 +143,7 @@
 ;;; Example: (higherConfidenceMerge (STV 0.1 0.8) (STV 0.3 0.9))
 ;;;          Returns (STV 0.3 0.9)
 
-(: higherConfidenceMerge (-> STV STV STV))
+; (: higherConfidenceMerge (-> STV STV STV))
 (= (higherConfidenceMerge $stv1 $stv2)
     (let*
         (
@@ -150,7 +161,7 @@
 ;; Parameters $atom: The atom that will be used to find the incoming set
 ;;            $type: The type that will be used to find the incoming set
 ;; Return : The incoming set of the atom
-(: getAllIncomingSetsForHUAgent (-> Atom Grounded Atom List))
+; (: getAllIncomingSetsForHUAgent (-> Atom Grounded Atom List))
 (= (getAllIncomingSetsForHUAgent $atom $space $type)
     (match $space (($type $atom $x) $AV) ($type $atom $x))
 )

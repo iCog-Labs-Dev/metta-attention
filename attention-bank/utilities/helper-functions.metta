@@ -348,7 +348,7 @@
 ;;; Example: (getOutGoingAtoms (LINK A B))
 ;;;          Returns (A B)
 
-(: getOutGoingAtoms (-> Atom Atom))
+; (: getOutGoingAtoms (-> Atom Atom))
 (= (getOutGoingAtoms $link)
     (if (== (size-atom $link) 3)
         (cdr-atom $link)

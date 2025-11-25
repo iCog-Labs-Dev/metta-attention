@@ -16,38 +16,38 @@
 !(add-atom &recentVal (recent_max 0.0))
 !(add-atom &recentVal (decay_max 1))
 
-(: RecentVal (-> Grounded))
+; (: RecentVal (-> Grounded))
 (= (RecentVal) &recentVal)
 
-(: updateMin (-> Number empty))
-(= (updateMin $newValue)
-   (let*
-     (
-        ($recent (match &recentVal (recent_min $_) $_))
-        ($decay (match &recentVal (decay_min $_) $_))
-        ($value (match &recentVal (value_min $_) $_))
-        ($newRecent (+ (* $decay $newValue) (* $recent (- 1.0 $decay)))) 
-        ($_ (let () (remove-atom &recentVal (recent_min $recent)) (add-atom &recentVal (recent_min $newRecent))))
-        ($_ (let () (remove-atom &recentVal (value_min $value)) (add-atom &recentVal (value_min $newValue))))
-      )
-      ()
-    )
-)
+; (: updateMin (-> Number empty))
+; (= (updateMin $newValue)
+;    (let*
+;      (
+;         ($recent (match &recentVal (recent_min $_) $_))
+;         ($decay (match &recentVal (decay_min $_) $_))
+;         ($value (match &recentVal (value_min $_) $_))
+;         ($newRecent (+ (* $decay $newValue) (* $recent (- 1.0 $decay)))) 
+;         ($_ (let () (remove-atom &recentVal (recent_min $recent)) (add-atom &recentVal (recent_min $newRecent))))
+;         ($_ (let () (remove-atom &recentVal (value_min $value)) (add-atom &recentVal (value_min $newValue))))
+;       )
+;       ()
+;     )
+; )
 
-(: updateMax (-> Number empty))
-(= (updateMax $newValue)
-   (let*
-     (
-        ($recent (match &recentVal (recent_max $_) $_))
-        ($decay (match &recentVal (decay_max $_) $_))
-        ($value (match &recentVal (value_max $_) $_))
-        ($newRecent (+ (* $decay $newValue) (* $recent (- 1.0 $decay)))) 
-        ($_ (let () (remove-atom &recentVal (recent_max $recent)) (add-atom &recentVal (recent_max $newRecent))))
-        ($_ (let () (remove-atom &recentVal (value_max $value)) (add-atom &recentVal (value_max $newValue))))
-      )
-      ()
-    )
-)
+; (: updateMax (-> Number empty))
+; (= (updateMax $newValue)
+;    (let*
+;      (
+;         ($recent (match &recentVal (recent_max $_) $_))
+;         ($decay (match &recentVal (decay_max $_) $_))
+;         ($value (match &recentVal (value_max $_) $_))
+;         ($newRecent (+ (* $decay $newValue) (* $recent (- 1.0 $decay)))) 
+;         ($_ (let () (remove-atom &recentVal (recent_max $recent)) (add-atom &recentVal (recent_max $newRecent))))
+;         ($_ (let () (remove-atom &recentVal (value_max $value)) (add-atom &recentVal (value_max $newValue))))
+;       )
+;       ()
+;     )
+; )
 
 
 ; optional implementation of recentval using max and min as a global variable in attentionParams instead of recentVal which avoids extra space
@@ -56,29 +56,12 @@
     ;recent = ((decay * newValue) + ((decay - 1.0) * recent))
     ;where: newValue is the value passed as the argument to the update functions. 
 ; (: updateMin (-> Number empty))
-; (= (updateMin $newValue)
-;    (let*
-;      (
-;         ($current (getAttentionParam MIN_STI))
-;         ($recent (getAttentionParam RECENT_MIN))
-;         ($decay (getAttentionParam DECAY_MIN))
-;         ($newRecent (+ (* $decay $newValue) (* $recent (- 1.0 $decay))))
-;         ($_ (updateAttentionParam MIN_STI $newValue))
-;       )
-;       (updateAttentionParam RECENT_MIN $newRecent)
-;     )
-; )
+(= (updateMin $newValue)
+   (let $current (getAttentionParam MIN_STI) (updateAttentionParam MIN_STI $newValue))
+)
 
 ; (: updateMax (-> Number empty))
-; (= (updateMax $newValue)
-;    (let*
-;      (
-;         ($current (getAttentionParam MAX_STI))
-;         ($recent (getAttentionParam RECENT_MAX))
-;         ($decay (getAttentionParam DECAY_MAX))
-;         ($newRecent (+ (* $decay $newValue) (* $recent (- 1.0 $decay))))
-;         ($_ (updateAttentionParam MAX_STI $newValue))
-;       )
-;       (updateAttentionParam RECENT_MAX $newRecent)
-;     )
-; )
+(= (updateMax $newValue)
+   (let $current (getAttentionParam MAX_STI) (updateAttentionParam MAX_STI $newValue))
+    
+)
