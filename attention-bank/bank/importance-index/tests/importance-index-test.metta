@@ -18,7 +18,7 @@
 !(setAv Animals (30 30 1)) 
 !(setAv (Hebbianlink (Hebbianlink Human Cat)  Animal) (40 40 1))
 !(setAv something   (80 80 1))
-
+; !(stimulate source 50)
 ;########################### Testing ###########################################
 
 ; Test case 01: Testing importanceBin with different number value
@@ -34,26 +34,25 @@
 !(assertEqual (filterContents ((EvaluationLink a b) another Animals ) 10 25) ((EvaluationLink a b) another ()))
 !(assertEqual (getHandleSet 11 26) ((EvaluationLink a b) another))
 !(assertEqual (getContent 20 30) ((EvaluationLink a b) another Animals (Hebbianlink (Hebbianlink Human Cat) Animal)) )
-
 ; Test case 03: Testing update function
 !(assertEqual (update &typeSpace) ("Updated"))
-!(assertEqual (getMaxSTI) 200)
-!(assertEqual (getMinSTI) 2)
+!(assertEqual (getMaxSTI) 200.0)
+!(assertEqual (getMinSTI) 2.0)
 
 
 ; Test cases 04: Testing stimulate that need to be refactored
 !(assertEqual (stimulate x 1.5) ("Updated"))
+!(getMaxSTI)
 
 
 ; Test case 05: Testing getNormalisedZeroToOneSTI with different average and clip values both on and off
-
 !(assertEqual (getNormalisedZeroToOneSTI a True True) 0.0)
 !(assertEqual (getNormalisedZeroToOneSTI d True False) 0.008771929824561403)
 !(assertEqual (getNormalisedZeroToOneSTI c  False False) 0.0043859649122807015)
 
 ; Test case 06: Testing getNormalisedSTI 
 
-!(assertEqual(getNormalisedSTI a) 1.0)
+!(assertEqual (getNormalisedSTI a) 1.0)
 !(assertEqual (getNormalisedSTI x) 115.0)
 
 

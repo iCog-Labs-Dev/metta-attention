@@ -70,9 +70,11 @@
            ($new-sti (+ $sti $sti-wage))
            ($new-lti (+ $lti $lti-wage))
            ($new-av ($new-sti $new-lti $vlti))
-           ($res (setAv $pattern $new-av))
+         ;   ($_ (println! (new av $new-av)))
+           ($res (eval (setAv $pattern $new-av)))
          )
-		 ("Updated")
+		;  (getAttentionParam MAX_STI)
+      ()
    )
 )
 
@@ -96,8 +98,12 @@
 (= (attentionValueChanged $pattern $newSTIFund $newLTIFund)
    (let*(
          ($stiUpdated (updateAttentionParam FUNDS_STI $newSTIFund))
+         ; ($_ (println! (getAttentionParam FUNDS_STI)))
          ($ltiUpdated (updateAttentionParam FUNDS_LTI $newLTIFund))
-         ($globalUpdate (update &typeSpace))
+         ($globalUpdate (eval (update &typeSpace)))
+         ; ($_ (println! $globalUpdate))
+
+         ; ($_ (println! (getAttentionParam MAX_STI)))
         )
         ()
     )

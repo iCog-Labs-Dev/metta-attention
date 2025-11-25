@@ -76,17 +76,24 @@
 ;if min_sti > max_sti: min_sti = max_sti
 ;_min_sti = min_sti, max_sti = max_sti
 
-(: update (-> hyperon::space::DynSpace Atom))
+; (: update (-> hyperon::space::DynSpace Atom))
 (= (update $space)
     (let* (
-            ($collectedContents (getAllAtomsWithBins))
+            ; ($1 (println! (inside update)))
+
+            ($collectedContents (eval (getAllAtomsWithBins)))
+            ; ($1 (println! (collecteds $collectedContents)))
             ($max (getAllMaxSTI $collectedContents))
+            ; ($2 (println! (maxx $max)))
+
             ($min (getAllMinSTI $collectedContents))
+            ; ($3 (println! (minn $min)))
+
             ($exitCondition (> $min $max))
         )
          (if $exitCondition
-            (updateGlobalMaxAndMinSTI $max $max)
-            (updateGlobalMaxAndMinSTI $min $max)
+            (eval (updateGlobalMaxAndMinSTI $max $min))
+            (eval (updateGlobalMaxAndMinSTI $min $max))
           )
     )
 )
@@ -95,8 +102,10 @@
 (= (updateGlobalMaxAndMinSTI $min $max)
     (let*
       (
-       ($firstRes (updateMin $min))
-       ($secondRes (updateMax $max))
+       ($firstRes (eval (updateMin $min)))
+      ;  ($4 (println! (updatemin $firstRes)))
+
+       ($secondRes (eval (updateMax $max)))
       )
       (trace! (updated) ("Updated"))
 
@@ -106,7 +115,7 @@
 
 
 ; Filters atoms in expression whose STI values fall between lower and higher bounds.
-(: filterContents (-> Expression Number Number Expression))
+; (: filterContents (-> Expression Number Number Expression))
 (= (filterContents $contents $lower $higher)
    (if (== $contents ())
         () 
@@ -144,31 +153,31 @@
   )
 )
 
-(: getMaxSTI (-> Bool Number))
-(= (getMaxSTI $avg) 
-   (let $recentVal (RecentVal)
-    (if $avg
-      (match $recentVal (recent_max $_) $_)
-      (match $recentVal (value_max $_) $_)
-      )
-   )
-)
+; (: getMaxSTI (-> Bool Number))
+; (= (getMaxSTI $avg) 
+;    (let $recentVal (RecentVal)
+;     (if $avg
+;       (match $recentVal (recent_max $_) $_)
+;       (match $recentVal (value_max $_) $_)
+;       )
+;    )
+; )
 
-(: getMaxSTI (-> Number))
-(= (getMaxSTI) (let $recentVal (RecentVal) (match $recentVal (recent_max $_) $_)))
+; (: getMaxSTI (-> Number))
+; (= (getMaxSTI) (let $recentVal (RecentVal) (match $recentVal (recent_max $_) $_)))
 
-(: getMinSTI (-> Bool Number))
-(= (getMinSTI $avg)
-   (let $recentVal (RecentVal)
-    (if $avg
-      (match $recentVal (recent_min $_) $_)
-      (match $recentVal (value_min $_) $_)
-      )
-   )
-)
+; (: getMinSTI (-> Bool Number))
+; (= (getMinSTI $avg)
+;    (let $recentVal (RecentVal)
+;     (if $avg
+;       (match $recentVal (recent_min $_) $_)
+;       (match $recentVal (value_min $_) $_)
+;       )
+;    )
+; )
 
-(: getMinSTI (-> Number))
-(= (getMinSTI) (let $recentVal (RecentVal) (match $recentVal (recent_min $_) $_)))
+; (: getMinSTI (-> Number))
+; (= (getMinSTI) (let $recentVal (RecentVal) (match $recentVal (recent_min $_) $_)))
 
 ; (: getMaxSTI (-> Bool Number))
 ; (= (getMaxSTI $avg) 
@@ -180,7 +189,7 @@
 ; )
 
 ; (: getMaxSTI (-> Number))
-; (= (getMaxSTI) (getAttentionParam MAX_STI))
+(= (getMaxSTI) (getAttentionParam MAX_STI))
 
 ; (: getMinSTI (-> Bool Number))
 ; (= (getMinSTI $avg)
@@ -191,7 +200,7 @@
 ; )
 
 ; (: getMinSTI (-> Number))
-; (= (getMinSTI) (getAttentionParam MIN_STI))
+(= (getMinSTI) (getAttentionParam MIN_STI))
 
 ;Function: getNormalisedZeroToOneSTI
 ;Description: Normalizes an atom's STI based on the minimum and maximum STI values.
@@ -203,19 +212,23 @@
 ;                     If False, uses value_max and value_min.
 ;           $clip: If True, restricts the normalized value to the range [0,1].
 ;Returns: The normalized STI value, possibly clipped between 0 and 1.
-(: getNormalisedZeroToOneSTI (-> Atom Bool Bool Number))
+; (: getNormalisedZeroToOneSTI (-> Atom Bool Bool Number))
 (= (getNormalisedZeroToOneSTI $atom $average $clip)
    (let*
-       (   ($sti  (getSti $atom))
-           ($maxSTI (getMaxSTI $average))
-           ($minSTI (getMinSTI $average))
+       (   
+           ($sti  (eval (getSti $atom)))
+          ;  ($_ (println! (sti $sti)))
+           ($maxSTI (getMaxSTI))
+           
+          ;  ($_ (println! (maxSTI $maxSTI)))
+           ($minSTI (getMinSTI))
            ($normaliser (- $maxSTI $minSTI))
            ($diff (- $sti $minSTI))
           
            ($value (if (== $normaliser 0)
                       0.0
                       (/ $diff $normaliser)))
-            ($minim  (min-atom ($value 1.0)))
+           ($minim  (min-atom ($value 1.0)))
            ($clippedValue 
                      (if $clip
                            (max-atom (0.0 $minim))
@@ -240,7 +253,7 @@
        (
           ($atoms (getAfAtoms))
            ($s (eval (getSti $atom)))
-           ($afMax  (getAllMaxSTI $atoms))
+           ($afMax  (eval (getAllMaxSTI $atoms)))
            ($normaliser
                (if (> $s $afMax)
                    (getMaxSTI)
@@ -272,13 +285,13 @@
        (
            ($atoms (getAfAtoms))
            ($s (eval (getSti $atom)))
-           ($afMax  (getAllMaxSTI $atoms))
+           ($afMax  (eval (getAllMaxSTI $atoms)))
            ($diff (- $s $afMax))
            ($sum (+ $s $afMax)) 
            ($normaliser
                (if (> $s $afMax)
-                   (- (getMaxSTI $average) $afMax)
-                   (- (getMinSTI $average) $afMax)
+                   (- (getMaxSTI) $afMax)
+                   (- (getMinSTI) $afMax)
                )
            )
        )

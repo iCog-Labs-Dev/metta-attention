@@ -3,7 +3,7 @@
 ; Parameters:
 ;   $STIAtomRent - Base STI rent value or scaled STI rent value
 ; Returns: Adjusted STI rent.
-(: calculateStiRent (->  Number Number))
+; (: calculateStiRent (->  Number Number))
 (= (calculateStiRent $STIAtomRent)
    (let*
       (
@@ -32,7 +32,7 @@
 ; Parameters:
 ;   $LTIAtomRent - Base LTI rent value or scaled LTI rent value
 ; Returns: Adjusted LTI rent.
-(: calculateLtiRent (->Number  Number))
+; (: calculateLtiRent (->Number  Number))
 (= (calculateLtiRent $LTIAtomRent)
    (let*
       (
