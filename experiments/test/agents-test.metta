@@ -1,6 +1,4 @@
 !(import! &self ../../../PeTTa/lib/lib_he)
-; !(import! &self ../../../metta-attention/attention/ForgettingAgent/ForgettingAgent)
-
 !(import! &self ../../../metta-attention/attention/RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent)
 !(import! &self ../../../metta-attention/attention/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent)
 !(import! &self ../../../metta-attention/attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent)
@@ -12,7 +10,7 @@
 !(import! &self ../../../metta-attention/attention/AttentionParam)
 !(import! &self ../../../metta-attention/attention/Neighbors)
 !(import! &self ../../../metta-attention/experiments/runner-Def)
-(import! &self metta-attention/experiments/logger)
+!(import! &self ../../../metta-attention/experiments/logger)
 
 !(import! &self ../../../metta-attention/attention-bank/utilities/helper-functions)
 !(import! &self ../../../metta-attention/attention-bank/utilities/recentVal)
@@ -24,7 +22,7 @@
 !(import! &self ../../../metta-attention/attention-bank/bank/attentional-focus/attentional-focus)
 !(import! &self ../../../metta-attention/attention-bank/bank/importance-index/importance-index)
 !(import! &self ../../../metta-attention/attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
-
+!(import! &self "../../../metta-attention/experiments/utils/logger.py")
 ; =================== Set hyperparameters =====================
 !(updateAttentionParam MAX_AF_SIZE 5.0)
 !(updateAttentionParam TARGET_STI 1000.0) 
@@ -50,8 +48,8 @@
 
 
 !(stimulate Ants 30)
-!(test-superpose (TypeSpace))
-; !(getAfAtoms)
+!(test-superpose)
+!(getAfAtoms)
 
 !(test (getAfAtoms) ((SimilarityLink abamectin Ants) Ants))
 !(test (getSti Ants) 360.0)
@@ -77,9 +75,9 @@
 !(stimulate aflatoxin 30)
 !(test (getAttentionParam FUNDS_STI) 980.0)
 ; ; !(py-call (time.sleep 1))
-!(test-superpose (TypeSpace))
+!(test-superpose)
 !(getAttentionParam FUNDS_STI)
-
+!(getAttentionParam FUNDS_STI)
 !(test (> (getAttentionParam FUNDS_STI) 980.0) True)
 
 !(let $afAtoms
@@ -102,3 +100,4 @@
     )
     23
 )
+
