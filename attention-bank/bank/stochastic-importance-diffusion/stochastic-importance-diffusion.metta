@@ -1,7 +1,7 @@
-! (bind! &atomBinInfo (new-space))
-! (bind! time-mod (py-atom time))
-! (bind! timeTime (py-dot time-mod time (-> Number)))
-! (timeTime)
+!(bind! &atomBinInfo (new-space))
+(= (AtomBinInfo) &atomBinInfo)
+(= (timeTime) (py-call (time.time)))
+!(timeTime)
 
 
 ;The udate_bin function receives an atom and updates this values
@@ -20,7 +20,7 @@
 ;($index ((count $cnt_val) (index $idx_val) (_size $size_val) (update_rate $update_rate_val) (last_update $last_update_val)))
 ;I used _size instead of size because size is use in metta as a function name
 
-(: updateBin (-> Atom empty))
+; (: updateBin (-> Atom empty))
 (= (updateBin $atom)
     (let* (
             ($index (importanceBin (getSti $atom)))
@@ -31,19 +31,21 @@
             (updateExistingBin $index)
             (let* (
                 ($time (timeTime)) 
+                ($g (getSize $index))
+                ($val (/ 1 (- $time $firstTime)))
             )
                 (add-atom &atomBinInfo 
-                    ($index ((count 1) (index $index) (_size (getSize $index)) (update_rate (/ 1 (- $time $firstTime))) (last_update $time)))
+                    ($index ((count 1) (index $index) (_size $g) (update_rate $val) (last_update $time)))
             ))
         )
     )
 )
 
-(: updateExistingBin (-> Number empty))
+; (: updateExistingBin (-> Number empty))
 (= (updateExistingBin $index)
     (let (($cnt $cntVal) ($idx $idxVal) ($size $sizeVal) ($updateRate $updateRateVal) ($lastUpdate $lastUpdateVal)) 
             (match &atomBinInfo ($index $info) 
-                (let () (remove-atom &atomBinInfo ($index $info))
+                (let $temp (remove-atom &atomBinInfo ($index $info))
                     $info))
             (let* (
                     ($count (+ $cntVal 1))
@@ -51,8 +53,8 @@
                     ($newSec (- $now $lastUpdateVal))
                     ($newUpdateRate (/ $count $newSec))
                     ($newSize (getSize $index)))
-                    (add-atom &atomBinInfo 
-                        ($index ((count $count) (index $index) (_size $newSize) (update_rate $newUpdateRate) (last_update $now))))
+                    ((add-atom &atomBinInfo 
+                        ($index ((count $count) (index $index) (_size $newSize) (update_rate $newUpdateRate) (last_update $now)))))
             )
     )
 )
@@ -60,7 +62,7 @@
 ;This function returns the elapsed time of the atom
 ;by dividing the size of the bin by the update rate
 
-(: elapsedTime (-> Atom Number))
+; (: elapsedTime (-> Atom Number))
 (= (elapsedTime $atom)
     (let* (
             ($index (importanceBin (getSti $atom)))
