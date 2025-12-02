@@ -1,29 +1,29 @@
-!(register-module! ../../../metta-attention)
-!(import! &self metta-attention:attention:ForgettingAgent:ForgettingAgent)
-!(import! &self metta-attention:attention:AttentionParam)
-!(import! &self metta-attention:attention:RentCollectionAgent:RentCollectionBaseAgent:RentCollectionBaseAgent)
-!(import! &self metta-attention:attention:RentCollectionAgent:WARentCollectionAgent:WARentCollectionAgent)
-!(import! &self metta-attention:attention:RentCollectionAgent:AFRentCollectionAgent:AFRentCollectionAgent)
-!(import! &self metta-attention:attention:ImportanceDiffusionAgent:ImportanceDiffusionBase:ImportanceDiffusionBase)
-!(import! &self metta-attention:attention:ImportanceDiffusionAgent:WAImportanceDiffusionAgent:WAImportanceDiffusionAgent)
-!(import! &self metta-attention:attention:ImportanceDiffusionAgent:AFImportanceDiffusionAgent:AFImportanceDiffusionAgent)
-!(import! &self metta-attention:attention:HebbianUpdatingAgent:HebbianUpdatingAgent)
-!(import! &self metta-attention:attention:HebbianCreationAgent:HebbianCreationAgent)
-!(import! &self metta-attention:attention:AttentionParam)
-!(import! &self metta-attention:attention:Neighbors)
-!(import! &self metta-attention:experiments:runner-Def)
-(import! &self metta-attention:experiments:logger)
+!(import! &self ../../../PeTTa/lib/lib_he)
+; !(import! &self ../../../metta-attention/attention/ForgettingAgent/ForgettingAgent)
 
-!(import! &self metta-attention:attention-bank:utilities:helper-functions)
-!(import! &self metta-attention:attention-bank:utilities:recentVal)
+!(import! &self ../../../metta-attention/attention/RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent)
+!(import! &self ../../../metta-attention/attention/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent)
+!(import! &self ../../../metta-attention/attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent)
+!(import! &self ../../../metta-attention/attention/ImportanceDiffusionAgent/ImportanceDiffusionBase/ImportanceDiffusionBase)
+!(import! &self ../../../metta-attention/attention/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent)
+!(import! &self ../../../metta-attention/attention/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent)
+!(import! &self ../../../metta-attention/attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
+!(import! &self ../../../metta-attention/attention/HebbianCreationAgent/HebbianCreationAgent)
+!(import! &self ../../../metta-attention/attention/AttentionParam)
+!(import! &self ../../../metta-attention/attention/Neighbors)
+!(import! &self ../../../metta-attention/experiments/runner-Def)
+(import! &self metta-attention/experiments/logger)
 
-!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
+!(import! &self ../../../metta-attention/attention-bank/utilities/helper-functions)
+!(import! &self ../../../metta-attention/attention-bank/utilities/recentVal)
 
-!(import! &self metta-attention:attention-bank:attention-value:get-min-max)
-!(import! &self metta-attention:attention-bank:bank:attention-bank)
-!(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
-!(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
-!(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
+!(import! &self ../../../metta-attention/attention-bank/attention-value/getter-and-setter)
+
+!(import! &self ../../../metta-attention/attention-bank/attention-value/get-min-max)
+!(import! &self ../../../metta-attention/attention-bank/bank/attention-bank)
+!(import! &self ../../../metta-attention/attention-bank/bank/attentional-focus/attentional-focus)
+!(import! &self ../../../metta-attention/attention-bank/bank/importance-index/importance-index)
+!(import! &self ../../../metta-attention/attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
 
 ; =================== Set hyperparameters =====================
 !(updateAttentionParam MAX_AF_SIZE 5.0)
@@ -50,21 +50,22 @@
 
 
 !(stimulate Ants 30)
-!(test-superpose)
+!(test-superpose (TypeSpace))
+; !(getAfAtoms)
 
-!(assertEqual (getAfAtoms) ((SimilarityLink abamectin Ants) Ants))
-!(assertEqual (getSti Ants) 360)
-!(assertEqual (getLti Ants) 600)
-!(assertEqual (getSti (SimilarityLink abamectin Ants)) 240)
-!(assertEqual (getLti (SimilarityLink abamectin Ants)) 0)
-!(assertEqual (getAllAtomsWithBins) ((SimilarityLink abamectin Ants) Ants))
-!(assertEqual (getBin Ants) 52.0)
-!(assertEqual (getBin (SimilarityLink abamectin Ants)) 47.0)
+!(test (getAfAtoms) ((SimilarityLink abamectin Ants) Ants))
+!(test (getSti Ants) 360.0)
+!(test (getLti Ants) 600.0)
+!(test (getSti (SimilarityLink abamectin Ants)) 240.0)
+!(test (getLti (SimilarityLink abamectin Ants)) 0)
+!(test (getAllAtomsWithBins) ((SimilarityLink abamectin Ants) Ants))
+!(test (getBin Ants) 52)
+!(test (getBin (SimilarityLink abamectin Ants)) 47)
 
+; !(out (match &timer (firstTime $x) $x))
+!(test (match &timer (firstTime $x) $x) False)
 
-!(assertEqual (match &timer (firstTime $x) $x) False)
-
-(assertEqual 
+(test 
     (let $asym 
         (collapse (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $x $y) $z) (ASYMMETRIC_HEBBIAN_LINK $x $y))) 
         (size-atom $asym)
@@ -74,15 +75,16 @@
 
 
 !(stimulate aflatoxin 30)
-!(assertEqual (getAttentionParam FUNDS_STI) 980)
+!(test (getAttentionParam FUNDS_STI) 980.0)
+; ; !(py-call (time.sleep 1))
+!(test-superpose (TypeSpace))
+!(getAttentionParam FUNDS_STI)
 
-!(test-superpose)
-
-!(assertEqual (> (getAttentionParam FUNDS_STI) 980) True)
+!(test (> (getAttentionParam FUNDS_STI) 980.0) True)
 
 !(let $afAtoms
     (getAfAtoms)
-    (assertEqual
+    (test
         (subtraction-atom 
             $afAtoms
             (Ants (SimilarityLink abamectin Ants) aflatoxin abamectin (SimilarityLink aldicarb aflatoxin))
@@ -91,9 +93,9 @@
     )
 )
 
-!(assertEqual (getLti (SimilarityLink abamectin Ants)) 0)
+!(test (getLti (SimilarityLink abamectin Ants)) 0)
 
-!(assertEqual 
+!(test
     (let $asym 
         (collapse (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $x $y) $z) (ASYMMETRIC_HEBBIAN_LINK $x $y))) 
         (size-atom $asym)
