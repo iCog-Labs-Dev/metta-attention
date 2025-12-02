@@ -10,8 +10,8 @@ def write_string_to_csv(filename, data, header=["timestamp", "pattern", "sti", "
     for pat in data:
         pattern, av = pat
         AV, sti, lti, vlti = av
-        rows.append([str(datetime.now()), pattern[0], sti, lti])
-
+        rows.append([str(datetime.now()), pattern if str(type(pattern)) == "<class 'str'>" else pattern[0], sti, lti])
+        print()
     with open(filename, mode, newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
         if os.path.getsize(filename) == 0:
@@ -21,10 +21,10 @@ def write_string_to_csv(filename, data, header=["timestamp", "pattern", "sti", "
 
 
 # Logger state
-start_logger_flag = False
-logging_directory = None
-setting_path = None
-csv_path = None
+START_LOGGER_FLAG = False
+LOGGING_DIRECTORY = None
+SETTING_PATH = None
+CSV_PATH = None
 
 
 def start_logger(directory):
@@ -33,7 +33,7 @@ def start_logger(directory):
     `directory` may be a string path or an object exposing `get_name()`.
     Returns a Hyperon-style empty result.
     """
-    global start_logger_flag, logging_directory, setting_path, csv_path
+    global START_LOGGER_FLAG, LOGGING_DIRECTORY, SETTING_PATH, CSV_PATH
 
     # Accept either string path or an object with get_name()
     if isinstance(directory, str):
@@ -49,30 +49,30 @@ def start_logger(directory):
     path_str = Path(base_path / path)
 
     if path_str.exists() and path_str.is_dir() and os.access(path_str, os.R_OK):
-        logging_directory = path_str
+        LOGGING_DIRECTORY = path_str
     else:
         raise ValueError(f"{path_str} can not be resolved")
 
-    log_dir = logging_directory / "output"
+    log_dir = LOGGING_DIRECTORY / "output"
     log_dir.mkdir(parents=True, exist_ok=True)
 
-    setting_path = log_dir / "settings.json"
-    csv_path = log_dir / "output.csv"
+    SETTING_PATH = log_dir / "settings.json"
+    CSV_PATH = log_dir / "output.csv"
 
 
 
-    setting_path.write_text("")
-    csv_path.write_text("")
+    SETTING_PATH.write_text("")
+    CSV_PATH.write_text("")
 
-    start_logger_flag = True
-    return []
+    START_LOGGER_FLAG = True
+    return ['started']
 
 
 def save_params(params):
     """Save parameter ExpressionAtom into settings.json (merge with existing)."""
-    global start_logger_flag, setting_path
+    global START_LOGGER_FLAG, SETTING_PATH
 
-    if not start_logger_flag:
+    if not START_LOGGER_FLAG:
         return []
 
     data = {}
@@ -93,8 +93,8 @@ def save_params(params):
 
         data[key] = value
 
-    if setting_path.exists():
-        with setting_path.open('r', encoding='utf-8') as f:
+    if SETTING_PATH.exists():
+        with SETTING_PATH.open('r', encoding='utf-8') as f:
             try:
                 existing = json.load(f)
             except json.JSONDecodeError:
@@ -103,22 +103,21 @@ def save_params(params):
     else:
         existing = data
 
-    with setting_path.open('w', encoding='utf-8') as f:
+    with SETTING_PATH.open('w', encoding='utf-8') as f:
         json.dump(existing, f, indent=4)
 
-    return []
+    return ['saved']
 
 
 def write_to_csv(afatoms):
     """
     Append AF snapshot rows to the configured CSV file.
     """
-    global start_logger_flag, csv_path
+    global START_LOGGER_FLAG, CSV_PATH
 
-    if not start_logger_flag or csv_path is None:
-        return []
-
-    write_string_to_csv(str(csv_path), afatoms)
+    if  len(afatoms[0])==0 or not START_LOGGER_FLAG or CSV_PATH is None:
+        return ['not written']
+    write_string_to_csv(str(CSV_PATH), afatoms)
     return ['wrote']
 
     
