@@ -18,7 +18,7 @@
 ; Returns: A list of atoms in attentional focus.
 ; (: selectAFTargets (-> Expression))
 (= (selectAFTargets)
-    (getAfAtoms)
+    (eval (getAfAtoms))
 )
 
 ; Function: collectRent
@@ -32,7 +32,7 @@
   (let*
       (
           ($currentTime  (timeTime))
-          ($updateFreq (getAttentionParam AFRentFrequency))
+          ($updateFreq (eval (getAttentionParam AFRentFrequency)))
           ($3 (println! (this is current time $currentTime)))
           ($lastUpdate  (match  &timer (lastUpdate $x) $x) )
           ($5 (println! (this is lastupdatee time $lastUpdate)))
@@ -44,8 +44,8 @@
           ($timeres (let $resul (match &timer (firstTime $bool) $bool) $resul))
           ($10 (println! (this much result $timeres) ))
       )
-      (if ($timeres)
-          (
+      (if $timeres
+          (let $x
             (setFirstTime False)
             (setLastUpdate $currentTime)
           )
@@ -79,11 +79,12 @@
 (= (applyRent  $w $atom)
    (let*
         (
-          ($sti (getSti $atom))
+          ($sti (eval (getSti $atom)))
           ($atomss (println! (this is atom $atom)))
-          ($lti (getLti $atom))
-          ($stiAtomRent (getAttentionParam StartingAtomStiRent))
-          ($ltiAtomRent (getAttentionParam StartingAtomLtiRent))
+          ($lti (eval (getLti $atom)))
+          ($stiAtomRent (eval (getAttentionParam StartingAtomStiRent)))
+          ($ltiAtomRent (eval (getAttentionParam StartingAtomLtiRent)))
+          
           ($calculatestirent  (calculateStiRent $stiAtomRent))
           ($calculateltirent  (calculateLtiRent $ltiAtomRent))
 
@@ -94,13 +95,15 @@
             (
               ($stiRent (* $calculatestirent $w))
               ($ltiRent (* $calculateltirent $w))
+              ($_ (println! (atomvlti $sti)))
               ($minstiRent (min-atom ($stiRent $sti)))
               ($minltiRent (min-atom ($ltiRent $lti)))
               ($stiDiff (- $sti $minstiRent))
               ($ltiDiff (- $lti $minltiRent))
-              ($atomVlti (getVlti $atom))
+              ($atomVlti (eval (getVlti $atom )))
+              ($_ (println! (atom-detail ($atom $stiDiff $ltiDiff $atomVlti))))
             )
-            (setAv $atom ($stiDiff $ltiDiff $atomVlti))
+            (eval (setAv $atom ($stiDiff $ltiDiff $atomVlti)))
           )
           
         )
@@ -131,12 +134,12 @@
 ; (: setFirstTime (-> Bool empty))
 (= (setFirstTime $flag)
   (
-    (match  &timer (firstTime $x)
-                  (let ()
+    ; (match  &timer (firstTime $x)
+                  (let $x
                     (remove-atom  &timer (firstTime $x))
                     (add-atom  &timer (firstTime $flag))
                   )
-    )
+    ; )
   )
 )
 
