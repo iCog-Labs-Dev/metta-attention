@@ -53,7 +53,7 @@ class Plotter:
         csv = self.output_path / 'output.csv'
         df = pd.read_csv(csv, parse_dates=['timestamp'])
         df['category'] = df['pattern'].apply(self.categorize_pattern)
-        df['time_windows'] = df['timestamp'].dt.floor('1s')
+        df['time_windows'] = df['timestamp'].dt.floor('0.0001s')
         category_counts = df.groupby(['time_windows', 'category']).size().unstack(fill_value=0)
         af_size = int(float(self.params['MAX_AF_SIZE']))
         return category_counts / af_size
