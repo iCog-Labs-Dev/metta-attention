@@ -83,10 +83,10 @@
 
             ($collectedContents (eval (getAllAtomsWithBins)))
             ; ($1 (println! (collecteds $collectedContents)))
-            ($max (getAllMaxSTI $collectedContents))
+            ($max (eval (getAllMaxSTI $collectedContents)))
             ; ($2 (println! (maxx $max)))
 
-            ($min (getAllMinSTI $collectedContents))
+            ($min (eval (getAllMinSTI $collectedContents)))
             ; ($3 (println! (minn $min)))
 
             ($exitCondition (> $min $max))

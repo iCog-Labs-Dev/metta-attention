@@ -1,7 +1,7 @@
-! (bind! &atomBinInfo (new-space))
-! (bind! time-mod (py-atom time))
-! (bind! timeTime (py-dot time-mod time (-> Number)))
-! (timeTime)
+!(bind! &atomBinInfo (new-space))
+!(bind! time-mod (py-atom time))
+!(bind! timeTime (py-dot time-mod time (-> Number)))
+!(timeTime)
 
 
 ;The udate_bin function receives an atom and updates this values

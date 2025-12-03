@@ -20,13 +20,12 @@
 ; (: HebbianCreationAgent-Run(-> Grounded empty))
 (= (HebbianCreationAgent-Run $space)
     ; if the attentional focus is empty no work is done
-    (if ( == (attentionalFocusSize)  0)
+    (let $afAtoms (eval (getAfAtoms))
+        (if ( == (size-atom $afAtoms)  0)
         ()
         (let $source 
-            (let $afAtoms 
-                (getAfAtoms)
+                
                 (superpose $afAtoms)
-            ) 
             (if  (unify (get-metatype $source) Expression (==  HEBBIAN_LINK (car-atom $source)) False)
                 () ; if already hebbian_link nothing is done
                 (
@@ -37,7 +36,8 @@
                             ($count (size-atom $needToBeTarget))
                             ($farLinks (/ $count (localToFarLinks) )) ;round by default
                             ($incomingSet (getIncomingSetByType $source HEBBIAN_LINK)) ;should I add other types of hebbian links?
-                            ($maxLinkNum (getAttentionParam MAX_LINK_NUM))
+                            ($tr (println! (needToBe  Target ($afAtoms $needToBeTarget))))
+                            ($maxLinkNum (eval (getAttentionParam MAX_LINK_NUM)))
                         )
                         (
                             (collapse 
@@ -50,7 +50,7 @@
                             )
                             (addFromOutSideAF $source $farLinks)
                             (if (> (size-atom $incomingSet) $maxLinkNum )
-                                (removeLinkRecursively (- (size-atom $incomingSet) $maxLinkNum))
+                                (removeLinkRecursively (- (size-atom $incomingSet) $maxLinkNum) (size-atom $afAtoms))
                                 ()
                             )
                         )
@@ -58,7 +58,7 @@
                 )
             )
         )
-    )
+    ))
 )
 
 ;Function: getSourceAtom
@@ -86,15 +86,15 @@
 ;Returns: empty
 
 ; (: removeLinkRecursively (-> Number Expression))
-( = (removeLinkRecursively $num)
-    (if ( or (== $num 0) (== 0 (attentionalFocusSize)))
+( = (removeLinkRecursively $num $sizeaf)
+    (if ( or (== $num 0) (== 0 $sizeaf))
         ()
         (let*
             (
                 ($randomAtom (getRandomAtomInAF))
                 ($x (let $temp (remove-atom (Typespace) $randomAtom) $temp))
             )
-            (removeLinkRecursively (- $num 1))
+            (removeLinkRecursively (- $num 1) (size-atom (eval (getAfAtoms))))
         )
     )
 )
@@ -107,7 +107,7 @@
 
 ; (:setDifference (-> List List))
 ( = (setDifference  $IncomingList)
-    (let $atomList (getAfAtoms)
+    (let $atomList (eval (getAfAtoms))
         (subtraction-atom $atomList $IncomingList )
     )
 )
@@ -136,7 +136,7 @@
                                 )
                             )
                         )
-                        (if  (and (not (== (getStv (ASYMMETRIC_HEBBIAN_LINK $source $target)) %Undefined%)) (== $target $source)) ;If the link exists dont add it again 
+                        (if  (and (not (== (eval (getStv (ASYMMETRIC_HEBBIAN_LINK $source $target))) %Undefined%)) (== $target $source)) ;If the link exists dont add it again 
                             ()
                             (
                                 (addHebbian $source $target )
@@ -158,7 +158,7 @@
 ; (: addHebbian (-> Atom Atom Empty))
 (= (addHebbian $source $target)
     (let $link (ASYMMETRIC_HEBBIAN_LINK $source $target)
-        (setStv $link (0.5 0.1))
+        (eval (setStv $link (0.5 0.1)))
     )
 )
 
