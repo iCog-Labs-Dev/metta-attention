@@ -1,14 +1,25 @@
 !(bind! &insect (new-space))
 !(bind! &poison (new-space))
+!(bind! &diseases (new-space))
+!(bind! &species (new-space))
 !(bind! &tempspace (new-space))
-!(import! &self ../../../../metta-attention/experiments/Metta/experiment1/data/insect-words)
 
+!(import! &self ../../../../metta-attention/experiments/Metta/experiment1/data/insect-words)
 !(let $x (get-atoms &self) (add-atom &insect $x))
 !(let $x (match &self $y $y) (remove-atom &self $y))
 
 !(import! &self ../../../../metta-attention/experiments/Metta/experiment1/data/poison-words)
 !(let $x (get-atoms &self) (add-atom &poison $x))
 !(let $x (match &self $y $y) (remove-atom &self $y))
+
+!(import! &self ../../../../metta-attention/experiments/Metta/experiment1/data/species)
+!(let $x (get-atoms &self) (add-atom &species $x))
+!(let $x (match &self $y $y) (remove-atom &self $y))
+
+!(import! &self ../../../../metta-attention/experiments/Metta/experiment1/data/diseases)
+!(let $x (get-atoms &self) (add-atom &diseases $x))
+!(let $x (match &self $y $y) (remove-atom &self $y))
+
 !(import! &self ../../../../metta-attention/experiments/Metta/experiment1/data/links)
 !(let $x (get-atoms &self) (add-atom &tempspace $x))
 !(let $x (match &self $y $y) (remove-atom &self $y))
