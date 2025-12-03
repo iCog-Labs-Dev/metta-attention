@@ -30,7 +30,7 @@
     ; (eval (* (getSti $atom) (getAttentionParam MAX_SPREAD_PERCENTAGE)))
      (let*
      (
-        ($res (* (getSti $atom) (getAttentionParam MAX_SPREAD_PERCENTAGE)) )
+        ($res (* (eval (getSti $atom)) (eval (getAttentionParam MAX_SPREAD_PERCENTAGE))) )
         ($1 (println! (calculated amount $res)))
      )
      $res
@@ -51,7 +51,7 @@
         ;     )
         (let*
         (
-            ($diffusionSourceVector  (diffusionSourceVector (getAfAtoms)) )
+            ($diffusionSourceVector  (diffusionSourceVector (eval (getAfAtoms))) )
             ($4 (println! (diffusion vector output $diffusionSourceVector)))
             ($atoms (collapse 
                 (let $atom

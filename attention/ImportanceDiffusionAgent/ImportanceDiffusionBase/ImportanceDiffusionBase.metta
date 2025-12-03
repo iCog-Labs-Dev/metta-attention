@@ -11,25 +11,29 @@
         (
             ($6 (println! (inside diffuse atom $atom)))
             ($incidentAtoms (collapse (incidentAtoms $atom $space)))
+            ($i (println! (incident $incidentAtoms)))
             ($foset (if (== (get-metatype $atom) Expression)
-                        (getOutGoingAtoms $atom)
+                        (eval (getOutGoingAtoms $atom))
                         ()
                     )
             
             )
-            
+            ($pr (println! (outg $foset)))
             ($oset (collapse (filteroset $foset)))
-            ($incidentAndoset (concatTuple $incidentAtoms $oset))
+            ($incidentAndoset (eval (concatTuple $incidentAtoms $oset)))
+            ($k (println! (incidentAndoset $incidentAndoset)))
             ($iset (collapse (match $space ((ASYMMETRIC_HEBBIAN_LINK $atom $b) $a) (ASYMMETRIC_HEBBIAN_LINK $atom $b))))
             ($hebbianAdjacentAtoms (collapse (hebbianAdjacentAtoms $iset $atom)))
             ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAndoset)))
             ($probabilityVectorHebbianAjacent (collapse (probabilityVectorHebbianAjacent $atom $hebbianAdjacentAtoms)))
             ($combProbabilityVector (combineIncidentAdjacentVectors $probabilityVectorIncident $probabilityVectorHebbianAjacent))
+            
             ($totaldiffusionAmount (if (== $AForWA AF)
                                        (eval (calculateDiffusionAmount $atom))
                                        (eval (calculateDiffusionAmountWA $atom))
                                     )
             )
+            ($1 (println! (calculated $combProbabilityVector)))
             (($atomToReceive $stiGiven)
                     (if (== $totaldiffusionAmount 0)
                         (() 0)
@@ -42,6 +46,7 @@
                         )
                     )
             )
+            
         )
         ($atom $atomToReceive $stiGiven)
     )
@@ -99,7 +104,7 @@
 
 ; (: hebbianAdjacentAtoms (-> Atom Atom Atom))
 (= (hebbianAdjacentAtoms $iset $atom)
-    (getTargetNeighborsAFI (superpose $iset) $atom ASYMMETRIC_HEBBIAN_LINK True)
+    (eval (getTargetNeighborsAFI (superpose $iset) $atom ASYMMETRIC_HEBBIAN_LINK True))
 )
 
 ;; This function will return the probability vector(tuple) of the incident atoms
@@ -163,7 +168,7 @@
     (let*
         (
             ($diffusionAvailable 1.0)
-            ($hebbianDiffusionAvailable (* (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE) $diffusionAvailable))
+            ($hebbianDiffusionAvailable (* (eval (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE)) $diffusionAvailable))
             ($j (println! (combine $adjacentVector (size-atom $adjacentVector))))
             ($adajecentSize (size-atom $adjacentVector))
             ($hebbianMaximumLinkAllocation (if (== $adajecentSize 0)
@@ -171,10 +176,12 @@
                             (/ $hebbianDiffusionAvailable $adajecentSize)
                         )
             )
+            
             ($hebbianProportionSTI (collapse (hebbianProportionSTI $adjacentVector $hebbianMaximumLinkAllocation)))
             ($hebbianDiffusionUsed (hebbianDiffusionUsed $hebbianProportionSTI))
             ($resulttwo (collapse (incidentProportionSTI $incidentVector $hebbianDiffusionUsed)))
-            ($finalResult (concatTuple $hebbianProportionSTI $resulttwo))
+            ($finalResult (eval (concatTuple $hebbianProportionSTI $resulttwo)))
+            ($h (println! (combine2 $adjacentVector (size-atom $adjacentVector))))
         )
         $finalResult
     )
@@ -261,8 +268,8 @@
 (= (calculateHebbianDiffusionPercentation $link)
     (let*
         (
-            ($strength (getMean $link))
-            ($confident (getConfidence $link))
+            ($strength (eval (getMean $link)))
+            ($confident (eval (getConfidence $link)))
         )
         (* $strength $confident)
     )
@@ -296,12 +303,14 @@
         ()
         (let*
             (
-                ($sourceSTI (getSti $source))
-                ($targetSti (getSti $target))
+                ($sourceSTI (eval (getSti $source)))
+                ($targetSti (eval (getSti $target)))
+                
                 ($newSourceSTI (- $sourceSTI $value))
                 ($newTargetSti (+ $targetSti $value))
-                (() (setSti $target $newTargetSti))
-                (() (setSti $source $newSourceSTI))
+                ($r (println! (newSourceSTI $newSourceSTI newTargetStit $newTargetSti)))
+                ($1 (eval (setSti $target $newTargetSti)))
+                ($2 (eval (setSti $source $newSourceSTI)))
             )
             ()
         )

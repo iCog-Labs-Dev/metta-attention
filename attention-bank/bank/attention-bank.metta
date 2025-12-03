@@ -74,7 +74,7 @@
            ($res (eval (setAv $pattern $new-av)))
          )
 		;  (getAttentionParam MAX_STI)
-      ()
+      (updated)
    )
 )
 

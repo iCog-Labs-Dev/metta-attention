@@ -1,9 +1,9 @@
 (= (test-superpose)
     (superpose 
         (
-            (HebbianUpdatingAgent-Run (TypeSpace))
-            (HebbianCreationAgent-Run (TypeSpace))
-            (AFImportanceDiffusionAgent-Run (TypeSpace))
+            (HebbianUpdatingAgent-Run (eval (TypeSpace)))
+            (AFImportanceDiffusionAgent-Run (eval (TypeSpace)))
+            (HebbianCreationAgent-Run (eval (TypeSpace)))
             (AFRentCollectionAgent-run)
             ;(WARentCollectionAgent-Run)
             ;(WAImportanceDiffusionAgent-Run (TypeSpace))
