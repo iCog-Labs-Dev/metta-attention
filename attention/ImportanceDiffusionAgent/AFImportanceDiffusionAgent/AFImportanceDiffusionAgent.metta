@@ -31,7 +31,7 @@
      (let*
      (
         ($res (* (eval (getSti $atom)) (eval (getAttentionParam MAX_SPREAD_PERCENTAGE))) )
-        ($1 (println! (calculated amount $res)))
+        ; ($1 (println! (calculated amount $res)))
      )
      $res
      )
@@ -52,18 +52,18 @@
         (let*
         (
             ($diffusionSourceVector  (diffusionSourceVector (eval (getAfAtoms))) )
-            ($4 (println! (diffusion vector output $diffusionSourceVector)))
+            ; ($4 (println! (diffusion vector output $diffusionSourceVector)))
             ($atoms (collapse 
                 (let $atom
                     (superpose $diffusionSourceVector)
                     (diffuseAtom $atom $space AF))
                 )
             ) 
-            ($2 (println! (diffuse atom output $atoms )))
+            ; ($2 (println! (diffuse atom output $atoms )))
             ($res (let ($atom $atomToReceive $stiGiven)
                 (superpose $atoms)
                 (tradeSti $atom $atomToReceive $stiGiven) ))
-            ($3 (println! (trade sti output $res)))
+            ; ($3 (println! (trade sti output $res)))
         )
         $res
         )

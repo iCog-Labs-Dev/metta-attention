@@ -6,7 +6,7 @@
 (= (forgettingAgent-Run $space)
 	(let* 
 		(
-			($count 0)
+			($count 0.0)
             ($maxSize (getAttentionParam MAX_SIZE))
             ($accDivSize (getAttentionParam ACC_DIV_SIZE))
             ($forgetThreshold (getAttentionParam FORGET_THRESHOLD))
@@ -156,7 +156,7 @@
 (: atomBelowForgetThreshold (-> Atom Number Number Bool))
 (= (atomBelowForgetThreshold $head $removalAmount $count) 
 	(if (and (<= (getLti $head) (forgetThreshold)) (< $count $removalAmount))
-		(if (== (getVlti $head) 0 ) 
+		(if (== (getVlti $head) 0.0 ) 
 			True
 			False
 		)
@@ -206,7 +206,7 @@
 ; params:
 ;   $atom: atom whose value is set to zero
 ; return: empty
-(: refundAV (-> Atom empty))
+; (: refundAV (-> Atom empty))
 (= (refundAV $atom)
     (if (== (getAv $atom) %Undefined%)
         ()
