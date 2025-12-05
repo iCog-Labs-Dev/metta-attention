@@ -20,7 +20,7 @@
 ;($index ((count $cnt_val) (index $idx_val) (_size $size_val) (update_rate $update_rate_val) (last_update $last_update_val)))
 ;I used _size instead of size because size is use in metta as a function name
 
-(: updateBin (-> Atom empty))
+; (: updateBin (-> Atom empty))
 (= (updateBin $atom)
     (let* (
             ($index (importanceBin (getSti $atom)))
@@ -39,7 +39,7 @@
     )
 )
 
-(: updateExistingBin (-> Number empty))
+; (: updateExistingBin (-> Number empty))
 (= (updateExistingBin $index)
     (let (($cnt $cntVal) ($idx $idxVal) ($size $sizeVal) ($updateRate $updateRateVal) ($lastUpdate $lastUpdateVal)) 
             (match &atomBinInfo ($index $info) 
@@ -60,7 +60,7 @@
 ;This function returns the elapsed time of the atom
 ;by dividing the size of the bin by the update rate
 
-(: elapsedTime (-> Atom Number))
+; (: elapsedTime (-> Atom Number))
 (= (elapsedTime $atom)
     (let* (
             ($index (importanceBin (getSti $atom)))
@@ -72,7 +72,7 @@
     )
 )
 
-(:calcElapsedTime (-> Number Number))
+; (:calcElapsedTime (-> Number Number))
 (= (calcElapsedTime $index)
     (if (== (collapse (match &atomBinInfo ($index $_) $index)) ($index))
         (let (($cnt $cntVal) ($idx $idxVal) ($size $sizeVal) ($updateRate $updateRateVal) ($lastUpdate $lastUpdateVal)) 
@@ -89,7 +89,7 @@
 
 ;the purpose of this function is to calculate the Estimated
 ;current STI value of the Atom after diffusion.
-(: diffusedValue (-> Symbol Number Number))
+; (: diffusedValue (-> Symbol Number Number))
 (= (diffusedValue $atom $decayRate)
    (let* (
           ($averageElapsedTime (elapsedTime $atom))
