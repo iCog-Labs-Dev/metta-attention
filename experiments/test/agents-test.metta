@@ -47,7 +47,16 @@
 !(assertEqual (match &timer (firstTime $x) $x) True)
 
 
-!(stimulate Ants 30)
+; !(stimulate Ants 30)
+; !(stimulate aphid 30)
+; !(stimulate armyworm 30)
+; !(stimulate beetwebworm 30)
+; !(stimulate spider 30)
+; !(stimulate beanpodborer 30)
+; !(getAfAtoms)
+
+
+!(stimulate Ants 30.0)
 !(test-superpose)
 !(getAfAtoms)
 
@@ -55,10 +64,10 @@
 !(test (getSti Ants) 360.0)
 !(test (getLti Ants) 600.0)
 !(test (getSti (SimilarityLink abamectin Ants)) 240.0)
-!(test (getLti (SimilarityLink abamectin Ants)) 0)
+!(test (getLti (SimilarityLink abamectin Ants)) 0.0)
 !(test (getAllAtomsWithBins) ((SimilarityLink abamectin Ants) Ants))
-!(test (getBin Ants) 52)
-!(test (getBin (SimilarityLink abamectin Ants)) 47)
+!(test (getBin Ants) 52.0)
+!(test (getBin (SimilarityLink abamectin Ants)) 47.0)
 
 ; !(out (match &timer (firstTime $x) $x))
 !(test (match &timer (firstTime $x) $x) False)
@@ -72,12 +81,11 @@
 )
 
 
-!(stimulate aflatoxin 30)
+!(stimulate aflatoxin 30.0)
 !(test (getAttentionParam FUNDS_STI) 980.0)
 ; ; !(py-call (time.sleep 1))
 !(test-superpose)
-!(getAttentionParam FUNDS_STI)
-!(getAttentionParam FUNDS_STI)
+
 !(test (> (getAttentionParam FUNDS_STI) 980.0) True)
 
 !(let $afAtoms
@@ -91,7 +99,7 @@
     )
 )
 
-!(test (getLti (SimilarityLink abamectin Ants)) 0)
+!(test (getLti (SimilarityLink abamectin Ants)) 0.0)
 
 !(test
     (let $asym 
@@ -101,3 +109,4 @@
     23
 )
 
+; !(getAfAtoms)

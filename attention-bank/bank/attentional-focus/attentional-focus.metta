@@ -7,14 +7,20 @@
 ; Parameter: None
 ; Return: expression of atoms that has high importance
 
-(: getAfAtoms (-> Expression))
+; (: getAfAtoms (-> Expression))
 (= (getAfAtoms)
     (let*
         (
             ($afSize (eval (getAttentionParam MAX_AF_SIZE)))
-            ($allAtoms (getAllAtomsWithBins))           
+            ($allAtoms (getAllAtomsWithBins))
+            ; ($hell (println! (inside get af atom $allAtoms)))
+            ; ($helll (println! (inside get af atom $afSize)))
+            ($size (size-atom $allAtoms) )
+
+
         ) 
-        (if (>= $afSize (size-atom $allAtoms))
+        (if (>= $afSize $size)
+                ;  $allAtoms
                 (trace! (eval (write_csv_wrapper $allAtoms)) $allAtoms)
                 (getAfAtomsHelper $afSize)
         )
@@ -31,19 +37,35 @@
 ;            - $size: the number of atom we want to get
 ; Return:   expression of atoms that should be in attentional focus
 
-(: getAfAtomsHelper (-> Number Expression))
+; (: getAfAtomsHelper (-> Number Expression))
 (= (getAfAtomsHelper $size)
     (let* 
         (   
             ($space (TypeSpace))
+            ; ($s (println! (our size $size)))
+            
             ($bins (getBinList $space))
+            ; ($totalbin (println! (bins we have $bins)))
+
             ($binList (sortDecend $bins))
+            ; ($sortdece (println! (sorted Decend $binList)))
+
             (($min $atomsList) (minBin  $binList $size ())) ; getting the last bin and atoms in above the min bin
+            ; ($minimu (println! (return of min bin ($min $atomsList) )))
+
             ($remainSize (- $size (size-atom $atomsList))) ; calculate remaining number of atoms
+            ; ($remainSi (println! (size of the diff/remaining size $remainSize )))
+            
             ($minAtomsSti (getAtomsByBin $min))
+            ; ($minatom (println! (return of get atom by bin fn $minAtomsSti )))
             ($sortedMinList (sortAtomsDescending $minAtomsSti))
+            ; ($m (println! (return of sorted atoms desc $sortedMinList )))
+
             ($lastAtoms (getNatoms $sortedMinList $remainSize)); getting the first $size number of atoms
+            ; ($getn (println! (return of get $remainSize atoms $lastAtoms )))
+
             ($afAtoms (union-atom $atomsList $lastAtoms))
+            ; ($help (println! (inside get af atom helper $atomsList $lastAtoms $afAtoms)))
             ($wrote (write_csv_wrapper $afAtoms)) ; log to csv if logger is configured via start_log
         ) 
        $afAtoms 
@@ -64,14 +86,19 @@
 ;             -   $size: the number of atoms we want to find
 ;             -   $acc: accumulator which stores atom while iterating (usually ())
 
-(: minBin (-> Expression Number Expression Expression))
+; (: minBin (-> Expression Number Expression Expression))
 (= (minBin $binList $size $acc)
         (if (== $binList ())
             (-1 $acc)
         (let* (
                 (($bin $tail) (decons-atom $binList))
+                ; ($deco (println! (result of decons atom ($bin $tail))))
+
                 ($atoms (getAtomsByBin $bin))
+
                 ($atomsList (union-atom $atoms $acc))
+                ; ($dec (println! (atom lists $atomsList $acc)))
+
                 )
             (if (< $size (size-atom $atomsList))
                 ($bin $acc)
@@ -89,7 +116,7 @@
 ; Returns: 
 ;         - atom that found in typespace but not in af
 
-(: getRandomAtomNotInAF (-> Symbol))
+; (: getRandomAtomNotInAF (-> Symbol))
 (= (getRandomAtomNotInAF)
     (let* 
         ( 
@@ -133,7 +160,7 @@
 
 ; (: isAtomInAf (-> Symbol Bool))
 (= (isAtomInAf $atom)
-    (let $x (getAllMinSTI (getAfAtoms)) (< (getSti $x) (getSti $atom)))
+    (let $x (getAllMinSTI (getAfAtoms)) (< $x (getSti $atom)))
 )
 ; Function: getIncomingSetByType
 ; Description: Retrieves the set of incoming links of a specific type for a given atom

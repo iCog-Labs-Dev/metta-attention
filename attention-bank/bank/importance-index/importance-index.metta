@@ -12,12 +12,12 @@
 ; - bin_size - return the total bin size
 
 (: GroupSize (-> Number))
-(= (GroupSize) 8)
+(= (GroupSize) 8.0)
 (: GroupNum (-> Number))
-(= (GroupNum) 12)
+(= (GroupNum) 12.0)
 
 (: ImportanceIndexSize (-> Number))
-(= (ImportanceIndexSize) 104)
+(= (ImportanceIndexSize) 104.0)
 
 ;Function: importanceBin
 ;Description: Computes the bin index for a given importance value (STI value of an atom).
@@ -38,18 +38,18 @@
       ($groupSize (GroupSize))
       ($impo_int (trunc-math $impo)) ; Ensure $impo is treated as an integer
       ($firstCondition (< $impo_int 0))
-      ($secondCondition (< $impo_int (* 2 $groupSize)))
+      ($secondCondition (< $impo_int (* 2.0 $groupSize)))
     )
     (if $firstCondition
-      0
+      0.0
       (if $secondCondition
         $impo_int
         (let*
           (
             ($imp (trunc-math (/ (- $impo_int $groupSize) $groupSize)))
-            ($i (eval (findGroup $imp 0 0)))
-            ($num (- $i 1))
-            ($temp (ceil-math (/ $impo_int (pow-math 2 (- $i 1)))))
+            ($i (eval (findGroup $imp 0.0 0.0)))
+            ($num (- $i 1.0))
+            ($temp (ceil-math (/ $impo_int (pow-math 2.0 (- $i 1.0)))))
             ($ad (- $groupSize $temp))
             ($bin (- (* $i $groupSize) $ad))
           )
@@ -136,7 +136,7 @@
 ; Retrieves atoms from bins whose STI values fallin lowerbound and upperBound. it utilizes filterContents function.
 ; (: getHandleSet (-> Number Number Expression))
 (= (getHandleSet $lowerBound $upperBound)
-   (if (or (< $lowerBound 0) (< $upperBound 0))
+   (if (or (< $lowerBound 0.0) (< $upperBound 0.0))
      ()
      (let*
        (
@@ -225,7 +225,7 @@
            ($normaliser (- $maxSTI $minSTI))
            ($diff (- $sti $minSTI))
           
-           ($value (if (== $normaliser 0)
+           ($value (if (== $normaliser 0.0)
                       0.0
                       (/ $diff $normaliser)))
            ($minim  (min-atom ($value 1.0)))
@@ -261,7 +261,7 @@
                )
             )
        )
-       (if (== $normaliser 0)
+       (if (== $normaliser 0.0)
            0.0
            (/ $s $normaliser)
        )
@@ -295,7 +295,7 @@
                )
            )
        )
-       (if (== $normaliser 0)
+       (if (== $normaliser 0.0)
            0.0
            (let*
                (

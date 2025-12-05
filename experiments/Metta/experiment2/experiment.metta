@@ -10,6 +10,7 @@
 !(import! &self ../../../../metta-attention/experiments/Metta/experiment2/data/poison-sent)
 !(let $x (get-atoms &self) (add-atom &poison $x))
 !(let $x (match &self $y $y) (remove-atom &self $y))
+
 !(import! &self ../../../../metta-attention/experiments/Metta/experiment2/data/sent-kb)
 !(let $x (get-atoms &self) (add-atom &tempspace $x))
 !(let $x (match &self $y $y) (remove-atom &self $y))
@@ -43,18 +44,19 @@
 
 
 (= (spaceAdder) (get-atoms &tempspace))
+
 !(match &tempspace ($atom $val) (setStv $atom $val))
 
 
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 10.0)
-!(updateAttentionParam TARGET_STI 1000.0) 
+!(updateAttentionParam MAX_AF_SIZE 20.0)
+!(updateAttentionParam TARGET_STI 1000.0)
 !(updateAttentionParam TARGET_LTI 1000.0) 
 !(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
 !(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
-!(updateAttentionParam FUNDS_STI 2000.0) 
-!(updateAttentionParam FUNDS_LTI 2000.0) 
+!(updateAttentionParam FUNDS_STI 5000.0) 
+!(updateAttentionParam FUNDS_LTI 5000.0) 
 
 
 ; write the params to a file
@@ -72,7 +74,8 @@
                 )
                 (
                     (stimulate $now 30)
-                    (println! $now)
+                    ($pr (println! (stimulating atom --> $now)))
+                    ; ($sle (py-call (time.sleep 5)))
                     (collapse (test-superpose))
                     (if (== $rest ())
                             (if (== $type insectSent)
