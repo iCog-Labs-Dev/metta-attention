@@ -20,7 +20,7 @@
 !(import! &self ../../../../metta-attention/attention/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent)
 !(import! &self ../../../../metta-attention/attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent)
 !(import! &self ../../../../metta-attention/attention/ImportanceDiffusionAgent/ImportanceDiffusionBase/ImportanceDiffusionBase)
-; !(import! &self ../../../../metta-attention/attention/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent)
+!(import! &self ../../../../metta-attention/attention/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent)
 !(import! &self ../../../../metta-attention/attention/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent)
 !(import! &self ../../../../metta-attention/attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
 !(import! &self ../../../../metta-attention/attention/HebbianCreationAgent/HebbianCreationAgent)
@@ -34,6 +34,8 @@
 !(import! &self ../../../../metta-attention/attention-bank/utilities/recentVal)
 
 !(import! &self ../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
+!(import! &self ../../../../metta-attention/attention-bank/attention-value/get-min-max)
+
 
 
 !(import! &self ../../../../metta-attention/attention-bank/bank/attention-bank)
@@ -75,7 +77,7 @@
                 (
                     (stimulate $now 30)
                     ($pr (println! (stimulating atom --> $now)))
-                    ; ($sle (py-call (time.sleep 5)))
+                    ; ($sle (py-call (time.sleep 4)))
                     (collapse (test-superpose))
                     (if (== $rest ())
                             (if (== $type insectSent)
