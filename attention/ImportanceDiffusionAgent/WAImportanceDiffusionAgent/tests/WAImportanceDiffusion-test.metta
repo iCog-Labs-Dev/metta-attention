@@ -60,6 +60,7 @@
 !(getSti (INHERITANCE_LINK source target4))
 
 !(WAImportanceDiffusionAgent-Run (TypeSpace))
+; !(py-call (time.sleep 1))
 !(getSti target4)
 !(getSti (INHERITANCE_LINK source target4))
 !(match &atomBinInfo ($in $val) $val)

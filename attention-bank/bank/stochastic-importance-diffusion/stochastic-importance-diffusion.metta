@@ -31,7 +31,7 @@
             (updateExistingBin $index)
             (let* (
                 ($time (currentTime)) 
-                ($size (getSize $index))
+                ($size (eval (getSize $index)))
                 ($rate (/ 1 (- $time $firstTime)) )
                 ; ($el (println! (this is inside else condition)))
             )
@@ -53,7 +53,7 @@
                     ($now (currentTime))
                     ($newSec (- $now $lastUpdateVal))
                     ($newUpdateRate (/ $count $newSec))
-                    ($newSize (getSize $index)))
+                    ($newSize (eval (getSize $index))))
                     (add-atom &atomBinInfo 
                         ($index ((count $count) (index $index) (_size $newSize) (update_rate $newUpdateRate) (last_update $now))))
             )
