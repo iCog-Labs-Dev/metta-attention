@@ -3,7 +3,7 @@
 ; Parameters: $space
 ; Returns: expression of atoms in largest bin
 
-(: getMaxContent (-> Grounded Expression))
+; (: getMaxContent (-> Grounded Expression))
 (= (getMaxContent $space)
     (let $bins 
          (getBinList $space)
@@ -22,7 +22,7 @@
 ; Parameters: $space
 ; Returns: expression of atoms in lowest bin
 
-(: getMinContent (-> Grounded Expression))
+; (: getMinContent (-> Grounded Expression))
 (= (getMinContent $space)
     (let $bins 
          (getBinList $space)
@@ -41,12 +41,13 @@
 ; Parameters: $binNumber
 ; Returns: size of atoms
 
-(: getSize (-> Number Number))
+; (: getSize (-> Number Number))
 (= (getSize $binNumber)
-    (let 
-        $atoms 
-        (getAtomsByBin $binNumber)
-        (size-atom $atoms)
+    (let*(
+        ($atoms (getAtomsByBin $binNumber))
+        ($size (size-atom $atoms))
+    ) 
+    $size
     )
 )
 
@@ -55,7 +56,7 @@
 ;             It retrieves all bin indices and computes the cumulative sum of their sizes.
 ;Parameters: None.
 ;Returns: The total number of atoms across all bins.
-(: binSize (-> Number))
+; (: binSize (-> Number))
 (= (binSize)
     (let $x (getAllAtomsWithBins) (size-atom $x))
 )

@@ -41,17 +41,15 @@
 !(stimulate (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)) 5.0)
 
 
-!(test  (getSti b) 60000.0)
-!(test (getSti c)  30000.0)
+!(test (getSti b) 60000.0)
+!(test (getSti c) 30000.0)
 !(test (getSti d) 2900.0)
 !(test (getSti (Hebbianlink a b)) 355.0)
-!(test  (getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 33.725)
+!(test (getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 33.725)
 !(test (selectTargets) (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)))
 
 
-!((let $res (selectTargets)
-
-(elapsedTime $res) ))
+!((let $res (selectTargets) (elapsedTime $res) ))
 
 !(WARentCollectionAgent-Run)
 
@@ -63,7 +61,7 @@
 !(test (< (getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 33.725) True) ;must have lower sti
 !(getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)))
 
-!(test  (getSti b) 60000.0)
+!(test (getSti b) 60000.0)
 !(test (getSti c)  30000.0)
 !(test (getSti d) 2900.0)
 !(test (getSti (Hebbianlink a b)) 355.0)

@@ -7,6 +7,7 @@
     (let*
         (
             ($atoms (getRandomAtomNotInAF))
+            ; ($at (println! (this is non af atom $atoms)))
             ($result
                 (if (== $atoms ())
                     ()
@@ -31,17 +32,20 @@
 ; (: spreadImportanceWA (-> Grounded Empty))
 (= (spreadImportanceWA $space)
     (let $diffusionSourceVector (collapse (diffusionSourceVectorWA))
-        (if (== (size-atom $diffusionSourceVector) 0)
+        (if (== (size-atom $diffusionSourceVector) 0.0)
             ()
-            (let $target (index-atom $diffusionSourceVector 0)
-                (let ($atom $atomToReceive $stiGiven)
-                        (diffuseAtom $target $space WA)
-                             (tradeSti $atom $atomToReceive $stiGiven)
-                        )
+            (let* 
+            (
+                ($target (index-atom $diffusionSourceVector 0))
+                (($atom $atomToReceive $stiGiven) (diffuseAtom $target $space WA))
+                ; ($_ (println! (inside spread importance wa this $atom $atomToReceive $stiGiven)))
+            ) 
+                (tradeSti $atom $atomToReceive $stiGiven)
             )
         )
     )
 )
+
 
 
 
@@ -54,8 +58,13 @@
     (let*
         (
             ($maxSpreadPercentage (getAttentionParam MAX_SPREAD_PERCENTAGE))
+            ; ($sp (println! (max spredding perce $maxSpreadPercentage)))
             ($currentEstiate (eval (diffusedValue $atom $maxSpreadPercentage)))
+            ; ($curr (println! (current estimate $currentEstiate for atom $atom)))
+
             ($diffusionAmount (- (getSti $atom) $currentEstiate))
+            ; ($cur (println! (diffusion amount $diffusionAmount)))
+
         )
         $diffusionAmount
     )
@@ -67,5 +76,5 @@
 
 ; (: WAImportanceDiffusionAgent-Run (-> Grounded Empty))
 (= (WAImportanceDiffusionAgent-Run $space)
-    (spreadImportanceWA $space)
+    (eval (spreadImportanceWA $space))
 )
