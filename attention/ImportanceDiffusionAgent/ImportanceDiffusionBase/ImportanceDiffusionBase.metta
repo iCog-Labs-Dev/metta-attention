@@ -9,19 +9,15 @@
 (= (diffuseAtom $atom $space $AForWA)
     (let*
         (
-            ($6 (println! (inside diffuse atom $atom)))
             ($incidentAtoms (collapse (incidentAtoms $atom $space)))
-            ($i (println! (incident $incidentAtoms)))
             ($foset (if (== (get-metatype $atom) Expression)
                         (eval (getOutGoingAtoms $atom))
                         ()
                     )
             
             )
-            ($pr (println! (outg $foset)))
             ($oset (collapse (filteroset $foset)))
             ($incidentAndoset (eval (concatTuple $incidentAtoms $oset)))
-            ($k (println! (incidentAndoset $incidentAndoset)))
             ($iset (collapse (match $space ((ASYMMETRIC_HEBBIAN_LINK $atom $b) $a) (ASYMMETRIC_HEBBIAN_LINK $atom $b))))
             ($hebbianAdjacentAtoms (collapse (hebbianAdjacentAtoms $iset $atom)))
             ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAndoset)))
@@ -33,7 +29,6 @@
                                        (eval (calculateDiffusionAmountWA $atom))
                                     )
             )
-            ($1 (println! (calculated $combProbabilityVector)))
             (($atomToReceive $stiGiven)
                     (if (== $totaldiffusionAmount 0)
                         (() 0)
@@ -115,7 +110,6 @@
 (= (probabilityVectorIncident $incidentAtoms)
     (let*
         (
-            ($k (println! (what is ins $incidentAtoms (size-atom $incidentAtoms))))
             ($incidentsize (size-atom $incidentAtoms))
             ($diffusionAmount (if (== $incidentsize 0)
                                 1
@@ -139,20 +133,15 @@
         (
             ($diffusionAvailable 1.0)
             ($atomCount (size-atom $hebbianAdjacentAtoms))
-            ($k (println! (in prob vec heb $hebbianAdjacentAtoms $atomCount)))
             ($maxAllocation (if (== $atomCount 0)
                             1
                             (/ $diffusionAvailable $atomCount)
                         )
             )
             
-            ($j (println! (maxal $maxAllocation)))
             ($target (superpose $hebbianAdjacentAtoms))
-            ($tar (println! (target output $target)))
             ($calcres (eval (calculateHebbianDiffusionPercentation (ASYMMETRIC_HEBBIAN_LINK $atom $target)) ))
-            ($h (println! (calc result $calcres)))
             ($diffusionAmount (* $maxAllocation $calcres ))
-            ($j (println! (difam 146 $diffusionAmount)))
         )
         ($target $diffusionAmount)
     )
@@ -169,7 +158,7 @@
         (
             ($diffusionAvailable 1.0)
             ($hebbianDiffusionAvailable (* (eval (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE)) $diffusionAvailable))
-            ($j (println! (combine $adjacentVector (size-atom $adjacentVector))))
+            ; ($j (println! (combine $adjacentVector (size-atom $adjacentVector))))
             ($adajecentSize (size-atom $adjacentVector))
             ($hebbianMaximumLinkAllocation (if (== $adajecentSize 0)
                             1
@@ -181,7 +170,7 @@
             ($hebbianDiffusionUsed (hebbianDiffusionUsed $hebbianProportionSTI))
             ($resulttwo (collapse (incidentProportionSTI $incidentVector $hebbianDiffusionUsed)))
             ($finalResult (eval (concatTuple $hebbianProportionSTI $resulttwo)))
-            ($h (println! (combine2 $adjacentVector (size-atom $adjacentVector))))
+            ; ($h (println! (combine2 $adjacentVector (size-atom $adjacentVector))))
         )
         $finalResult
     )
@@ -308,7 +297,7 @@
                 
                 ($newSourceSTI (- $sourceSTI $value))
                 ($newTargetSti (+ $targetSti $value))
-                ($r (println! (newSourceSTI $newSourceSTI newTargetStit $newTargetSti)))
+                ; ($r (println! (newSourceSTI $newSourceSTI newTargetStit $newTargetSti)))
                 ($1 (eval (setSti $target $newTargetSti)))
                 ($2 (eval (setSti $source $newSourceSTI)))
             )
