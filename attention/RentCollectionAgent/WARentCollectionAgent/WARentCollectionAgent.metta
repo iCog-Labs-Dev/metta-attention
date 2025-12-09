@@ -3,7 +3,7 @@
 ; Returns: A single atom or an empty result if none is found.
 ; (: selectTargets (-> Atom))
 (= (selectTargets)
-    (getRandomAtomNotInAF)
+    (eval (getRandomAtomNotInAF))
 )
 
 ; Function: collectRent
@@ -19,12 +19,12 @@
         (let*
             (
                
-               ($sti (getSti $target))
-               ($lti (getLti $target))
+               ($sti (eval (getSti $target)))
+               ($lti (eval (getLti $target)))
                ($elapsedTime (eval (elapsedTime $target)))
-               ($ela (println! (elapsed time in wa rent $elapsedTime $sti $lti)))
-               ($stiAtomRent (getAttentionParam StartingAtomStiRent))
-               ($ltiAtomRent (getAttentionParam StartingAtomLtiRent))
+            ;    ($ela (println! (elapsed time in wa rent $elapsedTime $sti $lti)))
+               ($stiAtomRent (eval (getAttentionParam StartingAtomStiRent)))
+               ($ltiAtomRent (eval (getAttentionParam StartingAtomLtiRent)))
                ($scaledSTIRent (* $stiAtomRent $elapsedTime))
                ($scaledLTIRent (* $ltiAtomRent  $elapsedTime))
                ($updateScaledSTIRent (updateAttentionParam StartingAtomStiRent $scaledSTIRent))
@@ -35,13 +35,13 @@
                ($ltiRent (min-atom ($ltistartRent $lti)))
                ($newsti (- $sti $stiRent))
                ($newlti (- $lti $ltiRent))
-               ($newvlti (getVlti $target))
-               ($newimp (println! (new sti and lit in wa rent $newsti $newlti)))
+               ($newvlti (eval (getVlti $target)))
+            ;    ($newimp (println! (new sti and lit in wa rent $newsti $newlti)))
 
             )
             (
 
-               (setAv $target ($newsti $newlti $newvlti))
+               (eval (setAv $target ($newsti $newlti $newvlti)))
 
                
             )
