@@ -36,7 +36,6 @@
                             ($count (size-atom $needToBeTarget))
                             ($farLinks (/ $count (localToFarLinks) )) ;round by default
                             ($incomingSet (getIncomingSetByType $source HEBBIAN_LINK)) ;should I add other types of hebbian links?
-                            ($tr (println! (needToBe  Target ($afAtoms $needToBeTarget))))
                             ($maxLinkNum (eval (getAttentionParam MAX_LINK_NUM)))
                         )
                         (

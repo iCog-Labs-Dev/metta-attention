@@ -33,16 +33,11 @@
       (
           ($currentTime  (timeTime))
           ($updateFreq (eval (getAttentionParam AFRentFrequency)))
-          ($3 (println! (this is current time $currentTime)))
           ($lastUpdate  (match  &timer (lastUpdate $x) $x) )
-          ($5 (println! (this is lastupdatee time $lastUpdate)))
           ($elapsedTime (* (- $currentTime $lastUpdate) 1000000))
-          ($6 (println! (this is elapsed time $elapsedTime)))
           ($timeThreshold (/ 1000000 $updateFreq))
           ($multiplier (/ $updateFreq 1000000))
-          ($6 (println! (this is time difference (- $timeThreshold $elapsedTime))))
           ($timeres (let $resul (match &timer (firstTime $bool) $bool) $resul))
-          ($10 (println! (this much result $timeres) ))
       )
       (if $timeres
           (let $x
@@ -53,9 +48,7 @@
               (empty)
               (let*
                   (
-                    ($8 (println! (inside collect if)))
                     ($w (* $elapsedTime $multiplier))
-                    ($7 (println! (this is w $w))) 
                     ($lists (superpose $targetSet))
                   )
                   (
@@ -95,13 +88,11 @@
             (
               ($stiRent (* $calculatestirent $w))
               ($ltiRent (* $calculateltirent $w))
-              ($_ (println! (atomvlti $sti)))
               ($minstiRent (min-atom ($stiRent $sti)))
               ($minltiRent (min-atom ($ltiRent $lti)))
               ($stiDiff (- $sti $minstiRent))
               ($ltiDiff (- $lti $minltiRent))
               ($atomVlti (eval (getVlti $atom )))
-              ($_ (println! (atom-detail ($atom $stiDiff $ltiDiff $atomVlti))))
             )
             (eval (setAv $atom ($stiDiff $ltiDiff $atomVlti)))
           )
@@ -146,9 +137,7 @@
 (= (AFRentCollectionAgent-run)
    (let*
     (  ($time (py-call (time.time)))
-       ($_ (println! (inside af rent time $time)))
        ($time2 (timeTime))
-       ($2 (println! (this is from time function $time2)))
        ($res (selectAFTargets) )
     )
       (if (== $res ()) (empty) (collectAFRent $res))
