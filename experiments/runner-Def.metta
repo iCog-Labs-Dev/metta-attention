@@ -6,7 +6,7 @@
             (HebbianCreationAgent-Run (eval (TypeSpace)))
             (AFRentCollectionAgent-run)
             (WAImportanceDiffusionAgent-Run (eval (TypeSpace)))
-            ;(WARentCollectionAgent-Run)
+            (WARentCollectionAgent-Run)
             ;(forgettingAgent-Run (atomBin))
         )
     )
