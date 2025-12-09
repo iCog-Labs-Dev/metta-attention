@@ -119,7 +119,7 @@
 ( = (addFromOutSideAF  $source $farLinks)
     (if ( == $farLinks 0)
         ()
-        (let $target (getRandomAtomNotInAF)
+        (let $target (eval (getRandomAtomNotInAF))
             (if (== () $target)
                 ()
                 (
