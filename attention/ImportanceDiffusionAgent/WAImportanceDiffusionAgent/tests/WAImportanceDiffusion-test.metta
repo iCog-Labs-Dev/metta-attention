@@ -65,3 +65,24 @@
 !(getSti (INHERITANCE_LINK source target4))
 !(match &atomBinInfo ($in $val) $val)
 
+
+; !(setSti atom1 5)
+
+; ; !(getSti atom1)
+
+; ; !(elapsedTime atom1)
+; !(diffusedValue atom1 0.4)
+; !(match &atomBinInfo ($in $val) $val)
+
+; !(py-call (time.sleep 1))
+
+; ; !(elapsedTime atom1)
+; !(diffusedValue atom1 0.4)
+; !(match &atomBinInfo ($in $val) $val)
+
+
+; !(py-call (time.sleep 5))
+
+; ; !(elapsedTime atom1)
+; !(diffusedValue atom1 0.4)
+; !(match &atomBinInfo ($in $val) $val)

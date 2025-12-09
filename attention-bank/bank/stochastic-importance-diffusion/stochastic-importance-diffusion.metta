@@ -104,9 +104,9 @@
 (= (diffusedValue $atom $decayRate)
    (let* (
           ($averageElapsedTime (elapsedTime $atom))
-        ;   ($elps (println! (elpased time $averageElapsedTime)))
           ($sti (getSti $atom))
           ($powerRes (pow-math (- 1 $decayRate) $averageElapsedTime))
+        ;   ($elps (println! (elpased time $averageElapsedTime $decayRate $powerRes $sti (* $sti $powerRes) )))
         )
         (* $sti $powerRes)
     )
