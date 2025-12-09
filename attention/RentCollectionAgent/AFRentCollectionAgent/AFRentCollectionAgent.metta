@@ -73,7 +73,7 @@
    (let*
         (
           ($sti (eval (getSti $atom)))
-          ($atomss (println! (this is atom $atom)))
+          ; ($atomss (println! (this is atom $atom)))
           ($lti (eval (getLti $atom)))
           ($stiAtomRent (eval (getAttentionParam StartingAtomStiRent)))
           ($ltiAtomRent (eval (getAttentionParam StartingAtomLtiRent)))

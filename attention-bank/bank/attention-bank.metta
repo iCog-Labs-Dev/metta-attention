@@ -7,18 +7,31 @@
 ;    - Return the adjusted STI wage.
 ; Parameters: None.
 ; Returns: The adjusted STI wage value.
-(: calculateSTIWage (-> Number))
+; (: calculateSTIWage (-> Number))
 (= (calculateSTIWage)
    (let* (
            ($funds (getAttentionParam FUNDS_STI))
+
            ($targetSTI (getAttentionParam TARGET_STI))
+
+
            ($stiFundsBuffer (getAttentionParam STI_FUNDS_BUFFER))
+
            ($STIAtomWage (getAttentionParam STI_ATOM_WAGE))
+
+
            ($diff (- $funds $targetSTI))
+
            ($ndiff-raw (/ $diff $stiFundsBuffer))
+
+
            ($ndiff-clamped-min (min-atom ($ndiff-raw 1.0)))
+
            ($ndiff (max-atom ($ndiff-clamped-min -1.0)))
+
            ($atom-wage $STIAtomWage)
+
+
          )
          (+ $atom-wage (* $atom-wage $ndiff))
    )
@@ -32,7 +45,7 @@
 ;    - Return the adjusted LTI wage.
 ; Parameters: None.
 ; Returns: The adjusted LTI wage value
-(: calculateLTIWage (-> Number))
+; (: calculateLTIWage (-> Number))
 (= (calculateLTIWage)
    (let* (
            ($funds (getAttentionParam FUNDS_LTI))
@@ -62,6 +75,8 @@
 ; (: stimulate (-> Atom Number empty))
 (= (stimulate $pattern $stimulus)
    (let* (
+         ;   ($stim (println! (stimulating atom $pattern)))
+
            ($sti (getSti $pattern))
            ($lti (getLti $pattern))
            ($vlti (getVlti $pattern))
@@ -71,7 +86,7 @@
            ($new-lti (+ $lti $lti-wage))
            ($new-av ($new-sti $new-lti $vlti))
          ;   ($_ (println! (new av $new-av)))
-           ($res (eval (setAv $pattern $new-av)))
+           ($res (setAv $pattern $new-av))
          )
 		;  (getAttentionParam MAX_STI)
       (updated)

@@ -29,11 +29,11 @@
 !(stimulate (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)) 5.0)
 
 
-!(assertEqual  (getSti b) 60000.0)
-!(assertEqual (getSti c)  30000.0)
-!(assertEqual (getSti d) 2900.0)
-!(assertEqual (getSti (Hebbianlink a b)) 355.0)
-!(assertEqual  (getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 33.725)
+!(test  (getSti b) 60000.0)
+!(test (getSti c)  30000.0)
+!(test (getSti d) 2900.0)
+!(test (getSti (Hebbianlink a b)) 355.0)
+!(test  (getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 33.725)
 
 ; Run rent collection in a loop until enough time has passed
 ; !(hello here)
@@ -52,9 +52,9 @@
 !(getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)))
 
 
-!(assertEqual (approxEqual (getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 30.9 1.6) True)
-!(assertEqual (approxEqual (getSti b) 59998.7 1.6) True)
-!(assertEqual (approxEqual (getSti c) 29998.7 1.6) True)
-!(assertEqual (approxEqual (getSti d) 2898.71 1.6) True)
-!(assertEqual (approxEqual (getSti (Hebbianlink a b)) 353.725 1.6) True)
+!(test (approxEqual (getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 30.9 1.6) True)
+!(test (approxEqual (getSti b) 59998.7 1.6) True)
+!(test (approxEqual (getSti c) 29998.7 1.6) True)
+!(test (approxEqual (getSti d) 2898.71 1.6) True)
+!(test (approxEqual (getSti (Hebbianlink a b)) 353.725 1.6) True)
 

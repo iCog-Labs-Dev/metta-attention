@@ -54,7 +54,7 @@
     (let*
         (
             ($maxSpreadPercentage (getAttentionParam MAX_SPREAD_PERCENTAGE))
-            ($currentEstiate (diffusedValue $atom $maxSpreadPercentage))
+            ($currentEstiate (eval (diffusedValue $atom $maxSpreadPercentage)))
             ($diffusionAmount (- (getSti $atom) $currentEstiate))
         )
         $diffusionAmount
