@@ -52,13 +52,13 @@
 
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 20.0)
-!(updateAttentionParam TARGET_STI 1000.0)
-!(updateAttentionParam TARGET_LTI 1000.0) 
-!(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
-!(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
-!(updateAttentionParam FUNDS_STI 5000.0) 
-!(updateAttentionParam FUNDS_LTI 5000.0) 
+!(updateAttentionParam MAX_AF_SIZE 30.0)
+!(updateAttentionParam TARGET_STI 3000.0)
+!(updateAttentionParam TARGET_LTI 3000.0) 
+!(updateAttentionParam STI_FUNDS_BUFFER 3000.0) 
+!(updateAttentionParam LTI_FUNDS_BUFFER 3000.0) 
+!(updateAttentionParam FUNDS_STI 35000.0) 
+!(updateAttentionParam FUNDS_LTI 35000.0) 
 
 
 ; write the params to a file
@@ -75,7 +75,7 @@
                     
                 )
                 (
-                    (stimulate $now 30)
+                    (stimulate $now 25)
                     ($pr (println! (stimulating atom --> $now)))
                     ; ($sle (py-call (time.sleep 4)))
                     (collapse (test-superpose))
