@@ -5,7 +5,7 @@
    )
 )
 
-(: notEmpty (-> Expression Expression))
+; (: notEmpty (-> Expression Expression))
 (= (notEmpty $list)
 
    (collapse 
@@ -18,7 +18,7 @@
    )
 )
 
-(: customFilter (-> Expression (-> Symbol Number Number Bool) Number Number Expression))
+; (: customFilter (-> Expression (-> Symbol Number Number Bool) Number Number Expression))
 (= (customFilter $list $predicate $lower $upper)
   (if(== $list ())
     ()
@@ -52,7 +52,8 @@
             (
                ($head (car-atom $tuple))  
                ($tail (cdr-atom $tuple))  
-               ($isValid ($f $head $pivot)) 
+
+               ($isValid (eval ($f $head $pivot))) 
                ($filteredTail (binaryFilter $f $pivot $tail)) 
             )
             (if $isValid
@@ -87,7 +88,7 @@
 )
 
 ;a function to find the ceil
-(: ceil (-> Number Number))
+; (: ceil (-> Number Number))
 (= (ceil $x)
    (let $int_part (trunc-math $x)
       (if(== $x $int_part)
@@ -138,7 +139,7 @@
     )
 )
 
-(: flattener (-> Expression Expression))
+; (: flattener (-> Expression Expression))
 (= (flattener $expr)
    (if (== $expr ()) 
        () 
@@ -156,7 +157,7 @@
    (not (== (collapse (intersection (superpose ($x)) (superpose $list))) ()))
 )
 
-(: removeDuplicates (-> Expression Expression))
+; (: removeDuplicates (-> Expression Expression))
 (= (removeDuplicates $list)
    (collapse (unique (superpose $list)))
 )
@@ -232,18 +233,18 @@
    )
 )
 ; Define absolute difference
-(: abs (-> Number Number))
+; (: abs (-> Number Number))
 (= (abs $x)
     (if (< $x 0) (- 0 $x) $x)
 )
 
 ; Define approximate equality
-(: approxEqual (-> Number Number Number Bool))
+; (: approxEqual (-> Number Number Number Bool))
 (= (approxEqual $a $b $tol)
     (<= (abs (- $a $b)) $tol)
 )
 
-(: extractAndFlatten (-> Expression Expression))
+; (: extractAndFlatten (-> Expression Expression))
 (= (extractAndFlatten $expr)
    (if (== $expr ())
        ()
@@ -261,7 +262,7 @@
     )
 )
 
-(: collectContents (-> Expression Expression Expression))
+; (: collectContents (-> Expression Expression Expression))
 (= (collectContents $list $acc)
    (if(== $list ())
     $acc
@@ -284,7 +285,7 @@
 ; params:
 ;    $atoms: list of symbols and expressions
 ; return: list of symbols
-(: removeLinksfromList (-> List List))
+; (: removeLinksfromList (-> List List))
 (= (removeLinksfromList $atoms)
   (if (== $atoms ())
     ()
@@ -325,7 +326,7 @@
     
 )
 ; a function that find the minimum STI value of the  given atoms
-(: getAllMinSTI  (-> Expression Number))
+; (: getAllMinSTI  (-> Expression Number))
 (= (getAllMinSTI $atoms)
     (if (== $atoms ())
             0.0
@@ -377,13 +378,13 @@
 (= (lessThanSti $elem $pivot)
     (if (or (== $elem ()) (== $pivot ()))
 		False
-	    (<= (getSti $elem) (getSti $pivot))
+	    (<= (eval (getSti $elem)) (eval (getSti $pivot)))
     )   
 )
 
 (= (greaterThanSti $elem $pivot)
     (if (or (== $elem ()) (== $pivot ()))
 		False
-	    (> (getSti $elem) (getSti $pivot))
+	    (> (eval (getSti $elem)) (eval (getSti $pivot)))
     )   
 )

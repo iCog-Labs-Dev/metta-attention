@@ -14,19 +14,17 @@
 ;   $space3: resolves to newAtomInAV where atoms that are new to attentionalFocus are stored
 ;Returns: empty
 
-(= (localToFarLinks) 10)
+(= (localToFarLinks) 10.0)
 
 
 ; (: HebbianCreationAgent-Run(-> Grounded empty))
 (= (HebbianCreationAgent-Run $space)
     ; if the attentional focus is empty no work is done
     (let $afAtoms (eval (getAfAtoms))
-        (if ( == (size-atom $afAtoms)  0)
+        (if (== (size-atom $afAtoms)  0.0)
         ()
-        (let $source 
-                
-                (superpose $afAtoms)
-            (if  (unify (get-metatype $source) Expression (==  HEBBIAN_LINK (car-atom $source)) False)
+         (let $source (superpose $afAtoms)
+            (if  (unify (get-metatype $source) Expression (== HEBBIAN_LINK (car-atom $source)) False)
                 () ; if already hebbian_link nothing is done
                 (
                     (let*
@@ -34,7 +32,8 @@
                             ($existingAsSourceHS  (getTargetNeighbors $source ASYMMETRIC_HEBBIAN_LINK $space)) ;;need to check if we should use source or sourceAtom
                             ($needToBeTarget  (subtraction-atom $afAtoms $existingAsSourceHS))
                             ($count (size-atom $needToBeTarget))
-                            ($farLinks (/ $count (localToFarLinks) )) ;round by default
+                            ($farLinks (py-call (round (/ $count (localToFarLinks) )))) ;round by default
+                            ; ($_ (println! (running for atom $source  $farLinks)))
                             ($incomingSet (getIncomingSetByType $source HEBBIAN_LINK)) ;should I add other types of hebbian links?
                             ($maxLinkNum (eval (getAttentionParam MAX_LINK_NUM)))
                         )
@@ -67,7 +66,7 @@
 
 ; (:getSourceAtom(-> Atom Atom))
 ( = (getSourceAtom $source)
-    (if (== (size-atom $source) 3) ;if source is a link
+    (if (== (size-atom $source) 3.0) ;if source is a link
         (let* (
             ($sourceAndTarget (cdr-atom $source))
             ($sourceAtom (car-atom $sourceAndTarget))
@@ -86,7 +85,7 @@
 
 ; (: removeLinkRecursively (-> Number Expression))
 ( = (removeLinkRecursively $num $sizeaf)
-    (if ( or (== $num 0) (== 0 $sizeaf))
+    (if ( or (== $num 0.0) (== 0.0 $sizeaf))
         ()
         (let*
             (
@@ -118,7 +117,7 @@
 
 ; (:addFromOutSideAF(-> Atom Number Empty))
 ( = (addFromOutSideAF  $source $farLinks)
-    (if ( == $farLinks 0 )
+    (if ( == $farLinks 0)
         ()
         (let $target (getRandomAtomNotInAF)
             (if (== () $target)
@@ -130,6 +129,7 @@
                             (if (and (not (== (getStv (ASYMMETRIC_HEBBIAN_LINK $source $target)) %Undefined%)) (== $target $source)) ;If the link exists dont add it again 
                                 ()
                                 (
+                                    ; ($insaddF (println! (calling add hebbian it $target is expression, not HEBBIAN_LINK and has stv $source)))
                                     (addHebbian $source $target )
                                     (addFromOutSideAF $source (- $farLinks 1))
                                 )
@@ -138,6 +138,7 @@
                         (if  (and (not (== (eval (getStv (ASYMMETRIC_HEBBIAN_LINK $source $target))) %Undefined%)) (== $target $source)) ;If the link exists dont add it again 
                             ()
                             (
+                                ; ($insadF (println! (calling add hebbian it $target is atom, and has stv $source )))
                                 (addHebbian $source $target )
                                 (addFromOutSideAF $source (- $farLinks 1))
                             )
@@ -156,7 +157,11 @@
 
 ; (: addHebbian (-> Atom Atom Empty))
 (= (addHebbian $source $target)
-    (let $link (ASYMMETRIC_HEBBIAN_LINK $source $target)
+    (let*(
+        
+        ($link (ASYMMETRIC_HEBBIAN_LINK $source $target))
+        ; ($crlink (println! ($link created)))
+    ) 
         (eval (setStv $link (0.5 0.1)))
     )
 )

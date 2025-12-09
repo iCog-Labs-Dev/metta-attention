@@ -12,10 +12,10 @@
 
 ; (: HebbianUpdatingAgent-Run (-> Grounded Atom))
 (= (HebbianUpdatingAgent-Run $space)
-    (let $atoms (getAtomList)
+    (let $atoms (call (getAfAtoms))
         (if (== $atoms ())
             ()
-            (let $randomAtom (getRandomAtomInAF)
+            (let $randomAtom (call (getRandomAtomInAF))
                 (updateHebbianLinks $randomAtom $space)
             )
         )
@@ -35,7 +35,7 @@
     (let*
         (
             ($iset (getAllIncomingSetsForHUAgent $source $space ASYMMETRIC_HEBBIAN_LINK))
-            ($outgoing (getOutGoingAtoms $iset))
+            ($outgoing (call (getOutGoingAtoms $iset)))
             ($head (if (== $outgoing ()) () (car-atom $outgoing)))
         )
         (if (not (== $outgoing ()))
@@ -50,12 +50,12 @@
                                     ; ($_ (println! (tc decay $tcDecayRate)))
                                     ; ($_ (println! (target out $new-tc)))
 
-                                    (($STV $old-tc $conf) (getStv $iset))
+                                    (($STV $old-tc $conf) (eval (getStv $iset)))
                                     ($tc (+ (* $tcDecayRate $new-tc) (* (- 1.0 $tcDecayRate) $old-tc)))
                                     ($create-tv ($tc 0.1))
                                     ($new-tv (mergeCalculation $create-tv ($old-tc $conf) PLN_BOOK_REVISION))
                                 )
-                                    (setStv $iset $new-tv)
+                                    (call (setStv $iset $new-tv))
                             )
                             ($source "!=" $head)
                         )
@@ -83,10 +83,10 @@
     (let*
         (
             (($source $target) $outgoing)
-            ($normsti_i (getNormalisedZeroToOneSTI $source True True))
+            ($normsti_i (call (getNormalisedZeroToOneSTI $source True True)))
             ; ($_ (println! (normalised i $source $normsti_i)))
 
-            ($normsti_j (getNormalisedZeroToOneSTI $target True True))
+            ($normsti_j (call (getNormalisedZeroToOneSTI $target True True)))
             ; ($_ (println! (normalised j $normsti_j)) )
             ; ($_ (println! (target $target)))
 
