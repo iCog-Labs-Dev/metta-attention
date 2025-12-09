@@ -30,8 +30,8 @@
                                     )
             )
             (($atomToReceive $stiGiven)
-                    (if (== $totaldiffusionAmount 0)
-                        (() 0)
+                    (if (== $totaldiffusionAmount 0.0)
+                        (() 0.0)
                         (let*
                             (
                                 (($first $second) (superpose $combProbabilityVector))
@@ -41,6 +41,7 @@
                         )
                     )
             )
+            ; ($rec (println! (atoms reciving $atomToReceive sti given $stiGiven and the atom $atom)))
             
         )
         ($atom $atomToReceive $stiGiven)
@@ -300,6 +301,7 @@
                 ; ($r (println! (newSourceSTI $newSourceSTI newTargetStit $newTargetSti)))
                 ($1 (eval (setSti $target $newTargetSti)))
                 ($2 (eval (setSti $source $newSourceSTI)))
+                ; ($3 (println! (we diffused for the atom)))
             )
             ()
         )

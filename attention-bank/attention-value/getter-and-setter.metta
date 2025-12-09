@@ -289,7 +289,7 @@
 
 ; (: getAtomsByBin (-> Number Expression))
 (= (getAtomsByBin $binNumber)
-    (collapse (match (TypeSpace) ($patt ($val (Bin $binNumber))) $patt))
+    (collapse (match (TypeSpace) ($patt ($val (Bin $binNumber) ) ) $patt))
 )
 
 ; Function: getAllAtomsWithBins
