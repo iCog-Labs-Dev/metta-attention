@@ -24,6 +24,7 @@
 !(import! &self ../../../../../metta-attention/attention/RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent)
 !(import! &self ../../../../../metta-attention/attention/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent)
 !(import! &self ../../../../../metta-attention/attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
+!(import! &self ../../../../../metta-attention/attention-bank/attention-value/get-min-max)
 
 
 
@@ -48,20 +49,29 @@
 !(test (getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 33.725)
 !(test (selectTargets) (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)))
 
+; !(getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)))
 
 !((let $res (selectTargets) (elapsedTime $res) ))
+
+; !(match &atomBinInfo ($in $val) $val)
 
 !(WARentCollectionAgent-Run)
 
 ; Sleep for the computed time to match C++ behavior
-!((py-atom time.sleep) 0.5)
-!(WARentCollectionAgent-Run)
+
+; !(py-call (time.sleep 0.5))
+
+; !(WARentCollectionAgent-Run)
 
 
 !(test (< (getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 33.725) True) ;must have lower sti
-!(getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)))
+
+; !(getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)))
 
 !(test (getSti b) 60000.0)
-!(test (getSti c)  30000.0)
+!(test (getSti c) 30000.0)
 !(test (getSti d) 2900.0)
 !(test (getSti (Hebbianlink a b)) 355.0)
+
+
+

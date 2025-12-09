@@ -1,7 +1,7 @@
 ; Function: selectTargets
 ; Description: Selects a random atom that is not in attentional focus.
 ; Returns: A single atom or an empty result if none is found.
-(: selectTargets (-> Atom))
+; (: selectTargets (-> Atom))
 (= (selectTargets)
     (getRandomAtomNotInAF)
 )
@@ -21,9 +21,10 @@
                
                ($sti (getSti $target))
                ($lti (getLti $target))
-               ($elapsedTime (elapsedTime $target))
+               ($elapsedTime (eval (elapsedTime $target)))
+               ($ela (println! (elapsed time in wa rent $elapsedTime $sti $lti)))
                ($stiAtomRent (getAttentionParam StartingAtomStiRent))
-                ($ltiAtomRent (getAttentionParam StartingAtomLtiRent))
+               ($ltiAtomRent (getAttentionParam StartingAtomLtiRent))
                ($scaledSTIRent (* $stiAtomRent $elapsedTime))
                ($scaledLTIRent (* $ltiAtomRent  $elapsedTime))
                ($updateScaledSTIRent (updateAttentionParam StartingAtomStiRent $scaledSTIRent))
@@ -35,6 +36,8 @@
                ($newsti (- $sti $stiRent))
                ($newlti (- $lti $ltiRent))
                ($newvlti (getVlti $target))
+               ($newimp (println! (new sti and lit in wa rent $newsti $newlti)))
+
             )
             (
 

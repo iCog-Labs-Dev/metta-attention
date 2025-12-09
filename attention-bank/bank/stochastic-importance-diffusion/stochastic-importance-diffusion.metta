@@ -25,7 +25,7 @@
             ($index (importanceBin (getSti $atom)))
             ($it (collapse (match &atomBinInfo ($index $_) $index)))
             ($firstTime   (currentTime))
-            ; ($i (println! (index of atom $atom in update bin $index $it with current time $firstTime)))
+            ($i (println! (index of atom $atom in update bin $index $it with current time $firstTime)))
           )
         (if (== $it ($index))
             (updateExistingBin $index)
@@ -85,7 +85,7 @@
         (let*
             (
                 ( (($cnt $cntVal) ($idx $idxVal) ($size $sizeVal) ($updateRate $updateRateVal) ($lastUpdate $lastUpdateVal)) (match &atomBinInfo ($index $info) $info))
-                ; ($upd (println! (this is update rate val ========> $updateRateVal for atom with index $index )))
+                ; ($upd (println! (this is update rate val ========> $updateRateVal for atom with index $index $sizeVal)))
                 
             ) 
                 
