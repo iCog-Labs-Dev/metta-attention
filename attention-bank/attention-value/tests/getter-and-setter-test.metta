@@ -16,8 +16,9 @@
 !(setAv Cat (400 400 1))  
 !(setAv Animal (400 400 1))
 !(setAv Human (400 400 1))
-!(assertEqual (getAttentionParam FUNDS_STI) 98400)
-!(assertEqual (getAttentionParam FUNDS_LTI) 98400)
+
+!(assertEqual (getAttentionParam FUNDS_STI) 98400.0)
+!(assertEqual (getAttentionParam FUNDS_LTI) 98400.0)
 
 ; Test case 02: testing attention value getter(getAv) function for symbol atom type
 
@@ -92,11 +93,11 @@
 
 ; Test case 09: testing mean, confidence, STI, LTI and VLTI getter functions
 
-!(assertEqual (getMean A) 1)
+!(assertEqual (getMean A) 1.0)
 !(assertEqual (getConfidence (EvaluationLink a b)) 0.9)
 !(assertEqual (getSti (Hebbianlink Human Cat)) 200)
 !(assertEqual (getLti (Hebbianlink (Hebbianlink Human Cat) Animal)) 200)
-!(assertEqual (getVlti (Hebbianlink (Hebbianlink Animal Hebbianlink) (Hebbianlink Animal Cat))) 0)
+!(assertEqual (getVlti (Hebbianlink (Hebbianlink Animal Hebbianlink) (Hebbianlink Animal Cat))) 0.0)
 
 ; Test case 10:testing setSti,setLti,setVlti functions and the dereasing the global parameters
 ;(FUNDS_STI and FUNDS_LTI) for every av the is given to the atoms
@@ -105,8 +106,8 @@
 !(setVlti k 200)
 !(assertEqual (getAv k) (AV 200 200 200))
 
-!(assertEqual (getAttentionParam FUNDS_STI) 95903)
-!(assertEqual (getAttentionParam FUNDS_LTI) 96200)
+!(assertEqual (getAttentionParam FUNDS_STI) 95903.0)
+!(assertEqual (getAttentionParam FUNDS_LTI) 96200.0)
 
 
 ; Test case 11: testing  functions globalIncomingSetByType and globalIncomingSetwithoutType
@@ -126,7 +127,7 @@
     ()
 )
 
-!(assertEqual (let $space (TypeSpace) (getBinList $space))  (50 45 53))
+!(assertEqual (let $space (TypeSpace) (getBinList $space))  (50.0 45.0 53.0))
 !(assertEqual (countAtomsInTypeSpace) 15)
 !(removeTypeSpace k)
 !(assertEqual (countAtomsInTypeSpace) 14)

@@ -1,9 +1,8 @@
 !(bind! &atomBinInfo (new-space))
-!(bind! time-mod (py-atom time))
-!(bind! timeTime (py-dot time-mod time (-> Number)))
-!(timeTime)
 
+(= (currentTime) (let $time (py-call (time.time)) $time) )
 
+; !(timeTime)
 ;The udate_bin function receives an atom and updates this values
 ; struct DiffusionRecordBin {
 ;             unsigned int count = 0; // Number of atoms diffused.
@@ -25,15 +24,19 @@
     (let* (
             ($index (importanceBin (getSti $atom)))
             ($it (collapse (match &atomBinInfo ($index $_) $index)))
-            ($firstTime   (timeTime))
+            ($firstTime   (currentTime))
+            ; ($i (println! (index of atom $atom in update bin $index $it with current time $firstTime)))
           )
         (if (== $it ($index))
             (updateExistingBin $index)
             (let* (
-                ($time (timeTime)) 
+                ($time (currentTime)) 
+                ($size (eval (getSize $index)))
+                ($rate (/ 1 (- $time $firstTime)) )
+                ; ($el (println! (this is inside else condition)))
             )
                 (add-atom &atomBinInfo 
-                    ($index ((count 1) (index $index) (_size (getSize $index)) (update_rate (/ 1 (- $time $firstTime))) (last_update $time)))
+                    ($index ((count 1) (index $index) (_size $size) (update_rate $rate) (last_update $time)))
             ))
         )
     )
@@ -41,21 +44,21 @@
 
 ; (: updateExistingBin (-> Number empty))
 (= (updateExistingBin $index)
-    (let (($cnt $cntVal) ($idx $idxVal) ($size $sizeVal) ($updateRate $updateRateVal) ($lastUpdate $lastUpdateVal)) 
-            (match &atomBinInfo ($index $info) 
-                (let () (remove-atom &atomBinInfo ($index $info))
-                    $info))
-            (let* (
+            (let* 
+                 (
+                    ; ($upexist (println! (=====> this is inside update existing atom )))
+                    ((($cnt $cntVal) ($idx $idxVal) ($size $sizeVal) ($updateRate $updateRateVal) ($lastUpdate $lastUpdateVal)) (match &atomBinInfo ($index $info)  $info ))
+                    ($prev (let $y (match &atomBinInfo $x $x ) (remove-atom &atomBinInfo $y)))
                     ($count (+ $cntVal 1))
-                    ($now (timeTime))
+                    ($now (currentTime))
                     ($newSec (- $now $lastUpdateVal))
                     ($newUpdateRate (/ $count $newSec))
-                    ($newSize (getSize $index)))
+                    ($newSize (eval (getSize $index))))
                     (add-atom &atomBinInfo 
                         ($index ((count $count) (index $index) (_size $newSize) (update_rate $newUpdateRate) (last_update $now))))
             )
     )
-)
+
 
 ;This function returns the elapsed time of the atom
 ;by dividing the size of the bin by the update rate
@@ -64,8 +67,12 @@
 (= (elapsedTime $atom)
     (let* (
             ($index (importanceBin (getSti $atom)))
+            ; ($ind (println! (bin index $index for atom $atom)))
             ($averageElapsedTime (calcElapsedTime $index))
+            ; ($cal (println! (calculated elpased time $averageElapsedTime for atom $atom)))
+            ; ($time (println! (this current time (currentTime))))
             ($res (updateBin $atom))
+            ; ($r (println! (what is result here $res)))
             
           )
         $averageElapsedTime
@@ -75,13 +82,17 @@
 ; (:calcElapsedTime (-> Number Number))
 (= (calcElapsedTime $index)
     (if (== (collapse (match &atomBinInfo ($index $_) $index)) ($index))
-        (let (($cnt $cntVal) ($idx $idxVal) ($size $sizeVal) ($updateRate $updateRateVal) ($lastUpdate $lastUpdateVal)) 
-                (match &atomBinInfo ($index $info) $info)
+        (let*
+            (
+                ( (($cnt $cntVal) ($idx $idxVal) ($size $sizeVal) ($updateRate $updateRateVal) ($lastUpdate $lastUpdateVal)) (match &atomBinInfo ($index $info) $info))
+                ; ($upd (println! (this is update rate val ========> $updateRateVal for atom with index $index $sizeVal)))
+                
+            ) 
+                
                 (if (== $updateRateVal 0)
                     ("updateRate can not be zero")
                     (/ $sizeVal $updateRateVal)
                 )
-        
         )
         0.0
     )
@@ -93,6 +104,7 @@
 (= (diffusedValue $atom $decayRate)
    (let* (
           ($averageElapsedTime (elapsedTime $atom))
+        ;   ($elps (println! (elpased time $averageElapsedTime)))
           ($sti (getSti $atom))
           ($powerRes (pow-math (- 1 $decayRate) $averageElapsedTime))
         )

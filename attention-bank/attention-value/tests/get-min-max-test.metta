@@ -5,14 +5,23 @@
 !(import! &self ../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
 !(import! &self ../../../../metta-attention/attention-bank/utilities/helper-functions)
 !(import! &self ../../../../metta-attention/attention-bank/bank/attention-bank)
+
+
+
 ; Test Case 01: Testing Empty atomBin
 ; Ensure getMaxContent and getMinContent return empty lists when no atoms are present
- !(assertEqual (getMaxContent (TypeSpace)) ())
- !(assertEqual (getMinContent (TypeSpace)) ())
+
+!(assertEqual (getMaxContent (TypeSpace)) ())
+!(assertEqual (getMinContent (TypeSpace)) ())
+
+
 ; Test Case 02: getSize for a Non-Existent Bin
 ; Ensure getSize returns 0 for bins that don't exist
+
 !(assertEqual (binSize) 0)
 !(assertEqual (getSize 20) 0)
+
+
 ; ; Setup: setAv values to atoms
 !(setAv Human (100.0 100.0 1.0))
 !(setAv Dog (200.0 200.0 1.0))
@@ -33,9 +42,9 @@
 !(setAv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother)) (1030.0 130.0 1.0)) ; getBin == 65.0
 
 
- ; Test Case 04: Adding Atom to Max Bin
+; Test Case 04: Adding Atom to Max Bin
 
- ; Expected: Max bin = (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother))
+; Expected: Max bin = (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother))
 !(assertEqual (getMaxContent (TypeSpace)) (collapse (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Mother))))
 
 ; Test Case 05: getMinContent for Multiple Min Bins
@@ -62,10 +71,11 @@
 ; Expected: Bin 38 has 3 atoms, Bin 45 has 2 atoms, Bin 56 has 1 atoms, Bin 65 has 1 atom
 !(setAv Humaner (104.0 220.0 1.0))
 !(setAv Doger (201.0 230.0 1.0))
-!(assertEqual (getSize 37) 3)
-!(assertEqual (getSize 45) 2)
-!(assertEqual (getSize 56) 1)
-!(assertEqual (getSize 65) 1)
+
+!(assertEqual (getSize 37.0) 3)
+!(assertEqual (getSize 45.0) 2)
+!(assertEqual (getSize 56.0) 1)
+!(assertEqual (getSize 65.0) 1)
 
 ; Test Case 07: Testing binSize Function
 ; Ensure binSize correctly returns the total number of atoms across all bins

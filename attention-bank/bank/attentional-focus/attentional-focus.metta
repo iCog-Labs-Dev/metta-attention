@@ -14,8 +14,8 @@
             ($afSize (eval (getAttentionParam MAX_AF_SIZE)))
             ($allAtoms (getAllAtomsWithBins))
             ; ($hell (println! (inside get af atom $allAtoms)))
-            ; ($helll (println! (inside get af atom $afSize)))
             ($size (size-atom $allAtoms) )
+            ; ($helll (println! (inside get af atom $afSize $size)))
 
 
         ) 
@@ -124,13 +124,21 @@
             ($atoms (getAllAtomsWithBins))
             ($outsideAf (subtraction-atom $atoms $afAtoms))
             ($size (size-atom $outsideAf))
+            ; ($innotaf (println! (this is inside not in af fn $afAtoms $atoms $outsideAf $size)))
         )   
         (if (== $size 0)
             ()
-            (let $rand 
-                (random-int 0 $size)
-                (index-atom $outsideAf $rand)
-            )
+              (if (== $size 1) 
+                (index-atom $outsideAf 0) 
+                  (let*
+                  (
+                    ($rand (random-int 0 $size) )
+                    ($singatom (index-atom $outsideAf $rand) )
+                    ; ($in (println! (the result if inde atomm $singatom $outsideAf $rand)))
+                   )
+                  $singatom
+                   )
+              )
         )
     )
 )
