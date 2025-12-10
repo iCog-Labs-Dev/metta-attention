@@ -35,7 +35,6 @@
                             ($farLinks (py-call (round (/ $count (localToFarLinks) )))) ;round by default
                             ; ($_ (println! (running for atom $source  $farLinks)))
                             ($incomingSet (getIncomingSetByType $source HEBBIAN_LINK)) ;should I add other types of hebbian links?
-                            ; ($tr (println! (needToBe  Target ($source $afAtoms $needToBeTarget $incomingSet))))
                             ($maxLinkNum (eval (getAttentionParam MAX_LINK_NUM)))
                         )
                         (
@@ -120,7 +119,7 @@
 ( = (addFromOutSideAF  $source $farLinks)
     (if ( == $farLinks 0)
         ()
-        (let $target (getRandomAtomNotInAF)
+        (let $target (eval (getRandomAtomNotInAF))
             (if (== () $target)
                 ()
                 (

@@ -27,14 +27,7 @@
 
 ; (: calculateDiffusionAmount (-> Atom Number))
 (= (calculateDiffusionAmount $atom)
-    ; (eval (* (getSti $atom) (getAttentionParam MAX_SPREAD_PERCENTAGE)))
-     (let*
-     (
-        ($res (* (eval (getSti $atom)) (eval (getAttentionParam MAX_SPREAD_PERCENTAGE))) )
-        ; ($1 (println! (calculated amount $res)))
-     )
-     $res
-     )
+    (eval (* (getSti $atom) (getAttentionParam MAX_SPREAD_PERCENTAGE)))
 )
 
 ;;This function will retrieve the diffusion source vector from AF and then call the diffuseAtom function to diffuse the atoms
@@ -44,32 +37,72 @@
 
 ; (: spreadImportance (-> Grounded Grounded Empty))
 (= (spreadImportance $space)
-     ; (let $diffusionSourceVector (diffusionSourceVector (getAfAtoms))
-        ; (let ($atom $atomToReceive $stiGiven)
-        ;     (diffuseAtom (superpose $diffusionSourceVector) $space AF)
-        ;         (tradeSti $atom $atomToReceive $stiGiven)
-        ;     )
         (let*
         (
-            ($diffusionSourceVector  (diffusionSourceVector (eval (getAfAtoms))) )
-            ; ($4 (println! (diffusion vector output $diffusionSourceVector)))
+            ($difatoms (eval (getAfAtoms)))
+            ($diffusionSourceVector  (diffusionSourceVector $difatoms))
             ($atoms (collapse 
                 (let $atom
                     (superpose $diffusionSourceVector)
                     (diffuseAtom $atom $space AF))
                 )
             ) 
-            ; ($2 (println! (diffuse atom output $atoms )))
-            ($res (let ($atom $atomToReceive $stiGiven)
-                (superpose $atoms)
-                (tradeSti $atom $atomToReceive $stiGiven) ))
-            ; ($3 (println! (trade sti output $res)))
+            ($trades (collapse (tradeList $atoms)))
+            (($atom $sti) (superpose $trades))
+            
         )
-        $res
+        (eval (setSti $atom $sti))
         )
     ; )
 )
 
+(: tradeList (-> Expression Expression))
+(= (tradeList $result)
+    (let*
+        (
+            ($diffusingAtoms (collapse 
+                (let ($atom $atomToReceive $stiGiven)
+                    (superpose $result)
+                    $atom 
+                )
+            ))
+            ($recivingAtoms (collapse 
+                (let ($atom $atomToReceive $stiGiven)
+                    (superpose $result)
+                    $atomToReceive 
+                )
+            ))
+            ($combindedAtoms (union-atom $diffusingAtoms $recivingAtoms))
+            ($sources (unique-atom $combindedAtoms))
+            ($source (superpose $sources))
+            ($sourceSti (collapse (filterTrade $result $source)))
+            ($trade (foldl-atom $sourceSti 0 $acc $x (+ $acc $x)))
+            ($newTrade (+ (eval (getSti $source)) $trade))
+        )
+        ($source $newTrade)
+    )
+)
+
+;; This function filters returns sti transfers for a given atom and negates all values 
+;; where it is giving sti
+;; Parameters:
+;;      $result: list of all trades
+;;      $source: atom in consideration
+;; Result: (non - deterministic)
+;;      Number value of sti trade of an atom
+(: filterTrade (-> Expression Atom Number))
+(= (filterTrade $result $source)
+    (let ($atom $atomToReceive $stiGiven)
+        (superpose $result)
+        (if (== $atom $source)
+            (* -1 $stiGiven)
+            (if (== $atomToReceive $source)
+                $stiGiven
+                (empty)
+            )
+        )
+    )
+)
 ;; This function is the entry point to the AFImportance Diffusion Agent
 ;; Parameters $space: The space that will be used to find the diffusion source vector
 ;;            $space2: The space that will be used to find incomingSets
