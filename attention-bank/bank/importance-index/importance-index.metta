@@ -107,7 +107,7 @@
 
        ($secondRes (eval (updateMax $max)))
       )
-      (trace! (updated) ("Updated"))
+      (trace! (Updated) ("Updated"))
 
      )
 )
