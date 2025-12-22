@@ -26,7 +26,7 @@
     "STARTING_FUNDS_LTI": "100000",
     "STI_ATOM_WAGE": "10",
     "LTI_ATOM_WAGE": "10",
-    "MAX_AF_SIZE": "30.0",
+    "MAX_AF_SIZE": "60.0",
     "TARGET_STI": "3000.0",
     "TARGET_LTI": "3000.0",
     "STI_FUNDS_BUFFER": "3000.0",
