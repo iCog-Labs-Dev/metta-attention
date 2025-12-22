@@ -16,6 +16,23 @@
 !(let $x (match &self $y $y) (remove-atom &self $y))
 
 
+!(import! &self ../../../../metta-attention/attention/AttentionParam)
+!(import! &self ../../../../metta-attention/attention-bank/utilities/helper-functions)
+!(import! &self ../../../../metta-attention/attention-bank/utilities/recentVal)
+
+!(import! &self ../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
+!(import! &self ../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
+!(import! &self ../../../../metta-attention/attention-bank/attention-value/get-min-max)
+
+
+
+!(import! &self ../../../../metta-attention/attention-bank/bank/attention-bank)
+!(import! &self "../../../../metta-attention/experiments/utils/logger.py")
+!(import! &self ../../../../metta-attention/experiments/logger)
+!(import! &self ../../../../metta-attention/attention-bank/bank/attentional-focus/attentional-focus)
+!(import! &self ../../../../metta-attention/attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
+
+!(import! &self ../../../../metta-attention/attention/Neighbors)
 !(import! &self ../../../../metta-attention/attention/RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent)
 !(import! &self ../../../../metta-attention/attention/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent)
 !(import! &self ../../../../metta-attention/attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent)
@@ -24,25 +41,7 @@
 !(import! &self ../../../../metta-attention/attention/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent)
 !(import! &self ../../../../metta-attention/attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
 !(import! &self ../../../../metta-attention/attention/HebbianCreationAgent/HebbianCreationAgent)
-!(import! &self ../../../../metta-attention/attention/AttentionParam)
-!(import! &self ../../../../metta-attention/attention/Neighbors)
 !(import! &self ../../../../metta-attention/experiments/runner-Def)
-!(import! &self ../../../../metta-attention/experiments/logger)
-
-
-!(import! &self ../../../../metta-attention/attention-bank/utilities/helper-functions)
-!(import! &self ../../../../metta-attention/attention-bank/utilities/recentVal)
-
-!(import! &self ../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
-!(import! &self ../../../../metta-attention/attention-bank/attention-value/get-min-max)
-
-
-
-!(import! &self ../../../../metta-attention/attention-bank/bank/attention-bank)
-!(import! &self ../../../../metta-attention/attention-bank/bank/attentional-focus/attentional-focus)
-!(import! &self ../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
-!(import! &self ../../../../metta-attention/attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
-!(import! &self "../../../../metta-attention/experiments/utils/logger.py")
 
 
 (= (spaceAdder) (get-atoms &tempspace))
@@ -76,21 +75,22 @@
                 )
                 (
                     (stimulate $now 30)
-                    ($pr (println! (stimulating atom --> $now)))
+                    (println! (stimulating atom --> $now))
                     ; ($sle (py-call (time.sleep 4)))
                     (collapse (test-superpose))
-                    (if (== $rest ())
+                    (let $d (if (== $rest ())
                             (if (== $type insectSent)
                                 (insectPoisonReadExp &poison poisonSent (match &poison (poisonSent $x) $x))
                                 finished
                     )
                  
-                 (insectPoisonReadExp $space $type $rest)
+                 (insectPoisonReadExp $space $type $rest))
+                 $d
              )
-                    
+                )
                 )
             )
-        )     
+            
     )
 )
 

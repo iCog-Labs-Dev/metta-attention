@@ -53,7 +53,7 @@
                ($head (car-atom $tuple))  
                ($tail (cdr-atom $tuple))  
 
-               ($isValid (eval ($f $head $pivot))) 
+               ($isValid  ($f $head $pivot))
                ($filteredTail (binaryFilter $f $pivot $tail)) 
             )
             (if $isValid
@@ -64,28 +64,6 @@
    )
 )
 
-
- 
-; Recursive helper to calculate the group index
-(= (findGroup $imp $sum $i)
-   (if ( <= $imp 0)
-    0
-    (
-        let* (
-            ($num (+ $imp 1))
-            ($log_num (log-math 2 $num))
-            ($int_num (ceil-math $log_num))
-            
-        )
-        
-        (let $x (eval (GroupNum))
-         (if (<= $int_num $x)
-            $int_num
-            $x
-        ))
-    )
-   )
-)
 
 ;a function to find the ceil
 ; (: ceil (-> Number Number))
@@ -303,43 +281,6 @@
 )
 
 
-(= (getStiHelper $atoms)
-    (let
-        $vals (eval (getSti (superpose $atoms)))
-    
-    $vals
-    )
-)
-
-; a function that find the maximum STI value of the  given atoms
-; (: getAllMaxSTI  (-> Expression Number))
-(= (getAllMaxSTI $atoms)
-   (if (== $atoms ())
-            0.0
-            (let* (
-                ($stiValues (collapse (getStiHelper $atoms)))
-                ($maxSTI (max-atom $stiValues))
-            )
-            $maxSTI
-            )
-        )
-    
-)
-; a function that find the minimum STI value of the  given atoms
-; (: getAllMinSTI  (-> Expression Number))
-(= (getAllMinSTI $atoms)
-    (if (== $atoms ())
-            0.0
-            (let* (
-                ($stiValues (collapse (getStiHelper $atoms)))
-                ($minSTI (min-atom $stiValues))
-            )
-            $minSTI
-            )
-        )
-    
-)
-
 
 ;;; Function: getOutGoingAtoms
 ;;; Description: Retrieves the outgoing atoms of a given link.
@@ -378,13 +319,13 @@
 (= (lessThanSti $elem $pivot)
     (if (or (== $elem ()) (== $pivot ()))
 		False
-	    (<= (eval (getSti $elem)) (eval (getSti $pivot)))
+	    (<= (reduce (getSti $elem)) (reduce (getSti $pivot)))
     )   
 )
 
 (= (greaterThanSti $elem $pivot)
     (if (or (== $elem ()) (== $pivot ()))
 		False
-	    (> (eval (getSti $elem)) (eval (getSti $pivot)))
+	    (> (reduce (getSti $elem)) (reduce (getSti $pivot)))
     )   
 )

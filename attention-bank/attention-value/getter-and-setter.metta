@@ -17,7 +17,7 @@
     (let* (
         ($oldSti (getSti $pattern))
         ($oldLti (getLti $pattern))
-        ($bin   (eval (importanceBin $sti)))
+        ($bin   (importanceBin $sti))
         ($res (if (== (getValueType $pattern) %Undefined%)
                 (add-atom &typeSpace ($pattern ((AV $sti $lti $vlti) (Bin $bin)) ))   
                    (let* 
@@ -42,7 +42,7 @@
            ($newltifund (+ $fundsLTI $ltiDiff))
         ;    ($hello (println! (new sti $newstifund)))
         ; ($hi (println! (inside setAv)))
-           ($updater (eval (attentionValueChanged $pattern $newstifund $newltifund)))  ; Update attentional focus and global paremeter
+           ($updater (reduce (attentionValueChanged $pattern $newstifund $newltifund)))  ; Update attentional focus and global paremeter
            
     )
    ()
@@ -347,4 +347,42 @@
         (cons-atom $head $res)
         )
     )
+)
+
+
+(= (getStiHelper $atoms)
+    (let
+        $vals  (getSti (superpose $atoms))
+    
+    $vals
+    )
+)
+
+; a function that find the maximum STI value of the  given atoms
+; (: getAllMaxSTI  (-> Expression Number))
+(= (getAllMaxSTI $atoms)
+   (if (== $atoms ())
+            0.0
+            (let* (
+                ($stiValues (collapse (getStiHelper $atoms)))
+                ($maxSTI (max-atom $stiValues))
+            )
+            $maxSTI
+            )
+        )
+    
+)
+; a function that find the minimum STI value of the  given atoms
+; (: getAllMinSTI  (-> Expression Number))
+(= (getAllMinSTI $atoms)
+    (if (== $atoms ())
+            0.0
+            (let* (
+                ($stiValues (collapse (getStiHelper $atoms)))
+                ($minSTI (min-atom $stiValues))
+            )
+            $minSTI
+            )
+        )
+    
 )

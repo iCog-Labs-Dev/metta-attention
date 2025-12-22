@@ -1,11 +1,11 @@
 !(import! &self ../../../../../PeTTa/lib/lib_he)
 !(import! &self ../../../../../metta-attention/attention/AttentionParam)
 !(import! &self ../../../../../metta-attention/attention-bank/utilities/helper-functions)
-!(import! &self ../../../../../metta-attention/attention-bank/utilities/recentVal)
-!(import! &self ../../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
 !(import! &self ../../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
-!(import! &self ../../../../../metta-attention/attention-bank/bank/attentional-focus/attentional-focus)
 !(import! &self ../../../../../metta-attention/attention-bank/bank/attention-bank)
+!(import! &self ../../../../../metta-attention/attention-bank/utilities/recentVal)
+!(import! &self ../../../../../metta-attention/attention-bank/bank/attentional-focus/attentional-focus)
+!(import! &self ../../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
 
 
 ;###################### Prep: adding atoms to the atom bin #####################
@@ -32,7 +32,7 @@
 
 !(test (getHandleSet 20 40) ((EvaluationLink a b) another Animals (Hebbianlink (Hebbianlink Human Cat) Animal)))
 !(test (filterContents ((EvaluationLink a b) another Animals ) 10 25) ((EvaluationLink a b) another ()))
-!(test (getHandleSet 11 26) ((EvaluationLink a b) another))
+!(test (getHandleSet 11 26.0) ((EvaluationLink a b) another))
 !(test (getContent 20.0 30) ((EvaluationLink a b) another Animals (Hebbianlink (Hebbianlink Human Cat) Animal)) )
 
 ; Test case 03: Testing update function
@@ -40,7 +40,15 @@
 !(test (getMaxSTI) 200.0)
 !(test (getMinSTI) 2.0)
 
+!(test (findGroup 0 0 0) 0)
+!(test (findGroup 1 0 0) 1)
+!(test (findGroup 2 0 0) 2)
+!(test (findGroup 3 0 0) 2)
+!(test (findGroup 4 0 0) 3)
 
+!(test (findGroup 50 0 0) 6)
+!(test (findGroup 500 0 0) 9)
+!(test (findGroup 5000 0 0) 12.0)
 ; Test cases 04: Testing stimulate that need to be refactored
 !(test (stimulate x 1.5) ("Updated"))
 
