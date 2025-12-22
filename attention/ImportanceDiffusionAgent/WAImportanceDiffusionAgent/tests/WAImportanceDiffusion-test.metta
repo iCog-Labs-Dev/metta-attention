@@ -8,9 +8,9 @@
 !(import! &self ../../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
 !(import! &self ../../../../../metta-attention/attention-bank/utilities/recentVal)
 !(import! &self ../../../../../metta-attention/attention/Neighbors)
+!(import! &self ../../../../../metta-attention/attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
 !(import! &self ../../../../../metta-attention/attention/ImportanceDiffusionAgent/ImportanceDiffusionBase/ImportanceDiffusionBase)
 !(import! &self ../../../../../metta-attention/attention/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent)
-!(import! &self ../../../../../metta-attention/attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
 
 
 !(updateAttentionParam MAX_AF_SIZE 4.0)
