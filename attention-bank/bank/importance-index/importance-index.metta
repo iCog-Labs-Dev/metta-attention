@@ -47,7 +47,7 @@
         (let*
           (
             ($imp (trunc-math (/ (- $impo_int $groupSize) $groupSize)))
-            ($i (eval (findGroup $imp 0.0 0.0)))
+            ($i (findGroup $imp 0.0 0.0))
             ($num (- $i 1.0))
             ($temp (ceil-math (/ $impo_int (pow-math 2.0 (- $i 1.0)))))
             ($ad (- $groupSize $temp))
@@ -81,19 +81,19 @@
     (let* (
             ; ($1 (println! (inside update)))
 
-            ($collectedContents (eval (getAllAtomsWithBins)))
+            ($collectedContents (getAllAtomsWithBins))
             ; ($1 (println! (collecteds $collectedContents)))
-            ($max (eval (getAllMaxSTI $collectedContents)))
+            ($max  (getAllMaxSTI $collectedContents))
             ; ($2 (println! (maxx $max)))
 
-            ($min (eval (getAllMinSTI $collectedContents)))
+            ($min (getAllMinSTI $collectedContents))
             ; ($3 (println! (minn $min)))
 
             ($exitCondition (> $min $max))
         )
          (if $exitCondition
-            (eval (updateGlobalMaxAndMinSTI $max $min))
-            (eval (updateGlobalMaxAndMinSTI $min $max))
+            (updateGlobalMaxAndMinSTI $max $min)
+            (updateGlobalMaxAndMinSTI $min $max)
           )
     )
 )
@@ -102,17 +102,36 @@
 (= (updateGlobalMaxAndMinSTI $min $max)
     (let*
       (
-       ($firstRes (eval (updateMin $min)))
+       ($firstRes (updateMin $min))
       ;  ($4 (println! (updatemin $firstRes)))
 
-       ($secondRes (eval (updateMax $max)))
+       ($secondRes (updateMax $max))
       )
       (trace! (Updated) ("Updated"))
 
      )
 )
 
-
+; Recursive helper to calculate the group index
+(= (findGroup $imp $sum $i)
+   (if ( <= $imp 0)
+    0
+    (
+        let* (
+            ($num (+ $imp 1))
+            ($log_num (log-math 2 $num))
+            ($int_num (ceil-math $log_num))
+            
+        )
+        
+        (let $x (GroupNum)
+         (if (<= $int_num $x)
+            $int_num
+            $x
+        ))
+    )
+   )
+)
 
 ; Filters atoms in expression whose STI values fall between lower and higher bounds.
 ; (: filterContents (-> Expression Number Number Expression))
@@ -122,7 +141,7 @@
         (collapse 
           (let 
             $x (superpose $contents)
-            (if (and (>=  (eval (getSti $x)) $lower) (<= (eval (getSti $x)) $higher)) 
+            (if (and (>= (getSti $x) $lower) (<= (getSti $x) $higher))
                  $x
                 () 
             )
@@ -140,11 +159,11 @@
      ()
      (let*
        (
-        ($lowerBin (eval (importanceBin $lowerBound)))
-        ($upperBin (eval (importanceBin $upperBound)))
-        ($allContents (eval (getContent $lowerBin $upperBin)))
+        ($lowerBin (importanceBin $lowerBound))
+        ($upperBin (importanceBin $upperBound))
+        ($allContents (getContent $lowerBin $upperBin))
         ($filteredContents  (filterContents $allContents $lowerBound $upperBound))
-        ($finalContents  (eval (filter $filteredContents notEmpty)))
+        ($finalContents  (filter $filteredContents notEmpty))
         
       )
      $finalContents 
@@ -216,8 +235,8 @@
 (= (getNormalisedZeroToOneSTI $atom $average $clip)
    (let*
        (   
-           ($sti  (eval (getSti $atom)))
-          ;  ($_ (println! (sti $sti)))
+           ($sti  (getSti $atom))
+           ($_ (println! (sti $sti)))
            ($maxSTI (getMaxSTI))
            
           ;  ($_ (println! (maxSTI $maxSTI)))
@@ -252,8 +271,8 @@
    (let*
        (
           ($atoms (getAfAtoms))
-           ($s (eval (getSti $atom)))
-           ($afMax  (eval (getAllMaxSTI $atoms)))
+           ($s (getSti $atom))
+           ($afMax  (getAllMaxSTI $atoms))
            ($normaliser
                (if (> $s $afMax)
                    (getMaxSTI)
@@ -284,8 +303,8 @@
    (let*
        (
            ($atoms (getAfAtoms))
-           ($s (eval (getSti $atom)))
-           ($afMax  (eval (getAllMaxSTI $atoms)))
+           ($s (getSti $atom))
+           ($afMax  (getAllMaxSTI $atoms))
            ($diff (- $s $afMax))
            ($sum (+ $s $afMax)) 
            ($normaliser

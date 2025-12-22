@@ -48,10 +48,10 @@
 (: calculateLTIWage (-> Number))
 (= (calculateLTIWage)
    (let* (
-           ($funds (reduce (getAttentionParam FUNDS_LTI)))
-           ($targetLTI (reduce (getAttentionParam TARGET_LTI)))
-           ($ltiFundsBuffer (reduce (getAttentionParam LTI_FUNDS_BUFFER)))
-           ($LTIAtomWage (reduce (getAttentionParam LTI_ATOM_WAGE)))
+           ($funds (getAttentionParam FUNDS_LTI))
+           ($targetLTI (getAttentionParam TARGET_LTI))
+           ($ltiFundsBuffer (getAttentionParam LTI_FUNDS_BUFFER))
+           ($LTIAtomWage (getAttentionParam LTI_ATOM_WAGE))
            ($diff (- $funds $targetLTI))
            ($ndiff-raw (/ $diff $ltiFundsBuffer))
            ($ndiff-clamped-min (min-atom ($ndiff-raw 1.0)))
@@ -112,7 +112,7 @@
          ($stiUpdated (updateAttentionParam FUNDS_STI $newSTIFund))
          ; ($_ (println! (getAttentionParam FUNDS_STI)))
          ($ltiUpdated (updateAttentionParam FUNDS_LTI $newLTIFund))
-         ($globalUpdate (eval (update &typeSpace)))
+         ($globalUpdate  (reduce (update &typeSpace)))
          ; ($_ (println! $globalUpdate))
 
          ; ($_ (println! (getAttentionParam MAX_STI)))

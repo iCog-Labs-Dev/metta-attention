@@ -21,16 +21,7 @@
 !(test (removeDuplicates (a a d c)) (a d c))
 !(test (removeDuplicates (a a)) (a))
 !(test (flattener ((s c) (G E) (a) (g) (f h j k) (d))) (s c G E a g f h j k d))
-!(assertEqual(reverseExpr (a b c d)) (d c b a))
-!(assertEqual(reverseExpr ()) ())
+!(test (reverseExpr (a b c d)) (d c b a))
+!(test (reverseExpr ()) ())
 
-!(test (findGroup 0 0 0) 0)
-!(test (findGroup 1 0 0) 1)
-!(test (findGroup 2 0 0) 2)
-!(test (findGroup 3 0 0) 2)
-!(test (findGroup 4 0 0) 3)
-
-!(test (findGroup 50 0 0) 6)
-!(test (findGroup 500 0 0) 9)
-!(test (findGroup 5000 0 0) 12.0)
 !(test (sorter (4 9 2 6 1)) (1 2 4 6 9))

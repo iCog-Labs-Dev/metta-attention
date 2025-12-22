@@ -11,7 +11,7 @@
 (= (getAfAtoms)
     (let*
         (
-            ($afSize (eval (getAttentionParam MAX_AF_SIZE)))
+            ($afSize (getAttentionParam MAX_AF_SIZE))
             ($allAtoms (getAllAtomsWithBins))
             ; ($hell (println! (inside get af atom $allAtoms)))
             ($size (size-atom $allAtoms) )
@@ -21,7 +21,7 @@
         ) 
         (if (>= $afSize $size)
                 ;  $allAtoms
-                (trace! (eval (write_csv_wrapper $allAtoms)) $allAtoms)
+                (trace! (write_csv_wrapper $allAtoms) $allAtoms)
                 (getAfAtomsHelper $afSize)
         )
     )

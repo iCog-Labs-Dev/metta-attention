@@ -1,49 +1,47 @@
-!(register-module! ../../../../../metta-attention)
-!(import! &self metta-attention:attention-bank:utilities:helper-functions)
-!(import! &self metta-attention:attention:AttentionParam)
+!(import! &self ../../../../../PeTTa/lib/lib_he)
+!(import! &self ../../../../../metta-attention/attention/AttentionParam)
+!(import! &self ../../../../../metta-attention/attention-bank/utilities/helper-functions)
+!(import! &self ../../../../../metta-attention/attention-bank/utilities/helper-functions)
+!(import! &self ../../../../../metta-attention/attention-bank/attention-value/get-min-max)
 
+!(import! &self ../../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
 
-!(import! &self metta-attention:attention-bank:attention-value:get-min-max)
+!(import! &self ../../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
 
-!(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
-
-!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
-
-!(import! &self metta-attention:attention-bank:bank:stochastic-importance-diffusion:stochastic-importance-diffusion)
-
-
-;This sets the STI of a to 1 which will give bin index of 1
+!(import! &self ../../../../../metta-attention/attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
+!(import! &self ../../../../../metta-attention/attention-bank/bank/attention-bank)
+!(import! &self ../../../../../metta-attention/attention-bank/utilities/recentVal)
+; This sets the STI of a to 1 which will give bin index of 1
 !(setAv a (1.0 1.0 1.0))
 
 
-! (getSti a)
-! (calcElapsedTime (getSti a))
+!(getSti a)
+!(calcElapsedTime (getSti a))
 
 
-! (updateBin a)
-! (match &atomBinInfo (1.0 $_) $_)
-!((py-atom time.sleep) 1.0)
 
-! (updateBin a)
-! (match &atomBinInfo (1.0 $_) $_)
-! ((py-atom time.sleep) 3.0)
+!(updateBin a)
+!(match &atomBinInfo (1 $_) $_)
+!((py-call time.sleep) 1.0)
 
-! (updateBin a)
-! (match &atomBinInfo (1.0 $_) $_)
+!(updateBin a)
+!(match &atomBinInfo (1 $_) $_)
+!((py-call time.sleep) 3.0)
 
+!(updateBin a)
+!(match &atomBinInfo (1 $_) $_)
 
-! (updateBin a)
-! (match &atomBinInfo (1.0 $_) $_)
+!(updateBin a)
+!(match &atomBinInfo (1 $_) $_)
 
+!(updateBin a)
+!(match &atomBinInfo (1 $_) $_)
 
-! (updateBin a)
-! (match &atomBinInfo (1.0 $_) $_)
+!(updateBin a)
+!(match &atomBinInfo (1.0 $_) $_)
+!(importanceBin (getSti a))
 
-! (updateBin a)
-! (match &atomBinInfo (1.0 $_) $_)
-
-! (importanceBin (getSti a))
-! (calcElapsedTime (importanceBin (getSti a)))
+!(calcElapsedTime 1)
 
 ;This will update the _bin
 ; !(timeTime)  
