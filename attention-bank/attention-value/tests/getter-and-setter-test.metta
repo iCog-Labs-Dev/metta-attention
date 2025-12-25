@@ -126,7 +126,12 @@
     ()
 )
 
-!(test (let $space (TypeSpace) (getBinList $space))  (50.0 45.0 53.0))
+!(test (getSize 45.0) 4)
+!(test (getBinList &typeSpace) (50.0 45.0 53.0))
+!(test (getAtomsByBin 50.0) ((Hebbianlink a b) (Hebbianlink (Hebbianlink Human Cat) Animal) (EvaluationLink a b)))
+!(test (size-atom (getAllAtomsWithBins)) 13)
+!(test (getAllMaxSTI (getAfAtoms)) 400)
+!(test (getAllMinSTI (getAllAtomsWithBins)) 200)
 !(test (countAtomsInTypeSpace) 15)
 !(removeTypeSpace k)
 !(test (countAtomsInTypeSpace) 14)

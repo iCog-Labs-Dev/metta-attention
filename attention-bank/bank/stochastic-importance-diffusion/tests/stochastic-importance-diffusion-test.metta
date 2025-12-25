@@ -2,7 +2,6 @@
 !(import! &self ../../../../../metta-attention/attention/AttentionParam)
 !(import! &self ../../../../../metta-attention/attention-bank/utilities/helper-functions)
 !(import! &self ../../../../../metta-attention/attention-bank/utilities/helper-functions)
-!(import! &self ../../../../../metta-attention/attention-bank/attention-value/get-min-max)
 
 !(import! &self ../../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
 

@@ -29,7 +29,6 @@
 !(import! &self ../../../../metta-attention/attention-bank/utilities/recentVal)
 
 !(import! &self ../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
-!(import! &self ../../../../metta-attention/attention-bank/attention-value/get-min-max)
 !(import! &self ../../../../metta-attention/attention-bank/bank/attention-bank)
 !(import! &self "../../../../metta-attention/experiments/utils/logger.py")
 !(import! &self ../../../../metta-attention/experiments/logger)
@@ -75,7 +74,7 @@
                 )
                 (
                     (stimulate $randomWord1 30)
-                    (println! ($type $randomWord1))
+                    ; (println! ($type $randomWord1))
                     (collapse (test-superpose))
                     (let $newMaxim (- $maxim 1)
                         (if (> $maxim 2)
