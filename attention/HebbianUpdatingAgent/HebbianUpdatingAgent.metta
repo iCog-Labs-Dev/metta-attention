@@ -83,10 +83,10 @@
     (let*
         (
             (($source $target) $outgoing)
-            ($normsti_i (getNormalisedZeroToOneSTI $source True True))
+            ($normsti_i (getNormalisedZeroToOneSTI (getSti $source) True True))
             ; ($_ (println! (normalised i $source $normsti_i)))
 
-            ($normsti_j (getNormalisedZeroToOneSTI $target True True))
+            ($normsti_j (getNormalisedZeroToOneSTI (getSti $target) True True))
             ; ($_ (println! (normalised j $normsti_j)) )
             ; ($_ (println! (target $target)))
 
