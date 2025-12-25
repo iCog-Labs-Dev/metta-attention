@@ -45,7 +45,7 @@
 ;          $tuple: A list of atoms to filter.
 ;Returns: A filtered list of atoms satisfying the comparison condition.
 ; (: binaryFilter (-> (-> Atom Atom Bool) Atom Expression Expression))
-(= (binaryFilter $f $pivot $tuple)
+(= (binaryFilter $f $pivot $tuple $fun)
    (if (== $tuple ())  
        ()
        (let* 
@@ -53,8 +53,8 @@
                ($head (car-atom $tuple))  
                ($tail (cdr-atom $tuple))  
 
-               ($isValid  ($f $head $pivot))
-               ($filteredTail (binaryFilter $f $pivot $tail)) 
+               ($isValid  ($f $head $pivot $fun))
+               ($filteredTail (binaryFilter $f $pivot $tail $fun)) 
             )
             (if $isValid
                (cons-atom $head $filteredTail) 
@@ -242,7 +242,7 @@
 
 ; (: collectContents (-> Expression Expression Expression))
 (= (collectContents $list $acc)
-   (if(== $list ())
+   (if (== $list ())
     $acc
     (let*
       (
@@ -298,17 +298,17 @@
     )
 )
 
-(= (sortAtomsDescending $atoms) 
+(= (sortAtomsDescending $atoms $fun) 
     (if (== $atoms ())
 		()
 		(let*
 			(
 				($pivot (car-atom $atoms))
 				($tail (cdr-atom $atoms))
-				($lesser (binaryFilter lessThanSti  $pivot $tail))
-				($greater (binaryFilter greaterThanSti  $pivot $tail))
-                ($sortedLesser (sortAtomsDescending $lesser))
-                ($sortedGreater (sortAtomsDescending $greater))
+				($lesser (binaryFilter lessThanSti  $pivot $tail $fun))
+				($greater (binaryFilter greaterThanSti  $pivot $tail $fun))
+                ($sortedLesser (sortAtomsDescending $lesser $fun))
+                ($sortedGreater (sortAtomsDescending $greater $fun))
 			)	
            (concatTuple $sortedGreater (cons-atom $pivot $sortedLesser))
 		)
@@ -316,16 +316,16 @@
 
 )
 
-(= (lessThanSti $elem $pivot)
+(= (lessThanSti $elem $pivot $fun)
     (if (or (== $elem ()) (== $pivot ()))
 		False
-	    (<= (reduce (getSti $elem)) (reduce (getSti $pivot)))
+	    (<= ($fun $elem) ($fun $pivot))
     )   
 )
 
-(= (greaterThanSti $elem $pivot)
+(= (greaterThanSti $elem $pivot $fun)
     (if (or (== $elem ()) (== $pivot ()))
 		False
-	    (> (reduce (getSti $elem)) (reduce (getSti $pivot)))
+	    (> ($fun $elem) ($fun $pivot))
     )   
 )

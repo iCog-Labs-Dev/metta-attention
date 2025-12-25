@@ -1,11 +1,11 @@
 !(import! &self ../../../../../PeTTa/lib/lib_he)
 !(import! &self ../../../../../metta-attention/attention/AttentionParam)
 !(import! &self ../../../../../metta-attention/experiments/logger)
+!(import! &self ../../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
 !(import! &self ../../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
 !(import! &self ../../../../../metta-attention/attention-bank/utilities/helper-functions)
 !(import! &self ../../../../../metta-attention/attention-bank/bank/attention-bank)
 !(import! &self ../../../../../metta-attention/attention-bank/bank/attentional-focus/attentional-focus)
-!(import! &self ../../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
 !(import! &self ../../../../../metta-attention/attention-bank/attention-value/get-min-max)
 !(import! &self ../../../../../metta-attention/attention-bank/utilities/recentVal)
 !(import! &self ../../../../../metta-attention/experiments/utils/logger.py)
@@ -23,7 +23,7 @@
 !(getAfAtoms)
 !(setAv D (25.0 125.0 225.0))
 !(setAv F (70.0 100.0 200.0))
-!(getAfAtoms)
+!(test (isAtomInAf D) True)
 
 
 !(getAttentionParam MAX_AF_SIZE)
