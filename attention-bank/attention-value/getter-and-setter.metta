@@ -17,7 +17,7 @@
     (let* (
         ($oldSti (getSti $pattern))
         ($oldLti (getLti $pattern))
-        ($bin   (importanceBin $sti))
+        ($bin  (reduce (importanceBin $sti)))
         ($res (if (== (getValueType $pattern) %Undefined%)
                 (add-atom &typeSpace ($pattern ((AV $sti $lti $vlti) (Bin $bin)) ))   
                    (let* 
@@ -301,26 +301,20 @@
      (collapse (match (TypeSpace) ($patt ($val (Bin $binNumber))) $patt))
 )
 
-; Function: getContent
-; Description:  Recursively collects all atoms from bins indexed between $lower and $higher, inclusive.
-; Parameters: 
-;             - $lower: the lower bin number of the range
-;             - $higher: the higher bin number from the range
+; Function: getSize
+; Description: takes a bin number and calculate the size of atoms found in that bin
+; Parameters: $binNumber
+; Returns: size of atoms
 
-; (: getContent (-> Number Number Expression))
-(= (getContent $lower $higher)
-  (if (> $lower $higher)
-    ()  
-    (let*
-      (
-        ($vals (getAtomsByBin $lower))
-
-        ($rest (getContent (+ $lower 1.0) $higher))
-      )
-      (union-atom $vals $rest)
+; (: getSize (-> Number Number))
+(= (getSize $binNumber)
+    (let*(
+        ($atoms (getAtomsByBin $binNumber))
+        ($size (size-atom $atoms))
+    ) 
+    $size
     )
-  )
-)
+) 
 
 ; Function: getbinList
 ; Description: finds all bin numbers that contain at least one atom
