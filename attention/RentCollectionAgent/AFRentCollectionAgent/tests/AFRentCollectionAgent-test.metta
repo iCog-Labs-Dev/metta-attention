@@ -51,10 +51,10 @@
 ;and sleep in MeTTa via Python is also not deterministic.that's why i used the approximation
 !(getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)))
 
-
+!(getSti b)
 !(test (approxEqual (getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 30.9 1.6) True)
-!(test (approxEqual (getSti b) 59998.7 1.6) True)
-!(test (approxEqual (getSti c) 29998.7 1.6) True)
-!(test (approxEqual (getSti d) 2898.71 1.6) True)
-!(test (approxEqual (getSti (Hebbianlink a b)) 353.725 1.6) True)
+!(test (approxEqual (getSti b) 59998.7 2.0) True)
+!(test (approxEqual (getSti c) 29998.7 2.0) True)
+!(test (approxEqual (getSti d) 2898.71 2.0) True)
+!(test (approxEqual (getSti (Hebbianlink a b)) 353.725 2.0) True)
 

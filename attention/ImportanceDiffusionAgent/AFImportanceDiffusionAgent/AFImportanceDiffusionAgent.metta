@@ -25,10 +25,6 @@
 ;; Parameters $atom: The atom that will be used to calculate the diffusion amount
 ;; Return : The diffusion amount
 
-; (: calculateDiffusionAmount (-> Atom Number))
-(= (calculateDiffusionAmount $atom)
-    (eval (* (getSti $atom) (getAttentionParam MAX_SPREAD_PERCENTAGE)))
-)
 
 ;;This function will retrieve the diffusion source vector from AF and then call the diffuseAtom function to diffuse the atoms
 ;; Parameters $space: The space that will be used to find the diffusion source vector
@@ -39,7 +35,7 @@
 (= (spreadImportance $space)
         (let*
         (
-            ($difatoms (eval (getAfAtoms)))
+            ($difatoms (getAfAtoms))
             ($diffusionSourceVector  (diffusionSourceVector $difatoms))
             ($atoms (collapse 
                 (let $atom
@@ -51,10 +47,10 @@
             (($atom $sti) (superpose $trades))
             
         )
-        (eval (setSti $atom $sti))
+         (setSti $atom $sti)
         )
-    ; )
-)
+    )
+
 
 (: tradeList (-> Expression Expression))
 (= (tradeList $result)
@@ -77,7 +73,7 @@
             ($source (superpose $sources))
             ($sourceSti (collapse (filterTrade $result $source)))
             ($trade (foldl-atom $sourceSti 0 $acc $x (+ $acc $x)))
-            ($newTrade (+ (eval (getSti $source)) $trade))
+            ($newTrade (+ (getSti $source) $trade))
         )
         ($source $newTrade)
     )

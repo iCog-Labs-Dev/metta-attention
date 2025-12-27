@@ -12,10 +12,10 @@
 
 ; (: HebbianUpdatingAgent-Run (-> Grounded Atom))
 (= (HebbianUpdatingAgent-Run $space)
-    (let $atoms (call (getAfAtoms))
+    (let $atoms (getAfAtoms)
         (if (== $atoms ())
             ()
-            (let $randomAtom (call (getRandomAtomInAF))
+            (let $randomAtom (getRandomAtomInAF)
                 (updateHebbianLinks $randomAtom $space)
             )
         )
@@ -35,7 +35,7 @@
     (let*
         (
             ($iset (getAllIncomingSetsForHUAgent $source $space ASYMMETRIC_HEBBIAN_LINK))
-            ($outgoing (call (getOutGoingAtoms $iset)))
+            ($outgoing (getOutGoingAtoms $iset))
             ($head (if (== $outgoing ()) () (car-atom $outgoing)))
         )
         (if (not (== $outgoing ()))
@@ -45,17 +45,17 @@
                         (if (== $source $head)
                             (let*
                                 (
-                                    ($tcDecayRate (eval (getAttentionParam TC_DECAY_RATE)))
+                                    ($tcDecayRate (getAttentionParam TC_DECAY_RATE))
                                     ($new-tc (targetConjunction $outgoing))
                                     ; ($_ (println! (tc decay $tcDecayRate)))
                                     ; ($_ (println! (target out $new-tc)))
 
-                                    (($STV $old-tc $conf) (eval (getStv $iset)))
+                                    (($STV $old-tc $conf) (getStv $iset))
                                     ($tc (+ (* $tcDecayRate $new-tc) (* (- 1.0 $tcDecayRate) $old-tc)))
                                     ($create-tv ($tc 0.1))
                                     ($new-tv (mergeCalculation $create-tv ($old-tc $conf) PLN_BOOK_REVISION))
                                 )
-                                    (call (setStv $iset $new-tv))
+                                    (setStv $iset $new-tv)
                             )
                             ($source "!=" $head)
                         )
@@ -83,10 +83,10 @@
     (let*
         (
             (($source $target) $outgoing)
-            ($normsti_i (call (getNormalisedZeroToOneSTI $source True True)))
+            ($normsti_i (getNormalisedZeroToOneSTI (getSti $source) True True))
             ; ($_ (println! (normalised i $source $normsti_i)))
 
-            ($normsti_j (call (getNormalisedZeroToOneSTI $target True True)))
+            ($normsti_j (getNormalisedZeroToOneSTI (getSti $target) True True))
             ; ($_ (println! (normalised j $normsti_j)) )
             ; ($_ (println! (target $target)))
 
@@ -114,7 +114,7 @@
             (PLN_BOOK_REVISION
                 (let*
                     (
-                        ($defaultK (call (getAttentionParam DEFAULT_K)))
+                        ($defaultK (getAttentionParam DEFAULT_K))
                         (($mean1 $conf1) $stv1)
                         (($mean2 $conf2) $stv2)
                         ($cf (min-atom ($conf1 0.9999998)))

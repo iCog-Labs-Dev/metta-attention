@@ -7,7 +7,7 @@
 ;    - Return the adjusted STI wage.
 ; Parameters: None.
 ; Returns: The adjusted STI wage value.
-; (: calculateSTIWage (-> Number))
+(: calculateSTIWage (-> Number))
 (= (calculateSTIWage)
    (let* (
            ($funds (getAttentionParam FUNDS_STI))
@@ -45,7 +45,7 @@
 ;    - Return the adjusted LTI wage.
 ; Parameters: None.
 ; Returns: The adjusted LTI wage value
-; (: calculateLTIWage (-> Number))
+(: calculateLTIWage (-> Number))
 (= (calculateLTIWage)
    (let* (
            ($funds (getAttentionParam FUNDS_LTI))
@@ -67,7 +67,7 @@
 ;    Adjusts the AttentionValue (STI, LTI, VLTI) of an atom based on:
 ;    - Calculate the new STI and LTI values using the wages and stimulus.
 ;    - Calculate the changes in STI and LTI funds.
-;    - Call attentionValueChanged to apply the updates.
+;    - reduce attentionValueChanged to apply the updates.
 ;Parameters:
 ;     $pattern: The atom receiving the stimulus.
 ;     $stimulus: The factor by which STI and LTI will be adjusted.
@@ -75,8 +75,6 @@
 ; (: stimulate (-> Atom Number empty))
 (= (stimulate $pattern $stimulus)
    (let* (
-         ;   ($stim (println! (stimulating atom $pattern)))
-
            ($sti (getSti $pattern))
            ($lti (getLti $pattern))
            ($vlti (getVlti $pattern))
@@ -88,8 +86,7 @@
          ;   ($_ (println! (new av $new-av)))
            ($res (setAv $pattern $new-av))
          )
-		;  (getAttentionParam MAX_STI)
-      (updated)
+		 ("Updated")
    )
 )
 
@@ -115,7 +112,7 @@
          ($stiUpdated (updateAttentionParam FUNDS_STI $newSTIFund))
          ; ($_ (println! (getAttentionParam FUNDS_STI)))
          ($ltiUpdated (updateAttentionParam FUNDS_LTI $newLTIFund))
-         ($globalUpdate (eval (update &typeSpace)))
+         ($globalUpdate  (reduce (update &typeSpace)))
          ; ($_ (println! $globalUpdate))
 
          ; ($_ (println! (getAttentionParam MAX_STI)))

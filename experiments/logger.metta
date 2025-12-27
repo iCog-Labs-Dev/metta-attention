@@ -12,7 +12,7 @@
         (let* 
             (
                 ($atom (superpose $afAtoms))
-                ($av (eval (getAv $atom)))
+                ($av (getAv $atom))
             ) 
             ($atom $av) 
         )

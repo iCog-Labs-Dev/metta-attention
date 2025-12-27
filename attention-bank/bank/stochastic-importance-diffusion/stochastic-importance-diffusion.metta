@@ -30,9 +30,10 @@
         (if (== $it ($index))
             (updateExistingBin $index)
             (let* (
+                ; ($delay (py-call (time.sleep 0.1)))
                 ($time (currentTime)) 
-                ($size (eval (getSize $index)))
-                ($rate (/ 1 (- $time $firstTime)) )
+                ($size (getSize $index))
+                ($rate (/ 1 (- $time $firstTime)) ) ;($rate (/ 1 (- (- $time 0.1) $firstTime)) )
                 ; ($el (println! (this is inside else condition)))
             )
                 (add-atom &atomBinInfo 
@@ -53,7 +54,7 @@
                     ($now (currentTime))
                     ($newSec (- $now $lastUpdateVal))
                     ($newUpdateRate (/ $count $newSec))
-                    ($newSize (eval (getSize $index))))
+                    ($newSize (getSize $index)))
                     (add-atom &atomBinInfo 
                         ($index ((count $count) (index $index) (_size $newSize) (update_rate $newUpdateRate) (last_update $now))))
             )
@@ -104,6 +105,7 @@
 (= (diffusedValue $atom $decayRate)
    (let* (
           ($averageElapsedTime (elapsedTime $atom))
+          
           ($sti (getSti $atom))
           ($powerRes (pow-math (- 1 $decayRate) $averageElapsedTime))
         ;   ($elps (println! (elpased time $averageElapsedTime $decayRate $powerRes $sti (* $sti $powerRes) )))
