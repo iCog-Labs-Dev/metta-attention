@@ -1,1 +1,1 @@
-(poisonSent (botulinum avoids alcohol ammonia aconite aflatoxin arsenic aspirin azoxystrobin .))
+(poisonSent (poison toxin venom substance chemical lethal harmful .))
