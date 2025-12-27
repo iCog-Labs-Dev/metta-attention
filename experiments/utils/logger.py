@@ -4,14 +4,18 @@ import os
 import csv
 import json
 from pathlib import Path
+def format_pattern(pat):
+    if isinstance(pat, (list, tuple)):
+        return f"({' '.join(format_pattern(p) for p in pat)})"
+    return str(pat)
+
 def write_string_to_csv(filename, data, header=["timestamp", "pattern", "sti", "lti"], mode='a'):
     """Append rows to a CSV. `data` is an iterable of (pattern, av) pairs."""
     rows = []
     for pat in data:
         pattern, av = pat
         AV, sti, lti, vlti = av
-        rows.append([str(datetime.now()), pattern if str(type(pattern)) == "<class 'str'>" else pattern[0], sti, lti])
-        print()
+        rows.append([str(datetime.now()), format_pattern(pattern), sti, lti])
     with open(filename, mode, newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
         if os.path.getsize(filename) == 0:
