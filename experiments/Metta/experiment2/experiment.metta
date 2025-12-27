@@ -2,19 +2,17 @@
 !(bind! &insect (new-space))
 !(bind! &poison (new-space))
 !(bind! &tempspace (new-space))
-!(import! &self ../../../../metta-attention/experiments/Metta/experiment2/data/insect-sent)
+!(import! &insect ../../../../metta-attention/experiments/Metta/experiment2/data/insect-sent)
 
-!(let $x (get-atoms &self) (add-atom &insect $x))
-!(let $x (match &self $y $y) (remove-atom &self $y))
+!(import! &poison ../../../../metta-attention/experiments/Metta/experiment2/data/poison-sent)
 
-!(import! &self ../../../../metta-attention/experiments/Metta/experiment2/data/poison-sent)
-!(let $x (get-atoms &self) (add-atom &poison $x))
-!(let $x (match &self $y $y) (remove-atom &self $y))
+; !(import! &tempspace ../../../../metta-attention/experiments/Metta/experiment2/data/sent-kb)
 
-!(import! &self ../../../../metta-attention/experiments/Metta/experiment2/data/sent-kb)
-!(let $x (get-atoms &self) (add-atom &tempspace $x))
-!(let $x (match &self $y $y) (remove-atom &self $y))
 
+!(import! &self lib/lib_import)
+!(static-import! &tempspace wordnet_stv_clean)
+
+; !(match &tempspace (insynset able $y $z) $y)
 
 !(import! &self ../../../../metta-attention/attention/RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent)
 !(import! &self ../../../../metta-attention/attention/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent)
@@ -49,6 +47,8 @@
 
 !(match &tempspace ($atom $val) (setStv $atom $val))
 
+; !(getStv (insynset able able_a_01))
+; !(getAv (insynset able able_a_01))
 
 
 ; write the params to a file
