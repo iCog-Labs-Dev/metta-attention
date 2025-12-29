@@ -1,18 +1,24 @@
 
 !(bind! &insect (new-space))
 !(bind! &poison (new-space))
-!(bind! &tempspace (new-space))
+!(bind! &wordnet (new-space))
+!(bind! &conceptnet (new-space))
+
 !(import! &insect ../../../../metta-attention/experiments/Metta/experiment2/data/insect-sent)
 
 !(import! &poison ../../../../metta-attention/experiments/Metta/experiment2/data/poison-sent)
 
 ; !(import! &tempspace ../../../../metta-attention/experiments/Metta/experiment2/data/sent-kb)
 
-
 !(import! &self lib/lib_import)
-!(static-import! &tempspace wordnet_stv_clean)
+!(static-import! &wordnet wordnet_stv_clean)
+; !(static-import! &conceptnet conceptnet_stv_clean)
 
-; !(match &tempspace (insynset able $y $z) $y)
+
+!(match &wordnet ((insynset able able_a_01) $y) $y)
+; !(match &conceptnet ((relatedto reanimated_v reanimate) $y) $y)
+
+
 
 !(import! &self ../../../../metta-attention/attention/RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent)
 !(import! &self ../../../../metta-attention/attention/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent)
@@ -43,57 +49,63 @@
 !(import! &self "../../../../metta-attention/experiments/utils/logger.py")
 
 
-(= (spaceAdder) (get-atoms &tempspace))
 
-!(match &tempspace ($atom $val) (setStv $atom $val))
+; !(match &wordnet ($atom $val) ($atom $val))
 
-; !(getStv (insynset able able_a_01))
-; !(getAv (insynset able able_a_01))
+; !(getStv ((insynset able able_a_01) (0.8 0.9)) )
+; !(getAv ((insynset able able_a_01) (0.8 0.9)) )
+
+!(match &wordnet ($atom $val) (setStv $atom $val))
+; !(match &wordnet ($atom $val) (stimulate $atom 10))
 
 
-; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 20.0)
-!(updateAttentionParam TARGET_STI 1000.0)
-!(updateAttentionParam TARGET_LTI 1000.0) 
-!(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
-!(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
-!(updateAttentionParam FUNDS_STI 5000.0) 
-!(updateAttentionParam FUNDS_LTI 5000.0) 
+!(getStv (insynset able able_a_01))
+!(getAv (insynset able able_a_01))
 
 
 ; write the params to a file
-!(start-log (attentionParam) "experiments/Metta/experiment2/")
+; !(updateAttentionParam MAX_AF_SIZE 20.0)
+; !(updateAttentionParam TARGET_STI 1000.0)
+; !(updateAttentionParam TARGET_LTI 1000.0) 
+; !(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
+; !(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
+; !(updateAttentionParam FUNDS_STI 5000.0) 
+; !(updateAttentionParam FUNDS_LTI 5000.0) 
 
-(= (insectPoisonReadExp $space $type $expr)
-    (
-        (if (and (== $type poisonSent) (== $expr ()))
-            finished
-            (let* 
-                (
-                    ($now (car-atom $expr))
-                    ($rest (cdr-atom $expr))
+
+; ; write the params to a file
+; !(start-log (attentionParam) "experiments/Metta/experiment2/")
+
+; (= (insectPoisonReadExp $space $type $expr)
+;     (
+;         (if (and (== $type poisonSent) (== $expr ()))
+;             finished
+;             (let* 
+;                 (
+;                     ($now (car-atom $expr))
+;                     ($rest (cdr-atom $expr))
                     
-                )
-                (
-                    (stimulate $now 30)
-                    ($pr (println! (stimulating atom --> $now)))
-                    ; ($sle (py-call (time.sleep 4)))
-                    (collapse (test-superpose))
-                    (if (== $rest ())
-                            (if (== $type insectSent)
-                                (insectPoisonReadExp &poison poisonSent (match &poison (poisonSent $x) $x))
-                                finished
-                    )
+;                 )
+;                 (
+;                     (stimulate $now 30)
+;                     ($pr (println! (stimulating atom --> $now)))
+;                     ; ($sle (py-call (time.sleep 4)))
+;                     (collapse (test-superpose))
+;                     (if (== $rest ())
+;                             (if (== $type insectSent)
+;                                 (insectPoisonReadExp &poison poisonSent (match &poison (poisonSent $x) $x))
+;                                 finished
+;                     )
                  
-                 (insectPoisonReadExp $space $type $rest)
-             )
+;                  (insectPoisonReadExp $space $type $rest)
+;              )
                     
-                )
-            )
-        )     
-    )
-)
+;                 )
+;             )
+;         )     
+;     )
+; )
 
-!(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x))
+; !(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x))
 
 
