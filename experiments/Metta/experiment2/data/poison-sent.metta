@@ -1,1 +1,1 @@
-(poisonSent (poison toxin venom substance chemical lethal harmful .))
+(poisonSent (poison toxin venom substance chemical lethal harmful))
