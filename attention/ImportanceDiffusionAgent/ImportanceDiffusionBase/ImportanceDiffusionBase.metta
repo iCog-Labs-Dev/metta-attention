@@ -11,13 +11,13 @@
         (
             ($incidentAtoms (collapse (incidentAtoms $atom $space)))
             ($foset (if (== (get-metatype $atom) Expression)
-                        (eval (getOutGoingAtoms $atom))
+                        (getOutGoingAtoms $atom)
                         ()
                     )
             
             )
             ($oset (collapse (filteroset $foset)))
-            ($incidentAndoset (eval (concatTuple $incidentAtoms $oset)))
+            ($incidentAndoset (concatTuple $incidentAtoms $oset))
             ($iset (collapse (match $space ((ASYMMETRIC_HEBBIAN_LINK $atom $b) $a) (ASYMMETRIC_HEBBIAN_LINK $atom $b))))
             ($hebbianAdjacentAtoms (collapse (hebbianAdjacentAtoms $iset $atom)))
             ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAndoset)))
@@ -25,8 +25,8 @@
             ($combProbabilityVector (combineIncidentAdjacentVectors $probabilityVectorIncident $probabilityVectorHebbianAjacent))
             
             ($totaldiffusionAmount (if (== $AForWA AF)
-                                       (eval (calculateDiffusionAmount $atom))
-                                       (eval (calculateDiffusionAmountWA $atom))
+                                       (calculateDiffusionAmount $atom)
+                                       (calculateDiffusionAmountWA $atom)
                                     )
             )
             (($atomToReceive $stiGiven)
@@ -100,7 +100,7 @@
 
 ; (: hebbianAdjacentAtoms (-> Atom Atom Atom))
 (= (hebbianAdjacentAtoms $iset $atom)
-    (eval (getTargetNeighborsAFI (superpose $iset) $atom ASYMMETRIC_HEBBIAN_LINK True))
+    (getTargetNeighborsAFI (superpose $iset) $atom ASYMMETRIC_HEBBIAN_LINK True)
 )
 
 ;; This function will return the probability vector(tuple) of the incident atoms
@@ -141,7 +141,7 @@
             )
             
             ($target (superpose $hebbianAdjacentAtoms))
-            ($calcres (eval (calculateHebbianDiffusionPercentation (ASYMMETRIC_HEBBIAN_LINK $atom $target)) ))
+            ($calcres (calculateHebbianDiffusionPercentation (ASYMMETRIC_HEBBIAN_LINK $atom $target)) )
             ($diffusionAmount (* $maxAllocation $calcres ))
         )
         ($target $diffusionAmount)
@@ -158,7 +158,7 @@
     (let*
         (
             ($diffusionAvailable 1.0)
-            ($hebbianDiffusionAvailable (* (eval (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE)) $diffusionAvailable))
+            ($hebbianDiffusionAvailable (* (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE) $diffusionAvailable))
             ; ($j (println! (combine $adjacentVector (size-atom $adjacentVector))))
             ($adajecentSize (size-atom $adjacentVector))
             ($hebbianMaximumLinkAllocation (if (== $adajecentSize 0)
@@ -170,10 +170,35 @@
             ($hebbianProportionSTI (collapse (hebbianProportionSTI $adjacentVector $hebbianMaximumLinkAllocation)))
             ($hebbianDiffusionUsed (hebbianDiffusionUsed $hebbianProportionSTI))
             ($resulttwo (collapse (incidentProportionSTI $incidentVector $hebbianDiffusionUsed)))
-            ($finalResult (eval (concatTuple $hebbianProportionSTI $resulttwo)))
+            ($finalResult (concatTuple $hebbianProportionSTI $resulttwo))
             ; ($h (println! (combine2 $adjacentVector (size-atom $adjacentVector))))
         )
         $finalResult
+    )
+)
+; (: calculateDiffusionAmount (-> Atom Number))
+(= (calculateDiffusionAmount $atom)
+    (* (getSti $atom) (getAttentionParam MAX_SPREAD_PERCENTAGE))
+)
+
+;; This function will calculate the diffusion amount for WA
+;; Parameters $atom: The atom that will be used to calculate the diffusion amount
+;; Return : The diffusion amount
+
+; (: calculateDiffusionAmountWA (-> Atom Number))
+(= (calculateDiffusionAmountWA $atom)
+    (let*
+        (
+            ($maxSpreadPercentage (getAttentionParam MAX_SPREAD_PERCENTAGE))
+            ; ($sp (println! (max spredding perce $maxSpreadPercentage)))
+            ($currentEstiate (diffusedValue $atom $maxSpreadPercentage))
+            ; ($curr (println! (current estimate $currentEstiate for atom $atom)))
+
+            ($diffusionAmount (- (getSti $atom) $currentEstiate))
+            ; ($cur (println! (diffusion amount $diffusionAmount)))
+
+        )
+        $diffusionAmount
     )
 )
 
@@ -258,8 +283,8 @@
 (= (calculateHebbianDiffusionPercentation $link)
     (let*
         (
-            ($strength (eval (getMean $link)))
-            ($confident (eval (getConfidence $link)))
+            ($strength  (getMean $link))
+            ($confident (getConfidence $link))
         )
         (* $strength $confident)
     )
@@ -293,14 +318,14 @@
         ()
         (let*
             (
-                ($sourceSTI (eval (getSti $source)))
-                ($targetSti (eval (getSti $target)))
+                ($sourceSTI (getSti $source))
+                ($targetSti (getSti $target))
                 
                 ($newSourceSTI (- $sourceSTI $value))
                 ($newTargetSti (+ $targetSti $value))
                 ; ($r (println! (newSourceSTI $newSourceSTI newTargetStit $newTargetSti)))
-                ($1 (eval (setSti $target $newTargetSti)))
-                ($2 (eval (setSti $source $newSourceSTI)))
+                ($1 (setSti $target $newTargetSti))
+                ($2 (setSti $source $newSourceSTI))
                 ; ($3 (println! (we diffused for the atom)))
             )
             ()

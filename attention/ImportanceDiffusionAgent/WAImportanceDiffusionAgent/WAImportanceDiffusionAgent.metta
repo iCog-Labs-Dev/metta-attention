@@ -6,7 +6,7 @@
 (= (diffusionSourceVectorWA)
     (let*
         (
-            ($atoms (eval (getRandomAtomNotInAF)))
+            ($atoms (getRandomAtomNotInAF))
             ; ($at (println! (this is non af atom $atoms)))
             ($result
                 (if (== $atoms ())
@@ -47,28 +47,6 @@
 )
 
 
-
-
-;; This function will calculate the diffusion amount for WA
-;; Parameters $atom: The atom that will be used to calculate the diffusion amount
-;; Return : The diffusion amount
-
-; (: calculateDiffusionAmountWA (-> Atom Number))
-(= (calculateDiffusionAmountWA $atom)
-    (let*
-        (
-            ($maxSpreadPercentage (getAttentionParam MAX_SPREAD_PERCENTAGE))
-            ; ($sp (println! (max spredding perce $maxSpreadPercentage)))
-            ($currentEstiate (eval (diffusedValue $atom $maxSpreadPercentage)))
-            ; ($curr (println! (current estimate $currentEstiate for atom $atom)))
-
-            ($diffusionAmount (- (eval (getSti $atom)) $currentEstiate))
-            ; ($cur (println! (diffusion amount $diffusionAmount)))
-
-        )
-        $diffusionAmount
-    )
-)
 
 ;; This function is the entry point to the WAImportance Diffusion Agent
 ;; Parameters $space: The space that will be used to find the diffusion source vector
