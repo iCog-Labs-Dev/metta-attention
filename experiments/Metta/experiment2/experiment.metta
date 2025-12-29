@@ -25,16 +25,16 @@
 !(import! &self ../../../../metta-attention/experiments/logger)
 !(import! &self ../../../../metta-attention/attention-bank/bank/attentional-focus/attentional-focus)
 !(import! &self ../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
+!(import! &self ../../../../metta-attention/attention/Neighbors)
 !(import! &self ../../../../metta-attention/attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
 !(import! &self ../../../../metta-attention/attention/RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent)
 !(import! &self ../../../../metta-attention/attention/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent)
 !(import! &self ../../../../metta-attention/attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent)
+!(import! &self ../../../../metta-attention/attention/ImportanceDiffusionAgent/ImportanceDiffusionBase/ImportanceDiffusionBase)
 !(import! &self ../../../../metta-attention/attention/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent)
 !(import! &self ../../../../metta-attention/attention/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent)
-!(import! &self ../../../../metta-attention/attention/ImportanceDiffusionAgent/ImportanceDiffusionBase/ImportanceDiffusionBase)
 !(import! &self ../../../../metta-attention/attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
 !(import! &self ../../../../metta-attention/attention/HebbianCreationAgent/HebbianCreationAgent)
-!(import! &self ../../../../metta-attention/attention/Neighbors)
 !(import! &self ../../../../metta-attention/experiments/runner-Def)
 
 
