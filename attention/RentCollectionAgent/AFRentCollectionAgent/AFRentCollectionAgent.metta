@@ -18,7 +18,7 @@
 ; Returns: A list of atoms in attentional focus.
 ; (: selectAFTargets (-> Expression))
 (= (selectAFTargets)
-    (eval (getAfAtoms))
+    (getAfAtoms)
 )
 
 ; Function: collectRent
@@ -32,7 +32,7 @@
   (let*
       (
           ($currentTime  (timeTime))
-          ($updateFreq (eval (getAttentionParam AFRentFrequency)))
+          ($updateFreq (getAttentionParam AFRentFrequency))
           ($lastUpdate  (match  &timer (lastUpdate $x) $x) )
           ($elapsedTime (* (- $currentTime $lastUpdate) 1000000))
           ($timeThreshold (/ 1000000 $updateFreq))
@@ -72,11 +72,11 @@
 (= (applyRent  $w $atom)
    (let*
         (
-          ($sti (eval (getSti $atom)))
+          ($sti (getSti $atom))
           ; ($atomss (println! (this is atom $atom)))
-          ($lti (eval (getLti $atom)))
-          ($stiAtomRent (eval (getAttentionParam StartingAtomStiRent)))
-          ($ltiAtomRent (eval (getAttentionParam StartingAtomLtiRent)))
+          ($lti (getLti $atom))
+          ($stiAtomRent (getAttentionParam StartingAtomStiRent))
+          ($ltiAtomRent (getAttentionParam StartingAtomLtiRent))
           
           ($calculatestirent  (calculateStiRent $stiAtomRent))
           ($calculateltirent  (calculateLtiRent $ltiAtomRent))
@@ -92,9 +92,9 @@
               ($minltiRent (min-atom ($ltiRent $lti)))
               ($stiDiff (- $sti $minstiRent))
               ($ltiDiff (- $lti $minltiRent))
-              ($atomVlti (eval (getVlti $atom )))
+              ($atomVlti (getVlti $atom ))
             )
-            (eval (setAv $atom ($stiDiff $ltiDiff $atomVlti)))
+            (setAv $atom ($stiDiff $ltiDiff $atomVlti))
           )
           
         )

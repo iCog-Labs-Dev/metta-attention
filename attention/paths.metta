@@ -1,3 +1,18 @@
+!(import! &self attention/AttentionParam)
+!(import! &self attention-bank/utilities/helper-functions)
+!(import! &self attention-bank/utilities/recentVal)
+!(import! &self attention/Neighbors)
+
+!(import! &self experiments/logger)
+!(import! &self experiments/utils)
+!(import! &self attention-bank/attention-value/getter-and-setter)
+
+!(import! &self attention-bank/bank/attentional-focus/attentional-focus)
+!(import! &self attention-bank/bank/importance-index/importance-index)
+!(import! &self attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
+!(import! &self attention-bank/bank/stochastic-importance-diffusion/merge-bin)
+!(import! &self attention-bank/bank/attention-bank)
+
 !(import! &self attention/RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent)
 !(import! &self attention/ForgettingAgent/ForgettingAgent)
 !(import! &self attention/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent)
@@ -7,22 +22,7 @@
 !(import! &self attention/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent)
 !(import! &self attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
 !(import! &self attention/HebbianCreationAgent/HebbianCreationAgent)
-!(import! &self attention/AttentionParam)
-!(import! &self attention/Neighbors)
-
 !(import! &self experiments/runner-Def)
-!(import! &self experiments/logger)
-!(import! &self experiments/utils)
 
-!(import! &self attention-bank/utilities/helper-functions)
-!(import! &self attention-bank/utilities/recentVal)
 
-!(import! &self attention-bank/attention-value/getter-and-setter)
-
-!(import! &self attention-bank/attention-value/get-min-max)
-!(import! &self attention-bank/bank/attentional-focus/attentional-focus)
-!(import! &self attention-bank/bank/importance-index/importance-index)
-!(import! &self attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
-!(import! &self attention-bank/bank/stochastic-importance-diffusion/merge-bin)
-!(import! &self attention-bank/bank/attention-bank)
 
