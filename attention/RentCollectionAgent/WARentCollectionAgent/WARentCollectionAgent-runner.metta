@@ -1,6 +1,5 @@
 !(import! &self attention-bank:utilities:helper-functions)
 !(import! &self attention:agents:mettaAgents:AttentionParam)
-!(import! &self attention-bank:attention-value:get-min-max)
 !(import! &self attention-bank:bank:importance-index:importance-index)
 !(import! &self attention-bank:bank:attention-bank)
 !(import! &self attention-bank:attention-value:getter-and-setter-2)

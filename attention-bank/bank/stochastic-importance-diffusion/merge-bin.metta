@@ -1,8 +1,8 @@
  ; merge past and recent bin
  ; stracture of the bin
  ; (index((count $cnt_val) (index $idx_val) (_size $sizeVal)))
-! (bind! &past-space (new-space))
-! (bind! &recent-space (new-space))
+!(bind! &past-space (new-space))
+!(bind! &recent-space (new-space))
 
 ;add atoms to past-space
 
@@ -36,7 +36,7 @@
  ; If a matching past bin exists, it updates the count in recent-space.
  ; Otherwise, it proceeds without updating and continues merging recursively.
  ; Returns a confirmation message and recursively processes the remaining bins.
-(: mergeBin (-> Symbol Number Expression))
+; (: mergeBin (-> Symbol Number Expression))
 ( = (mergeBin  $recent $bias)
     (if ( == $recent ()) ; base case
         (collapse (get-atoms &recent-space))
