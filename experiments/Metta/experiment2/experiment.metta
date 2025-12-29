@@ -2,18 +2,26 @@
 !(bind! &insect (new-space))
 !(bind! &poison (new-space))
 !(bind! &tempspace (new-space))
-!(import! &self ../../../../metta-attention/experiments/Metta/experiment2/data/insect-sent)
+!(import! &insect ../../../../metta-attention/experiments/Metta/experiment2/data/insect-sent)
 
-!(let $x (get-atoms &self) (add-atom &insect $x))
-!(let $x (match &self $y $y) (remove-atom &self $y))
+; !(let $x (get-atoms &self) (add-atom &insect $x))
+; !(let $x (match &self $y $y) (remove-atom &self $y))
 
-!(import! &self ../../../../metta-attention/experiments/Metta/experiment2/data/poison-sent)
-!(let $x (get-atoms &self) (add-atom &poison $x))
-!(let $x (match &self $y $y) (remove-atom &self $y))
+!(import! &poison ../../../../metta-attention/experiments/Metta/experiment2/data/poison-sent)
+; !(let $x (get-atoms &self) (add-atom &poison $x))
+; !(let $x (match &self $y $y) (remove-atom &self $y))
 
-!(import! &self ../../../../metta-attention/experiments/Metta/experiment2/data/sent-kb)
-!(let $x (get-atoms &self) (add-atom &tempspace $x))
-!(let $x (match &self $y $y) (remove-atom &self $y))
+!(import! &tempspace ../../../../metta-attention/experiments/Metta/experiment2/data/sent-kb)
+; !(let $x (get-atoms &self) (add-atom &tempspace $x))
+; !(let $x (match &self $y $y) (remove-atom &self $y))
+
+; !(import! &self lib/lib_import)
+; !(static-import! &wordnet wordnet_stv_clean)
+; !(static-import! &conceptnet conceptnet_stv_clean)
+
+; !(match &wordnet ((insynset able able_a_01) $y) $y)
+; !(match &conceptnet ((relatedto reanimated_v reanimate) $y) $y)
+
 
 !(import! &self ../../../../metta-attention/attention/AttentionParam)
 !(import! &self ../../../../metta-attention/attention-bank/utilities/helper-functions)
@@ -41,7 +49,7 @@
 (= (spaceAdder) (get-atoms &tempspace))
 
 !(match &tempspace ($atom $val) (setStv $atom $val))
-
+; !(match &wordnet ($atom $val) (setStv $atom $val))
 
 
 ; write the params to a file
@@ -50,8 +58,8 @@
 !(updateAttentionParam TARGET_LTI 1000.0) 
 !(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
 !(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
-!(updateAttentionParam FUNDS_STI 5000.0) 
-!(updateAttentionParam FUNDS_LTI 5000.0) 
+!(updateAttentionParam FUNDS_STI 8000.0) 
+!(updateAttentionParam FUNDS_LTI 8000.0) 
 
 
 ; write the params to a file
