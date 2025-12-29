@@ -11,7 +11,7 @@
 (= (getAfAtoms)
     (let*
         (
-            ($afSize (eval (getAttentionParam MAX_AF_SIZE)))
+            ($afSize (getAttentionParam MAX_AF_SIZE))
             ($allAtoms (getAllAtomsWithBins))
             ; ($hell (println! (inside get af atom $allAtoms)))
             ($size (size-atom $allAtoms) )
@@ -21,7 +21,7 @@
         ) 
         (if (>= $afSize $size)
                 ;  $allAtoms
-                (trace! (eval (write_csv_wrapper $allAtoms)) $allAtoms)
+                (trace! (write_csv_wrapper $allAtoms) $allAtoms)
                 (getAfAtomsHelper $afSize)
         )
     )
@@ -58,7 +58,7 @@
             
             ($minAtomsSti (getAtomsByBin $min))
             ; ($minatom (println! (return of get atom by bin fn $minAtomsSti )))
-            ($sortedMinList (sortAtomsDescending $minAtomsSti))
+            ($sortedMinList (sortAtomsDescending $minAtomsSti getSti))
             ; ($m (println! (return of sorted atoms desc $sortedMinList )))
 
             ($lastAtoms (getNatoms $sortedMinList $remainSize)); getting the first $size number of atoms

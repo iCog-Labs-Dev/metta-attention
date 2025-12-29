@@ -28,8 +28,6 @@
 !(import! &self ../../../../metta-attention/attention/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent)
 !(import! &self ../../../../metta-attention/attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
 !(import! &self ../../../../metta-attention/attention/HebbianCreationAgent/HebbianCreationAgent)
-!(import! &self ../../../../metta-attention/attention/AttentionParam)
-!(import! &self ../../../../metta-attention/attention/Neighbors)
 !(import! &self ../../../../metta-attention/experiments/runner-Def)
 !(import! &self ../../../../metta-attention/experiments/logger)
 
