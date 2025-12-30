@@ -31,6 +31,6 @@
     "TARGET_LTI": "1000.0",
     "STI_FUNDS_BUFFER": "1000.0",
     "LTI_FUNDS_BUFFER": "1000.0",
-    "FUNDS_STI": "5000.0",
-    "FUNDS_LTI": "5000.0"
+    "FUNDS_STI": "8000.0",
+    "FUNDS_LTI": "8000.0"
 }
