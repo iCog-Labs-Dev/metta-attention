@@ -500,6 +500,6 @@
        ($up  (updateAttentionParam MIN_STI $finalMin))
        ($upp (updateAttentionParam MAX_STI $maxSTI))
         )
-         ()
+         (trace! () ("Updated"))
     )
 )
