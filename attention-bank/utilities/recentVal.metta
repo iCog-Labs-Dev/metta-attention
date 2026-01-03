@@ -56,12 +56,12 @@
     ;recent = ((decay * newValue) + ((decay - 1.0) * recent))
     ;where: newValue is the value passed as the argument to the update functions. 
 ; (: updateMin (-> Number empty))
-(= (updateMin $newValue)
-   (let $current (getAttentionParam MIN_STI) (updateAttentionParam MIN_STI $newValue))
-)
+; (= (updateMin $newValue)
+;    (let $current (getAttentionParam MIN_STI) (updateAttentionParam MIN_STI $newValue))
+; )
 
 ; (: updateMax (-> Number empty))
-(= (updateMax $newValue)
-   (let $current (getAttentionParam MAX_STI) (updateAttentionParam MAX_STI $newValue))
+; (= (updateMax $newValue)
+;    (let $current (getAttentionParam MAX_STI) (updateAttentionParam MAX_STI $newValue))
     
-)
+; )

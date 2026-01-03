@@ -97,5 +97,3 @@
 )
 
 !(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x))
-
-

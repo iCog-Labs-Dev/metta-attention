@@ -1,1 +1,1 @@
-(insectSent (ant farm aphid beanfly armyworm spider beetwebworm beanpodborer .))
+(insectSent (able aphid beetle caterpillar larva pupa colony nest soil leaf))
