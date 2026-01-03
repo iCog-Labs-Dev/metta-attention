@@ -90,33 +90,5 @@
    )
 )
 
-; Function to handle attention value changes and update global funds
-; Description:
-;    Updates the AttentionValue of an atom and adjusts the global STI and LTI funds
-;    -set the new attention value of the atom 
-;    - Remove the current FUNDS_STI and FUNDS_LTI values from the AtomSpace.
-;    - Add the updated FUNDS_STI and FUNDS_LTI values to the AtomSpace.
-;    - Inserts the atom to the attentional focus if possible
-;    - Updates the Bin placement of the atom
-;Parameters:
-;     $pattern: The atom whose AttentionValue is being updated.
-;     $newSTIFund: The new STI fund value.
-;     $newLTIFund: The new LTI fund value.
-;     $newAv: The new AttentionValue to be set for the atom.
-;Returns: The result of updating the atomBin.
 
 
-; (: attentionValueChanged (-> Atom Number Number Expression))
-(= (attentionValueChanged $pattern $newSTIFund $newLTIFund)
-   (let*(
-         ($stiUpdated (updateAttentionParam FUNDS_STI $newSTIFund))
-         ; ($_ (println! (getAttentionParam FUNDS_STI)))
-         ($ltiUpdated (updateAttentionParam FUNDS_LTI $newLTIFund))
-         ($globalUpdate  (reduce (update &typeSpace)))
-         ; ($_ (println! $globalUpdate))
-
-         ; ($_ (println! (getAttentionParam MAX_STI)))
-        )
-        ()
-    )
-)
