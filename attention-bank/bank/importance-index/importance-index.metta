@@ -233,7 +233,7 @@
            ($normaliser (- $maxSTI $minSTI))
            ($diff (- $sti $minSTI))
           
-           ($value (if (== $normaliser 0.0)
+           ($value (if (== $normaliser 0)
                       0.0
                       (/ $diff $normaliser)))
            ($minim  (min-atom ($value 1.0)))

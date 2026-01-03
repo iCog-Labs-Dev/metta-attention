@@ -436,26 +436,12 @@
 
 
 (= (getMinBinContents)
-   (let $bins (getBinList &typeSpace)
-        (if (== $bins ())
-            ()
-            (let $minbin (min-atom $bins)
-                 (getAtomsByBin $minbin)
-            )
-        )
-   )
+   (let $bins (findMinNonEmptyBin 0.0 104.0) (getAtomsByBin $bins))
 )
 
 
 (= (getMaxBinContents)
-   (let $bins (getBinList &typeSpace)
-        (if (== $bins ())
-            ()
-            (let $maxbin (max-atom $bins)
-                 (getAtomsByBin $maxbin)
-            )
-        )
-   )
+   (let $bins (findMaxNonEmptyBin 104.0) (getAtomsByBin $bins) )
 )
 
 

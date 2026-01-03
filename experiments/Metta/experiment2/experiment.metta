@@ -11,16 +11,13 @@
 ; !(let $x (get-atoms &self) (add-atom &poison $x))
 ; !(let $x (match &self $y $y) (remove-atom &self $y))
 
-!(import! &tempspace ../../../../metta-attention/experiments/Metta/experiment2/data/sent-kb)
+; !(import! &tempspace ../../../../metta-attention/experiments/Metta/experiment2/data/sent-kb)
 ; !(let $x (get-atoms &self) (add-atom &tempspace $x))
 ; !(let $x (match &self $y $y) (remove-atom &self $y))
 
-; !(import! &self lib/lib_import)
-; !(static-import! &wordnet wordnet_stv_clean)
+!(import! &self lib/lib_import)
+!(static-import! &wordnet wordnet_stv_clean)
 ; !(static-import! &conceptnet conceptnet_stv_clean)
-
-; !(match &wordnet ((insynset able able_a_01) $y) $y)
-; !(match &conceptnet ((relatedto reanimated_v reanimate) $y) $y)
 
 
 !(import! &self ../../../../metta-attention/attention/AttentionParam)
@@ -46,10 +43,8 @@
 !(import! &self ../../../../metta-attention/experiments/runner-Def)
 
 
-(= (spaceAdder) (get-atoms &tempspace))
-
-!(match &tempspace ($atom $val) (setStv $atom $val))
-; !(match &wordnet ($atom $val) (setStv $atom $val))
+!(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+; !(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 
 
 ; write the params to a file
@@ -95,5 +90,4 @@
             
     )
 )
-
 !(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x))
