@@ -42,11 +42,44 @@
            ($newltifund (+ $fundsLTI $ltiDiff))
         ;    ($hello (println! (new sti $newstifund)))
         ; ($hi (println! (inside setAv)))
-           ($updater (reduce (attentionValueChanged $pattern $newstifund $newltifund)))  ; Update attentional focus and global paremeter
+           ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter
            
     )
    ()
 ))
+
+
+; Function to handle attention value changes and update global funds
+; Description:
+;    Updates the AttentionValue of an atom and adjusts the global STI and LTI funds
+;    -set the new attention value of the atom 
+;    - Remove the current FUNDS_STI and FUNDS_LTI values from the AtomSpace.
+;    - Add the updated FUNDS_STI and FUNDS_LTI values to the AtomSpace.
+;    - Inserts the atom to the attentional focus if possible
+;    - Updates the Bin placement of the atom
+;Parameters:
+;     $pattern: The atom whose AttentionValue is being updated.
+;     $newSTIFund: The new STI fund value.
+;     $newLTIFund: The new LTI fund value.
+;     $newAv: The new AttentionValue to be set for the atom.
+;Returns: The result of updating the atomBin.
+
+
+; (: attentionValueChanged (-> Atom Number Number Expression))
+(= (attentionValueChanged $pattern $newSTIFund $newLTIFund)
+   (let*(
+         ($stiUpdated (updateAttentionParam FUNDS_STI $newSTIFund))
+         ; ($_ (println! (getAttentionParam FUNDS_STI)))
+         ($ltiUpdated (updateAttentionParam FUNDS_LTI $newLTIFund))
+
+         ($globalUpdate  (update &typeSpace))
+         ; ($_ (println! $globalUpdate))
+
+         ; ($_ (println! (getAttentionParam MAX_STI)))
+        )
+        ()
+    )
+)
 
  ; set_stv function accepts a pattern/node with the truthvalues
  ; and set the simple truth value to the pattern/node.
@@ -449,18 +482,24 @@
    )
 )
 
-
-; (= (update)
-;    (let* 
-;     (
-;        ($minSTI (computeMinSTI))
-;        ($maxSTI (computeMaxSTI))
-;        ($finalMin (if (> $minSTI $maxSTI) $maxSTI $minSTI))
-;        ($up  (updateAttentionParam MIN_STI $finalMin))
-;        ($upp (updateAttentionParam MAX_STI $maxSTI))
-;      )
-;      ()
-;    )
-; )
+(= (clampMinSTI $minSTI $maxSTI)
+   (if (> $minSTI $maxSTI)
+       $maxSTI
+       $minSTI)
+)
 
 
+
+(= (update $space)
+
+    (let* (
+
+       ($minSTI (computeMinSTI))
+       ($maxSTI (computeMaxSTI))
+       ($finalMin (clampMinSTI $minSTI $maxSTI))
+       ($up  (updateAttentionParam MIN_STI $finalMin))
+       ($upp (updateAttentionParam MAX_STI $maxSTI))
+        )
+         ()
+    )
+)
