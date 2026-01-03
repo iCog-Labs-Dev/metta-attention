@@ -137,6 +137,11 @@
 !(test (countAtomsInTypeSpace) 14)
 
 
+!(getBinList &typeSpace)
+!(findMinNonEmptyBin 0.0 104.0)
+!(findMaxNonEmptyBin 104.0)
+
+
 !(getMinBinContents)
 !(getAtomsByBin 45.0)
 

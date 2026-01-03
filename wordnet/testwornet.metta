@@ -21,11 +21,7 @@
 
 ; !(match &wordnet ((insynset able able_a_01) $y) $y)
 ; !(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-!(match &wordnet ($atom ($mean $conf)) (stimulate $atom 1))
-; !(getBinList &typeSpace)
+!(match &wordnet ($atom ($mean $conf)) (stimulate $atom 1)) 
 
 !(getAttentionParam MIN_STI)
 !(getAttentionParam MAX_STI)
-
-
-
