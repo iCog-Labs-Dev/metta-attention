@@ -30,10 +30,12 @@
         (if (== $it ($index))
             (updateExistingBin $index)
             (let* (
-                ; ($delay (py-call (time.sleep 0.1)))
                 ($time (currentTime)) 
                 ($size (getSize $index))
-                ($rate (/ 1 (- $time $firstTime)) ) ;($rate (/ 1 (- (- $time 0.1) $firstTime)) )
+                ($rate (/ 1 (- $time $firstTime)) ) 
+                ; ($diff (- $time $firstTime))
+                ; ($safeDiff (max-atom ($diff 0.000001)))
+                ; ($rate (/ 1 $safeDiff) )
                 ; ($el (println! (this is inside else condition)))
             )
                 (add-atom &atomBinInfo 
@@ -49,11 +51,13 @@
                  (
                     ; ($upexist (println! (=====> this is inside update existing atom )))
                     ((($cnt $cntVal) ($idx $idxVal) ($size $sizeVal) ($updateRate $updateRateVal) ($lastUpdate $lastUpdateVal)) (match &atomBinInfo ($index $info)  $info ))
-                    ($prev (let $y (match &atomBinInfo $x $x ) (remove-atom &atomBinInfo $y)))
+                    ($prev (let $y (match &atomBinInfo ($index $info) ($index $info)) (remove-atom &atomBinInfo $y)))
                     ($count (+ $cntVal 1))
                     ($now (currentTime))
                     ($newSec (- $now $lastUpdateVal))
                     ($newUpdateRate (/ $count $newSec))
+                    ; ($safeNewSec (max-atom ($newSec 0.000001)))
+                    ; ($newUpdateRate (/ $count $safeNewSec))
                     ($newSize (getSize $index)))
                     (add-atom &atomBinInfo 
                         ($index ((count $count) (index $index) (_size $newSize) (update_rate $newUpdateRate) (last_update $now))))
