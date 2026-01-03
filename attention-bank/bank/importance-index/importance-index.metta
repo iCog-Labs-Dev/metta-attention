@@ -82,6 +82,7 @@
             ; ($1 (println! (inside update)))
 
             ($collectedContents (getAllAtomsWithBins))
+            ($minCon (getMinBinContents) )
             ; ($1 (println! (collecteds $collectedContents)))
             ($max  (getAllMaxSTI $collectedContents))
             ; ($2 (println! (maxx $max)))
@@ -97,6 +98,10 @@
           )
     )
 )
+
+
+
+
 
 
 (= (updateGlobalMaxAndMinSTI $min $max)
@@ -354,3 +359,6 @@
        )
    )
 )
+
+
+

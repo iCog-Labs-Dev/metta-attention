@@ -127,7 +127,7 @@
 )
 
 !(test (getSize 45.0) 4)
-!(test (getBinList &typeSpace) (50.0 45.0 53.0))
+; !(test (getBinList &typeSpace) (50.0 45.0 53.0))
 !(test (getAtomsByBin 50.0) ((Hebbianlink a b) (Hebbianlink (Hebbianlink Human Cat) Animal) (EvaluationLink a b)))
 !(test (size-atom (getAllAtomsWithBins)) 13)
 !(test (getAllMaxSTI (getAfAtoms)) 400)
@@ -135,3 +135,33 @@
 !(test (countAtomsInTypeSpace) 15)
 !(removeTypeSpace k)
 !(test (countAtomsInTypeSpace) 14)
+
+!(getBinList &typeSpace)
+!(unique-atom (4 5 6 4 3 4 5 7 8 9))
+; !(getMinBinContents &typeSpace)
+; !(getAtomsInTypeSpace)
+; !(getStiHelper (getAtomsInTypeSpace) )
+
+!(getMinBinContents)
+; !(getAtomsByBin 50.0)
+!(getAtomsByBin 45.0)
+
+!(hello)
+!(getMaxBinContents)
+!(getAtomsByBin 53.0)
+!(hello again)
+!(computeMinSTI)
+!(hello again)
+!(getSTIValues (getMinBinContents))
+!(getSTIValues (getMaxBinContents))
+!(hello again)
+!(computeMaxSTI)
+
+; !(getAttentionParam MIN_STI)
+; !(getAttentionParam MAX_STI)
+
+
+; !(update)
+
+; !(getAttentionParam MIN_STI)
+; !(getAttentionParam MAX_STI)

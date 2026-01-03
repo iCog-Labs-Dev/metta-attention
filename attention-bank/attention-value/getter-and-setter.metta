@@ -380,3 +380,87 @@
         )
     
 )
+
+(= (findMinNonEmptyBin $bin $max)
+   (if (>= $bin $max)
+       %Undefined%
+       (if (> (getSize $bin) 0)
+           $bin
+           (findMinNonEmptyBin (+ $bin 1) $max)
+       )
+   )
+)
+
+(= (findMaxNonEmptyBin $bin)
+   (if (< $bin 0)
+       %Undefined%
+       (if (> (getSize $bin) 0)
+           $bin
+           (findMaxNonEmptyBin (- $bin 1))
+       )
+   )
+)
+
+
+(= (getMinBinContents)
+   (let $bins (getBinList &typeSpace)
+        (if (== $bins ())
+            ()
+            (let $minbin (min-atom $bins)
+                 (getAtomsByBin $minbin)
+            )
+        )
+   )
+)
+
+
+(= (getMaxBinContents)
+   (let $bins (getBinList &typeSpace)
+        (if (== $bins ())
+            ()
+            (let $maxbin (max-atom $bins)
+                 (getAtomsByBin $maxbin)
+            )
+        )
+   )
+)
+
+
+(= (getSTIValues $atoms)
+   (collapse (getStiHelper $atoms))
+)
+
+(= (computeMinSTI)
+   (let $atoms (getMinBinContents)
+        (if (== $atoms ())
+            0.0
+            (min-atom (getSTIValues $atoms))
+        )
+   )
+)
+
+
+(= (computeMaxSTI)
+   (let $atoms (getMaxBinContents)
+        (if (== $atoms ())
+            0.0
+            (max-atom (getSTIValues $atoms))
+        )
+   )
+)
+
+
+; (= (update)
+;    (let* 
+;     (
+;        ($minSTI (computeMinSTI))
+;        ($maxSTI (computeMaxSTI))
+;        ($finalMin (if (> $minSTI $maxSTI) $maxSTI $minSTI))
+;        ($up  (updateAttentionParam MIN_STI $finalMin))
+;        ($upp (updateAttentionParam MAX_STI $maxSTI))
+;      )
+;      ()
+;    )
+; )
+
+

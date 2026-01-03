@@ -112,7 +112,7 @@
          ($stiUpdated (updateAttentionParam FUNDS_STI $newSTIFund))
          ; ($_ (println! (getAttentionParam FUNDS_STI)))
          ($ltiUpdated (updateAttentionParam FUNDS_LTI $newLTIFund))
-         ($globalUpdate  (reduce (update &typeSpace)))
+         ; ($globalUpdate  (reduce (update &typeSpace)))
          ; ($_ (println! $globalUpdate))
 
          ; ($_ (println! (getAttentionParam MAX_STI)))
