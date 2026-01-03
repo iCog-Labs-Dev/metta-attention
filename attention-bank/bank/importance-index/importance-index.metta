@@ -77,45 +77,8 @@
 ;_min_sti = min_sti, max_sti = max_sti
 
 ; (: update (-> hyperon::space::DynSpace Atom))
-(= (update $space)
-    (let* (
-            ; ($1 (println! (inside update)))
-
-            ($collectedContents (getAllAtomsWithBins))
-            ($minCon (getMinBinContents) )
-            ; ($1 (println! (collecteds $collectedContents)))
-            ($max  (getAllMaxSTI $collectedContents))
-            ; ($2 (println! (maxx $max)))
-
-            ($min (getAllMinSTI $collectedContents))
-            ; ($3 (println! (minn $min)))
-
-            ($exitCondition (> $min $max))
-        )
-         (if $exitCondition
-            (updateGlobalMaxAndMinSTI $max $min)
-            (updateGlobalMaxAndMinSTI $min $max)
-          )
-    )
-)
 
 
-
-
-
-
-(= (updateGlobalMaxAndMinSTI $min $max)
-    (let*
-      (
-       ($firstRes (updateMin $min))
-      ;  ($4 (println! (updatemin $firstRes)))
-
-       ($secondRes (updateMax $max))
-      )
-      (trace! (Updated) ("Updated"))
-
-     )
-)
 
 ; Recursive helper to calculate the group index
 (= (findGroup $imp $sum $i)

@@ -13,25 +13,19 @@
 
 
 !(import! &self lib/lib_import)
-!(static-import! &wordnet wordnet_stv_clean)
+!(static-import! &wordnet wordnet_stv_reordered)
 ; !(static-import! &conceptnet conceptnet_stv_clean)
 
-
+; !(getAttentionParam MIN_STI)
+; !(getAttentionParam MAX_STI)
 
 ; !(match &wordnet ((insynset able able_a_01) $y) $y)
 ; !(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 !(match &wordnet ($atom ($mean $conf)) (stimulate $atom 1))
-!(getBinList &typeSpace)
+; !(getBinList &typeSpace)
+
+!(getAttentionParam MIN_STI)
+!(getAttentionParam MAX_STI)
 
 
-
-
-
-; Possible works here
-
-; 1 stimulate atoms
-; 2 optimize update function
-; 3 test its performance independently
-; 4 test stimulate
-; 5 run the experiment with wordnet
 
