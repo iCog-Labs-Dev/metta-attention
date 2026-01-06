@@ -17,11 +17,10 @@
 ; !(let $x (match &self $y $y) (remove-atom &self $y))
 
 !(import! &self lib/lib_import)
-!(import! &self lib/lib_spaces)
-!(static-import! &wordnet ../../../wordnet_stv_clean)
-!(static-import! &conceptnet ../../../wordnet/conceptnet_stv_clean)
-; !(import! &wordnet ../../../wordnet)
-; !(import! &conceptnet ../../../wordnet/conceptnet_stv_clean)
+!(static-import! &wordnet wordnet_stv_clean)
+; !(static-import! &conceptnet conceptnet_stv_clean)
+; !(static-import! &conceptnet conceptnet_links_only)
+
 
 
 !(import! &self ../../../../metta-attention/attention/AttentionParam)
@@ -62,39 +61,39 @@
 !(updateAttentionParam FUNDS_LTI 100000.0) 
 
 
-; write the params to a file
-!(start-log (attentionParam) "experiments/Metta/experiment2/")
+; ; write the params to a file
+; !(start-log (attentionParam) "experiments/Metta/experiment2/")
 
-(= (insectPoisonReadExp $space $type $expr)
-    (
-        (if (and (== $type poisonSent) (== $expr ()))
-            finished
-            (let* 
-                (
-                    ($now (car-atom $expr))
-                    ($rest (cdr-atom $expr))
+; (= (insectPoisonReadExp $space $type $expr)
+;     (
+;         (if (and (== $type poisonSent) (== $expr ()))
+;             finished
+;             (let* 
+;                 (
+;                     ($now (car-atom $expr))
+;                     ($rest (cdr-atom $expr))
                     
-                )
-                (
-                    (stimulate $now 300)
-                    (println! (stimulating atom --> $now))
-                    ; ($sle (py-call (time.sleep 4)))
-                    (collapse (test-superpose))
-                    (let $d (if (== $rest ())
-                            (if (== $type insectSent)
-                                (insectPoisonReadExp &poison poisonSent (match &poison (poisonSent $x) $x))
-                                finished
-                    )
+;                 )
+;                 (
+;                     (stimulate $now 30)
+;                     (println! (stimulating atom --> $now))
+;                     ; ($sle (py-call (time.sleep 4)))
+;                     (collapse (test-superpose))
+;                     (let $d (if (== $rest ())
+;                             (if (== $type insectSent)
+;                                 (insectPoisonReadExp &poison poisonSent (match &poison (poisonSent $x) $x))
+;                                 finished
+;                     )
                  
-                 (insectPoisonReadExp $space $type $rest))
-                 $d
-             )
-                )
-                )
-            )
+;                  (insectPoisonReadExp $space $type $rest))
+;                  $d
+;              )
+;                 )
+;                 )
+;             )
             
-    )
-)
+;     )
+; )
 
 (= (run $space $type)
    (let* 
