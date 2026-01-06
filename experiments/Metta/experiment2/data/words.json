@@ -2,20 +2,23 @@
     "insect": [
         "ant",
         "aphid",
-        "armyworm",
-        "beetwebworm",
-        "spider",
-        "beanpodborer"
+        "beetle",
+        "caterpillar",
+        "larva",
+        "pupa",
+        "colony",
+        "nest",
+        "soil",
+        "leaf"
     ],
     "poison": [
-        "aconite",
-        "aflatoxin",
-        "alcohol",
-        "ammonia",
-        "arsenic",
-        "aspirin",
-        "azoxystrobi",
-        "botulinum"
+        "poison",
+        "toxin",
+        "venom",
+        "chemical",
+        "substance",
+        "lethal",
+        "harmful"
     ],
     "insecticide": [
         "abamectin",
