@@ -1,1 +1,1 @@
-(insectSent (able aphid beetle caterpillar larva pupa colony nest soil leaf))
+(insectSent (aphid beetle caterpillar larva pupa colony nest soil leaf))
