@@ -17,8 +17,8 @@
 ; !(let $x (match &self $y $y) (remove-atom &self $y))
 
 !(import! &self lib/lib_import)
-; !(static-import! &wordnet wordnet_stv_clean)
-!(static-import! &conceptnet output)
+!(static-import! &wordnet wordnet_stv_clean)
+; !(static-import! &conceptnet output)
 ; !(static-import! &conceptnet conceptnet_links_only)
 
 
