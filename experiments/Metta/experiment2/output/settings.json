@@ -1,7 +1,7 @@
 {
     "AF_SIZE": "0.2",
     "MIN_AF_SIZE": "500",
-    "MIN_STI": "0",
+    "MIN_STI": "100000",
     "MAX_STI": "0",
     "AFB_DECAY": "0.05",
     "AFB_BOTTOM": "50.0",

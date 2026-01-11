@@ -16,8 +16,8 @@
 ; !(let $x (match &self $y $y) (remove-atom &self $y))
 
 !(import! &self lib/lib_import)
-; !(static-import! &wordnet wordnet_stv_clean)
-!(static-import! &conceptnet output)
+!(static-import! &wordnet wordnet_stv_clean)
+; !(static-import! &conceptnet output)
 ; !(static-import! &conceptnet conceptnet_links_only)
 
 
@@ -45,8 +45,8 @@
 !(import! &self ../../../../metta-attention/experiments/runner-Def)
 
 
-; !(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-!(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+!(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+; !(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 
 
 ; write the params to a file
