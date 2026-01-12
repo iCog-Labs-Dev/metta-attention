@@ -43,7 +43,7 @@
     (if $firstCondition
       0.0
       (if $secondCondition
-        $impo_int
+        (* $impo_int 1.0)
         (let*
           (
             ($imp (trunc-math (/ (- $impo_int $groupSize) $groupSize)))
