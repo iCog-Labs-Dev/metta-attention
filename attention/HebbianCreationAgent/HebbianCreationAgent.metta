@@ -23,10 +23,11 @@
     (let $afAtoms (getAfAtoms)
         (if (== (size-atom $afAtoms)  0.0)
         ()
-         (let $source (superpose $afAtoms)
-            (if  (unify (get-metatype $source) Expression (== HEBBIAN_LINK (car-atom $source)) False)
-                () ; if already hebbian_link nothing is done
-                (
+         (let* (
+            ($source (superpose $afAtoms))
+            ($flag (if (== (get-metatype $source) Expression) (== HEBBIAN_LINK (car-atom $source)) False)))
+            (if  $flag 
+                    () ; if already hebbian_link nothing is done
                     (let*
                         (
                             ($existingAsSourceHS  (getTargetNeighbors $source ASYMMETRIC_HEBBIAN_LINK $space)) ;;need to check if we should use source or sourceAtom
@@ -53,7 +54,7 @@
                             ; )
                         )
                     )
-                )
+                
             )
         )
     ))
