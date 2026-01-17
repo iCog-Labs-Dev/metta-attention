@@ -137,23 +137,19 @@
 !(test (countAtomsInTypeSpace) 14)
 
 
-!(getBinList &typeSpace)
-!(findMinNonEmptyBin 0.0 104.0)
-!(findMaxNonEmptyBin 104.0)
+!(test (getBinList &typeSpace) (50.0 45.0 53.0))
+!(test (findMinNonEmptyBin 0.0 104.0) 45.0)
+!(test (findMaxNonEmptyBin 104.0) 53.0)
 
 
-!(getMinBinContents)
-!(getAtomsByBin 45.0)
+!(test (getMinBinContents) ((SimilarityLink Human Cat) (Hebbianlink Human Cat) (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat))))
 
-!(getMaxBinContents)
-!(getAtomsByBin 53.0)
+!(test (getMaxBinContents) (A Cat Animal Human (a) (C)))
+!(setSti low 1)
+!(test (computeMinSTI) 1)
 
-!(computeMinSTI)
-!(getSTIValues (getMinBinContents))
+!(test (computeMaxSTI) 400)
 
-!(getSTIValues (getMaxBinContents))
-!(computeMaxSTI)
 
-!(update &typeSpace)
-!(getAttentionParam MIN_STI)
-!(getAttentionParam MAX_STI)
+!(test (getAttentionParam MIN_STI) 1)
+!(test (getAttentionParam MAX_STI) 400)
