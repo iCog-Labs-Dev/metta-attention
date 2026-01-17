@@ -42,7 +42,7 @@
            ($newltifund (+ $fundsLTI $ltiDiff))
         ;    ($hello (println! (new sti $newstifund)))
         ; ($hi (println! (inside setAv)))
-           ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter
+           ($updater (attentionValueChanged $pattern $newstifund $newltifund $sti))  ; Update attentional focus and global paremeter
            
     )
    ()
@@ -66,13 +66,13 @@
 
 
 ; (: attentionValueChanged (-> Atom Number Number Expression))
-(= (attentionValueChanged $pattern $newSTIFund $newLTIFund)
+(= (attentionValueChanged $pattern $newSTIFund $newLTIFund $sti)
    (let*(
          ($stiUpdated (updateAttentionParam FUNDS_STI $newSTIFund))
          ; ($_ (println! (getAttentionParam FUNDS_STI)))
          ($ltiUpdated (updateAttentionParam FUNDS_LTI $newLTIFund))
 
-         ($globalUpdate  (update &typeSpace))
+         ($globalUpdate  (update &typeSpace $sti))
          ; ($_ (println! $globalUpdate))
 
          ; ($_ (println! (getAttentionParam MAX_STI)))
@@ -476,15 +476,24 @@
 
 
 
-(= (update $space)
+(= (update $space $sti)
 
     (let* (
-
-       ($minSTI (computeMinSTI))
-       ($maxSTI (computeMaxSTI))
-       ($finalMin (clampMinSTI $minSTI $maxSTI))
+       ($minSTI (getAttentionParam MIN_STI)) 
+       ($maxSTI (getAttentionParam MAX_STI)) 
+       ($min (if (< $minSTI $sti) 
+                $minSTI
+                $sti
+            )
+       )
+       ($max (if (> $maxSTI $sti) 
+                $maxSTI
+                $sti
+            )
+       )
+       ($finalMin (clampMinSTI $min $max))
        ($up  (updateAttentionParam MIN_STI $finalMin))
-       ($upp (updateAttentionParam MAX_STI $maxSTI))
+       ($upp (updateAttentionParam MAX_STI $max))
         )
          (trace! () ("Updated"))
     )

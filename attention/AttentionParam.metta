@@ -1,7 +1,7 @@
 !(bind! &attentionParam (new-space))
 !(add-atom &attentionParam  (AF_SIZE    0.2))
 !(add-atom &attentionParam  (MIN_AF_SIZE 500))
-!(add-atom &attentionParam  (MIN_STI 0))
+!(add-atom &attentionParam  (MIN_STI 100000))
 !(add-atom &attentionParam  (MAX_STI 0))
 !(add-atom &attentionParam  (AFB_DECAY  0.05))
 !(add-atom &attentionParam  (AFB_BOTTOM 50.0))
