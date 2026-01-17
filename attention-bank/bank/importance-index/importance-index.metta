@@ -47,7 +47,7 @@
         (let*
           (
             ($imp (trunc-math (/ (- $impo_int $groupSize) $groupSize)))
-            ($i (findGroup $imp 0.0 0.0))
+            ($i (findGroup $imp))
             ($num (- $i 1.0))
             ($temp (ceil-math (/ $impo_int (pow-math 2.0 (- $i 1.0)))))
             ($ad (- $groupSize $temp))
@@ -81,7 +81,7 @@
 
 
 ; Recursive helper to calculate the group index
-(= (findGroup $imp $sum $i)
+(= (findGroup $imp)
    (if ( <= $imp 0)
     0
     (

@@ -96,7 +96,7 @@
 
                 ($atoms (getAtomsByBin $bin))
 
-                ($atomsList (union-atom $atoms $acc))
+                ($atomsList (concatTuple $atoms $acc))
                 ; ($dec (println! (atom lists $atomsList $acc)))
 
                 )
