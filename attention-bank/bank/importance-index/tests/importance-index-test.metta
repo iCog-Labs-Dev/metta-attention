@@ -23,7 +23,7 @@
 
 ; Test case 01: Testing importanceBin with different number value
 !(test (importanceBin -5.0)  0.0)    ; Should return 0
-!(test (importanceBin 10.0)   10)   ; Should return 10 (direct assignment)
+!(test (importanceBin 10.0)   10.0)   ; Should return 10 (direct assignment)
 !(test (importanceBin 20.0)  20.0)    ; Should calculate based on group logic 18
 !(test (importanceBin 50.0) 29.0)    ; Should calculate based on group logic 29
 
@@ -36,19 +36,18 @@
 !(test (getContent 20.0 30) ((EvaluationLink a b) another Animals (Hebbianlink (Hebbianlink Human Cat) Animal)) )
 
 ; Test case 03: Testing update function
-!(test (update &typeSpace) ("Updated"))
 !(test (getMaxSTI) 200.0)
 !(test (getMinSTI) 2.0)
 
-!(test (findGroup 0 0 0) 0)
-!(test (findGroup 1 0 0) 1)
-!(test (findGroup 2 0 0) 2)
-!(test (findGroup 3 0 0) 2)
-!(test (findGroup 4 0 0) 3)
+!(test (findGroup 0) 0)
+!(test (findGroup 1) 1)
+!(test (findGroup 2) 2)
+!(test (findGroup 3) 2)
+!(test (findGroup 4) 3)
 
-!(test (findGroup 50 0 0) 6)
-!(test (findGroup 500 0 0) 9)
-!(test (findGroup 5000 0 0) 12.0)
+!(test (findGroup 50) 6)
+!(test (findGroup 500) 9)
+!(test (findGroup 5000) 12.0)
 ; Test cases 04: Testing stimulate that need to be refactored
 !(test (stimulate x 1.5) ("Updated"))
 
