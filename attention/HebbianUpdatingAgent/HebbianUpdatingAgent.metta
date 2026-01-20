@@ -11,15 +11,15 @@
 ;;;          Returns: update STV for the Hebbian link between A and some atom
 
 ; (: HebbianUpdatingAgent-Run (-> Grounded Atom))
-(= (HebbianUpdatingAgent-Run $space)
-    (let $atoms (getAfAtoms)
+(= (HebbianUpdatingAgent-Run $space $atoms)
+    ; (let $atoms (getAfAtoms)
         (if (== $atoms ())
             ()
             (let $randomAtom (getRandomAtomInAF $atoms)
                 (updateHebbianLinks $randomAtom $space)
             )
         )
-    )
+    ; )
 )
 
 ;;; Function: updateHebbianLinks

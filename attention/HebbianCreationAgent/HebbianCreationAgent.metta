@@ -18,9 +18,9 @@
 
 
 ; (: HebbianCreationAgent-Run(-> Grounded empty))
-(= (HebbianCreationAgent-Run $space)
+(= (HebbianCreationAgent-Run $space $afAtoms)
     ; if the attentional focus is empty no work is done
-    (let $afAtoms (getAfAtoms)
+    ; (let $afAtoms (getAfAtoms)
         (if (== (size-atom $afAtoms)  0.0)
         ()
          (let* (
@@ -34,7 +34,6 @@
                             ($needToBeTarget  (subtraction-atom $afAtoms $existingAsSourceHS))
                             ($count (size-atom $needToBeTarget))
                             ($farLinks (py-call (round (/ $count (localToFarLinks) )))) ;round by default
-                            ; ($_ (println! (running for atom $source  $farLinks)))
                             ($incomingSet (getIncomingSetByType $source HEBBIAN_LINK $afAtoms)) ;should I add other types of hebbian links?
                             ($maxLinkNum (getAttentionParam MAX_LINK_NUM))
                         )
@@ -58,7 +57,7 @@
             )
         )
     ))
-)
+; )
 
 ;Function: getSourceAtom
 ;Description: returns the source atom of a link

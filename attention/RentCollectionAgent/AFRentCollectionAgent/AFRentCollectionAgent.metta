@@ -134,11 +134,11 @@
   )
 )
 
-(= (AFRentCollectionAgent-run)
+(= (AFRentCollectionAgent-run $res)
    (let*
     (  ($time (py-call (time.time)))
        ($time2 (timeTime))
-       ($res (selectAFTargets) )
+       ; ($res (selectAFTargets) )
     )
       (if (== $res ()) (empty) (collectAFRent $res))
     )

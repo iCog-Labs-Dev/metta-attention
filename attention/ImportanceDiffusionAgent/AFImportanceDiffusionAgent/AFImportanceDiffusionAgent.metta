@@ -32,10 +32,10 @@
 ;; Return : The diffusion get called
 
 ; (: spreadImportance (-> Grounded Grounded Empty))
-(= (spreadImportance $space)
+(= (spreadImportance $space $difatoms)
         (let*
         (
-            ($difatoms (getAfAtoms))
+            ; ($difatoms (getAfAtoms))
             ($diffusionSourceVector  (diffusionSourceVector $difatoms))
             ($atoms (collapse 
                 (let $atom
@@ -105,6 +105,6 @@
 ;; Return : The spreadImportance function is called
 
 ; (: AFImportanceDiffusionAgent-Run (-> Grounded Grounded Empty))
-(= (AFImportanceDiffusionAgent-Run $space)
-    (spreadImportance $space)
+(= (AFImportanceDiffusionAgent-Run $space $atoms)
+    (spreadImportance $space $atoms)
 )
