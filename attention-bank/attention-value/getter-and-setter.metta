@@ -482,18 +482,15 @@
        ($minSTI (getAttentionParam MIN_STI)) 
        ($maxSTI (getAttentionParam MAX_STI)) 
        ($min (if (< $minSTI $sti) 
-                $minSTI
-                $sti
+                () ; no update
+                (updateAttentionParam MIN_STI $sti)
             )
        )
        ($max (if (> $maxSTI $sti) 
-                $maxSTI
-                $sti
+                ()
+                (updateAttentionParam MAX_STI $sti)
             )
        )
-       ($finalMin (clampMinSTI $min $max))
-       ($up  (updateAttentionParam MIN_STI $finalMin))
-       ($upp (updateAttentionParam MAX_STI $max))
         )
          (trace! () ("Updated"))
     )
