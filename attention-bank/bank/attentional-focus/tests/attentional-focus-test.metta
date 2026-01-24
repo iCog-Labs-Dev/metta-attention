@@ -1,4 +1,5 @@
 !(import! &self ../../../../../PeTTa/lib/lib_he)
+!(import! &self ../../../../../PeTTa/lib/lib_spaces)
 !(import! &self ../../../../../metta-attention/attention/AttentionParam)
 !(import! &self ../../../../../metta-attention/experiments/logger)
 !(import! &self ../../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
@@ -57,7 +58,7 @@
 ; !(test (getLowestStiAtomInAF) c)
 
 
-; ; ; ; Test case 05: Testing updateAttentionalFocus by adding new atom to attentional focus
+; ; ; ; Test case 05: Testing getAfAtoms by adding new atom to attentional focus
 
 !(setAv G (300.0 400.0 500.0))
 
@@ -74,22 +75,22 @@
 ;     )
 ; )
 
-; ;; Test case 06: Testing updateAttentionalFocus by changing values of saved atom
+; ;; Test case 06: Testing attentionalFocus by changing values of saved atom
 !(setAv G (6.0 25.0 35.0))
 
 
 !(test (isAtomInAf G) False)
 
-; !(let $x 
-;     (getAfAtoms) 
-;     (test 
-;         (subtraction 
-;             (superpose $x) 
-;             (superpose (G D B F (EvaluationLink a b) A (Hebbianlink (Hebbianlink Cat Human) Animal) C))
-;         ) 
-;         (empty)
-;     )
-; )
+!(let $x 
+    (getAfAtoms) 
+    (test 
+        (subtraction 
+            (superpose $x) 
+            (superpose (G D B F (EvaluationLink a b) A (Hebbianlink (Hebbianlink Cat Human) Animal) C))
+        ) 
+        (empty)
+    )
+)
 ; ; Test case 07: Testing updateAttentionalFocus adding an atom without AV 
 
 ; ; !(assertEqual (updateAttentionalFocus L) False)
@@ -100,3 +101,10 @@
 
 ; ; Test case 10: Testing getAfMaxSTI
 !(test (getAllMaxSTI (getAfAtoms)) 200.0)
+
+;; Test case 11: testing the buffer for getAfAtoms
+!(updateAttentionParam MAX_AF_SIZE 10)
+!(setAv RT (8.0 4.0 0.0))
+!(setAv Q (7.0 4.0 0.0))
+!(setAv V (7.0 4.0 0.0))
+!(test (size-atom (getAfAtoms)) 8)
