@@ -11,12 +11,13 @@
 ; !(let $x (get-atoms &self) (add-atom &poison $x))
 ; !(let $x (match &self $y $y) (remove-atom &self $y))
 
-; !(import! &tempspace ../../../../metta-attention/experiments/Metta/experiment2/data/sent-kb)
+!(import! &tempspace ../../../../metta-attention/experiments/Metta/experiment2/data/sent-kb)
+!(import! &tempspace ../../../../metta-attention/adagram)
 ; !(let $x (get-atoms &self) (add-atom &tempspace $x))
 ; !(let $x (match &self $y $y) (remove-atom &self $y))
 
 !(import! &self lib/lib_import)
-!(static-import! &wordnet wordnet_stv_clean)
+!(static-import! &wordnet ../../../wordnet_stv_clean)
 ; !(static-import! &conceptnet conceptnet_stv_clean)
 
 
@@ -44,17 +45,18 @@
 
 
 !(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+!(match &tempspace ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 ; !(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 20.0)
-!(updateAttentionParam TARGET_STI 1000.0)
-!(updateAttentionParam TARGET_LTI 1000.0) 
-!(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
-!(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
-!(updateAttentionParam FUNDS_STI 8000.0) 
-!(updateAttentionParam FUNDS_LTI 8000.0) 
+!(updateAttentionParam MAX_AF_SIZE 100.0)
+!(updateAttentionParam TARGET_STI 10000.0)
+!(updateAttentionParam TARGET_LTI 10000.0) 
+!(updateAttentionParam STI_FUNDS_BUFFER 10000.0) 
+!(updateAttentionParam LTI_FUNDS_BUFFER 10000.0) 
+!(updateAttentionParam FUNDS_STI 100000.0) 
+!(updateAttentionParam FUNDS_LTI 100000.0) 
 
 
 ; write the params to a file
@@ -71,7 +73,7 @@
                     
                 )
                 (
-                    (stimulate $now 30)
+                    (stimulate $now 100)
                     (println! (stimulating atom --> $now))
                     ; ($sle (py-call (time.sleep 4)))
                     (collapse (test-superpose))
