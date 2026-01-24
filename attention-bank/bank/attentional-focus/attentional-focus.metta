@@ -12,16 +12,14 @@
     (let*
         (
             ($afSize (getAttentionParam MAX_AF_SIZE))
-            ($allAtoms (getAllAtomsWithBins))
-            ; ($hell (println! (inside get af atom $allAtoms)))
-            ($size (size-atom $allAtoms) )
+            ($size (match-count (TypeSpace) ($patt ($val $bin))))
             ; ($helll (println! (inside get af atom $afSize $size)))
 
 
         ) 
         (if (>= $afSize $size)
                 ;  $allAtoms
-                (trace! (write_csv_wrapper $allAtoms) $allAtoms)
+                (let $allAtoms (getAllAtomsWithBins) (trace! (write_csv_wrapper $allAtoms) $allAtoms))
                 (getAfAtomsHelper $afSize)
         )
     )
@@ -54,23 +52,26 @@
             ; ($minimu (println! (return of min bin ($min $atomsList) )))
 
             ($remainSize (- $size (size-atom $atomsList))) ; calculate remaining number of atoms
+            ($buffer (* 1.8 (py-call (math.log $size))))
             ; ($remainSi (println! (size of the diff/remaining size $remainSize )))
-            
-            ($minAtomsSti (getAtomsByBin $min))
-            ; ($minatom (println! (return of get atom by bin fn $minAtomsSti )))
-            ($sortedMinList (sortAtomsDescending $minAtomsSti getSti))
-            ; ($m (println! (return of sorted atoms desc $sortedMinList )))
+        )   (if (<= $remainSize (- $buffer 2))
+                $atomsList
+                (let*
+                    (($minAtomsSti (getAtomsByBin $min))
+                    ; ($minatom (println! (return of get atom by bin fn $minAtomsSti )))
+                    ($sortedMinList (sortAtomsDescending $minAtomsSti getSti))
+                    ; ($m (println! (return of sorted atoms desc $sortedMinList )))
 
-            ($lastAtoms (getNatoms $sortedMinList $remainSize)); getting the first $size number of atoms
-            ; ($getn (println! (return of get $remainSize atoms $lastAtoms )))
+                    ($lastAtoms (getNatoms $sortedMinList $remainSize)); getting the first $size number of atoms
+                    ; ($getn (println! (return of get $remainSize atoms $lastAtoms )))
 
-            ($afAtoms (union-atom $atomsList $lastAtoms))
-            ; ($help (println! (inside get af atom helper $atomsList $lastAtoms $afAtoms)))
-            ($wrote (write_csv_wrapper $afAtoms)) ; log to csv if logger is configured via start_log
-        ) 
-       $afAtoms 
+                    ($afAtoms (union-atom $atomsList $lastAtoms))
+                    ; ($help (println! (inside get af atom helper $atomsList $lastAtoms $afAtoms)))
+                    ($wrote (write_csv_wrapper $afAtoms)) ; log to csv if logger is configured via start_log
+                ) 
+                $afAtoms)
     )
-)
+))
 
 ; Function: minBin
 ; Description: 
