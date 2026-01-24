@@ -1,4 +1,5 @@
 !(import! &self ../../../PeTTa/lib/lib_he)
+!(import! &self ../../../PeTTa/lib/lib_spaces)
 ; !(import! &self ../../../metta-attention/attention/ForgettingAgent/ForgettingAgent)
 !(import! &self ../../../metta-attention/attention/AttentionParam)!(import! &self ../../../metta-attention/experiments/logger)
 !(import! &self ../../../metta-attention/experiments/utils/logger.py)
