@@ -107,7 +107,7 @@
 (= (getValueType $pattern) 
 	(let $space (TypeSpace) 
         (let $a 
-            (collapse (match $space ($pattern $value) $value))
+            (collector $space ($pattern $value) $value)
             (if (== $a ())
                 %Undefined%
                 (car-atom $a)
@@ -289,29 +289,25 @@
 )
 
 
-;; used to return all atoms that have an stv or an AV in typespace
-; (: getAtomsInTypeSpace-helper (-> Expression))
-(= (getAtomsInTypeSpace-helper) 
-	(let $space (TypeSpace)
-		(match $space ($pattern $x) $pattern)
-	)
+; Description: collector is a function that returns Expression of atoms that match a certain pattern
+; is the same as match followed by collapse statement
+; params:
+; space, pattern to be matched and pattern to be returned
+(= (collector $space $patt $returnPat)
+    (foldall union-atom (match $space $patt ($returnPat)) ())
 )
-
 ; Description : getAtomsInTypeSpace is a function that returns Expression of patterns in typespace
 ; params:
 ;	None
 ; return: Expression of patterns in the typeSpace without their types in and is more deterministic than matching
 ; (: getAtomsInTypeSpace (-> Expression))
 (= (getAtomsInTypeSpace) 
-	(collapse (getAtomsInTypeSpace-helper))
+	(collector (TypeSpace) ($pattern $val) $pattern)
 )
 
 ;; counts all atoms in the TypeSpace
 (= (countAtomsInTypeSpace)
-    (let $atoms
-        (getAtomsInTypeSpace)
-        (size-atom $atoms)
-    )
+    (match-count (TypeSpace) ($pattern $x))
 )
 
 ; Function: getAtomsByBin
@@ -322,7 +318,7 @@
 
 ; (: getAtomsByBin (-> Number Expression))
 (= (getAtomsByBin $binNumber)
-    (collapse (match (TypeSpace) ($patt ($val (Bin $binNumber) ) ) $patt))
+    (collector (TypeSpace) ($patt ($val (Bin $binNumber))) $patt)
 )
 
 ; Function: getAllAtomsWithBins
@@ -331,7 +327,7 @@
 ; Returns: Expression of atoms that have AV/bin number 
 ; (: getAllAtomsWithBins (-> Expression))
 (= (getAllAtomsWithBins)
-     (collapse (match (TypeSpace) ($patt ($val (Bin $binNumber))) $patt))
+     (collector (TypeSpace) ($patt ($val (Bin $binNumber))) $patt)
 )
 
 ; Function: getSize
@@ -341,12 +337,7 @@
 
 ; (: getSize (-> Number Number))
 (= (getSize $binNumber)
-    (let*(
-        ($atoms (getAtomsByBin $binNumber))
-        ($size (size-atom $atoms))
-    ) 
-    $size
-    )
+    (match-count (TypeSpace) ($patt ($val (Bin $binNumber))))
 ) 
 
 ; Function: getbinList
@@ -356,7 +347,7 @@
 
 ; (: getBinList (-> Grounded Expression))
 (= (getBinList $space)
-    (let $x (unique-atom (collapse (match $space ($patt ($val (Bin $num))) $num))) $x)
+    (let $x (collector $space ($patt ($val (Bin $num))) $num) (unique-atom $x))
 )
 
 ; Function: getnatoms
