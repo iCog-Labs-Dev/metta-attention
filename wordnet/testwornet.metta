@@ -19,9 +19,14 @@
 ; !(getAttentionParam MIN_STI)
 ; !(getAttentionParam MAX_STI)
 
-; !(match &wordnet ((insynset able able_a_01) $y) $y)
-; !(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+; !(match &conceptnet ($atom ($mean $conf)) (stimulate $atom 1)) 
+!(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 !(match &wordnet ($atom ($mean $conf)) (stimulate $atom 1)) 
+
+!(getSti (insynset able able_a_01))
+!(getSti (insynset musky musky_s_01))
+!(getSti (insynset antepenultimate antepenultimate_s_01))
+
 
 !(getAttentionParam MIN_STI)
 !(getAttentionParam MAX_STI)
