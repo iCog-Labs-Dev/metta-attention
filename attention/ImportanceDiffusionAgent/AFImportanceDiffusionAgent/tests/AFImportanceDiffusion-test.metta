@@ -25,8 +25,7 @@
 !(stimulate target6 0)
 
 ;########################## Creating links between atoms #############################
-!(setStv (HEBBIAN_LINK source target1) (0 1))
-!(setStv (HEBBIAN_LINK source target2) (0 1))
+
 !(setStv (ASYMMETRIC_HEBBIAN_LINK source target3) (0.6 0.1))
 !(setStv (ASYMMETRIC_HEBBIAN_LINK source target4) (0.5 0.1))
 

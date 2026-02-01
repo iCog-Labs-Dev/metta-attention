@@ -74,7 +74,7 @@
             ($incomingSet (getAllIncomingSets $atom $space))
             ($type (car-atom $incomingSet))
             ($filtered
-                (if (or (== $type ASYMMETRIC_HEBBIAN_LINK) (== $type HEBBIAN_LINK)) ;; Need to be Removed
+                (if (== $type ASYMMETRIC_HEBBIAN_LINK) ;; Need to be Removed
                     (empty)
                     $incomingSet    
                 )
