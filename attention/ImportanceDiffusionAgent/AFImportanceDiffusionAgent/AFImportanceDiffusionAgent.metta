@@ -36,10 +36,9 @@
         (let*
         (
             ($difatoms (getAfAtoms))
-            ($diffusionSourceVector  (diffusionSourceVector $difatoms))
             ($atoms (collapse 
                 (let $atom
-                    (superpose $diffusionSourceVector)
+                    (superpose $difatoms)
                     (diffuseAtom $atom $space AF))
                 )
             ) 
