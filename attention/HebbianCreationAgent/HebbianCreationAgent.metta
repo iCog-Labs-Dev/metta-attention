@@ -23,42 +23,28 @@
     (let $afAtoms (getAfAtoms)
         (if (== (size-atom $afAtoms)  0.0)
         ()
-         (let* (
-            ($source (superpose $afAtoms))
-            ($flag (if (== (get-metatype $source) Expression) (== HEBBIAN_LINK (car-atom $source)) False)))
-            (if  $flag 
-                    () ; if already hebbian_link nothing is done
-                    (let*
-                        (
-                            ($existingAsSourceHS  (getTargetNeighbors $source ASYMMETRIC_HEBBIAN_LINK $space)) ;;need to check if we should use source or sourceAtom
-                            ($needToBeTarget  (subtraction-atom $afAtoms $existingAsSourceHS))
-                            ($count (size-atom $needToBeTarget))
-                            ($farLinks (py-call (round (/ $count (localToFarLinks) )))) ;round by default
-                            ; ($_ (println! (running for atom $source  $farLinks)))
-                            ($incomingSet (getIncomingSetByType $source HEBBIAN_LINK $afAtoms)) ;should I add other types of hebbian links?
-                            ($maxLinkNum (getAttentionParam MAX_LINK_NUM))
-                        )
-                        (
-                            (collapse 
-                                (let $target (superpose $needToBeTarget)
-                                        (if (not (== $target $source)) 
-                                            (addHebbian $target $source)
-                                            ()
-                                        )
-                                ) 
-                            )
-                            (addFromOutSideAF $source $farLinks $afAtoms)
-                            ; (if (> (size-atom $incomingSet) $maxLinkNum )
-                            ;     (removeLinkRecursively (- (size-atom $incomingSet) $maxLinkNum) (size-atom $afAtoms) $afAtoms)
-                            ;     ()
-                            ; )
-                        )
-                    )
-                
+         (let* 
+            (
+                ($source (superpose $afAtoms))
+                ($existingAsSourceHS  (getTargetNeighbors $source ASYMMETRIC_HEBBIAN_LINK $space)) ;;need to check if we should use source or sourceAtom
+                ($needToBeTarget  (subtraction-atom $afAtoms $existingAsSourceHS))
+                ($count (size-atom $needToBeTarget))
+                ($farLinks (py-call (round (/ $count (localToFarLinks) )))) ;round by default
             )
-        )
-    ))
+            (
+                (addFromOutSideAF $source $farLinks $afAtoms)
+                (let $target (superpose $needToBeTarget)
+                    (if (not (== $target $source)) 
+                        (addHebbian $target $source)
+                        (empty)
+                    )
+                ) 
+             )
+         )
+       )
+    )
 )
+
 
 ;Function: getSourceAtom
 ;Description: returns the source atom of a link
@@ -125,31 +111,19 @@
         (let $target (getRandomAtomNotInAF $afAtoms)
             (if (== () $target)
                 ()
-                (
-                    (if (== (get-metatype $target) Expression)
-                        (if (== (car-atom $target) HEBBIAN_LINK)
-                            ()
-                            (if (and (not (== (getStv (ASYMMETRIC_HEBBIAN_LINK $source $target)) %Undefined%)) (== $target $source)) ;If the link exists dont add it again 
-                                ()
-                                (
-                                    ; ($insaddF (println! (calling add hebbian it $target is expression, not HEBBIAN_LINK and has stv $source)))
-                                    (addHebbian $source $target )
-                                    (addFromOutSideAF $source (- $farLinks 1) $afAtoms)
-                                )
-                            )
-                        )
-                        (if  (and (not (== (getStv (ASYMMETRIC_HEBBIAN_LINK $source $target)) %Undefined%)) (== $target $source)) ;If the link exists dont add it again 
-                            ()
-                            (
-                                ; ($insadF (println! (calling add hebbian it $target is atom, and has stv $source )))
-                                (addHebbian $source $target )
-                                (addFromOutSideAF $source (- $farLinks 1) $afAtoms)
-                            )
-                        )
-                    )
+                (if (and (not (== (getStv (ASYMMETRIC_HEBBIAN_LINK $source $target)) %Undefined%)) (== $target $source)) ;If the link exists dont add it again 
+                    ()
+                    (addHebbian $source $target)
                 )
             )
         )
+    )
+)
+
+(= (generateRandom $farLinks $afAtoms)
+    (if (<= $farLinks 0)
+        ()
+        (superpose ((getRandomAtomNotInAF $afAtoms) (generateRandom (- $farLinks 1) $afAtoms)))
     )
 )
 
