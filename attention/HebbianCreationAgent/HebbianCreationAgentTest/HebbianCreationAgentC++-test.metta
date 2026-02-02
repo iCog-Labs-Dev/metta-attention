@@ -8,6 +8,8 @@
 !(import! &self ../../../../metta-attention/attention-bank/utilities/recentVal)
 !(import! &self ../../../../metta-attention/attention/Neighbors)
 !(import! &self ../../../../metta-attention/attention/HebbianCreationAgent/HebbianCreationAgent)
+!(import! &self "../../../../metta-attention/experiments/utils/logger.py")
+!(import! &self ../../../../metta-attention/experiments/logger)
 
 !(updateAttentionParam MAX_AF_SIZE 4.0)
 ; !(bind! 900.0.0 900.0.0)
@@ -65,7 +67,6 @@
     (getAfAtoms)
     (test (size-atom $afAtoms) 4)
 )
-!(getAfAtoms)
 ; !(collapse (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $x $y) $value) (ASYMMETRIC_HEBBIAN_LINK $x $y)))
 
 !(test   

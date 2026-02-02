@@ -31,7 +31,7 @@
 (= (filterTarget $link)
     (let ($type $x $target)
         $link
-        (if (or (== $type UNORDERED_LINK) (== $x $target))
+        (if (== $x $target)
             (empty)
             $x
         )
