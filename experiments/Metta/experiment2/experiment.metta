@@ -12,6 +12,7 @@
 ; !(let $x (match &self $y $y) (remove-atom &self $y))
 
 !(import! &tempspace ../../../../metta-attention/experiments/Metta/experiment2/data/sent-kb)
+!(import! &tempspace ../../../../metta-attention/experiments/Metta/experiment2/data/adagram)
 ; !(let $x (get-atoms &self) (add-atom &tempspace $x))
 ; !(let $x (match &self $y $y) (remove-atom &self $y))
 
@@ -73,7 +74,7 @@
                     
                 )
                 (
-                    (stimulate $now 30)
+                    (stimulate $now 300)
                     (println! (stimulating atom --> $now))
                     ; ($sle (py-call (time.sleep 4)))
                     (collapse (test-superpose))
@@ -92,7 +93,26 @@
             
     )
 )
-!(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x))
+
+(= (run $space $type)
+   (let* 
+        (
+            ($atoms (match $space ($type $x) $x))
+            ($now (superpose $atoms))
+        )
+        (
+            (stimulate $now 300)
+            (println! (stimulating atom -> $now))
+            (test-superpose)
+        )
+    )
+)
+
+
+!(run &poison poisonSent)
+!(run &insect insectSent)
+
+(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x))
 
 (getAfAtoms)
 (getAtomsInTypeSpace)
