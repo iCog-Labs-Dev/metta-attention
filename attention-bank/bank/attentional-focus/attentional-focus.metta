@@ -14,7 +14,7 @@
             ($afSize (getAttentionParam MAX_AF_SIZE))
             ($allAtoms (getAllAtomsWithBins))
             ; ($hell (println! (inside get af atom $allAtoms)))
-            ($size (size-atom $allAtoms) )
+            ($size (* 1.0 (size-atom $allAtoms) ))
             ; ($helll (println! (inside get af atom $afSize $size)))
 
 
