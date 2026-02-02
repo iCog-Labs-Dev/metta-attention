@@ -25,6 +25,15 @@
     )
 )
 
+; Function: const
+; Description: 
+;             - Returns a constant scaling factor used for the attentional focus buffer calculation.
+;             - This value adjusts the sensitivity of the buffer that decides whether to perform 
+;               sorting on the last STI bin.
+; Parameter: None
+; Return: A numeric value (0.7)
+(= (const) 0.7)
+
 ; Function: getAfAtomsHelper
 ; Description: 
 ;             - this helper function finds top $size number of atoms  by iterating through bin numbers list from highest to lowest
@@ -52,19 +61,20 @@
             ; ($minimu (println! (return of min bin ($min $atomsList) )))
 
             ($remainSize (- $size (size-atom $atomsList))) ; calculate remaining number of atoms
-            ($buffer (* 1.8 (py-call (math.log $size))))
+
+            ($buffer  (* (const) (py-call (math.sqrt $size))))
             ; ($remainSi (println! (size of the diff/remaining size $remainSize )))
-        )   (if (<= $remainSize (- $buffer 2))
+        )   (if (<= $remainSize $buffer)
                 $atomsList
                 (let*
                     (($minAtomsSti (getAtomsByBin $min))
                     ; ($minatom (println! (return of get atom by bin fn $minAtomsSti )))
-                    ($sortedMinList (sortAtomsDescending $minAtomsSti getSti))
+                    ($flag (> (- (size-atom $minAtomsSti) $remainSize) $buffer))
                     ; ($m (println! (return of sorted atoms desc $sortedMinList )))
 
-                    ($lastAtoms (getNatoms $sortedMinList $remainSize)); getting the first $size number of atoms
-                    ; ($getn (println! (return of get $remainSize atoms $lastAtoms )))
-
+                    ($lastAtoms (if $flag 
+                                    (let $sortedMinList (sortAtomsDescending $minAtomsSti getSti) (getNatoms $sortedMinList $remainSize)); getting the first $size number of atoms
+                                    $minAtomsSti))
                     ($afAtoms (union-atom $atomsList $lastAtoms))
                     ; ($help (println! (inside get af atom helper $atomsList $lastAtoms $afAtoms)))
                     ($wrote (write_csv_wrapper $afAtoms)) ; log to csv if logger is configured via start_log
