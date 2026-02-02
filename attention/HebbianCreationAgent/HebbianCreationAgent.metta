@@ -21,7 +21,7 @@
 (= (HebbianCreationAgent-Run $space)
     ; if the attentional focus is empty no work is done
     (let $afAtoms (getAfAtoms)
-        (if (== (size-atom $afAtoms)  0.0)
+        (if (== (size-atom $afAtoms) 0)
         ()
          (let* 
             (
