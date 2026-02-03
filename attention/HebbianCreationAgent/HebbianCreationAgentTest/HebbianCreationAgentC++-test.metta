@@ -1,4 +1,5 @@
 !(import! &self ../../../../PeTTa/lib/lib_he)
+!(import! &self ../../../../PeTTa/lib/lib_spaces)
 !(import! &self ../../../../metta-attention/attention/AttentionParam)
 !(import! &self ../../../../metta-attention/attention-bank/utilities/helper-functions)
 !(import! &self ../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
@@ -8,8 +9,6 @@
 !(import! &self ../../../../metta-attention/attention-bank/utilities/recentVal)
 !(import! &self ../../../../metta-attention/attention/Neighbors)
 !(import! &self ../../../../metta-attention/attention/HebbianCreationAgent/HebbianCreationAgent)
-!(import! &self "../../../../metta-attention/experiments/utils/logger.py")
-!(import! &self ../../../../metta-attention/experiments/logger)
 
 !(updateAttentionParam MAX_AF_SIZE 4.0)
 ; !(bind! 900.0.0 900.0.0)
