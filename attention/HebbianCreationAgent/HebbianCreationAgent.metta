@@ -108,7 +108,7 @@
 ( = (addFromOutSideAF  $source $farLinks $afAtoms)
     (if ( == $farLinks 0)
         ()
-        (let $target (getRandomAtomNotInAF $afAtoms)
+         (let $target (generateRandom $farLinks $afAtoms)
             (if (== () $target)
                 ()
                 (if (and (not (== (getStv (ASYMMETRIC_HEBBIAN_LINK $source $target)) %Undefined%)) (== $target $source)) ;If the link exists dont add it again 
