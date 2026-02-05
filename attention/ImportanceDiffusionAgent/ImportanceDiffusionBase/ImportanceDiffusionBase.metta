@@ -56,10 +56,12 @@
             $vals (superpose $oset)
             (if (== (get-metatype $vals) Expression)
                        (if (== (car-atom $vals) ASYMMETRIC_HEBBIAN_LINK) 
-                        $vals
-                        (empty)
-            )   $vals
-            )    )
+                            (empty)
+                            $vals        
+                        )   
+                $vals
+            )    
+    )
 )
 
 ;; This function will return the incident atoms of a given atom
