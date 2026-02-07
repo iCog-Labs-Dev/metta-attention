@@ -25,6 +25,15 @@
     )
 )
 
+; Function: const
+; Description: 
+;             - Returns a constant scaling factor used for the attentional focus buffer calculation.
+;             - This value adjusts the sensitivity of the buffer that decides whether to perform 
+;               sorting on the last STI bin.
+; Parameter: None
+; Return: A numeric value (0.7)
+(= (const) 0.7)
+
 ; Function: getAfAtomsHelper
 ; Description: 
 ;             - this helper function finds top $size number of atoms  by iterating through bin numbers list from highest to lowest
@@ -59,12 +68,12 @@
                 (let*
                     (($minAtomsSti (getAtomsByBin $min))
                     ; ($minatom (println! (return of get atom by bin fn $minAtomsSti )))
-                    ($sortedMinList (sortAtomsDescending $minAtomsSti getSti))
+                    ($flag (> (- (size-atom $minAtomsSti) $remainSize) $buffer))
                     ; ($m (println! (return of sorted atoms desc $sortedMinList )))
 
-                    ($lastAtoms (getNatoms $sortedMinList $remainSize)); getting the first $size number of atoms
-                    ; ($getn (println! (return of get $remainSize atoms $lastAtoms )))
-
+                    ($lastAtoms (if $flag 
+                                    (let $sortedMinList (sortAtomsDescending $minAtomsSti getSti) (getNatoms $sortedMinList $remainSize)); getting the first $size number of atoms
+                                    $minAtomsSti))
                     ($afAtoms (union-atom $atomsList $lastAtoms))
                     ; ($help (println! (inside get af atom helper $atomsList $lastAtoms $afAtoms)))
                     ($wrote (write_csv_wrapper $afAtoms)) ; log to csv if logger is configured via start_log
@@ -144,6 +153,30 @@
     )
 )
 
+(= (getRandomAtomNotInAF $afAtoms)
+    (let* 
+        ( 
+            ($atoms (getAllAtomsWithBins))
+            ($outsideAf (subtraction-atom $atoms $afAtoms))
+            ($size (size-atom $outsideAf))
+        )   
+        (if (== $size 0)
+            ()
+            (if (== $size 1) 
+                (index-atom $outsideAf 0) 
+                (let*
+                    (
+                        ($rand (random-int 0 $size) )
+                        ($singatom (index-atom $outsideAf $rand))
+                    )
+                    $singatom
+                )
+            )
+        )
+    )
+)
+
+
 ; Function: getRandomAtomInAF
 ; Description: 
 ;             -  Retrives at atom at random from the attentionalFocus
@@ -160,6 +193,15 @@
     )
 )
 
+(= (getRandomAtomInAF $atoms)
+    (if (== (size-atom $atoms) 0)
+        ()
+        (let $rand 
+            (random-int 0 (size-atom $atoms))
+            (index-atom $atoms $rand)
+        )
+    )
+)
 ; Function: isAtomInAf
 ; Description: 
 ;             -  Checks if a given atom is in the attentional focus atoms list
@@ -179,18 +221,15 @@
 ;   $type: The type of link to consider.
 ; Returns: A list of incoming links of the specified type.
 ; (: getIncomingSetByType (-> Atom Type Expression))
-(= (getIncomingSetByType $atom $type)
-    (let $list 
-        (getAfAtoms)
-        (collapse 
-            (let*
-                (
-                    ($x (superpose $list))
-                    ($y (unify ($type $elem $atom) $x ($type $elem $atom) ()))
-                    ($l (unify ($type $atom $z) $x ($type $atom $z) ()))
-                ) 
-                (if (and (== $y ()) (== $l ())) (empty) (union-atom $y $l))
-            )
+(= (getIncomingSetByType $atom $type $list)
+    (collapse 
+        (let*
+            (
+                ($x (superpose $list))
+                ($y (unify ($type $elem $atom) $x ($type $elem $atom) ()))
+                ($l (unify ($type $atom $z) $x ($type $atom $z) ()))
+            ) 
+            (if (and (== $y ()) (== $l ())) (empty) (union-atom $y $l))
         )
     )
 )

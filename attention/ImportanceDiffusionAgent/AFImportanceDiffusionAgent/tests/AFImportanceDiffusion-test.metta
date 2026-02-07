@@ -1,4 +1,5 @@
 !(import! &self ../../../../../PeTTa/lib/lib_he)
+!(import! &self ../../../../../PeTTa/lib/lib_spaces)
 !(import! &self ../../../../../metta-attention/attention/AttentionParam)
 !(import! &self ../../../../../metta-attention/attention-bank/utilities/helper-functions)
 !(import! &self ../../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
@@ -24,8 +25,7 @@
 !(stimulate target6 0)
 
 ;########################## Creating links between atoms #############################
-!(setStv (HEBBIAN_LINK source target1) (0 1))
-!(setStv (HEBBIAN_LINK source target2) (0 1))
+
 !(setStv (ASYMMETRIC_HEBBIAN_LINK source target3) (0.6 0.1))
 !(setStv (ASYMMETRIC_HEBBIAN_LINK source target4) (0.5 0.1))
 
