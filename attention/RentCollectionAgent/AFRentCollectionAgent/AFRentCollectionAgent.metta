@@ -37,13 +37,10 @@
           ($elapsedTime (* (- $currentTime $lastUpdate) 1000000))
           ($timeThreshold (/ 1000000 $updateFreq))
           ($multiplier (/ $updateFreq 1000000))
-          ($timeres (let $resul (match &timer (firstTime $bool) $bool) $resul))
+          ($timeres (match &timer (firstTime $bool) $bool))
       )
       (if $timeres
-          (let $x
-            (setFirstTime False)
-            (setLastUpdate $currentTime)
-          )
+          (setFirstTime False)
           (if (< $elapsedTime $timeThreshold)
               (empty)
               (let*
@@ -51,10 +48,7 @@
                     ($w (* $elapsedTime $multiplier))
                     ($lists (superpose $targetSet))
                   )
-                  (
-                    (applyRent $w $lists)
-                    (setLastUpdate (timeTime))
-                  )
+                  (applyRent $w $lists)
               )
           )
       )
@@ -73,7 +67,6 @@
    (let*
         (
           ($sti (getSti $atom))
-          ; ($atomss (println! (this is atom $atom)))
           ($lti (getLti $atom))
           ($stiAtomRent (getAttentionParam StartingAtomStiRent))
           ($ltiAtomRent (getAttentionParam StartingAtomLtiRent))
@@ -83,7 +76,7 @@
 
         )
         (if (and (== $calculatestirent  0.0) (== $calculateltirent 0.0))
-          ()
+          (empty)
           (let*
             (
               ($stiRent (* $calculatestirent $w))
@@ -108,13 +101,13 @@
 ; Returns: None.
 ; (: setLastUpdate (-> Number empty))
 (= (setLastUpdate $time)
-  ( (match  &timer (lastUpdate $x)
-                  (let ()
-                        (remove-atom &timer (lastUpdate $x))
-                        (add-atom &timer  (lastUpdate $time))
-                  )
+    (let*
+        (
+            ($bool (remove-atom &timer (lastUpdate $x)))
+            ($val $time)
+        )
+        (add-atom &timer (lastUpdate $val))
     )
-  )
 )
 
 ; Function: setFirstTime
@@ -124,22 +117,23 @@
 ; Returns: None.
 ; (: setFirstTime (-> Bool empty))
 (= (setFirstTime $flag)
-  (
-    ; (match  &timer (firstTime $x)
-                  (let $x
-                    (remove-atom  &timer (firstTime $x))
-                    (add-atom  &timer (firstTime $flag))
-                  )
-    ; )
-  )
+    (
+        (let $bool
+            (remove-atom  &timer (firstTime $x))
+            (add-atom  &timer (firstTime $flag))
+        )
+    )
 )
 
 (= (AFRentCollectionAgent-run)
-   (let*
-    (  ($time (py-call (time.time)))
-       ($time2 (timeTime))
-       ($res (selectAFTargets) )
-    )
-      (if (== $res ()) (empty) (collectAFRent $res))
+    (let $res 
+        (getAfAtoms) 
+        (if (== $res ()) 
+            (empty) 
+            (let $x
+                (collapse (collectAFRent $res))
+                (setLastUpdate (timeTime))
+            )
+      )
     )
 )
