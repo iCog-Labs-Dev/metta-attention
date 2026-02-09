@@ -25,7 +25,7 @@
 
 
 !(import! &self lib/lib_import)
-!(static-import! &wordnet wordnet_stv_reordered)
+!(static-import! &wordnet wordnet_stv_clean)
 ; !(static-import! &conceptnet conceptnet_stv_clean)
 
 ; !(getAttentionParam MIN_STI)
