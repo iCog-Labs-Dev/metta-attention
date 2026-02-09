@@ -54,7 +54,7 @@ with open(IN_FILE, "r", encoding="utf-8") as fin, \
             args = [maybe_quote(a) for a in args]
 
             fout.write(
-                f"({rel_name} {' '.join(args)} "
+                f"(({rel_name} {' '.join(args)}) "
                 f"('{DEFAULT_MEAN}' '{DEFAULT_CONF}'))\n"
             )
         else:
