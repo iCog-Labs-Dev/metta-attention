@@ -18,10 +18,9 @@
             )
             ($oset (collapse (filteroset $foset)))
             ($incidentAndoset (concatTuple $incidentAtoms $oset))
-            ($iset (collapse (match $space ((ASYMMETRIC_HEBBIAN_LINK $atom $b) $a) (ASYMMETRIC_HEBBIAN_LINK $atom $b))))
-            ($hebbianAdjacentAtoms (collapse (hebbianAdjacentAtoms $iset $atom)))
+            ($iset (collapse (match $space ((ASYMMETRIC_HEBBIAN_LINK $atom $b) $a) $b)))
             ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAndoset)))
-            ($probabilityVectorHebbianAjacent (collapse (probabilityVectorHebbianAjacent $atom $hebbianAdjacentAtoms)))
+            ($probabilityVectorHebbianAjacent (collapse (probabilityVectorHebbianAjacent $atom $iset)))
             ($combProbabilityVector (combineIncidentAdjacentVectors $probabilityVectorIncident $probabilityVectorHebbianAjacent))
             
             ($totaldiffusionAmount (if (== $AForWA AF)
@@ -53,19 +52,15 @@
 ;; Parameters: $oset: outgoing atoms of a link
 ;; return: non ASYMMETRIC_HEBBIAN_LINK outgoing atoms (non-deterministic)
 (= (filteroset $oset) 
-    (let* 
-        (
-            ($vals (superpose $oset))
-            ($type (if (== (get-metatype $vals) Expression)
-                        (car-atom $vals)
-                        $vals
-                    )
-            )
-        )
-        (if (== $type ASYMMETRIC_HEBBIAN_LINK)
-            (empty)
-            $type
-        )
+    (let
+            $vals (superpose $oset)
+            (if (== (get-metatype $vals) Expression)
+                       (if (== (car-atom $vals) ASYMMETRIC_HEBBIAN_LINK) 
+                            (empty)
+                            $vals        
+                        )   
+                $vals
+            )    
     )
 )
 
@@ -79,13 +74,11 @@
     (let*
         (
             ($incomingSet (getAllIncomingSets $atom $space))
+            ($type (car-atom $incomingSet))
             ($filtered
-                (if (== (car-atom $incomingSet) ASYMMETRIC_HEBBIAN_LINK) ;; Need to be Removed
+                (if (== $type ASYMMETRIC_HEBBIAN_LINK) ;; Need to be Removed
                     (empty)
-                    (if (== (car-atom $incomingSet) HEBBIAN_LINK)
-                        (empty)
-                        $incomingSet
-                    )
+                    $incomingSet    
                 )
             )
         )

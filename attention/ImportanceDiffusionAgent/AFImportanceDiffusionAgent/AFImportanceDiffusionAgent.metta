@@ -36,18 +36,16 @@
         (let*
         (
             ($difatoms (getAfAtoms))
-            ($diffusionSourceVector  (diffusionSourceVector $difatoms))
             ($atoms (collapse 
                 (let $atom
-                    (superpose $diffusionSourceVector)
+                    (superpose $difatoms)
                     (diffuseAtom $atom $space AF))
                 )
             ) 
-            ($trades (collapse (tradeList $atoms)))
-            (($atom $sti) (superpose $trades))
+            (($atom $sti) (tradeList $atoms))
             
         )
-         (setSti $atom $sti)
+         (collapse (setSti $atom $sti))
         )
     )
 

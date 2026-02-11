@@ -8,4 +8,6 @@ __pycache__
 experiments/Metta/experiment2/wordnet_stv_clean.metta
 experiments/Metta/experiment2/conceptnet_stv_clean.metta
 experiments/Metta/experiment2/scripts/conceptnet-assertions-5.7.0.csv
-wordnet/
+wordnet.metta
+wordnet_clean.metta
+wordnet_stv_clean.metta
