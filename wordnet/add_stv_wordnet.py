@@ -38,14 +38,6 @@ with open(IN_FILE, "r", encoding="utf-8") as fin, \
         if not line:
             continue
 
-        # --- Synset lines ---
-        if line.startswith("(Synset"):
-            content = line[1:-1].strip()
-            parts = content.split()
-            parts = [maybe_quote(p) for p in parts]
-            fout.write(f"({ ' '.join(parts) })\n")
-            continue
-
         # --- Relation lines ---
         m = relation_pattern.match(line)
         if m:
@@ -55,7 +47,7 @@ with open(IN_FILE, "r", encoding="utf-8") as fin, \
 
             fout.write(
                 f"(({rel_name} {' '.join(args)}) "
-                f"('{DEFAULT_MEAN}' '{DEFAULT_CONF}'))\n"
+                f"({DEFAULT_MEAN} {DEFAULT_CONF}))\n"
             )
         else:
             fout.write(maybe_quote(line) + "\n")
