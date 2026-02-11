@@ -18,12 +18,18 @@
 *MACOS* or *LINUX* based systems. For running on windows using *WSL* or other
 means of virtualization is required.
 
-- To run the code clone the github repository and cd into the repository
+- To run the code clone the folloing github repository
+
+```sh
+git clone https://github.com/trueagi-io/PeTTa
+```
 
 ```sh
 git clone https://github.com/iCog-Labs-Dev/metta-attention
 cd metta-attention
 ```
+
+- Important note: make sure the PeTTa and metta-attention have sibling folders for your parent folder.
 
 - After cloning the repo create a python virtual enviroment and load all dependancies.
 NB: The **Hyperon** python module requires python versions greater than or equal to 3.8 
@@ -33,6 +39,26 @@ python3 -m venv .ECAN
 source .ECAN/bin/activate
 pip install -r requirments.txt
 ```
+
+- to run tests
+    - cd PeTTa repository
+    - run `sh run.sh ../metta-attention/go-to-the-test-you-want-to-run` 
+    - e.g 
+    
+    ```
+    sh run.sh ../metta-attention/attention/HebbianCreationAgent/HebbianCreationAgentTest/HebbianCreationAgentc++-test.metta
+    ```
+
+- to run the experiment
+    - download the conceptnet file from here `https://s3.amazonaws.com/conceptnet/downloads/2019/edges/conceptnet-assertions-5.7.0.csv.gz`
+    - unzip and add the assertions.csv file to the `metta-attention/experiments/Metta/experiment2/scripts` folder.
+    - cd metta-attention/experiments/Metta/experiment2/scripts
+    - run conceptnet_to_metta.py file
+    - run wordnet.py file 
+    - run add_stv_wordnet.py file
+    - run add_stv_conceptnet.py file
+    - move conceptnet_stv_clean.metta and wordnet_stv_clean.metta files from scripts folder to experiment2 folder(parent folder)
+    - go to PeTTa repository and run the following the experiment.metta which is `sh run.sh ../metta-attention/experiments/Metta/experiment2/experiment.metta `
 
 
 ## Contributing 
