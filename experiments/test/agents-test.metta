@@ -1,4 +1,5 @@
 !(import! &self ../../../PeTTa/lib/lib_he)
+!(import! &self ../../../PeTTa/lib/lib_spaces)
 !(import! &self ../../../metta-attention/attention/AttentionParam)
 !(import! &self ../../../metta-attention/attention-bank/utilities/helper-functions)
 !(import! &self ../../../metta-attention/attention-bank/utilities/recentVal)
@@ -81,7 +82,7 @@
 
 !(stimulate aflatoxin 30.0)
 !(test (getAttentionParam FUNDS_STI) 980.0)
-; ; !(py-call (time.sleep 1))
+!(py-call (time.sleep 0.1))
 !(test-superpose)
 
 !(test (> (getAttentionParam FUNDS_STI) 980.0) True)

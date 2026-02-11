@@ -12,20 +12,19 @@
     (let*
         (
             ($afSize (getAttentionParam MAX_AF_SIZE))
-            ($allAtoms (getAllAtomsWithBins))
-            ; ($hell (println! (inside get af atom $allAtoms)))
-            ($size (size-atom $allAtoms) )
+            ($size (match-count (TypeSpace) ($patt ($val $bin))))
             ; ($helll (println! (inside get af atom $afSize $size)))
 
 
         ) 
         (if (>= $afSize $size)
                 ;  $allAtoms
-                (trace! (write_csv_wrapper $allAtoms) $allAtoms)
+                (let $allAtoms (getAllAtomsWithBins) (trace! (write_csv_wrapper $allAtoms) $allAtoms))
                 (getAfAtomsHelper $afSize)
         )
     )
 )
+
 
 ; Function: getAfAtomsHelper
 ; Description: 
@@ -143,6 +142,30 @@
     )
 )
 
+(= (getRandomAtomNotInAF $afAtoms)
+    (let* 
+        ( 
+            ($atoms (getAllAtomsWithBins))
+            ($outsideAf (subtraction-atom $atoms $afAtoms))
+            ($size (size-atom $outsideAf))
+        )   
+        (if (== $size 0)
+            ()
+            (if (== $size 1) 
+                (index-atom $outsideAf 0) 
+                (let*
+                    (
+                        ($rand (random-int 0 $size) )
+                        ($singatom (index-atom $outsideAf $rand))
+                    )
+                    $singatom
+                )
+            )
+        )
+    )
+)
+
+
 ; Function: getRandomAtomInAF
 ; Description: 
 ;             -  Retrives at atom at random from the attentionalFocus
@@ -159,6 +182,15 @@
     )
 )
 
+(= (getRandomAtomInAF $atoms)
+    (if (== (size-atom $atoms) 0)
+        ()
+        (let $rand 
+            (random-int 0 (size-atom $atoms))
+            (index-atom $atoms $rand)
+        )
+    )
+)
 ; Function: isAtomInAf
 ; Description: 
 ;             -  Checks if a given atom is in the attentional focus atoms list
@@ -178,18 +210,15 @@
 ;   $type: The type of link to consider.
 ; Returns: A list of incoming links of the specified type.
 ; (: getIncomingSetByType (-> Atom Type Expression))
-(= (getIncomingSetByType $atom $type)
-    (let $list 
-        (getAfAtoms)
-        (collapse 
-            (let*
-                (
-                    ($x (superpose $list))
-                    ($y (unify ($type $elem $atom) $x ($type $elem $atom) ()))
-                    ($l (unify ($type $atom $z) $x ($type $atom $z) ()))
-                ) 
-                (if (and (== $y ()) (== $l ())) (empty) (union-atom $y $l))
-            )
+(= (getIncomingSetByType $atom $type $list)
+    (collapse 
+        (let*
+            (
+                ($x (superpose $list))
+                ($y (unify ($type $elem $atom) $x ($type $elem $atom) ()))
+                ($l (unify ($type $atom $z) $x ($type $atom $z) ()))
+            ) 
+            (if (and (== $y ()) (== $l ())) (empty) (union-atom $y $l))
         )
     )
 )

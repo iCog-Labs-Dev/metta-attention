@@ -1,4 +1,5 @@
 !(import! &self ../../../../PeTTa/lib/lib_he)
+!(import! &self ../../../../PeTTa/lib/lib_spaces)
 !(import! &self ../../../../metta-attention/attention/AttentionParam)
 !(import! &self ../../../../metta-attention/attention-bank/utilities/helper-functions)
 !(import! &self ../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
@@ -65,7 +66,6 @@
     (getAfAtoms)
     (test (size-atom $afAtoms) 4)
 )
-!(getAfAtoms)
 ; !(collapse (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $x $y) $value) (ASYMMETRIC_HEBBIAN_LINK $x $y)))
 
 !(test   
