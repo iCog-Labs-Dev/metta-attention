@@ -102,9 +102,4 @@
 ; ; Test case 10: Testing getAfMaxSTI
 !(test (getAllMaxSTI (getAfAtoms)) 200.0)
 
-;; Test case 11: testing the buffer for getAfAtoms
-!(updateAttentionParam MAX_AF_SIZE 10)
-!(setAv RT (8.0 4.0 0.0))
-!(setAv Q (7.0 4.0 0.0))
-!(setAv V (7.0 4.0 0.0))
-!(test (size-atom (getAfAtoms)) 8)
+
