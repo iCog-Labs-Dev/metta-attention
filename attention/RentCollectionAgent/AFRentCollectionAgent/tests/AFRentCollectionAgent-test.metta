@@ -10,6 +10,7 @@
 
 
 !(import! &self ../../../../../PeTTa/lib/lib_he)
+!(import! &self lib/lib_spaces)
 !(import! &self ../../../../../metta-attention/attention/AttentionParam)
 !(import! &self ../../../../../metta-attention/attention-bank/utilities/helper-functions)
 !(import! &self ../../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
