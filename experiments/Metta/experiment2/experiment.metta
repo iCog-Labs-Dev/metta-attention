@@ -17,6 +17,7 @@
 ; !(let $x (match &self $y $y) (remove-atom &self $y))
 
 !(import! &self lib/lib_import)
+!(import! &self lib/lib_spaces)
 !(static-import! &wordnet wordnet_stv_clean)
 ; !(static-import! &conceptnet output)
 ; !(static-import! &conceptnet conceptnet_links_only)
@@ -75,7 +76,7 @@
                     
                 )
                 (
-                    (stimulate $now 30)
+                    (stimulate $now 300)
                     (println! (stimulating atom --> $now))
                     ; ($sle (py-call (time.sleep 4)))
                     (collapse (test-superpose))
@@ -90,30 +91,12 @@
              )
                 )
                 )
-            )
-            
-;     )
-; )
-
-(= (run $space $type)
-   (let* 
-        (
-            ($atoms (match $space ($type $x) $x))
-            ($now (superpose $atoms))
-        )
-        (
-            (stimulate $now 300)
-            (println! (stimulating atom -> $now))
-            (test-superpose)
-        )
+            )           
     )
 )
 
 
-!(run &poison poisonSent)
-!(run &insect insectSent)
 
-(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x))
+!(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x))
 
-(getAfAtoms)
-(getAtomsInTypeSpace)
+
