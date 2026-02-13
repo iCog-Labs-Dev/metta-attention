@@ -45,6 +45,13 @@
 !(stimulate target3 200)
 !(stimulate target4 250)
 
+;######################## test for utility functions ##################
+!(test (targetConjunction (source target2)) 0.625)
+!(test (mergeCalculation (0.7 0.8) (0.4 0.6) PLN_BOOK_REVISION) (0.6181818181818182 0.8387096774193549))
+!(test (higherConfidenceMerge (0.7 0.8) (0.4 0.9)) (0.4 0.9))
+!(test (mergeCalculation (0.7 0.8) (0.4 0.6) HIGHER_CONFIDENCE) (0.7 0.8))
+!(test (getAllIncomingSetsForHUAgent target1 (TypeSpace) ASYMMETRIC_HEBBIAN_LINK) (ASYMMETRIC_HEBBIAN_LINK target1 source))
+
 ;################ Running the HebbianUpdatingAgent with source as parameter ####################
 !(updateHebbianLinks source (TypeSpace))
 
