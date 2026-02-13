@@ -18,10 +18,10 @@
 
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
-!(static-import! &wordnet ../../../wordnet_stv_clean)
-!(static-import! &conceptnet ../../../wordnet/conceptnet_stv_clean)
-; !(import! &wordnet ../../../wordnet)
-; !(import! &conceptnet ../../../wordnet/conceptnet_stv_clean)
+!(static-import! &wordnet wordnet_stv_clean)
+; !(static-import! &conceptnet output)
+; !(static-import! &conceptnet conceptnet_links_only)
+
 
 
 !(import! &self ../../../../metta-attention/attention/AttentionParam)
@@ -91,30 +91,12 @@
              )
                 )
                 )
-            )
-            
-    )
-)
-
-(= (run $space $type)
-   (let* 
-        (
-            ($atoms (match $space ($type $x) $x))
-            ($now (superpose $atoms))
-        )
-        (
-            (stimulate $now 300)
-            (println! (stimulating atom -> $now))
-            (test-superpose)
-        )
+            )           
     )
 )
 
 
-!(run &poison poisonSent)
-!(run &insect insectSent)
 
-(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x))
+!(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x))
 
-(getAfAtoms)
-(getAtomsInTypeSpace)
+
