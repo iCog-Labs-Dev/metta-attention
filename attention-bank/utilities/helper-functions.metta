@@ -298,23 +298,7 @@
     )
 )
 
-; (= (sortAtomsDescending $atoms $fun) 
-;     (if (== $atoms ())
-; 		()
-; 		(let*
-; 			(
-; 				($pivot (car-atom $atoms))
-; 				($tail (cdr-atom $atoms))
-; 				($lesser (binaryFilter lessThanSti  $pivot $tail $fun))
-; 				($greater (binaryFilter greaterThanSti  $pivot $tail $fun))
-;                 ($sortedLesser (sortAtomsDescending $lesser $fun))
-;                 ($sortedGreater (sortAtomsDescending $greater $fun))
-; 			)	
-;            (concatTuple $sortedGreater (cons-atom $pivot $sortedLesser))
-; 		)
-; 	)
 
-; )
 
 (= (lessThanSti $elem $pivot $fun)
     (if (or (== $elem ()) (== $pivot ()))
