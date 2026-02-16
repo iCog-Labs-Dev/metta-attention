@@ -1,29 +1,27 @@
-!(import! &self ../../../PeTTa/lib/lib_he)
-!(import! &self ../../../PeTTa/lib/lib_spaces)
-; !(import! &self ../../../metta-attention/attention/ForgettingAgent/ForgettingAgent)
-!(import! &self ../../../metta-attention/attention/AttentionParam)!(import! &self ../../../metta-attention/experiments/logger)
-!(import! &self ../../../metta-attention/experiments/utils/logger.py)
-!(import! &self ../../../metta-attention/attention/Neighbors)
-!(import! &self ../../../metta-attention/experiments/runner-Def)
+!(import! &self lib/lib_he)
+!(import! &self lib/lib_spaces)
+!(import! &self ../AttentionParam.metta)
+!(import! &self ../../attention-bank/utilities/helper-functions)
+!(import! &self ../../attention-bank/utilities/recentVal)
 
-!(import! &self ../../../metta-attention/attention-bank/utilities/helper-functions)
-!(import! &self ../../../metta-attention/attention-bank/utilities/recentVal)
+!(import! &self ../../attention-bank/attention-value/getter-and-setter)
 
-!(import! &self ../../../metta-attention/attention-bank/attention-value/getter-and-setter)
-
-!(import! &self ../../../metta-attention/attention-bank/bank/attention-bank)
-!(import! &self ../../../metta-attention/attention-bank/bank/attentional-focus/attentional-focus)
-!(import! &self ../../../metta-attention/attention-bank/bank/importance-index/importance-index)
-!(import! &self ../../../metta-attention/attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
-!(import! &self ../../../metta-attention/attention/RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent)
-!(import! &self ../../../metta-attention/attention/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent)
-!(import! &self ../../../metta-attention/attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent)
-!(import! &self ../../../metta-attention/attention/ImportanceDiffusionAgent/ImportanceDiffusionBase/ImportanceDiffusionBase)
-!(import! &self ../../../metta-attention/attention/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent)
-!(import! &self ../../../metta-attention/attention/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent)
-!(import! &self ../../../metta-attention/attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
-!(import! &self ../../../metta-attention/attention/HebbianCreationAgent/HebbianCreationAgent)
-
+!(import! &self ../../attention-bank/bank/importance-index/importance-index)
+!(import! &self ../Neighbors)
+!(import! &self ../../attention-bank/utilities/logger)
+!(import! &self "../../attention-bank/utilities/logger/logger.py")
+!(import! &self ../../attention-bank/bank/attention-bank)
+!(import! &self ../../attention-bank/bank/attentional-focus/attentional-focus)
+!(import! &self ../../attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
+!(import! &self ../RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent)
+!(import! &self ../RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent)
+!(import! &self ../RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent)
+!(import! &self ../ImportanceDiffusionAgent/ImportanceDiffusionBase/ImportanceDiffusionBase)
+!(import! &self ../ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent)
+!(import! &self ../ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent)
+!(import! &self ../HebbianUpdatingAgent/HebbianUpdatingAgent)
+!(import! &self ../HebbianCreationAgent/HebbianCreationAgent)
+!(import! &self ../runner-Def)
 
 ; =================== Set hyperparameters =====================
 !(updateAttentionParam MAX_AF_SIZE 5.0)
@@ -63,12 +61,12 @@
 !(AFImportanceDiffusionAgent-Run (TypeSpace))
 
 ; => assert changes to attentional focus and atoms sti lti and bin
-!(test (getAfAtoms) (Ants (SimilarityLink abamectin Ants)))
+!(test (getAfAtoms) ((SimilarityLink abamectin Ants) Ants))
 !(test (getSti Ants) 360.0)
 !(test (getLti Ants) 600.0)
 !(test (getSti (SimilarityLink abamectin Ants)) 240.0)
 !(test (getLti (SimilarityLink abamectin Ants)) 0.0)
-!(test (getAllAtomsWithBins) (Ants (SimilarityLink abamectin Ants)))
+!(test (getAllAtomsWithBins) ((SimilarityLink abamectin Ants) Ants))
 
 ; ======================== HebbianCreationAgent =========================
 !(HebbianCreationAgent-Run (TypeSpace))
@@ -100,6 +98,7 @@
 
 ; ========================== RentCollectionAgent ==============================
 !(test (getAttentionParam FUNDS_STI) 980.0)
+!(py-call (time.sleep 0.3))
 !(AFRentCollectionAgent-run)
 
 ; => assert FUNDS_STI retrived from atoms
