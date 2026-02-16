@@ -5,7 +5,7 @@ def clean(c):
 
 out = open("conceptnet.metta", "w")
 
-with open("conceptnet-assertions-5.7.0.csv", newline='', encoding="utf-8") as f:
+with open("assertions.csv", newline='', encoding="utf-8") as f:
     reader = csv.reader(f, delimiter='\t')
     for row in reader:
         rel = row[1]
