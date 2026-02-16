@@ -1,9 +1,0 @@
-Ants 
-ant
-aphid
-aphids
-armyworms
-armyworm
-beanfly
-caterpillar
-locust

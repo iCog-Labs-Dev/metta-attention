@@ -1,8 +1,0 @@
-(poison aconite)
-(poison aflatoxin)
-(poison alcohol)
-(poison ammonia)
-(poison arsenic)
-(poison aspirin)
-(poison azoxystrobin)
-(poison botulinum)
