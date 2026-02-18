@@ -1,7 +1,7 @@
 import re
 
-IN_FILE = "conceptnet.metta"
-OUT_FILE = "conceptnet_stv_clean.metta"
+IN_FILE = "../data/conceptnet.metta"
+OUT_FILE = "../data/conceptnet_stv_clean.metta"
 
 DEFAULT_MEAN = 0.6
 DEFAULT_CONF = 0.6
