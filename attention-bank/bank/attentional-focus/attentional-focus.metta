@@ -127,17 +127,17 @@
         )   
         (if (== $size 0)
             ()
-              (if (== $size 1) 
+            (if (== $size 1) 
                 (index-atom $outsideAf 0) 
-                  (let*
-                  (
-                    ($rand (random-int 0 (- $size 1) )
-                    ($singatom (index-atom $outsideAf $rand) )
-                    ; ($in (println! (the result if inde atomm $singatom $outsideAf $rand)))
-                   )
-                  $singatom
-                   )
-              )
+                (let*
+                    (
+                        ($rand (random-int 0 (- $size 1)))
+                        ($singatom (index-atom $outsideAf $rand) )
+                        ; ($in (println! (the result if inde atomm $singatom $outsideAf $rand)))
+                    )
+                    $singatom
+                )
+            )
         )
     )
 )
@@ -178,7 +178,7 @@
                 (if (== $size 0)
                     ()
                 (let $rand (random-int 0 (- $size 1)))
-                (index-atom $atoms $rand))))
+                (index-atom $atoms $rand)))
     
     )
 )

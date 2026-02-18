@@ -19,7 +19,7 @@
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
 !(static-import! &wordnet data/wordnet_stv_clean)
-!(static-import! &conceptnet data/conceptnet_links_only)
+(static-import! &conceptnet data/conceptnet_stv_clean)
 
 !(import! &self ../attention/AttentionParam)
 !(import! &self ../attention-bank/utilities/helper-functions)
