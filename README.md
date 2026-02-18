@@ -54,9 +54,7 @@ pip install -r requirments.txt
       wordnet and coneptnet data to metta equivalent data but you can specify desired metta version as `PYTHON=python3.10 sh run.sh`
 
     - go to PeTTa repository and run the experiment.metta which is `sh run.sh ../metta-attention/experiments/experiment.metta `
-      Note: some difference between latest petta interpreter might cause issues as such if facing an error tying checking out the 
-        following petta commit hash `7bb1a83db92fe13c91b82063ca263db8293e7053` via `git checkout 7bb1a83db92fe13c91b82063ca263db8293e7053`
-
+      Note: Make sure to be using swipl version greater than or equal to 9.3.25 to insuure foldall is natively supported. 
 
 ## Contributing 
 
