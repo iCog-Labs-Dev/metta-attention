@@ -29,7 +29,7 @@
                 ($existingAsSourceHS  (getTargetNeighbors $source ASYMMETRIC_HEBBIAN_LINK $space)) ;;need to check if we should use source or sourceAtom
                 ($needToBeTarget  (subtraction-atom $afAtoms $existingAsSourceHS))
                 ($count (size-atom $needToBeTarget))
-                ($farLinks (py-call (round (/ $count (localToFarLinks) )))) ;round by default
+                ($farLinks (round-math (/ $count (localToFarLinks))) ) ;round by default
             )
             (
                 (addFromOutSideAF $source $farLinks $afAtoms)
