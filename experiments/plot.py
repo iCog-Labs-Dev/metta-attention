@@ -10,7 +10,7 @@ import sys
 class Plotter:
 
     def __init__(self, output_path: Union[str, Path]):
-        self.output_path = Path(output_path).parent.resolve()
+        self.output_path = Path(output_path).resolve()
         self.data_path = self.get_data_path()
         self.params = self.read_params()
         self.categories = self.create_category()
@@ -18,7 +18,7 @@ class Plotter:
         self.plot()
     
     def get_data_path(self) -> Path:
-        data_path = self.output_path.parent / 'data'
+        data_path = self.output_path / 'data'
         if not data_path.exists() or not data_path.is_dir():
             raise FileNotFoundError(f"No {data_path} directory found")
         file_paths = list(data_path.glob("words.json"))
@@ -29,7 +29,7 @@ class Plotter:
         return file_paths[0]
 
     def read_params(self) -> dict:
-        settings_path = self.output_path / 'settings.json'
+        settings_path = self.output_path / 'output' / 'settings.json'
         if not settings_path.exists():
             raise FileNotFoundError(f"No {settings_path} found in output directory")
         with open(settings_path, 'r') as f:
@@ -43,14 +43,18 @@ class Plotter:
     def categorize_pattern(self, pattern) -> str:
         pattern = str(pattern)
         word_category = self.categories
-        word = pattern.split()[0].lstrip("(")
-        for category, words in word_category.items():
-            if word in words:
-                return category
+        split_w = pattern.split()
+        word = split_w[0].lstrip("(")
+        if len(split_w) == 1:
+            for category, words in word_category.items():
+                if word in words:
+                    return category
+        else:
+            return word
         return 'Entered through spreading'
 
     def read_csv(self) -> pd.DataFrame:
-        csv = self.output_path / 'output.csv'
+        csv = self.output_path / 'output' / 'output.csv'
         df = pd.read_csv(csv, parse_dates=['timestamp'])
         df['category'] = df['pattern'].apply(self.categorize_pattern)
         df['time_windows'] = df['timestamp'].dt.floor('0.001s')
@@ -102,7 +106,7 @@ class Plotter:
         fig.supylabel(f'Attentional focus size {self.params["MAX_AF_SIZE"]}', fontsize=12)
         plt.xticks(rotation=45)
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-        plot_file = self.output_path / 'plot_faceted.png'
+        plot_file = self.output_path / 'output' / 'plot_faceted.png'
         plt.savefig(plot_file)
         print("Faceted plot saved to", plot_file)
 
@@ -117,7 +121,7 @@ class Plotter:
                 color='Category',
                 title='Interactive Category Frequency Over Time'
             )
-            html_file = self.output_path / 'plot_interactive.html'
+            html_file = self.output_path / 'output' / 'plot_interactive.html'
             fig.write_html(str(html_file))
             print("Interactive plot saved to", html_file)
         except Exception as e:
