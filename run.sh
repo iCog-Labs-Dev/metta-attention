@@ -9,19 +9,26 @@ DATA_DIR="experiments/data"
 mkdir -p "$TARGET_DIR"
 mkdir -p "$DATA_DIR"                                                                                         
                                                                                                               
-# Download the file                                                                                          
-echo "Downloading ConceptNet assertions..."                                                                  
-wget -O conceptnet-assertions-5.7.0.csv.gz \
-  "https://s3.amazonaws.com/conceptnet/downloads/2019/edges/conceptnet-assertions-5.7.0.csv.gz"              
-                                                                                                             
-# Extract the file
-echo "Extracting..."                                                                                         
-gunzip conceptnet-assertions-5.7.0.csv.gz                                                                    
+# Check if CSV file already exists
+if [ -f "$DATA_DIR/conceptnet-assertions-5.7.0.csv" ]; then
+    echo "CSV file already exists in $DATA_DIR, skipping download"
+else
+    # Download the file to data directory
+    echo "Downloading ConceptNet assertions..."
+    wget -O "$DATA_DIR/conceptnet-assertions-5.7.0.csv.gz" \
+      "https://s3.amazonaws.com/conceptnet/downloads/2019/edges/conceptnet-assertions-5.7.0.csv.gz"
+    
+    # Extract the file in data directory
+    echo "Extracting..."
+    gunzip "$DATA_DIR/conceptnet-assertions-5.7.0.csv.gz"
+fi
 
-# Move to target directory
-echo "Moving to $TARGET_DIR..."
-mv conceptnet-assertions-5.7.0.csv "$TARGET_DIR/conceptnet-assertions-5.7.0.csv"
-#
+# # Copy to target directory if not already there
+# if [ ! -f "$TARGET_DIR/conceptnet-assertions-5.7.0.csv" ]; then
+#     echo "Copying CSV to $TARGET_DIR..."
+#     cp "$DATA_DIR/conceptnet-assertions-5.7.0.csv" "$TARGET_DIR/conceptnet-assertions-5.7.0.csv"
+# fi
+
 # Change to scripts directory
 cd "$TARGET_DIR" || exit
 
@@ -44,10 +51,5 @@ $PYTHON add_stv_wordnet.py
 
 echo "Running add_stv_conceptnet.py..."
 $PYTHON add_stv_conceptnet.py
-
-# Move output files to data directory
-echo "Moving output files to data directory... from $PWD"
-mv conceptnet_stv_clean.metta ../../"$DATA_DIR/"
-mv wordnet_stv_clean.metta ../../"$DATA_DIR/"
 
 echo "Done! All tasks completed."                                                                            

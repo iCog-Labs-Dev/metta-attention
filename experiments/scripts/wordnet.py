@@ -4,7 +4,7 @@ from nltk.corpus import wordnet as wn
 import nltk
 nltk.download('wordnet')
 
-out = open("wordnet.metta", "w")
+out = open("../data/wordnet.metta", "w")
 
 def clean(x):
     return x.replace(" ", "_")
@@ -111,7 +111,7 @@ for syn in wn.all_synsets():
 out.close()
 
 # Print statistics
-print("wordnet.metta generated successfully!")
+print("../data/wordnet.metta generated successfully!")
 print("\nRelationship Statistics:")
 print(f"  Synsets: {counts['synsets']:,}")
 print(f"  InSynset (word → synset): {counts['in_synset']:,}")
