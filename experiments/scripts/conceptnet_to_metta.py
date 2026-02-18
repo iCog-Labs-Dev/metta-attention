@@ -3,9 +3,9 @@ import csv
 def clean(c):
     return c.replace("/c/en/", "").replace("/", "_")
 
-out = open("conceptnet.metta", "w")
+out = open("../data/conceptnet.metta", "w")
 
-with open("conceptnet-assertions-5.7.0.csv", newline='', encoding="utf-8") as f:
+with open("../data/conceptnet-assertions-5.7.0.csv", newline='', encoding="utf-8") as f:
     reader = csv.reader(f, delimiter='\t')
     for row in reader:
         rel = row[1]
@@ -22,7 +22,7 @@ with open("conceptnet-assertions-5.7.0.csv", newline='', encoding="utf-8") as f:
         out.write(f"({relation} {s} {e})\n")
 
 out.close()
-print("conceptnet.metta generated")
+print("/data/conceptnet.metta generated")
 
 # https://s3.amazonaws.com/conceptnet/downloads/2019/edges/conceptnet-assertions-5.7.0.csv.gz
 # gunzip conceptnet-assertions-5.7.0.csv.gz

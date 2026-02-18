@@ -50,17 +50,11 @@ pip install -r requirments.txt
     ```
 
 - to run the experiment
-    - download the conceptnet file from here `https://s3.amazonaws.com/conceptnet/downloads/2019/edges/conceptnet-assertions-5.7.0.csv.gz`
-    - unzip and add the assertions.csv file to the `metta-attention/experiments/scripts` folder.
-    - cd metta-attention/experiments/scripts
-    - run conceptnet_to_metta.py file
-    - run wordnet.py file 
-    - run add_stv_wordnet.py file
-    - run add_stv_conceptnet.py file
-    - move conceptnet_stv_clean.metta and wordnet_stv_clean.metta files from scripts folder to the experiments/data/ directrory
+    - first run the run.sh script as follows `sh run.sh` the script uses pyhton3 by default to run scripts to convert
+      wordnet and coneptnet data to metta equivalent data but you can specify desired metta version as `PYTHON=python3.10 sh run.sh`
 
     - go to PeTTa repository and run the experiment.metta which is `sh run.sh ../metta-attention/experiments/experiment.metta `
-
+      Note: Make sure to be using swipl version greater than or equal to 9.3.25 to insuure foldall is natively supported. 
 
 ## Contributing 
 
