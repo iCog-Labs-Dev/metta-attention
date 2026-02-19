@@ -1,15 +1,16 @@
-!(import! &self ../../../../../PeTTa/lib/lib_he)
-!(import! &self ../../../../../metta-attention/attention/AttentionParam)
-!(import! &self ../../../../../metta-attention/attention-bank/utilities/helper-functions)
-!(import! &self ../../../../../metta-attention/attention-bank/utilities/helper-functions)
+!(import! &self lib/lib_he)
+!(import! &self lib/lib_spaces)
+!(import! &self ../../../../attention/AttentionParam)
+!(import! &self ../../../../attention-bank/utilities/helper-functions)
+!(import! &self ../../../../attention-bank/utilities/helper-functions)
 
-!(import! &self ../../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
+!(import! &self ../../../../attention-bank/bank/importance-index/importance-index)
 
-!(import! &self ../../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
+!(import! &self ../../../../attention-bank/attention-value/getter-and-setter)
 
-!(import! &self ../../../../../metta-attention/attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
-!(import! &self ../../../../../metta-attention/attention-bank/bank/attention-bank)
-!(import! &self ../../../../../metta-attention/attention-bank/utilities/recentVal)
+!(import! &self ../../../../attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
+!(import! &self ../../../../attention-bank/bank/attention-bank)
+!(import! &self ../../../../attention-bank/utilities/recentVal)
 ; This sets the STI of a to 1 which will give bin index of 1
 !(setAv a (1.0 1.0 1.0))
 
@@ -20,27 +21,27 @@
 
 
 !(updateBin a)
-!(match &atomBinInfo (1 $_) $_)
+!(match &atomBinInfo (1.0 $t) $t)
 !((py-call time.sleep) 1.0)
 
 !(updateBin a)
-!(match &atomBinInfo (1 $_) $_)
+!(match &atomBinInfo (1.0 $t) $t)
 !((py-call time.sleep) 3.0)
 
 !(updateBin a)
-!(match &atomBinInfo (1 $_) $_)
+!(match &atomBinInfo (1.0 $t) $t)
 
 !(updateBin a)
-!(match &atomBinInfo (1 $_) $_)
+!(match &atomBinInfo (1.0 $t) $t)
 
 !(updateBin a)
-!(match &atomBinInfo (1 $_) $_)
+!(match &atomBinInfo (1.0 $t) $t)
 
 !(updateBin a)
-!(match &atomBinInfo (1.0 $_) $_)
+!(match &atomBinInfo (1.0 $t) $t)
 !(importanceBin (getSti a))
 
-!(calcElapsedTime 1)
+!(calcElapsedTime 1.0)
 
 ;This will update the _bin
 ; !(timeTime)  
