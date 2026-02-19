@@ -5,32 +5,51 @@ on:
     branches:
       - main
       - dev
+      - actions
   pull_request:
     branches:
       - main
       - dev
+      - actions
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
+    - name: Checkout metta-attention Repository
       uses: actions/checkout@v3
+      with:
+        path: metta-attention
+
+    - name: Clone PeTTa Repository
+      run: git clone https://github.com/patham9/PeTTa PeTTa
+
+    - name: Fix Line Endings in PeTTa (CRLF -> LF)
+      run: |
+        sudo apt-get install -y dos2unix
+        find PeTTa -type f \( -name "*.sh" -o -name "*.pl" \) -exec dos2unix {} \;
+
+    - name: Install SWI-Prolog (>= 9.3.x)
+      run: |
+        sudo apt-add-repository -y ppa:swi-prolog/stable
+        sudo apt-get update
+        sudo apt-get install -y swi-prolog
+
+    - name: Verify SWI-Prolog Version
+      run: swipl --version
 
     - name: Setup Python Environment
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11.6'
+        python-version: '3.11'
 
     - name: Install Python Dependencies
       run: |
-        python -m pip install --upgrade pip==23.1.2
-        python -m pip install hyperon==0.2.2
-        python -m pip install conan==2.5.0
-        conan profile detect --force
+        python -m pip install --upgrade pip
+        pip install -r metta-attention/requirments.txt
 
     - name: Run Tests
       run: |
-        cd ../metta-attention
-        python scripts/run-tests.py
+        cd PeTTa
+        python ../metta-attention/scripts/run-tests.py

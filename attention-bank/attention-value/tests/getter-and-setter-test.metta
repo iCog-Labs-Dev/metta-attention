@@ -129,7 +129,7 @@
 
 !(test (getSize 45.0) 4)
 ; !(test (getBinList &typeSpace) (50.0 45.0 53.0))
-; !(test (getAtomsByBin 50.0) ((Hebbianlink a b) (Hebbianlink (Hebbianlink Human Cat) Animal) (EvaluationLink a b)))
+!(test (subtraction-atom (getAtomsByBin 50.0) ((EvaluationLink a b) (Hebbianlink (Hebbianlink Human Cat) Animal) (Hebbianlink a b))) ())
 !(test (size-atom (getAllAtomsWithBins)) 13)
 !(test (getAllMaxSTI (getAfAtoms)) 400)
 !(test (getAllMinSTI (getAllAtomsWithBins)) 200)
@@ -138,14 +138,14 @@
 !(test (countAtomsInTypeSpace) 14)
 
 
-; !(test (getBinList &typeSpace) (50.0 45.0 53.0))
+!(test (subtraction-atom (getBinList &typeSpace) (50.0 45.0 53.0)) ())
 !(test (findMinNonEmptyBin 0.0 104.0) 45.0)
 !(test (findMaxNonEmptyBin 104.0) 53.0)
 
 
-; !(test (getMinBinContents) ((SimilarityLink Human Cat) (Hebbianlink Human Cat) (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat))))
+!(test (subtraction-atom (getMinBinContents) ((SimilarityLink Human Cat) (Hebbianlink Human Cat) (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat)))) ())
 
-; !(test (getMaxBinContents) (A Cat Animal Human (a) (C)))
+!(test (subtraction-atom (getMaxBinContents) (A Cat Animal Human (a) (C))) ())
 !(setSti low 1)
 !(test (computeMinSTI) 1)
 
