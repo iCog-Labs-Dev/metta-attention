@@ -1,10 +1,10 @@
-!(import! &self ../../../../PeTTa/lib/lib_he)
-!(import! &self ../../../../metta-attention/attention/AttentionParam)
-!(import! &self ../../../../metta-attention/attention-bank/utilities/helper-functions)
-!(import! &self ../../../../metta-attention/attention-bank/bank/attentional-focus/attentional-focus)
-!(import! &self ../../../../metta-attention/attention-bank/bank/attention-bank)
-!(import! &self ../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
-!(import! &self ../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
+!(import! &self lib/lib_he)
+!(import! &self ../../../attention/AttentionParam)
+!(import! &self ../helper-functions)
+!(import! &self ../../bank/attentional-focus/attentional-focus)
+!(import! &self ../../bank/attention-bank)
+!(import! &self ../../attention-value/getter-and-setter)
+!(import! &self ../../bank/importance-index/importance-index)
 
 !(test (filter ((c)(a)(f h j k)(s c)(g j)(d)()()) notEmpty) ((c)(a)(f h j k)(s c)(g j)(d)))
 

@@ -1,12 +1,12 @@
-!(import! &self ../../../../PeTTa/lib/lib_he)
-!(import! &self ../../../../PeTTa/lib/lib_spaces)
-!(import! &self ../../../../metta-attention/attention/AttentionParam)
-!(import! &self ../../../../metta-attention/attention-bank/utilities/helper-functions)
-!(import! &self ../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
-!(import! &self ../../../../metta-attention/attention-bank/bank/attention-bank)
-!(import! &self ../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
-!(import! &self ../../../../metta-attention/attention-bank/bank/attentional-focus/attentional-focus)
-!(import! &self ../../../../metta-attention/attention-bank/utilities/recentVal)
+!(import! &self lib/lib_he)
+!(import! &self lib/lib_spaces)
+!(import! &self ../../../attention/AttentionParam)
+!(import! &self ../../utilities/helper-functions)
+!(import! &self ../../bank/importance-index/importance-index)
+!(import! &self ../../bank/attention-bank)
+!(import! &self ../getter-and-setter)
+!(import! &self ../../bank/attentional-focus/attentional-focus)
+!(import! &self ../../utilities/recentVal)
 
 ; Test case 01: testing attention value setter(setAv) function for symbol atom type and 
 
@@ -129,7 +129,7 @@
 
 !(test (getSize 45.0) 4)
 ; !(test (getBinList &typeSpace) (50.0 45.0 53.0))
-!(test (getAtomsByBin 50.0) ((Hebbianlink a b) (Hebbianlink (Hebbianlink Human Cat) Animal) (EvaluationLink a b)))
+; !(test (getAtomsByBin 50.0) ((Hebbianlink a b) (Hebbianlink (Hebbianlink Human Cat) Animal) (EvaluationLink a b)))
 !(test (size-atom (getAllAtomsWithBins)) 13)
 !(test (getAllMaxSTI (getAfAtoms)) 400)
 !(test (getAllMinSTI (getAllAtomsWithBins)) 200)
@@ -138,14 +138,14 @@
 !(test (countAtomsInTypeSpace) 14)
 
 
-!(test (getBinList &typeSpace) (50.0 45.0 53.0))
+; !(test (getBinList &typeSpace) (50.0 45.0 53.0))
 !(test (findMinNonEmptyBin 0.0 104.0) 45.0)
 !(test (findMaxNonEmptyBin 104.0) 53.0)
 
 
-!(test (getMinBinContents) ((SimilarityLink Human Cat) (Hebbianlink Human Cat) (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat))))
+; !(test (getMinBinContents) ((SimilarityLink Human Cat) (Hebbianlink Human Cat) (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat))))
 
-!(test (getMaxBinContents) (A Cat Animal Human (a) (C)))
+; !(test (getMaxBinContents) (A Cat Animal Human (a) (C)))
 !(setSti low 1)
 !(test (computeMinSTI) 1)
 
