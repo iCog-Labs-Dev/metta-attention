@@ -39,7 +39,7 @@ $PYTHON conceptnet_to_metta.py
 echo "Checking for nltk module... with $PYTHON"
 if $PYTHON -c "import nltk" 2>/dev/null; then
     echo "nltk found, running wordnet.py..."
-    $PYTHON wordnet.py
+    $PYTHON wordnet_to_metta.py
 else
     echo "Error: nltk module not found! to run wordnet.py"
     echo "Please install it with: pip3 install nltk"
