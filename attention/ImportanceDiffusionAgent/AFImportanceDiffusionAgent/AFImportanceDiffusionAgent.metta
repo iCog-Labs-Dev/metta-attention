@@ -104,5 +104,7 @@
 
 ; (: AFImportanceDiffusionAgent-Run (-> Grounded Grounded Empty))
 (= (AFImportanceDiffusionAgent-Run $space)
-    (spreadImportance $space)
+    (with_mutex afmutex 
+        (spreadImportance $space)
+    )
 )
