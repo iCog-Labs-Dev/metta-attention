@@ -1,5 +1,5 @@
 (= (test-superpose)
-    (superpose 
+    (hyperpose 
         (
             (HebbianUpdatingAgent-Run (TypeSpace))
             (AFImportanceDiffusionAgent-Run (TypeSpace))

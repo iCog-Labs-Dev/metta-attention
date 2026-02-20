@@ -15,92 +15,56 @@
 
 
 
-; (: a A)
-; (: b B)
-; (: A Type)
+!(bind! &Param (new-space))
+!(add-atom &Param  (FUNDS_STI 100))
 
-; ; !(get-type AV) 
-
-; !(get-type a) ; A
-; !(get-type b) ; B
-; !(get-type c) ; %Undefined%
-; !(get-type A) ; Type
-; !(get-type B) ; %Undefined%
-
-; (: setAv (-> Atom (Number Number Number) Atom))
-; !(get-type setAv) ;     
+(= (incriment $val)
+   (with_mutex testmutex 
+    (let* (
+        ($x (match &Param (FUNDS_STI $y) $y))
+        ($add (remove-atom &Param (FUNDS_STI $z)))
+        ($total (+ $val $x))
+   ) 
+   (add-atom &Param (FUNDS_STI $total))
+)))
 
 
-; (: GroupSize (-> Number))
-; (= (GroupSize) 8)
-; (: GroupNum (-> Number))
-; (= (GroupNum) 12)
+; !(match &Param (FUNDS_STI $y) $y)
 
-; (: ImportanceIndexSize (-> Number))
-; (= (ImportanceIndexSize) 104)
+!(add-atom &temp (cnt 37))
 
-; (: importanceBin (-> Number Number))
-; (= (importanceBin $impo)
-;    (
-;     let*
-;     (
-;       ($groupSize (GroupSize))
-;       ($impo_int (trunc-math $impo)) ; Ensure $impo is treated as an integer
-;       ($firstCondition (< $impo_int 0))
-;       ($secondCondition (< $impo_int (* 2 $groupSize)))
+(= (mutexinc)
+   (with_mutex testmutex
+               (match &temp (cnt $x)
+                      ((remove-atom &temp (cnt $x))
+                       (let $inc (+ $x 1)
+                            (add-atom &temp (cnt $inc))))
+                        )))
+; !(mutexinc)
+; !(match &temp (cnt $y) $y)
+
+; (= (call-hyperpose $num)
+;         (if (== $num 0)
+;              (finished)
+;                 (let*
+;                     (
+;                         ($hy (mutexinc))
+;                         ($pr (println! ($num iteration)))
+;                         ($val (- $num 1))
+;                     )
+;                     (call-hyperpose $val)
+;                 )
 ;     )
-;     (if $firstCondition
-;       0
-;       (if $secondCondition
-;         $impo_int
-;         (let*
-;           (
-;             ($imp (trunc-math (/ (- $impo_int $groupSize) $groupSize)))
-;             ($i (eval (findGroup $imp 0 0)))
-;             ($num (- $i 1))
-;             ($temp (ceil-math (/ $impo_int (pow-math 2 (- $i 1)))))
-;             ($ad (- $groupSize $temp))
-;             ($bin (- (* $i $groupSize) $ad))
-;           )
-;           $bin
-;         )
-;       )
-;     )
-;   )
 ; )
 
- 
-; ; Recursive helper to calculate the group index
-; (= (findGroup $imp $sum $i)
-;    (if ( <= $imp 0)
-;     0
-;     (
-;         let* (
-;             ($num (+ $imp 1))
-;             ($log_num (log-math 2 $num))
-;             ($int_num (ceil-math $log_num))
-            
-;         )
-        
-;         (let $x (eval (GroupNum))
-;          (if (<= $int_num $x)
-;             $int_num
-;             $x
-;         ))
-;     )
-;    )
-; )
-; !(get-type importanceBin)
+; !(call-hyperpose 3)
+; !(match &temp (cnt $y) $y)
 
-; (= (test-eval $number)
-;         (let $binValue (importanceBin $number) $binValue )
-; )
+; !(match &Param (FUNDS_STI $y) $y)
 
-; !(test-eval 100)
 
-; !(let $_ (add-atom &self (hello world)) true)
+!(hyperpose ((incriment 2) (incriment 2) (incriment 2) (incriment 2) (incriment 2)))
 
-; !(match &self (hello $x) $x)
-; ; -	There shouldn’t be space before ! and the statement like ! (hello)
-; ; - We don't have %Undefined% type
-; ; - we can't use () as a placeholder
+!(match &Param (FUNDS_STI $y) $y)
+
+; !(test (collapse (get-atoms &temp)) ((cnt 42)))
