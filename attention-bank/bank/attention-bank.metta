@@ -83,7 +83,7 @@
            ($new-sti (+ $sti $sti-wage))
            ($new-lti (+ $lti $lti-wage))
            ($new-av ($new-sti $new-lti $vlti))
-         ;   ($_ (println! (new av $new-av)))
+           ($_ (println! (new av $new-av)))
            ($res (setAv $pattern $new-av))
          )
 		 ("Updated")
