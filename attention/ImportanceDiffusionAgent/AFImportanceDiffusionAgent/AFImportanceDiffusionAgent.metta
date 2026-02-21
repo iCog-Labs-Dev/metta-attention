@@ -32,22 +32,32 @@
 ;; Return : The diffusion get called
 
 ; (: spreadImportance (-> Grounded Grounded Empty))
-(= (spreadImportance $space)
-        (let*
-        (
-            ($difatoms (getAfAtoms))
-            ($atoms (collapse 
-                (let $atom
-                    (superpose $difatoms)
-                    (diffuseAtom $atom $space AF))
-                )
-            ) 
-            (($atom $sti) (tradeList $atoms))
+; (= (spreadImportance $space)
+;         (let*
+;         (
+;             ($difatoms (getAfAtoms))
+;             ($atoms (collapse 
+;                 (let $atom
+;                     (superpose $difatoms)
+;                     (diffuseAtom $atom $space AF))
+;                 )
+;             )
+;             ($p (println! (working for (tradeList $atoms)))) 
+;             (($atom $sti) (tradeList $atoms))
             
-        )
-         (collapse (setSti $atom $sti))
-        )
+;         )
+;          (collapse (setSti $atom $sti))
+;         )
+;     )
+
+(= (spreadImportance $space)
+    (let $diffusionSourceVector (diffusionSourceVector (getAfAtoms))
+        (let ($atom $atomToReceive $stiGiven)
+            (diffuseAtom (superpose $diffusionSourceVector) $space AF)
+                (tradeSti $atom $atomToReceive $stiGiven)
+            )
     )
+)
 
 
 (: tradeList (-> Expression Expression))
@@ -84,7 +94,7 @@
 ;;      $source: atom in consideration
 ;; Result: (non - deterministic)
 ;;      Number value of sti trade of an atom
-(: filterTrade (-> Expression Atom Number))
+; (: filterTrade (-> Expression Atom Number))
 (= (filterTrade $result $source)
     (let ($atom $atomToReceive $stiGiven)
         (superpose $result)
