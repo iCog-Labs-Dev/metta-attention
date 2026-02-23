@@ -52,11 +52,11 @@
 
 (= (spreadImportance $space)
     (let $diffusionSourceVector (diffusionSourceVector (getAfAtoms))
-        (let ($atom $atomToReceive $stiGiven)
+        (collapse  (let ($atom $atomToReceive $stiGiven)
             (diffuseAtom (superpose $diffusionSourceVector) $space AF)
                 (tradeSti $atom $atomToReceive $stiGiven)
             )
-    )
+    ))
 )
 
 

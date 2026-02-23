@@ -68,3 +68,25 @@
 !(match &Param (FUNDS_STI $y) $y)
 
 ; !(test (collapse (get-atoms &temp)) ((cnt 42)))
+
+
+; (= (add $list $num)  (+ (superpose $list) $num))
+
+; (= (adder $list $num)
+;    ( with_mutex hcmutex 
+;         (add $list $num)
+;     )
+; )
+
+; !(adder (1 2 3 4 5 6) 10) ;prints the first result (11 only)
+; ; !(+ 10 (superpose (1 2 3 4 5 6)))
+
+(= (add $list $num) (collapse (+ (superpose $list) $num)))
+
+(= (adder $list $num)
+   (with_mutex hcmutex 
+        (add $list $num)
+    )
+)
+
+!(adder (1 2 3 4 5 6) 10) ;prints (11 12 13 14 15 16)

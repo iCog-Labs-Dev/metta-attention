@@ -58,6 +58,13 @@
 !(updateAttentionParam FUNDS_STI 100000.0) 
 !(updateAttentionParam FUNDS_LTI 100000.0) 
 
+; !(updateAttentionParam STI_FUNDS_BUFFER 99900)
+; !(updateAttentionParam LTI_FUNDS_BUFFER 99900)
+; !(updateAttentionParam TARGET_STI 99900)
+; !(updateAttentionParam TARGET_LTI 99900)
+; !(updateAttentionParam AFRentFrequency 2.0)
+; !(updateAttentionParam MAX_AF_SIZE 12)
+
 
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
