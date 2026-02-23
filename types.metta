@@ -90,3 +90,18 @@
 )
 
 !(adder (1 2 3 4 5 6) 10) ;prints (11 12 13 14 15 16)
+
+
+; !(updateAttentionParam MAX_AF_SIZE 100.0)
+; !(updateAttentionParam TARGET_STI 1000.0)
+; !(updateAttentionParam TARGET_LTI 1000.0) 
+; !(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
+; !(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
+; !(updateAttentionParam FUNDS_STI 100000.0) 
+; !(updateAttentionParam FUNDS_LTI 100000.0) 
+
+
+; with the above setup the experiment sequential(superpose) takes around 32 min
+                                    ; hyperpose without mutex takes around 30 min
+                                    ; hyperpose with mutex takes around 5 min
+                                    ; hyperpose except af duffusion agent 5 min

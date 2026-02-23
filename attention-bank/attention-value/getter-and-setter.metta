@@ -35,7 +35,7 @@
 
            ($stiDiff (- $oldSti $sti))
            ($ltiDiff (- $oldLti $lti))
-           ($_ (println! (sti $pattern $stiDiff)))
+        ;    ($_ (println! (sti $pattern $stiDiff)))
            ($fundsSTI (getAttentionParam FUNDS_STI))
            ($fundsLTI (getAttentionParam FUNDS_LTI))
            ($newstifund (+ $fundsSTI $stiDiff))
