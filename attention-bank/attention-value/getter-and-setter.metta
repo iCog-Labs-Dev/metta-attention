@@ -41,7 +41,7 @@
            ($newstifund (+ $fundsSTI $stiDiff))
            ($newltifund (+ $fundsLTI $ltiDiff))
         ;    ($hello (println! (new sti $newstifund)))
-           ($hi (println! (inside setAv with $pattern $sti)))
+           ; ($hi (println! (inside setAv with $pattern $sti)))
            ($updater (with_mutex afvalchanged (attentionValueChanged $pattern $newstifund $newltifund $sti)))  ; Update attentional focus and global paremeter
            ; ($2 (println! (after att changed)))
            
