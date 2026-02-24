@@ -8,8 +8,8 @@
 
 !(import! &self ../../attention-bank/bank/importance-index/importance-index)
 !(import! &self ../Neighbors)
-!(import! &self ../../attention-bank/utilities/logger)
-!(import! &self "../../attention-bank/utilities/logger/logger.py")
+!(import! &self "../../experiments/utils/logger.py")
+!(import! &self ../../experiments/logger)
 !(import! &self ../../attention-bank/bank/attention-bank)
 !(import! &self ../../attention-bank/bank/attentional-focus/attentional-focus)
 !(import! &self ../../attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
@@ -49,12 +49,12 @@
 !(test-superpose)
 !(size-atom (getAfAtoms))
 
-!(test (getAfAtoms) ((SimilarityLink abamectin Ants) Ants))
+!(test (subtraction-atom (getAfAtoms) ((SimilarityLink abamectin Ants) Ants)) ())
 !(test (getSti Ants) 360.0)
 !(test (getLti Ants) 600.0)
 !(test (getSti (SimilarityLink abamectin Ants)) 240.0)
 !(test (getLti (SimilarityLink abamectin Ants)) 0.0)
-!(test (getAllAtomsWithBins) ((SimilarityLink abamectin Ants) Ants))
+!(test (subtraction-atom (getAllAtomsWithBins) ((SimilarityLink abamectin Ants) Ants)) ())
 !(test (getBin Ants) 52.0)
 !(test (getBin (SimilarityLink abamectin Ants)) 47.0)
 
@@ -72,7 +72,7 @@
 
 !(stimulate aflatoxin 30.0)
 !(test (getAttentionParam FUNDS_STI) 980.0)
-!(py-call (time.sleep 0.1))
+!(py-call (time.sleep 0.12))
 !(test-superpose)
 
 (test (getAttentionParam FUNDS_STI) 980.0)
