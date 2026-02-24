@@ -47,18 +47,18 @@
 
 (match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 !(bach-p setStv (collapse (match &wordnet ($atom ($mean $conf)) ($atom ($mean $conf)))))
-(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-(bach-p setStv (collapse (match &tempspace ($atom ($mean $conf)) ($atom ($mean $conf)))))
+!(bach-p setStv (collapse (match &conceptnet ($atom ($mean $conf)) ($atom ($mean $conf)))))
+!(bach-p setStv (collapse (match &tempspace ($atom ($mean $conf)) ($atom ($mean $conf)))))
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 100.0)
+!(updateAttentionParam MAX_AF_SIZE 70.0)
 !(updateAttentionParam TARGET_STI 1000.0)
 !(updateAttentionParam TARGET_LTI 1000.0) 
 !(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
 !(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
-!(updateAttentionParam FUNDS_STI 100000.0) 
-!(updateAttentionParam FUNDS_LTI 100000.0) 
-!(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.73) 
+!(updateAttentionParam FUNDS_STI 10000.0) 
+!(updateAttentionParam FUNDS_LTI 10000.0) 
+(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.73) 
 
 
 ; write the params to a file
