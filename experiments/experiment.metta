@@ -18,13 +18,14 @@
 
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
-!(static-import! &wordnet data/wordnet_stv_clean)
+!(static-import! &wordnet ../../ecan/green)
 (static-import! &conceptnet data/conceptnet_stv_clean)
 
 !(import! &self ../attention/AttentionParam)
 !(import! &self ../attention-bank/utilities/helper-functions)
 !(import! &self ../attention-bank/utilities/recentVal)
 
+!(import! &self ../attention/baching)
 !(import! &self ../attention-bank/attention-value/getter-and-setter)
 !(import! &self ../attention-bank/bank/attention-bank)
 !(import! &self "utils/logger.py")
@@ -44,10 +45,10 @@
 !(import! &self ../attention/runner-Def)
 
 
-!(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-!(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-!(match &tempspace ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-
+(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+!(bach-p setStv (collapse (match &wordnet ($atom ($mean $conf)) ($atom ($mean $conf)))))
+(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+(bach-p setStv (collapse (match &tempspace ($atom ($mean $conf)) ($atom ($mean $conf)))))
 
 ; write the params to a file
 !(updateAttentionParam MAX_AF_SIZE 100.0)
@@ -57,6 +58,7 @@
 !(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
 !(updateAttentionParam FUNDS_STI 100000.0) 
 !(updateAttentionParam FUNDS_LTI 100000.0) 
+!(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.73) 
 
 
 ; write the params to a file
@@ -73,7 +75,7 @@
                     
                 )
                 (
-                    (stimulate $now 300)
+                    (stimulate $now 50)
                     (println! (stimulating atom --> $now))
                     ; ($sle (py-call (time.sleep 4)))
                     (collapse (test-superpose))
@@ -97,3 +99,4 @@
 !(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x))
 
 
+(size-atom (getAtomsInTypeSpace))

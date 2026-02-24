@@ -6,9 +6,11 @@
 ;; Return : trades sti value from source to target
 
 ; (: diffuseAtom (-> Atom Grounded Symbol Atom))
-(= (diffuseAtom $atom $space $AForWA)
+(= (diffuseAtom $atom $AForWA)
     (let*
         (
+            ($3 (println! (in dif with $atom)))
+            ($space (TypeSpace))
             ($incidentAtoms (collapse (incidentAtoms $atom $space)))
             ($foset (if (== (get-metatype $atom) Expression)
                         (getOutGoingAtoms $atom)
@@ -19,6 +21,8 @@
             ($oset (collapse (filteroset $foset)))
             ($incidentAndoset (concatTuple $incidentAtoms $oset))
             ($iset (collapse (match $space ((ASYMMETRIC_HEBBIAN_LINK $atom $b) $a) $b)))
+            ($1 (println! (iset $iset)))
+            ($2 (println! (in cide $incidentAndoset for $atom)))
             ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAndoset)))
             ($probabilityVectorHebbianAjacent (collapse (probabilityVectorHebbianAjacent $atom $iset)))
             ($combProbabilityVector (combineIncidentAdjacentVectors $probabilityVectorIncident $probabilityVectorHebbianAjacent))
@@ -41,7 +45,7 @@
                     )
             )
             ; ($rec (println! (atoms reciving $atomToReceive sti given $stiGiven and the atom $atom)))
-            
+            ($1 (println! (in a diffuseAtom $atom $atomToReceive $stiGiven)))
         )
         ($atom $atomToReceive $stiGiven)
     )

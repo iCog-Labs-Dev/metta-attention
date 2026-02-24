@@ -37,10 +37,13 @@
             (let* 
             (
                 ($target (index-atom $diffusionSourceVector 0))
-                (($atom $atomToReceive $stiGiven) (diffuseAtom $target $space WA))
+                (($atom $atomToReceive $stiGiven) (diffuseAtom $target WA))
                 ; ($_ (println! (inside spread importance wa this $atom $atomToReceive $stiGiven)))
             ) 
+            (
                 (tradeSti $atom $atomToReceive $stiGiven)
+                (empty)
+            )
             )
         )
     )

@@ -35,7 +35,10 @@
                 (addFromOutSideAF $source $farLinks $afAtoms)
                 (let $target (superpose $needToBeTarget)
                     (if (not (== $target $source)) 
-                        (addHebbian $target $source)
+                        (
+                            (addHebbian $target $source)
+                            (empty)
+                        )
                         (empty)
                     )
                 ) 

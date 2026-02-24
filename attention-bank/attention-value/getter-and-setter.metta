@@ -41,8 +41,9 @@
            ($newstifund (+ $fundsSTI $stiDiff))
            ($newltifund (+ $fundsLTI $ltiDiff))
         ;    ($hello (println! (new sti $newstifund)))
-        ; ($hi (println! (inside setAv)))
-           ($updater (attentionValueChanged $pattern $newstifund $newltifund $sti))  ; Update attentional focus and global paremeter
+           ($hi (println! (inside setAv with $pattern $sti)))
+           ($updater (with_mutex afvalchanged (attentionValueChanged $pattern $newstifund $newltifund $sti)))  ; Update attentional focus and global paremeter
+           ; ($2 (println! (after att changed)))
            
     )
    ()
@@ -67,7 +68,8 @@
 
 ; (: attentionValueChanged (-> Atom Number Number Expression))
 (= (attentionValueChanged $pattern $newSTIFund $newLTIFund $sti)
-   (let*(
+   (let* (
+         ; ($1 (println! (in avchanged)))
          ($stiUpdated (updateAttentionParam FUNDS_STI $newSTIFund))
          ; ($_ (println! (getAttentionParam FUNDS_STI)))
          ($ltiUpdated (updateAttentionParam FUNDS_LTI $newLTIFund))
@@ -470,6 +472,7 @@
 (= (update $space $sti)
 
     (let* (
+       ; ($1 (println! (in update)))
        ($minSTI (getAttentionParam MIN_STI)) 
        ($maxSTI (getAttentionParam MAX_STI)) 
        ($min (if (< $minSTI $sti) 

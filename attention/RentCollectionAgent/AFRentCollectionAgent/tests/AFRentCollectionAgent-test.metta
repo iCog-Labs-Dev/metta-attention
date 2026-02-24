@@ -9,9 +9,10 @@
 ; !(import! &self metta-attention:attention:RentCollectionAgent:AFRentCollectionAgent:AFRentCollectionAgent)
 
 
-!(import! &self ../../../../../PeTTa/lib/lib_he)
+!(import! &self lib/lib_he)
 !(import! &self lib/lib_spaces)
-!(import! &self ../../../../../metta-attention/attention/AttentionParam)
+!(import! &self ../../../AttentionParam)
+!(import! &self ../../../baching)
 !(import! &self ../../../../../metta-attention/attention-bank/utilities/helper-functions)
 !(import! &self ../../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
 !(import! &self ../../../../../metta-attention/attention-bank/bank/attention-bank)
@@ -52,7 +53,8 @@
 ;and sleep in MeTTa via Python is also not deterministic.that's why i used the approximation
 !(getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)))
 
-!(getSti b)
+!(=== === ===)
+(test (getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 1.0)
 !(test (approxEqual (getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 30.9 1.6) True)
 !(test (approxEqual (getSti b) 59998.7 2.0) True)
 !(test (approxEqual (getSti c) 29998.7 2.0) True)

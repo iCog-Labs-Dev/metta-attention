@@ -42,7 +42,7 @@
             (
 
                (setAv $target ($newsti $newlti $newvlti))
-
+                (empty)
                
             )
         )

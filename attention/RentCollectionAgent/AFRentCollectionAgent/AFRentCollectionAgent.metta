@@ -1,7 +1,7 @@
 ; Bind Python time module to get current timestamp
 ; ! (bind! time-mod (py-atom time))
 ; ! (bind! timeTime (py-dot time-mod time (-> Number)))
-(= (timeTime) (let $time (py-call (time.time)) $time) )
+(= (timeTime) (current-time))
 
 
 
@@ -46,9 +46,9 @@
               (let*
                   (
                     ($w (* $elapsedTime $multiplier))
-                    ($lists (superpose $targetSet))
+                    ($input (collapse ($w (superpose $targetSet))))
                   )
-                  (applyRent $w $lists)
+                  (bach-p applyRent $input)
               )
           )
       )
@@ -87,7 +87,10 @@
               ($ltiDiff (- $lti $minltiRent))
               ($atomVlti (getVlti $atom ))
             )
-            (setAv $atom ($stiDiff $ltiDiff $atomVlti))
+            (
+                (setAv $atom ($stiDiff $ltiDiff $atomVlti))
+                (empty)
+            )
           )
           
         )

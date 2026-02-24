@@ -97,6 +97,7 @@
 ; ; !(assertEqual (getAtomList) (a d c A B C D F (EvaluationLink a b) (Hebbianlink (Hebbianlink Cat Human) Animal) G))
 
 ; ; ; Test case 09: Testing getRandomAtomNotInAF assure that only one atom is returned
+!(getRandomAtomNotInAF)
 !(let $a (collapse (getRandomAtomNotInAF)) (test (isAtomInAf $a) False))
 
 ; ; Test case 10: Testing getAfMaxSTI
