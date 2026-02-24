@@ -36,18 +36,17 @@
         (let*
         (
             ($difatoms (getAfAtoms))
-            ($atoms ;(collapse 
-                (let $input
-                    (collapse ((superpose $difatoms) AF))
-                    (bach-p diffuseAtom $input ()))
-                ;)
+            ($atoms (collapse 
+                (let $atom
+                    (superpose $difatoms)
+                    (diffuseAtom $atom $space AF))
+                )
             ) 
-            ; ($1 (println! (atms $atoms)))
-            ($trades (collapse (tradeList (car-atom $atoms))))
-            ; ($2 (println! (after trading $trades)))
+            ($trades (collapse (tradeList $atoms)))
+            
         )
          (
-            (bach-p setSti $trades ())
+            (bach-p setSti $trades)
             (empty)
          )
         )
@@ -58,7 +57,6 @@
 (= (tradeList $result)
     (let*
         (
-            ; ($1 (println! (getting out $result)))    
             ($diffusingAtoms (collapse 
                 (let ($atom $atomToReceive $stiGiven)
                     (superpose $result)
