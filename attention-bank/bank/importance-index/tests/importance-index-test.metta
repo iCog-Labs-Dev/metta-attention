@@ -1,11 +1,12 @@
-!(import! &self ../../../../../PeTTa/lib/lib_he)
-!(import! &self ../../../../../metta-attention/attention/AttentionParam)
-!(import! &self ../../../../../metta-attention/attention-bank/utilities/helper-functions)
-!(import! &self ../../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
-!(import! &self ../../../../../metta-attention/attention-bank/utilities/recentVal)
-!(import! &self ../../../../../metta-attention/attention-bank/bank/attentional-focus/attentional-focus)
-!(import! &self ../../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
-!(import! &self ../../../../../metta-attention/attention-bank/bank/attention-bank)
+!(import! &self lib/lib_he)
+!(import! &self lib/lib_spaces)
+!(import! &self ../../../../attention/AttentionParam)
+!(import! &self ../../../utilities/helper-functions)
+!(import! &self ../../../attention-value/getter-and-setter)
+!(import! &self ../../../utilities/recentVal)
+!(import! &self ../../attentional-focus/attentional-focus)
+!(import! &self ../importance-index)
+!(import! &self ../../attention-bank)
 
 
 ;###################### Prep: adding atoms to the atom bin #####################

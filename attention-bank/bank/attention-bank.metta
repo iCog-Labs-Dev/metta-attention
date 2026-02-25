@@ -7,7 +7,7 @@
 ;    - Return the adjusted STI wage.
 ; Parameters: None.
 ; Returns: The adjusted STI wage value.
-(: calculateSTIWage (-> Number))
+;(: calculateSTIWage (-> Number))
 (= (calculateSTIWage)
    (let* (
            ($funds (getAttentionParam FUNDS_STI))
@@ -45,7 +45,7 @@
 ;    - Return the adjusted LTI wage.
 ; Parameters: None.
 ; Returns: The adjusted LTI wage value
-(: calculateLTIWage (-> Number))
+;(: calculateLTIWage (-> Number))
 (= (calculateLTIWage)
    (let* (
            ($funds (getAttentionParam FUNDS_LTI))
