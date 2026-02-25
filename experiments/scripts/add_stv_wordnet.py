@@ -1,7 +1,7 @@
 import re
 
-IN_FILE = "wordnet.metta"
-OUT_FILE = "wordnet_stv_clean.metta"
+IN_FILE = "../data/wordnet.metta"
+OUT_FILE = "../data/wordnet_stv_clean.metta"
 
 DEFAULT_MEAN = 0.8
 DEFAULT_CONF = 0.9

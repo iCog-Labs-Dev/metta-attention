@@ -127,17 +127,17 @@
         )   
         (if (== $size 0)
             ()
-              (if (== $size 1) 
+            (if (== $size 1) 
                 (index-atom $outsideAf 0) 
-                  (let*
-                  (
-                    ($rand (random-int 0 $size) )
-                    ($singatom (index-atom $outsideAf $rand) )
-                    ; ($in (println! (the result if inde atomm $singatom $outsideAf $rand)))
-                   )
-                  $singatom
-                   )
-              )
+                (let*
+                    (
+                        ($rand (random-int 0 (- $size 1)))
+                        ($singatom (index-atom $outsideAf $rand) )
+                        ; ($in (println! (the result if inde atomm $singatom $outsideAf $rand)))
+                    )
+                    $singatom
+                )
+            )
         )
     )
 )
@@ -155,7 +155,7 @@
                 (index-atom $outsideAf 0) 
                 (let*
                     (
-                        ($rand (random-int 0 $size) )
+                        ($rand (random-int 0 (- $size 1) ))
                         ($singatom (index-atom $outsideAf $rand))
                     )
                     $singatom
@@ -174,20 +174,23 @@
 (= (getRandomAtomInAF)
     (let $atoms 
             (getAfAtoms)
-            (if (== (size-atom $atoms) 0)
-                ()
-            (let $rand (random-int 0 (size-atom $atoms))
-            (index-atom $atoms $rand)))
+            (let $size (size-atom $atoms)
+                (if (== $size 0)
+                    ()
+                (let $rand (random-int 0 (- $size 1)))
+                (index-atom $atoms $rand)))
     
     )
 )
 
 (= (getRandomAtomInAF $atoms)
-    (if (== (size-atom $atoms) 0)
-        ()
-        (let $rand 
-            (random-int 0 (size-atom $atoms))
-            (index-atom $atoms $rand)
+    (let $size (size-atom $atoms) 
+        (if (== $size 0)
+            ()
+            (let $rand 
+                (random-int 0 (- $size 1))
+                (index-atom $atoms $rand)
+            )
         )
     )
 )

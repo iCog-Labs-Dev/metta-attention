@@ -4,7 +4,7 @@ from nltk.corpus import wordnet as wn
 import nltk
 nltk.download('wordnet')
 
-out = open("wordnet.metta", "w")
+out = open("../data/wordnet.metta", "w")
 
 def clean(x):
     return x.replace(" ", "_")
