@@ -12,7 +12,12 @@ with open("../data/conceptnet-assertions-5.7.0.csv", newline='', encoding="utf-8
         start = row[2]
         end = row[3]
 
+        # Keep only English concepts
         if not start.startswith("/c/en/") or not end.startswith("/c/en/"):
+            continue
+
+        # Skip RelatedTo relations
+        if rel == "/r/RelatedTo":
             continue
 
         relation = clean(rel.replace("/r/", ""))
@@ -22,8 +27,7 @@ with open("../data/conceptnet-assertions-5.7.0.csv", newline='', encoding="utf-8
         out.write(f"({relation} {s} {e})\n")
 
 out.close()
-print("/data/conceptnet.metta generated")
-
+print("../data/conceptnet.metta generated (RelatedTo removed)")
 # https://s3.amazonaws.com/conceptnet/downloads/2019/edges/conceptnet-assertions-5.7.0.csv.gz
 # gunzip conceptnet-assertions-5.7.0.csv.gz
 
