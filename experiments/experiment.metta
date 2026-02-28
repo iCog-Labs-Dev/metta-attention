@@ -22,6 +22,7 @@
 ; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 !(import! &self ../attention/AttentionParam)
+!(import! &self ../attention/baching)
 !(import! &self ../attention-bank/utilities/helper-functions)
 !(import! &self ../attention-bank/utilities/recentVal)
 
