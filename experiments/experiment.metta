@@ -19,7 +19,7 @@
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
 !(static-import! &wordnet data/wordnet_stv_clean)
-!(static-import! &conceptnet data/conceptnet_stv_clean)
+; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 !(import! &self ../attention/AttentionParam)
 !(import! &self ../attention-bank/utilities/helper-functions)
@@ -45,7 +45,7 @@
 
 
 !(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-!(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+; !(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 ; !(match &tempspace ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 
 
@@ -57,6 +57,13 @@
 !(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
 !(updateAttentionParam FUNDS_STI 100000.0) 
 !(updateAttentionParam FUNDS_LTI 100000.0) 
+
+; !(updateAttentionParam STI_FUNDS_BUFFER 99900)
+; !(updateAttentionParam LTI_FUNDS_BUFFER 99900)
+; !(updateAttentionParam TARGET_STI 99900)
+; !(updateAttentionParam TARGET_LTI 99900)
+; !(updateAttentionParam AFRentFrequency 2.0)
+; !(updateAttentionParam MAX_AF_SIZE 12)
 
 
 ; write the params to a file

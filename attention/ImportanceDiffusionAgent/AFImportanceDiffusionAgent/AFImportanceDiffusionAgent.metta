@@ -33,22 +33,45 @@
 
 ; (: spreadImportance (-> Grounded Grounded Empty))
 (= (spreadImportance $space)
-        (let*
-        (
-            ($difatoms (getAfAtoms))
-            ($atoms (collapse 
-                (let $atom
-                    (superpose $difatoms)
-                    (diffuseAtom $atom $space AF))
-                )
-            ) 
-            (($atom $sti) (tradeList $atoms))
-            
-        )
-         (collapse (setSti $atom $sti))
-        )
-    )
+   (let*
+      (
+         ($difatoms (getAfAtoms))
+        ;  ($_ (println! (inside spread Importance)))
+         ($atoms (collapse 
+            (let $atom
+               (superpose $difatoms)
+               (diffuseAtom $atom $space AF)
+            )
+         ))
 
+         ; collect all setSti jobs
+         ($jobs (collapse
+            (let ($atom $sti)
+               (tradeList $atoms)
+               (setStiSafe $atom $sti)
+            )
+         ))
+        ;  ($_ (println! (jobs $jobs)))
+      )
+
+      ; parallel execution
+      (hyperpose (superpose $jobs))
+   )
+)
+
+; (= (spreadImportance $space)
+;     (let $diffusionSourceVector (diffusionSourceVector (getAfAtoms))
+;         (collapse  (let ($atom $atomToReceive $stiGiven)
+;             (diffuseAtom (superpose $diffusionSourceVector) $space AF)
+;                 (tradeSti $atom $atomToReceive $stiGiven)
+;             )
+;     ))
+; )
+(= (setStiSafe $atom $sti)
+   (with_mutex sti_mutex
+      (setSti $atom $sti)
+   )
+)
 
 (: tradeList (-> Expression Expression))
 (= (tradeList $result)
@@ -71,6 +94,7 @@
             ($source (superpose $sources))
             ($sourceSti (collapse (filterTrade $result $source)))
             ($trade (foldl-atom $sourceSti 0 $acc $x (+ $acc $x)))
+            ; ($_ (println! (inside trade list function $source $trade $sourceSti)))
             ($newTrade (+ (getSti $source) $trade))
         )
         ($source $newTrade)
@@ -84,7 +108,7 @@
 ;;      $source: atom in consideration
 ;; Result: (non - deterministic)
 ;;      Number value of sti trade of an atom
-(: filterTrade (-> Expression Atom Number))
+; (: filterTrade (-> Expression Atom Number))
 (= (filterTrade $result $source)
     (let ($atom $atomToReceive $stiGiven)
         (superpose $result)
@@ -104,5 +128,7 @@
 
 ; (: AFImportanceDiffusionAgent-Run (-> Grounded Grounded Empty))
 (= (AFImportanceDiffusionAgent-Run $space)
-    (spreadImportance $space)
+    (with_mutex afmutex 
+        (spreadImportance $space)
+    )
 )
