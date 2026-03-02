@@ -22,7 +22,7 @@
    (with_mutex hcmutex 
     ; if the attentional focus is empty no work is done
     (let $afAtoms (getAfAtoms)
-        (if (== (size-atom $afAtoms) 0)
+        (collapse (if (== (size-atom $afAtoms) 0)
         ()
          (let* 
             (
@@ -42,7 +42,7 @@
                 ) 
              )
          )
-       )
+       ))
     )
 )
 )
