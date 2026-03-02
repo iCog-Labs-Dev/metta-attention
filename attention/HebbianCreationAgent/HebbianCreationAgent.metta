@@ -24,24 +24,24 @@
     (let $afAtoms (getAfAtoms)
         (if (== (size-atom $afAtoms) 0)
         ()
-         (let* 
-            (
-                ($source (superpose $afAtoms))
-                ($existingAsSourceHS  (getTargetNeighbors $source ASYMMETRIC_HEBBIAN_LINK $space)) ;;need to check if we should use source or sourceAtom
-                ($needToBeTarget  (subtraction-atom $afAtoms $existingAsSourceHS))
-                ($count (size-atom $needToBeTarget))
-                ($farLinks (round-math (/ $count (localToFarLinks))) ) ;round by default
-            )
-            (
-                (addFromOutSideAF $source $farLinks $afAtoms)
-                (let $target (superpose $needToBeTarget)
-                    (if (not (== $target $source)) 
-                        (addHebbian $target $source)
-                        (empty)
-                    )
-                ) 
-             )
-         )
+         (collapse (let* 
+                (
+                    ($source (superpose $afAtoms))
+                    ($existingAsSourceHS  (getTargetNeighbors $source ASYMMETRIC_HEBBIAN_LINK $space)) ;;need to check if we should use source or sourceAtom
+                    ($needToBeTarget  (subtraction-atom $afAtoms $existingAsSourceHS))
+                    ($count (size-atom $needToBeTarget))
+                    ($farLinks (round-math (/ $count (localToFarLinks))) ) ;round by default
+                )
+                (
+                    (addFromOutSideAF $source $farLinks $afAtoms)
+                    (let $target (superpose $needToBeTarget)
+                        (if (not (== $target $source)) 
+                            (addHebbian $target $source)
+                            (empty)
+                        )
+                    ) 
+                )
+         ))
        )
     )
 )
