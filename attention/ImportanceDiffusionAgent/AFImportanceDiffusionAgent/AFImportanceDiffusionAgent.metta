@@ -55,7 +55,7 @@
       )
 
       ; parallel execution
-      (hyperpose (superpose $jobs))
+      ()
    )
 )
 
