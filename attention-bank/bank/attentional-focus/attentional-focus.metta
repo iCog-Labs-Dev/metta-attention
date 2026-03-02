@@ -27,7 +27,7 @@
     (let $x (collapse (match &af $all $all)) (trace! (write_csv_wrapper $x) (collapse (car-atom (superpose $x)))))
 )
 (= (isAtomInAf $pattern) 
-    (> (match-count &af ($pattern $val)) 0)
+    (find &af ($pattern $av))
 )
 (= (updateMinAf)
     (let $sti (collapse (match &af ($atom $sti) $sti))
@@ -42,7 +42,7 @@
 )
 
 (= (getRandomAtomInAF)
-    (let $atoms (getAfAtoms) (py-call (random.choice $atoms)))
+    (let $atoms (getAfAtoms) (if (== $atoms ()) () (py-call (random.choice $atoms))))
 )
 
 (= (getIncomingSetByType $atom $type $list)
