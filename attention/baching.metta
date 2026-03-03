@@ -41,7 +41,7 @@
 (= (batch $count $f $x)
     (let* 
         (
-            (($head $tail) (first-k $count $x ()))
+            (($head $tail) (first-k $count () $x))
             ; ($2 (println! (calling $f with $head)))
             ($1 (collapse (hyp $f $head)))
         )
