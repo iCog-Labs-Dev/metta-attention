@@ -1,9 +1,9 @@
 (= (first-k $k $x $y)
-    (if (or (== $x ()) (== $k 0))
-        ($y $x)
+    (if (or (== $y ()) (== $k 0))
+        ($x $y)
         (let
-            ($head $tail) (decons-atom $x)
-            (first-k (- $k 1) $tail (cons-atom $head $y)) 
+            ($head $tail) (decons-atom $y)
+            (first-k (- $k 1) (cons-atom $head $x) $tail) 
         )
     )
 )
