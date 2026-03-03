@@ -19,12 +19,13 @@
                         )
                     )
             )
-        ) (updateMinAf))
+            ($x (collapse (match &af $any $any)))
+        ) ((write_csv_wrapper $x) (updateMinAf)))
 )
 
 
 (= (getAfAtoms)
-    (let $x (collapse (match &af $all $all)) (trace! (write_csv_wrapper $x) (collapse (car-atom (superpose $x)))))
+    (collapse (match &af ($atom $sti) $atom)) 
 )
 (= (isAtomInAf $pattern) 
     (find &af ($pattern $av))
