@@ -36,21 +36,29 @@
         (let*
         (
             ($difatoms (getAfAtoms))
-            ($size (getAttentionParam MAX_AF_SIZE))
+            ($size (* 3 (getAttentionParam MAX_AF_SIZE)))
             ($atoms (collapse 
                 (let $atom
                     (superpose $difatoms)
                     (diffuseAtom $atom $space AF))
                 )
             ) 
-            ($trades (collapse (tradeList $atoms)))
-            (($heads $tail) (first-k $size $trades ()))
-            (($atom $sti) (superpose $heads))
+            (($heads $tail) (first-k $size () $atoms))
+            ; ($1 (println! (head $tail $size)))
+            ; ($trades (collapse (tradeList $heads)))
+            ; (($atom $sti) (superpose $heads))
         )
-         (setSti $atom $sti) 
+        (
+            (setSti (tradeList $heads)) 
+            (empty)
+        )
         )
     )
 
+
+(= (setSti ($atom $sti))
+    (setSti $atom $sti)
+)
 
 (: tradeList (-> Expression Expression))
 (= (tradeList $result)
@@ -107,6 +115,6 @@
 ; (: AFImportanceDiffusionAgent-Run (-> Grounded Grounded Empty))
 (= (AFImportanceDiffusionAgent-Run $space)
     ; (with_mutex afmutex 
-        ((spreadImportance $space) (println! (after spread)))
+        (spreadImportance $space)
     ; )
 )
