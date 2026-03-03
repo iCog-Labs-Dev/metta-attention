@@ -9,7 +9,7 @@
 !(import! &self ../../attention-bank/bank/importance-index/importance-index)
 !(import! &self ../Neighbors)
 !(import! &self ../../attention-bank/utilities/logger)
-!(import! &self "../../attention-bank/utilities/logger/logger.py")
+; !(import! &self "../../attention-bank/utilities/logger/logger.py")
 !(import! &self ../../attention-bank/bank/attention-bank)
 !(import! &self ../../attention-bank/bank/attentional-focus/attentional-focus)
 !(import! &self ../../attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
@@ -72,10 +72,10 @@
 
 !(stimulate aflatoxin 30.0)
 !(test (getAttentionParam FUNDS_STI) 980.0)
-!(py-call (time.sleep 0.1))
+!(py-call (time.sleep 0.3))
 !(test-superpose)
 
-(test (getAttentionParam FUNDS_STI) 980.0)
+; !(test (getAttentionParam FUNDS_STI) 980.0)
 !(test (> (getAttentionParam FUNDS_STI) 980.0) True)
 
 !(let $afAtoms
