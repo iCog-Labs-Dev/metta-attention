@@ -19,7 +19,7 @@
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
 !(static-import! &wordnet data/wordnet_stv_clean)
-; !(static-import! &conceptnet data/conceptnet_stv_clean)
+!(static-import! &conceptnet data/conceptnet_stv_clean)
 
 !(import! &self ../attention/AttentionParam)
 !(import! &self ../attention-bank/utilities/helper-functions)
@@ -45,12 +45,12 @@
 
 
 !(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-; !(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+!(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 ; !(match &tempspace ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 100.0)
+!(updateAttentionParam MAX_AF_SIZE 70.0)
 !(updateAttentionParam TARGET_STI 1000.0)
 !(updateAttentionParam TARGET_LTI 1000.0) 
 !(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
@@ -69,7 +69,7 @@
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-(= (batch) 5)
+(= (batch) 10)
 (= (insectPoisonReadExp $space $type $expr $counter)
     (
         (if (and (== $type poisonSent) (== $expr ()))
@@ -82,7 +82,7 @@
                 )
                 ( (if (or (== (% $counter (batch)) 0) (== $rest ()))
                    (collapse (test-superpose)) (println! (agent not called)))
-                    (stimulate $now 300)
+                    (stimulate $now 30)
                     (println! (stimulating atom --> $now))
                     ; ($sle (py-call (time.sleep 4)))
                     (let $d (if (== $rest ())
