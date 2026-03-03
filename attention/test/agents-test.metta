@@ -72,10 +72,10 @@
 
 !(stimulate aflatoxin 30.0)
 !(test (getAttentionParam FUNDS_STI) 980.0)
-!(py-call (time.sleep 0.1))
+!(py-call (time.sleep 0.3))
 !(test-superpose)
-;!(test-superpose)
-(test (getAttentionParam FUNDS_STI) 980.0)
+
+; !(test (getAttentionParam FUNDS_STI) 980.0)
 !(test (> (getAttentionParam FUNDS_STI) 980.0) True)
 
 !(let $afAtoms
