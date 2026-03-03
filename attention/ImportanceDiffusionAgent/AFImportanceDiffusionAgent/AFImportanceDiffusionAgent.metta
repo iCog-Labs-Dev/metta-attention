@@ -42,16 +42,23 @@
                     (diffuseAtom $atom $space AF))
                 )
             ) 
-            ($trades (collapse (tradeList $atoms)))
+            ; ($size (getAttentionParam MAX_AF_SIZE))
+            ; ($atoms (first-k $size $inputs ()))        
+            ; ($trades (collapse (tradeList $atoms))); (car-atom $atoms))))
+            ; (($atom $sti) (superpose $trades))                  
             
         )
          (
-            (bach-p setSti $trades)
+            (setSti (tradeList $atoms))
+            ; (bach-p setSti $trades)
             (empty)
          )
         )
     )
 
+(= (setSti ($atom $sti))
+    (setSti $atom $sti)
+)
 
 (: tradeList (-> Expression Expression))
 (= (tradeList $result)
@@ -87,7 +94,7 @@
 ;;      $source: atom in consideration
 ;; Result: (non - deterministic)
 ;;      Number value of sti trade of an atom
-(: filterTrade (-> Expression Atom Number))
+; (: filterTrade (-> Expression Atom Number))
 (= (filterTrade $result $source)
     (let ($atom $atomToReceive $stiGiven)
         (superpose $result)
@@ -107,5 +114,7 @@
 
 ; (: AFImportanceDiffusionAgent-Run (-> Grounded Grounded Empty))
 (= (AFImportanceDiffusionAgent-Run $space)
-    (spreadImportance $space)
+    (with_mutex afmutex 
+        (spreadImportance $space)
+    )
 )

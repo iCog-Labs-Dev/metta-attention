@@ -57,7 +57,9 @@
 
 ; (: WAImportanceDiffusionAgent-Run (-> Grounded Empty))
 (= (WAImportanceDiffusionAgent-Run $space)
+  (with_mutex wamutex 
     (spreadImportanceWA $space)
+  )
 )
 
 

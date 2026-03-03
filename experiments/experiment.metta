@@ -11,21 +11,21 @@
 ; !(let $x (get-atoms &self) (add-atom &poison $x))
 ; !(let $x (match &self $y $y) (remove-atom &self $y))
 
-!(import! &tempspace data/sent-kb)
-!(import! &tempspace data/adagram)
+; !(import! &tempspace data/sent-kb)
+; !(import! &tempspace data/adagram)
 ; !(let $x (get-atoms &self) (add-atom &tempspace $x))
 ; !(let $x (match &self $y $y) (remove-atom &self $y))
 
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
-!(static-import! &wordnet ../../ecan/green)
-(static-import! &conceptnet data/conceptnet_stv_clean)
+!(static-import! &wordnet data/wordnet_stv_clean)
+; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 !(import! &self ../attention/AttentionParam)
+!(import! &self ../attention/baching)
 !(import! &self ../attention-bank/utilities/helper-functions)
 !(import! &self ../attention-bank/utilities/recentVal)
 
-!(import! &self ../attention/baching)
 !(import! &self ../attention-bank/attention-value/getter-and-setter)
 !(import! &self ../attention-bank/bank/attention-bank)
 !(import! &self "utils/logger.py")
@@ -45,26 +45,26 @@
 !(import! &self ../attention/runner-Def)
 
 
-(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-!(bach-p setStv (collapse (match &wordnet ($atom ($mean $conf)) ($atom ($mean $conf)))))
-!(bach-p setStv (collapse (match &conceptnet ($atom ($mean $conf)) ($atom ($mean $conf)))))
-!(bach-p setStv (collapse (match &tempspace ($atom ($mean $conf)) ($atom ($mean $conf)))))
+!(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+; !(bach-p setStv (collapse (match &wordnet ($atom ($mean $conf)) ($atom ($mean $conf)))))
+; !(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+; !(match &tempspace ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 70.0)
+!(updateAttentionParam MAX_AF_SIZE 100.0)
 !(updateAttentionParam TARGET_STI 1000.0)
 !(updateAttentionParam TARGET_LTI 1000.0) 
 !(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
 !(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
-!(updateAttentionParam FUNDS_STI 10000.0) 
-!(updateAttentionParam FUNDS_LTI 10000.0) 
-(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.73) 
-
+!(updateAttentionParam FUNDS_STI 100000.0) 
+!(updateAttentionParam FUNDS_LTI 100000.0) 
 
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-(= (insectPoisonReadExp $space $type $expr)
+(= (batch) 5)
+(= (insectPoisonReadExp $space $type $expr $counter)
     (
         (if (and (== $type poisonSent) (== $expr ()))
             finished
@@ -74,18 +74,18 @@
                     ($rest (cdr-atom $expr))
                     
                 )
-                (
-                    (stimulate $now 50)
+                ( (if (or (== (% $counter (batch)) 0) (== $rest ()))
+                   (collapse (test-superpose)) (println! (agent not called)))
+                    (stimulate $now 300)
                     (println! (stimulating atom --> $now))
                     ; ($sle (py-call (time.sleep 4)))
-                    (collapse (test-superpose))
                     (let $d (if (== $rest ())
                             (if (== $type insectSent)
-                                (insectPoisonReadExp &poison poisonSent (match &poison (poisonSent $x) $x))
+                                (insectPoisonReadExp &poison poisonSent (match &poison (poisonSent $x) $x) (+ $counter 1))
                                 finished
                     )
                  
-                 (insectPoisonReadExp $space $type $rest))
+                 (insectPoisonReadExp $space $type $rest (+ $counter 1)))
                  $d
              )
                 )
@@ -96,7 +96,4 @@
 
 
 
-!(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x))
-
-
-(size-atom (getAtomsInTypeSpace))
+!(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x) 0)

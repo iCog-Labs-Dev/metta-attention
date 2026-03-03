@@ -12,6 +12,7 @@
 
 ; (: HebbianUpdatingAgent-Run (-> Grounded Atom))
 (= (HebbianUpdatingAgent-Run $space)
+   (with_mutex humutex 
     (let $atoms (getAfAtoms)
         (if (== $atoms ())
             ()
@@ -20,7 +21,7 @@
             )
         )
     )
-)
+))
 
 ;;; Function: updateHebbianLinks
 ;;; Description: Updates the weight of incoming Hebbian links to a given atom.
