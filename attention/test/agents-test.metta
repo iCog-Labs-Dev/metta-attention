@@ -49,12 +49,12 @@
 !(test-superpose)
 !(size-atom (getAfAtoms))
 
-!(test (getAfAtoms) ((SimilarityLink abamectin Ants) Ants))
+!(test (subtraction-atom (getAfAtoms) ((SimilarityLink abamectin Ants) Ants)) ())
 !(test (getSti Ants) 360.0)
 !(test (getLti Ants) 600.0)
 !(test (getSti (SimilarityLink abamectin Ants)) 240.0)
 !(test (getLti (SimilarityLink abamectin Ants)) 0.0)
-!(test (getAllAtomsWithBins) ((SimilarityLink abamectin Ants) Ants))
+!(test (subtraction-atom (getAllAtomsWithBins) ((SimilarityLink abamectin Ants) Ants)) ())
 !(test (getBin Ants) 52.0)
 !(test (getBin (SimilarityLink abamectin Ants)) 47.0)
 
