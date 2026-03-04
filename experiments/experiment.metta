@@ -70,7 +70,8 @@
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-(= (insectPoisonReadExp $space $type $expr)
+(= (batch) 5)
+(= (insectPoisonReadExp $space $type $expr $counter)
     (
         (if (and (== $type poisonSent) (== $expr ()))
             finished
@@ -80,18 +81,18 @@
                     ($rest (cdr-atom $expr))
                     
                 )
-                (
+                ( (if (or (== (% $counter (batch)) 0) (== $rest ()))
+                   (collapse (test-superpose)) (println! (agent not called)))
                     (stimulate $now 300)
                     (println! (stimulating atom --> $now))
                     ; ($sle (py-call (time.sleep 4)))
-                    (collapse (test-superpose))
                     (let $d (if (== $rest ())
                             (if (== $type insectSent)
-                                (insectPoisonReadExp &poison poisonSent (match &poison (poisonSent $x) $x))
+                                (insectPoisonReadExp &poison poisonSent (match &poison (poisonSent $x) $x) (+ $counter 1))
                                 finished
                     )
                  
-                 (insectPoisonReadExp $space $type $rest))
+                 (insectPoisonReadExp $space $type $rest (+ $counter 1)))
                  $d
              )
                 )
@@ -102,6 +103,4 @@
 
 
 
-!(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x))
-
-
+(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x) 0)

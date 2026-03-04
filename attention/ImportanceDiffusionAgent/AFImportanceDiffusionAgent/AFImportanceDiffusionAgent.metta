@@ -36,17 +36,12 @@
         (let*
         (
             ($difatoms (getAfAtoms))
-            ($size (* 3 (getAttentionParam MAX_AF_SIZE)))
             ($atoms (collapse 
                 (let $atom
                     (superpose $difatoms)
                     (diffuseAtom $atom $space AF))
                 )
             ) 
-            (($heads $tail) (first-k $size () $atoms))
-            ; ($1 (println! (head $tail $size)))
-            ; ($trades (collapse (tradeList $heads)))
-            ; (($atom $sti) (superpose $heads))
         )
         (
             (setSti (tradeList $heads)) 
