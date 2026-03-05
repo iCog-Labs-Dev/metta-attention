@@ -14,7 +14,10 @@ def write_string_to_csv(filename, data, header=["timestamp", "pattern", "sti", "
     rows = []
     for pat in data:
         pattern, av = pat
-        AV, sti, lti, vlti = av
+        try:
+            AV, sti, lti, vlti = av
+        except ValueError:
+            return None 
         rows.append([str(datetime.now()), format_pattern(pattern), sti, lti])
     with open(filename, mode, newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
@@ -121,8 +124,6 @@ def write_to_csv(afatoms):
 
     if  len(afatoms[0])==0 or not START_LOGGER_FLAG or CSV_PATH is None:
         return ['not written']
+
     write_string_to_csv(str(CSV_PATH), afatoms)
     return ['wrote']
-
-    
-    
