@@ -103,4 +103,4 @@
 
 
 
-(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x) 0)
+!(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x) 0)
