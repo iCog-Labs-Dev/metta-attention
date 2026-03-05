@@ -44,7 +44,7 @@
             ) 
         )
         (
-            (setSti (tradeList $heads)) 
+            (setSti (tradeList $atoms)) 
             (empty)
         )
         )
