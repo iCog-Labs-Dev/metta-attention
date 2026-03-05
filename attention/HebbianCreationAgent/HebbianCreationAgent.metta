@@ -16,44 +16,33 @@
 
 (= (localToFarLinks) 1000.0)
 
-(= (createHeblink $source $afAtoms)
-    (let*
-        (
-            ($space (TypeSpace))
-            ($existingAsSourceHS  (getTargetNeighbors $source ASYMMETRIC_HEBBIAN_LINK $space)) ;;need to check if we should use source or sourceAtom
-            ($needToBeTarget  (subtraction-atom $afAtoms $existingAsSourceHS))
-            ($count (size-atom $needToBeTarget))
-            ($farLinks (round-math (/ $count (localToFarLinks))) ) ;round by default
-        )
-        (
-            (addFromOutSideAF $source $farLinks $afAtoms)
-            (let $target (superpose $needToBeTarget)
-                (if (not (== $target $source)) 
-                    (
-                        (addHebbian $target $source)
-                        (empty)
-                    )
-                    (empty)
-                )
-            ) 
-         )
-    )
-)
 
 ; (: HebbianCreationAgent-Run(-> Grounded empty))
 (= (HebbianCreationAgent-Run $space)
    (with_mutex hcmutex 
     ; if the attentional focus is empty no work is done
-        (collapse
-        (let* (
-                ($atoms (getAfAtoms))
-                ($input (collapse ((superpose $atoms) $atoms)))
+    (let $afAtoms (getAfAtoms)
+        (if (== (size-atom $afAtoms) 0)
+        ()
+         (let* 
+            (
+                ($source (superpose $afAtoms))
+                ($existingAsSourceHS  (getTargetNeighbors $source ASYMMETRIC_HEBBIAN_LINK $space)) ;;need to check if we should use source or sourceAtom
+                ($needToBeTarget  (subtraction-atom $afAtoms $existingAsSourceHS))
+                ($count (size-atom $needToBeTarget))
+                ($farLinks (round-math (/ $count (localToFarLinks))) ) ;round by default
             )
-            (bach-p createHeblink $input)
-        )
-    ))
+            (
+                (addFromOutSideAF $source $farLinks $afAtoms)
+                (let $target (collapse ((superpose $needToBeTarget) $source))
+                    (bach-p addHebbian $target)
+                ) 
+             )
+         )
+       )
+    )
 )
-
+)
 
 ;Function: getSourceAtom
 ;Description: returns the source atom of a link
@@ -143,12 +132,9 @@
 
 ; (: addHebbian (-> Atom Atom Empty))
 (= (addHebbian $source $target)
-    (let*(
-        
-        ($link (ASYMMETRIC_HEBBIAN_LINK $source $target))
-        ; ($crlink (println! ($link created)))
-    ) 
-        (setStv $link (0.5 0.1))
+    (if (== $target $source) 
+        ()
+        (setStv (ASYMMETRIC_HEBBIAN_LINK $source $target) (0.5 0.1))
     )
 )
 
