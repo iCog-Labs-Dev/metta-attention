@@ -33,7 +33,7 @@
 
 ; (: spreadImportance (-> Grounded Grounded Empty))
 (= (spreadImportance $space)
-        (let*
+    (let*
         (
             ($difatoms (getAfAtoms))
             ($atoms (collapse 
@@ -41,18 +41,14 @@
                     (superpose $difatoms)
                     (diffuseAtom $atom $space AF))
                 )
-            ) 
+            )
         )
-        (
-            (setSti (tradeList $atoms)) 
-            (empty)
-        )
-        )
+        (bach-p setStis (collapse (tradeList $atoms)))
     )
+)
 
-
-(= (setSti ($atom $sti))
-    (setSti $atom $sti)
+(= (setStis $atom $sti)
+    (with_mutex set_mutex (setSti $atom $sti))
 )
 
 (: tradeList (-> Expression Expression))
