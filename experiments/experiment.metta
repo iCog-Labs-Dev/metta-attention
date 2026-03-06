@@ -1,13 +1,13 @@
 
 !(bind! &insect (new-space))
-!(bind! &poison (new-space))
+; !(bind! &poison (new-space))
 !(bind! &tempspace (new-space))
 !(import! &insect data/insect-sent)
 
 ; !(let $x (get-atoms &self) (add-atom &insect $x))
 ; !(let $x (match &self $y $y) (remove-atom &self $y))
 
-!(import! &poison data/poison-sent)
+; !(import! &poison data/poison-sent)
 ; !(let $x (get-atoms &self) (add-atom &poison $x))
 ; !(let $x (match &self $y $y) (remove-atom &self $y))
 
@@ -19,7 +19,7 @@
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
 !(static-import! &wordnet data/wordnet_stv_clean)
-; !(static-import! &conceptnet data/conceptnet_stv_clean)
+!(static-import! &conceptnet data/conceptnet_stv_clean)
 
 !(import! &self ../attention/AttentionParam)
 !(import! &self ../attention/baching)
@@ -46,7 +46,7 @@
 
 
 !(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-; !(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+!(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 ; !(match &tempspace ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 
 
@@ -70,37 +70,25 @@
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-(= (batch) 5)
+(= (batch) 10)
 (= (insectPoisonReadExp $space $type $expr $counter)
-    (
-        (if (and (== $type poisonSent) (== $expr ()))
-            finished
-            (let* 
-                (
-                    ($now (car-atom $expr))
-                    ($rest (cdr-atom $expr))
-                    
+    (if (== $expr ())
+        (empty)
+        (let* 
+            (
+                ($now (car-atom $expr))
+                ($rest (cdr-atom $expr))
+            )
+            ( 
+                (if (or (== (% $counter (batch)) 0) (== $rest ()))
+                   (collapse (test-superpose)) 
+                   (println! (agent not called))
                 )
-                ( (if (or (== (% $counter (batch)) 0) (== $rest ()))
-                   (collapse (test-superpose)) (println! (agent not called)))
-                    (stimulate $now 300)
-                    (println! (stimulating atom --> $now))
-                    ; ($sle (py-call (time.sleep 4)))
-                    (let $d (if (== $rest ())
-                            (if (== $type insectSent)
-                                (insectPoisonReadExp &poison poisonSent (match &poison (poisonSent $x) $x) (+ $counter 1))
-                                finished
-                    )
-                 
-                 (insectPoisonReadExp $space $type $rest (+ $counter 1)))
-                 $d
-             )
-                )
-                )
-            )           
-    )
+                (stimulate $now 300)
+                (println! (stimulating atom --> $now))
+                (insectPoisonReadExp $space $type $rest (+ $counter 1)))
+         )
+    )    
 )
-
-
 
 !(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x) 0)
