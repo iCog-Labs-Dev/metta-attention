@@ -20,6 +20,49 @@
     ) 
 )
 
+(= (diffuseIncident $atom $space)
+    (let*
+        (
+            ($sourceSti (getSti $atom))
+            ($foset (if (= (get-metatype $atom) Expression)
+                     (cdr-atom $atoms)
+                     ()
+                    )
+            )
+            ($maxSpreadPercentage (getAttentionParam MAX_SPREAD_PERCENTAGE))
+            ($hebbianMaximumLinkAllocation (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE))
+            ($incidentAtoms (match $space ($atom $incidents) $incidents))
+            ($incidentAndoset 
+                (if (== $foset ()) 
+                    $incidentAtoms
+                    (cons-atom $foset $incidentAtoms)
+                )
+            )
+            ($diffsize (size-atom $incidentAndoset))
+            ($diffPercentage (* $maxSpreadPercentage (- 1 $hebbianMaximumLinkAllocation)))
+            ($stiGiven (* (/ $diffPercentage $diffsize) $sourceSti))
+            (($atomToReceive $Stv) (superpose $incidentAndoset))
+        )
+        ($atom $atomToReceive $stiGiven)
+    )
+)
+
+(= (diffuseHebbian $atom $space $diffsize) 
+    (let*
+        (
+            ($sourceSti (getSti $atom))
+            ($maxSpreadPercentage (getAttentionParam MAX_SPREAD_PERCENTAGE))
+            ($hebbianMaximumLinkAllocation (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE))
+            ($diffPercentage (* $maxSpreadPercentage $hebbianMaximumLinkAllocation))
+            ($stiportion (/ $diffPercentage $diffsize))
+            (($atomToReceive (STV $mean $conf)) 
+                (match $space ((ASYMMETRIC_HEBBIAN_LINK $atom $target) $val) ($target $val))
+            )
+            ($stiGiven (* (* $stiportion (* $mean $conf)) $sourceSti))
+        )
+        ($atom $atomToReceive $stiGiven)
+    )
+)
 
 ;; This function will calculate the diffusion amount
 ;; Parameters $atom: The atom that will be used to calculate the diffusion amount
@@ -45,6 +88,30 @@
         )
         (bach-p setStis (collapse (tradeList $atoms)))
     )
+)
+
+(= (spreadImportance $incidentSpace $hebbainSpace)
+    (let*
+        (
+            ($difatoms (getAfAtoms))
+            ($afSize (size-atom $difatoms))
+            ; ($1 (println! (atom $afSize)))
+            ($atoms (collapse 
+                (let $atom
+                    (superpose $difatoms)
+                    (superpose (
+                        (diffuseIncident $atom $incidentSpace)
+                        (diffuseHebbian $atom $hebbainSpace $afSize)
+                    ))
+                )
+            ))
+        )
+        (setSti (tradeList $atoms))
+    )
+)
+
+(= (setSti ($atom $sti))
+    (setSti $atom $sti)
 )
 
 (= (setStis $atom $sti)
@@ -104,8 +171,8 @@
 ;; Return : The spreadImportance function is called
 
 ; (: AFImportanceDiffusionAgent-Run (-> Grounded Grounded Empty))
-(= (AFImportanceDiffusionAgent-Run $space)
+(= (AFImportanceDiffusionAgent-Run $incidentSpace $hebbainSpace)
     ; (with_mutex afmutex 
-        (spreadImportance $space)
+        (spreadImportance $incidentSpace $hebbainSpace)
     ; )
 )
