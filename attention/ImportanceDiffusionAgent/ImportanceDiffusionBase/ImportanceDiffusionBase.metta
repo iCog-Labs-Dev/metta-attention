@@ -71,20 +71,13 @@
 
 ; (: incidentAtoms (-> Atom Grounded Atom))
 (= (incidentAtoms $atom $space)
-    (let*
-        (
-            ($incomingSet (getAllIncomingSets $atom $space))
-            ($type (car-atom $incomingSet))
-            ($filtered
-                (if (== $type ASYMMETRIC_HEBBIAN_LINK) ;; Need to be Removed
-                    (empty)
-                    $incomingSet    
-                )
-            )
-        )
-        $filtered
+    (let* 
+    (
+        ($atoms (match &incident ($atom $a) (superpose $a)))
+        (($links $stv) $atoms)
     )
-)
+    $links
+))
 
 ;; This function will return the hebbian adjacent atoms of a given atom
 ;; Parameters $iset: The incoming set that will be used to find hebbian adjacent atoms
