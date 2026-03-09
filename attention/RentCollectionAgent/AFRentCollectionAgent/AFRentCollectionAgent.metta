@@ -126,6 +126,7 @@
 )
 
 (= (AFRentCollectionAgent-run)
+   (with_mutex afrmutex 
     (let $res 
         (getAfAtoms) 
         (if (== $res ()) 
@@ -136,4 +137,5 @@
             )
       )
     )
+)
 )

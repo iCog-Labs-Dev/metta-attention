@@ -50,7 +50,7 @@
 
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 100.0)
+!(updateAttentionParam MAX_AF_SIZE 70.0)
 !(updateAttentionParam TARGET_STI 1000.0)
 !(updateAttentionParam TARGET_LTI 1000.0) 
 !(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
@@ -58,11 +58,19 @@
 !(updateAttentionParam FUNDS_STI 100000.0) 
 !(updateAttentionParam FUNDS_LTI 100000.0) 
 
+; !(updateAttentionParam STI_FUNDS_BUFFER 99900)
+; !(updateAttentionParam LTI_FUNDS_BUFFER 99900)
+; !(updateAttentionParam TARGET_STI 99900)
+; !(updateAttentionParam TARGET_LTI 99900)
+; !(updateAttentionParam AFRentFrequency 2.0)
+; !(updateAttentionParam MAX_AF_SIZE 12)
+
 
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-(= (insectPoisonReadExp $space $type $expr)
+(= (batch) 10)
+(= (insectPoisonReadExp $space $type $expr $counter)
     (
         (if (and (== $type poisonSent) (== $expr ()))
             finished
@@ -72,18 +80,18 @@
                     ($rest (cdr-atom $expr))
                     
                 )
-                (
-                    (stimulate $now 300)
+                ( (if (or (== (% $counter (batch)) 0) (== $rest ()))
+                   (collapse (test-superpose)) (println! (agent not called)))
+                    (stimulate $now 30)
                     (println! (stimulating atom --> $now))
                     ; ($sle (py-call (time.sleep 4)))
-                    (collapse (test-superpose))
                     (let $d (if (== $rest ())
                             (if (== $type insectSent)
-                                (insectPoisonReadExp &poison poisonSent (match &poison (poisonSent $x) $x))
+                                (insectPoisonReadExp &poison poisonSent (match &poison (poisonSent $x) $x) (+ $counter 1))
                                 finished
                     )
                  
-                 (insectPoisonReadExp $space $type $rest))
+                 (insectPoisonReadExp $space $type $rest (+ $counter 1)))
                  $d
              )
                 )
@@ -94,6 +102,4 @@
 
 
 
-!(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x))
-
-
+!(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x) 0)

@@ -12,6 +12,7 @@
 
 ; (: HebbianUpdatingAgent-Run (-> Grounded Atom))
 (= (HebbianUpdatingAgent-Run $space)
+   (with_mutex humutex 
     (let $atoms (getAfAtoms)
         (if (== $atoms ())
             ()
@@ -20,6 +21,7 @@
             )
         )
     )
+)
 )
 
 ;;; Function: updateHebbianLinks
