@@ -45,19 +45,19 @@ class Plotter:
         word_category = self.categories
         split_w = pattern.split()
         word = split_w[0].lstrip("(")
-        if len(split_w) == 1:
-            for category, words in word_category.items():
-                if word in words:
-                    return category
-        else:
-            return word
+        # if len(split_w) == 1:
+        for category, words in word_category.items():
+            if word in words:
+                return category
+        # else:
+            # return word
         return 'Entered through spreading'
 
     def read_csv(self) -> pd.DataFrame:
         csv = self.output_path / 'output' / 'output.csv'
         df = pd.read_csv(csv, parse_dates=['timestamp'])
         df['category'] = df['pattern'].apply(self.categorize_pattern)
-        df['time_windows'] = df['timestamp'].dt.floor('0.001s')
+        df['time_windows'] = df['timestamp'].dt.floor('0.0001s')
         category_counts = df.groupby(['time_windows', 'category']).size().unstack(fill_value=0)
         af_size = int(float(self.params['MAX_AF_SIZE']))
         return category_counts / af_size
