@@ -19,7 +19,8 @@
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
 !(static-import! &wordnet data/wordnet_stv_clean)
-!(static-import! &conceptnet data/conceptnet_stv_clean)
+!(static-import! &incidentSpace ./data/incident_final)
+(static-import! &conceptnet data/conceptnet_stv_clean)
 
 !(import! &self ../attention/AttentionParam)
 !(import! &self ../attention/baching)
@@ -46,7 +47,7 @@
 
 
 !(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-!(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 ; !(match &tempspace ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 
 
@@ -71,7 +72,7 @@
 !(start-log (attentionParam) "experiments")
 
 (= (batch) 10)
-(= (insectPoisonReadExp $space $type $expr $counter)
+(= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (empty)
         (let* 
@@ -80,15 +81,17 @@
                 ($rest (cdr-atom $expr))
             )
             ( 
-                (if (or (== (% $counter (batch)) 0) (== $rest ()))
-                   (collapse (test-superpose)) 
-                   (println! (agent not called))
-                )
                 (stimulate $now 300)
                 (println! (stimulating atom --> $now))
-                (insectPoisonReadExp $space $type $rest (+ $counter 1)))
+                (if (or (== (% $counter (batch)) 0) (== $rest ()))
+                   (collapse (test-superpose &incidentSpace)) 
+                   (println! (agent not called))
+                )
+                (insectPoisonReadExp $rest (+ $counter 1)))
          )
     )    
 )
 
-!(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x) 0)
+!(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
+
+!(match &incidentSpace (much $x) (tropical $x))
