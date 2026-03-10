@@ -46,9 +46,9 @@
               (let*
                   (
                     ($w (* $elapsedTime $multiplier))
-                    ($lists (superpose $targetSet))
+                    ($input (collapse ($w (superpose $targetSet))))
                   )
-                  (applyRent $w $lists)
+                  (bach-p applyRent $input)
               )
           )
       )

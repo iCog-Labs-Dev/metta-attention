@@ -121,8 +121,6 @@ def write_to_csv(afatoms):
 
     if not START_LOGGER_FLAG or CSV_PATH is None or len(afatoms[0])==0:
         return ['not written']
+
     write_string_to_csv(str(CSV_PATH), afatoms)
     return ['wrote']
-
-    
-    
