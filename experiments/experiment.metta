@@ -85,7 +85,7 @@
                 (stimulate $now 300)
                 (println! (stimulating atom --> $now))
                 (if (or (== (% $counter (batch)) 0) (== $rest ()))
-                   (collapse (test-superpose &incidentSpace)) 
+                   (collapse (test-superpose &incident)) 
                    (println! (agent not called))
                 )
                 (insectPoisonReadExp $rest (+ $counter 1)))
@@ -95,4 +95,4 @@
 
 !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
 
-!(match &incidentSpace (much $x) (tropical $x))
+!(match &incident (much $x) (tropical $x))
