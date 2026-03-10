@@ -48,7 +48,7 @@
 
 
 !(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+; (match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 ; !(match &tempspace ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 
 
@@ -82,7 +82,7 @@
                 ($rest (cdr-atom $expr))
             )
             ( 
-                (stimulate $now 300)
+                (stimulate $now 30)
                 (println! (stimulating atom --> $now))
                 (if (or (== (% $counter (batch)) 0) (== $rest ()))
                    (collapse (test-superpose &incident)) 
@@ -93,6 +93,6 @@
     )    
 )
 
+; !(match &incident (much $x) (tropical $x))
 !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
 
-!(match &incident (much $x) (tropical $x))
