@@ -34,41 +34,34 @@
 
 ; (: updateHebbianLinks (-> Atom Grounded Atom))
 (= (updateHebbianLinks $source $space)
-    (let*
+    (let $iset 
+        (collapse ($source ((getAllIncomingSetsForHUAgent $source $space ASYMMETRIC_HEBBIAN_LINK) $space)))
+        (bach-p bachUpdateHeb $iset) 
+    )
+)
+
+(= (bachUpdateHeb $source ($iset $space))
+    (with_mutex hupdt_mutex (let*
         (
-            ($iset (getAllIncomingSetsForHUAgent $source $space ASYMMETRIC_HEBBIAN_LINK))
+            ; ($iset (getAllIncomingSetsForHUAgent $source $space ASYMMETRIC_HEBBIAN_LINK))
             ($outgoing (getOutGoingAtoms $iset))
             ($head (if (== $outgoing ()) () (car-atom $outgoing)))
         )
-        (if (not (== $outgoing ()))
+        (if (and (not (== $outgoing ())) (== $source $head))
             (let*
                 (
-                    ($result
-                        (if (== $source $head)
-                            (let*
-                                (
-                                    ($tcDecayRate (getAttentionParam TC_DECAY_RATE))
-                                    ($new-tc (targetConjunction $outgoing))
-                                    ; ($_ (println! (tc decay $tcDecayRate)))
-                                    ; ($_ (println! (target out $new-tc)))
-
-                                    (($STV $old-tc $conf) (getStv $iset))
-                                    ($tc (+ (* $tcDecayRate $new-tc) (* (- 1.0 $tcDecayRate) $old-tc)))
-                                    ($create-tv ($tc 0.1))
-                                    ($new-tv (mergeCalculation $create-tv ($old-tc $conf) PLN_BOOK_REVISION))
-                                )
-                                    (setStv $iset $new-tv)
-                            )
-                            ($source "!=" $head)
-                        )
-                    )
+                    ($tcDecayRate (getAttentionParam TC_DECAY_RATE))
+                    ($new-tc (targetConjunction $outgoing))
+                    (($STV $old-tc $conf) (getStv $iset))
+                    ($tc (+ (* $tcDecayRate $new-tc) (* (- 1.0 $tcDecayRate) $old-tc)))
+                    ($create-tv ($tc 0.1))
+                    ($new-tv (mergeCalculation $create-tv ($old-tc $conf) PLN_BOOK_REVISION))
                 )
-                $result
+                    (setStv $iset $new-tv)
             )
             ()
-        )
-        
-    )
+        ) 
+    ))
 )
 
 
