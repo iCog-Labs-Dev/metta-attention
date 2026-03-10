@@ -1,9 +1,6 @@
 
 (= (write_csv_wrapper $afAtoms)
-    (let $snapshot
-        (collapse (AFsnapshot $afAtoms))
-        (py-call (logger.write_to_csv $snapshot))
-    )
+        (py-call (logger.write_to_csv $afAtoms))
 )
 
 (= (AFsnapshot $afAtoms)

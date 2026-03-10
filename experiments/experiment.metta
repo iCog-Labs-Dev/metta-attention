@@ -80,10 +80,11 @@
                     ($rest (cdr-atom $expr))
                     
                 )
-                ( (if (or (== (% $counter (batch)) 0) (== $rest ()))
-                   (collapse (test-superpose)) (println! (agent not called)))
-                    (stimulate $now 30)
+                (   (stimulate $now 30)
                     (println! (stimulating atom --> $now))
+                    (if (or (== (% $counter (batch)) 0) (== $rest ()))
+                    (collapse (test-superpose)) (println! (agent not called)))
+                    
                     ; ($sle (py-call (time.sleep 4)))
                     (let $d (if (== $rest ())
                             (if (== $type insectSent)

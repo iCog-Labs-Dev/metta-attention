@@ -21,8 +21,8 @@
 (= (HebbianCreationAgent-Run $space)
    (with_mutex hcmutex 
     ; if the attentional focus is empty no work is done
-    (collapse (let $afAtoms (getAfAtoms)
-        (if (== (size-atom $afAtoms) 0)
+    (let $afAtoms (getAfAtoms)
+        (collapse (if (== (size-atom $afAtoms) 0)
         ()
          (let* 
             (
@@ -42,8 +42,8 @@
                 ) 
              )
          )
-       )
-    ))
+       ))
+    )
 )
 )
 
