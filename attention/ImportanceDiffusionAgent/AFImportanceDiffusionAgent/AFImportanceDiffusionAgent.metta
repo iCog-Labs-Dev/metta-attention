@@ -95,7 +95,6 @@
         (
             ($difatoms (getAfAtoms))
             ($afSize (size-atom $difatoms))
-            ; ($1 (println! (atom $afSize)))
             ($atoms (collapse 
                 (let $atom
                     (superpose $difatoms)
