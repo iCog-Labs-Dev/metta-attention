@@ -8,8 +8,8 @@
 
 !(import! &self ../../attention-bank/bank/importance-index/importance-index)
 !(import! &self ../Neighbors)
-!(import! &self ../../attention-bank/utilities/logger)
-; !(import! &self "../../attention-bank/utilities/logger/logger.py")
+!(import! &self "../../experiments/utils/logger.py")
+!(import! &self ../../experiments/logger)
 !(import! &self ../../attention-bank/bank/attention-bank)
 !(import! &self ../../attention-bank/bank/attentional-focus/attentional-focus)
 !(import! &self ../../attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
