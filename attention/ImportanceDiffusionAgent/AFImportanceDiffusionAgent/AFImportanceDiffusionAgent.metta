@@ -23,25 +23,19 @@
 (= (diffuseIncident $atom $space)
     (let*
         (
+            ($1 (println! (targets $atom)))
             ($sourceSti (getSti $atom))
-            ($foset (if (= (get-metatype $atom) Expression)
-                     (cdr-atom $atoms)
-                     ()
-                    )
-            )
             ($maxSpreadPercentage (getAttentionParam MAX_SPREAD_PERCENTAGE))
             ($hebbianMaximumLinkAllocation (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE))
-            ($incidentAtoms (match $space ($atom $incidents) $incidents))
-            ($incidentAndoset 
-                (if (== $foset ()) 
-                    $incidentAtoms
-                    (cons-atom $foset $incidentAtoms)
-                )
-            )
+            ($foset (if (= (get-metatype $atom) Expression) (cdr-atom $atom) ()))
+            ($incidentAtoms (unify $space ($atom $incidents) $incidents ()))
+            ($incidentAndoset (union-atom $foset $incidentAtoms))
+            ($2 (println! (inc ets $foset $incidentAtoms $incidentAndoset)))
             ($diffsize (size-atom $incidentAndoset))
             ($diffPercentage (* $maxSpreadPercentage (- 1 $hebbianMaximumLinkAllocation)))
+            ($diffuseTo (superpose $incidentAndoset))
+            ($atomToReceive (if (= (get-metatype $diffuseTo) Expression) (car-atom $diffuseTo) $diffuseTo))
             ($stiGiven (* (/ $diffPercentage $diffsize) $sourceSti))
-            (($atomToReceive $Stv) (superpose $incidentAndoset))
         )
         ($atom $atomToReceive $stiGiven)
     )
@@ -93,30 +87,36 @@
 (= (spreadImportance $incidentSpace $hebbainSpace)
     (let*
         (
+            ($1 (println! (in herer)))
             ($difatoms (getAfAtoms))
             ($afSize (size-atom $difatoms))
-            ; ($1 (println! (atom $afSize)))
             ($atoms (collapse 
-                (let $atom
+                (let $input
                     (superpose $difatoms)
                     (superpose (
-                        (diffuseIncident $atom $incidentSpace)
-                        (diffuseHebbian $atom $hebbainSpace $afSize)
+                        (diffuseIncident $input $incidentSpace)
+                        (diffuseHebbian $input $hebbainSpace $afSize)
                     ))
                 )
             ))
+            ($3 (println! (out $atoms)))
+            (($atom $sti) (tradeList $atoms))
+            ($2 (println! (setting $atom with $sti)))
         )
-        (setSti (tradeList $atoms))
+        (
+            (setSti $atom $sti)
+            ; (empty)
+        )
     )
 )
 
-(= (setSti ($atom $sti))
-    (setSti $atom $sti)
-)
-
-(= (setStis $atom $sti)
-    (with_mutex set_mutex (setSti $atom $sti))
-)
+; (= (setSti ($atom $sti))
+;     ((println! (in set $atom $sti)) (setSti $atom $sti))
+; )
+;
+; (= (setStis $atom $sti)
+;     (with_mutex set_mutex (setSti $atom $sti))
+; )
 
 (: tradeList (-> Expression Expression))
 (= (tradeList $result)

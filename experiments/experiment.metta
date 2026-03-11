@@ -18,9 +18,11 @@
 
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
-!(static-import! &wordnet data/wordnet_stv_clean)
-!(static-import! &incidentSpace ./data/incident_final)
-(static-import! &conceptnet data/conceptnet_stv_clean)
+!(import! &self lib/lib_he)
+!(static-import! &wordnet ../../../ecan/green)
+!(static-import! &incident ./data/incident_final_f)
+; !(static-import! &conceptnet data/conceptnet_stv_clean)
+
 
 !(import! &self ../attention/AttentionParam)
 !(import! &self ../attention/baching)
@@ -46,7 +48,7 @@
 !(import! &self ../attention/runner-Def)
 
 
-!(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 (match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 ; !(match &tempspace ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 
@@ -84,9 +86,10 @@
                 (stimulate $now 300)
                 (println! (stimulating atom --> $now))
                 (if (or (== (% $counter (batch)) 0) (== $rest ()))
-                   (collapse (test-superpose &incidentSpace)) 
+                   (collapse (test-superpose &incident)) 
                    (println! (agent not called))
                 )
+                ; (py-call (time.sleep 5.0))
                 (insectPoisonReadExp $rest (+ $counter 1)))
          )
     )    
@@ -94,4 +97,4 @@
 
 !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
 
-!(match &incidentSpace (much $x) (tropical $x))
+!(match &incident (tropical $x) $x)
