@@ -18,8 +18,9 @@
 
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
-!(static-import! &wordnet data/wordnet_stv_clean)
-!(static-import! &incident data/output_prolog_ready)
+!(import! &self lib/lib_he)
+!(static-import! &wordnet ../../../ecan/green)
+!(static-import! &incident ./data/incident_final_f)
 ; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 
@@ -48,8 +49,8 @@
 !(import! &self "../attention/ImportanceDiffusionAgent/getelement.py")
 
 
-!(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-; (match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 ; !(match &tempspace ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 
 
@@ -90,6 +91,7 @@
                    (collapse (test-superpose &incident)) 
                    (println! (agent not called))
                 )
+                ; (py-call (time.sleep 5.0))
                 (insectPoisonReadExp $rest (+ $counter 1)))
          )
     )    
@@ -97,4 +99,3 @@
 
 ; !(match &incident (much $x) (tropical $x))
 !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
-

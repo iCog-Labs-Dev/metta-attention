@@ -23,25 +23,19 @@
 (= (diffuseIncident $atom $space)
     (let*
         (
+            ($1 (println! (targets $atom)))
             ($sourceSti (getSti $atom))
-            ($foset (if (= (get-metatype $atom) Expression)
-                     (cdr-atom $atoms)
-                     ()
-                    )
-            )
             ($maxSpreadPercentage (getAttentionParam MAX_SPREAD_PERCENTAGE))
             ($hebbianMaximumLinkAllocation (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE))
-            ($incidentAtoms (match $space ($atom $incidents) $incidents))
-            ($incidentAndoset 
-                (if (== $foset ()) 
-                    $incidentAtoms
-                    (cons-atom $foset $incidentAtoms)
-                )
-            )
+            ($foset (if (= (get-metatype $atom) Expression) (cdr-atom $atom) ()))
+            ($incidentAtoms (unify $space ($atom $incidents) $incidents ()))
+            ($incidentAndoset (union-atom $foset $incidentAtoms))
+            ($2 (println! (inc ets $foset $incidentAtoms $incidentAndoset)))
             ($diffsize (size-atom $incidentAndoset))
             ($diffPercentage (* $maxSpreadPercentage (- 1 $hebbianMaximumLinkAllocation)))
+            ($diffuseTo (superpose $incidentAndoset))
+            ($atomToReceive (if (= (get-metatype $diffuseTo) Expression) (car-atom $diffuseTo) $diffuseTo))
             ($stiGiven (* (/ $diffPercentage $diffsize) $sourceSti))
-            (($atomToReceive $Stv) (superpose $incidentAndoset))
         )
         ($atom $atomToReceive $stiGiven)
     )
@@ -98,36 +92,35 @@
             ($afSize (size-atom $difatoms))
             ($stilist (getListsti $difatoms))
             ($number (trunc-math (* $afSize $param)))
-            ; ($1 (println! (sti list $number $stilist)))
             ($topk (py-call (getelement.getTopK $stilist $number)))
-
             ($atomss (getListatom $topk)) ; this function might return more than k atoms due to similar sti value
             ($katom (py-call (getelement.getK $atomss $number)))
-
             ($kSize (size-atom $katom))
-            
-            
             ($atoms (collapse 
-                (let $atom
+                 (let $input
                     (superpose $katom)
                     (superpose (
-                        (diffuseIncident $atom $incidentSpace)
-                        (diffuseHebbian $atom $hebbainSpace $afSize)
+                        (diffuseIncident $input $incidentSpace)
+                        (diffuseHebbian $input $hebbainSpace $input)
                     ))
                 )
             ))
+            (($atom $sti) (tradeList $atoms))
         )
-        (setSti (tradeList $atoms))
+        (
+            (setSti $atom $sti)
+            ; (empty)
+        )
     )
 )
 
-(= (setSti ($atom $sti))
-    (setSti $atom $sti)
-)
-
-(= (setStis $atom $sti)
-    (with_mutex set_mutex (setSti $atom $sti))
-)
+; (= (setSti ($atom $sti))
+;     ((println! (in set $atom $sti)) (setSti $atom $sti))
+; )
+;
+; (= (setStis $atom $sti)
+;     (with_mutex set_mutex (setSti $atom $sti))
+; )
 
 (: tradeList (-> Expression Expression))
 (= (tradeList $result)
