@@ -33,5 +33,6 @@
     "STI_FUNDS_BUFFER": "1000.0",
     "LTI_FUNDS_BUFFER": "1000.0",
     "FUNDS_STI": "100000.0",
-    "FUNDS_LTI": "100000.0"
+    "FUNDS_LTI": "100000.0",
+    "TOPK": "0.5"
 }

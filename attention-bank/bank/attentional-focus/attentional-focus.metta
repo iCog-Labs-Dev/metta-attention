@@ -27,6 +27,14 @@
 (= (getAfAtoms)
     (collapse (match &af ($atom $sti) $atom)) 
 )
+
+(= (getListsti $atoms)
+   (collapse (let $atom (superpose $atoms) (match &af ($atom $val) $val)))
+)
+(= (getListatom $stis)
+   (unique-atom (collapse (let $sti (superpose $stis) (match &af ($atom $sti) $atom))))
+)
+
 (= (isAtomInAf $pattern) 
     (find &af ($pattern $av))
 )

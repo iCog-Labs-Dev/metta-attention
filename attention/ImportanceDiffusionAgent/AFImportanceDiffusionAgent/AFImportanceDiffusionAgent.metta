@@ -94,10 +94,22 @@
     (let*
         (
             ($difatoms (getAfAtoms))
+            ($param (getAttentionParam TOPK))
             ($afSize (size-atom $difatoms))
+            ($stilist (getListsti $difatoms))
+            ($number (trunc-math (* $afSize $param)))
+            ; ($1 (println! (sti list $number $stilist)))
+            ($topk (py-call (getelement.getTopK $stilist $number)))
+
+            ($atomss (getListatom $topk)) ; this function might return more than k atoms due to similar sti value
+            ($katom (py-call (getelement.getK $atomss $number)))
+
+            ($kSize (size-atom $katom))
+            
+            
             ($atoms (collapse 
                 (let $atom
-                    (superpose $difatoms)
+                    (superpose $katom)
                     (superpose (
                         (diffuseIncident $atom $incidentSpace)
                         (diffuseHebbian $atom $hebbainSpace $afSize)
