@@ -1,6 +1,7 @@
 !(import! &self lib/lib_he)
 !(import! &self lib/lib_spaces)
 !(import! &self ../../../AttentionParam)
+!(import! &self ../../../baching)
 !(import! &self ../../../../attention-bank/utilities/helper-functions)
 !(import! &self ../../../../attention-bank/attention-value/getter-and-setter)
 !(import! &self ../../../../attention-bank/bank/attention-bank)
@@ -87,3 +88,4 @@
 !(test (getSti (INHERITANCE_LINK source target6)) 1198.35)
 !(test (getSti (ASYMMETRIC_HEBBIAN_LINK target2 target3)) 0.0)
 !(test (getSti (INHERITANCE_LINK target3 (ASYMMETRIC_HEBBIAN_LINK sorce target4))) 1920.6)
+
