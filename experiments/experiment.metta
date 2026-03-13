@@ -45,6 +45,7 @@
 !(import! &self ../attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
 !(import! &self ../attention/HebbianCreationAgent/HebbianCreationAgent)
 !(import! &self ../attention/runner-Def)
+!(import! &self "../attention/ImportanceDiffusionAgent/getelement.py")
 
 
 !(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
@@ -60,6 +61,7 @@
 !(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
 !(updateAttentionParam FUNDS_STI 100000.0) 
 !(updateAttentionParam FUNDS_LTI 100000.0) 
+!(updateAttentionParam TOPK 0.5)
 
 ; !(updateAttentionParam STI_FUNDS_BUFFER 99900)
 ; !(updateAttentionParam LTI_FUNDS_BUFFER 99900)
