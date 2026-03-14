@@ -1,6 +1,7 @@
 !(import! &self lib/lib_he)
 !(import! &self lib/lib_spaces)
-!(import! &self ../AttentionParam.metta)
+!(import! &self ../AttentionParam)
+!(import! &self ../baching)
 !(import! &self ../../attention-bank/utilities/helper-functions)
 !(import! &self ../../attention-bank/utilities/recentVal)
 
@@ -8,8 +9,8 @@
 
 !(import! &self ../../attention-bank/bank/importance-index/importance-index)
 !(import! &self ../Neighbors)
-!(import! &self ../../attention-bank/utilities/logger)
-; !(import! &self "../../attention-bank/utilities/logger/logger.py")
+!(import! &self "../../experiments/utils/logger.py")
+!(import! &self ../../experiments/logger)
 !(import! &self ../../attention-bank/bank/attention-bank)
 !(import! &self ../../attention-bank/bank/attentional-focus/attentional-focus)
 !(import! &self ../../attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
@@ -72,7 +73,7 @@
 
 !(stimulate aflatoxin 30.0)
 !(test (getAttentionParam FUNDS_STI) 980.0)
-!(py-call (time.sleep 0.3))
+!(py-call (time.sleep 0.5))
 !(test-superpose)
 
 ; !(test (getAttentionParam FUNDS_STI) 980.0)

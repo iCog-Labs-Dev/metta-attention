@@ -45,7 +45,7 @@
            ($updater (attentionValueChanged $pattern $newstifund $newltifund $sti))  ; Update attentional focus and global paremeter
            
     )
-   ()
+   (eval (updateAf $pattern $sti))
 ))
 
 

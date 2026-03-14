@@ -8,6 +8,7 @@
 !(import! &self ../../../../attention-bank/bank/attentional-focus/attentional-focus)
 !(import! &self ../../../../attention-bank/bank/importance-index/importance-index)
 !(import! &self ../../../Neighbors)
+!(import! &self ../../../../attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
 !(import! &self ../ImportanceDiffusionBase)
 !(import! &self ../../AFImportanceDiffusionAgent)
 
@@ -66,3 +67,9 @@
 !(tradeSti source target4 5)
 !(test (getSti source) 195.0)
 !(test (getSti target4) 205.0)
+
+; ============== test: diffuseAtom =================
+!(test (let $val (collapse (let ($y $z $w) (diffuseAtom source (TypeSpace) AF) $w)) (foldl-atom $val 0 $acc $x (+ $acc $x))) 78.0)
+
+!(diffuseAtom source (TypeSpace) WA) ;first run
+!(approxEqual (let $val (collapse (let ($y $z $w) (diffuseAtom source (TypeSpace) WA) $w)) (foldl-atom $val 0 $acc $x (+ $acc $x))) 0.0002988 0.000001)
