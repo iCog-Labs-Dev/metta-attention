@@ -1,13 +1,13 @@
 
 !(bind! &insect (new-space))
-!(bind! &poison (new-space))
+; !(bind! &poison (new-space))
 !(bind! &tempspace (new-space))
 !(import! &insect data/insect-sent)
 
 ; !(let $x (get-atoms &self) (add-atom &insect $x))
 ; !(let $x (match &self $y $y) (remove-atom &self $y))
 
-!(import! &poison data/poison-sent)
+; !(import! &poison data/poison-sent)
 ; !(let $x (get-atoms &self) (add-atom &poison $x))
 ; !(let $x (match &self $y $y) (remove-atom &self $y))
 
@@ -19,11 +19,12 @@
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
 !(static-import! &wordnet data/wordnet_stv_clean)
-; !(static-import! &conceptnet data/conceptnet_stv_clean)
 !(static-import! &incident data/output_prolog_ready)
+; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 
 !(import! &self ../attention/AttentionParam)
+!(import! &self ../attention/baching)
 !(import! &self ../attention-bank/utilities/helper-functions)
 !(import! &self ../attention-bank/utilities/recentVal)
 
@@ -44,10 +45,11 @@
 !(import! &self ../attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
 !(import! &self ../attention/HebbianCreationAgent/HebbianCreationAgent)
 !(import! &self ../attention/runner-Def)
+!(import! &self "../attention/ImportanceDiffusionAgent/getelement.py")
 
 
 !(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-; !(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+; (match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 ; !(match &tempspace ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 
 
@@ -59,6 +61,7 @@
 !(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
 !(updateAttentionParam FUNDS_STI 100000.0) 
 !(updateAttentionParam FUNDS_LTI 100000.0) 
+!(updateAttentionParam TOPK 0.5)
 
 ; !(updateAttentionParam STI_FUNDS_BUFFER 99900)
 ; !(updateAttentionParam LTI_FUNDS_BUFFER 99900)
@@ -72,37 +75,26 @@
 !(start-log (attentionParam) "experiments")
 
 (= (batch) 10)
-(= (insectPoisonReadExp $space $type $expr $counter)
-    (
-        (if (and (== $type poisonSent) (== $expr ()))
-            finished
-            (let* 
-                (
-                    ($now (car-atom $expr))
-                    ($rest (cdr-atom $expr))
-                    
+(= (insectPoisonReadExp $expr $counter)
+    (if (== $expr ())
+        (empty)
+        (let* 
+            (
+                ($now (car-atom $expr))
+                ($rest (cdr-atom $expr))
+            )
+            ( 
+                (stimulate $now 30)
+                (println! (stimulating atom --> $now))
+                (if (or (== (% $counter (batch)) 0) (== $rest ()))
+                   (collapse (test-superpose &incident)) 
+                   (println! (agent not called))
                 )
-                ( (if (or (== (% $counter (batch)) 0) (== $rest ()))
-                   (collapse (test-superpose)) (println! (agent not called)))
-                    (stimulate $now 30)
-                    (println! (stimulating atom --> $now))
-                    ; ($sle (py-call (time.sleep 4)))
-                    (let $d (if (== $rest ())
-                            (if (== $type insectSent)
-                                (insectPoisonReadExp &poison poisonSent (match &poison (poisonSent $x) $x) (+ $counter 1))
-                                finished
-                    )
-                 
-                 (insectPoisonReadExp $space $type $rest (+ $counter 1)))
-                 $d
-             )
-                )
-                )
-            )           
-    )
+                (insectPoisonReadExp $rest (+ $counter 1)))
+         )
+    )    
 )
 
+; !(match &incident (much $x) (tropical $x))
+!(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
 
-
-; !(match &incident (have_v_10 $a) (superpose $a))
-!(insectPoisonReadExp &insect insectSent (match &insect (insectSent $x) $x) 0)

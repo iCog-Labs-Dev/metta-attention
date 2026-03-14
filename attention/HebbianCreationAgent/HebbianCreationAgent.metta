@@ -21,8 +21,8 @@
 (= (HebbianCreationAgent-Run $space)
    (with_mutex hcmutex 
     ; if the attentional focus is empty no work is done
-    (collapse (let $afAtoms (getAfAtoms)
-        (if (== (size-atom $afAtoms) 0)
+    (let $afAtoms (getAfAtoms)
+        (collapse (if (== (size-atom $afAtoms) 0)
         ()
          (let* 
             (
@@ -34,19 +34,15 @@
             )
             (
                 (addFromOutSideAF $source $farLinks $afAtoms)
-                (let $target (superpose $needToBeTarget)
-                    (if (not (== $target $source)) 
-                        (addHebbian $target $source)
-                        (empty)
-                    )
+                (let $target (collapse ((superpose $needToBeTarget) $source))
+                    (bach-p addHebbian $target)
                 ) 
              )
          )
-       )
-    ))
+       ))
+    )
 )
 )
-
 
 ;Function: getSourceAtom
 ;Description: returns the source atom of a link
@@ -136,12 +132,9 @@
 
 ; (: addHebbian (-> Atom Atom Empty))
 (= (addHebbian $source $target)
-    (let*(
-        
-        ($link (ASYMMETRIC_HEBBIAN_LINK $source $target))
-        ; ($crlink (println! ($link created)))
-    ) 
-        (setStv $link (0.5 0.1))
+    (if (== $target $source) 
+        ()
+        (setStv (ASYMMETRIC_HEBBIAN_LINK $source $target) (0.5 0.1))
     )
 )
 

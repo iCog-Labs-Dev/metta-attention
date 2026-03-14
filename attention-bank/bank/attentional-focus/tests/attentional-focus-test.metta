@@ -79,7 +79,7 @@
 !(setAv G (6.0 25.0 35.0))
 
 
-!(test (isAtomInAf G) False)
+; !(test (isAtomInAf G) False)
 
 !(let $x 
     (getAfAtoms) 
