@@ -19,8 +19,8 @@
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
 !(import! &self lib/lib_he)
-!(static-import! &wordnet ../../../ecan/green)
-!(static-import! &incident ./data/incident_final_f)
+(static-import! &wordnet ../../../ecan/green)
+!(static-import! &incident ../../../ecan/incident/final)
 ; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 
@@ -75,7 +75,7 @@
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-(= (batch) 10)
+(= (batch) 2)
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (empty)
