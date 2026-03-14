@@ -46,7 +46,7 @@
     (let* (
             ($min (getAttentionParam MIN_AF_STI) )
             ($all (getAllAtomsWithBins))
-            ($lessThan (collapse (subtraction (superpose $all) (superpose (getAfAtoms))) ))
+            ($lessThan (subtraction-atom $all (getAfAtoms)) )
     ) (if (= $lessThan ()) () (py-call (random.choice $lessThan))))
 )
 
