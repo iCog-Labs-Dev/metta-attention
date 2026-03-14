@@ -19,8 +19,8 @@
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
 !(import! &self lib/lib_he)
-!(static-import! &wordnet ../../../ecan/green)
-!(static-import! &incident ./data/incident_final_f)
+(static-import! &wordnet ../../../ecan/green)
+!(static-import! &incident ../../../ecan/incident/final)
 ; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 
@@ -54,13 +54,14 @@
 
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 100.0)
-!(updateAttentionParam TARGET_STI 1000.0)
-!(updateAttentionParam TARGET_LTI 1000.0) 
-!(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
-!(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
+!(updateAttentionParam MAX_AF_SIZE 200.0)
+!(updateAttentionParam TARGET_STI 70000.0)
+!(updateAttentionParam TARGET_LTI 70000.0) 
+!(updateAttentionParam STI_FUNDS_BUFFER 7000.0) 
+!(updateAttentionParam LTI_FUNDS_BUFFER 7000.0) 
 !(updateAttentionParam FUNDS_STI 100000.0) 
 !(updateAttentionParam FUNDS_LTI 100000.0) 
+!(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.7) 
 
 ; !(updateAttentionParam STI_FUNDS_BUFFER 99900)
 ; !(updateAttentionParam LTI_FUNDS_BUFFER 99900)
@@ -73,7 +74,7 @@
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-(= (batch) 10)
+(= (batch) 2)
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (empty)
@@ -96,5 +97,4 @@
 )
 
 !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
-
-!(match &incident (tropical $x) $x)
+(match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $a $b) $x) ((ASYMMETRIC_HEBBIAN_LINK $a $b) $x))

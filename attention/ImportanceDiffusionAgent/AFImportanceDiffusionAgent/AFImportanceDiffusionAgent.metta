@@ -23,18 +23,17 @@
 (= (diffuseIncident $atom $space)
     (let*
         (
-            ($1 (println! (targets $atom)))
+            ; ($1 (println! (targets $atom)))
             ($sourceSti (getSti $atom))
             ($maxSpreadPercentage (getAttentionParam MAX_SPREAD_PERCENTAGE))
             ($hebbianMaximumLinkAllocation (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE))
             ($foset (if (= (get-metatype $atom) Expression) (cdr-atom $atom) ()))
             ($incidentAtoms (unify $space ($atom $incidents) $incidents ()))
             ($incidentAndoset (union-atom $foset $incidentAtoms))
-            ($2 (println! (inc ets $foset $incidentAtoms $incidentAndoset)))
+            ; ($2 (println! (inc ets $foset $incidentAtoms $incidentAndoset)))
             ($diffsize (size-atom $incidentAndoset))
             ($diffPercentage (* $maxSpreadPercentage (- 1 $hebbianMaximumLinkAllocation)))
-            ($diffuseTo (superpose $incidentAndoset))
-            ($atomToReceive (if (= (get-metatype $diffuseTo) Expression) (car-atom $diffuseTo) $diffuseTo))
+            ($atomToReceive (superpose $incidentAndoset))
             ($stiGiven (* (/ $diffPercentage $diffsize) $sourceSti))
         )
         ($atom $atomToReceive $stiGiven)
@@ -53,6 +52,7 @@
                 (match $space ((ASYMMETRIC_HEBBIAN_LINK $atom $target) $val) ($target $val))
             )
             ($stiGiven (* (* $stiportion (* $mean $conf)) $sourceSti))
+            ; ($1 (println! (atom $atom $atomToReceive $stiGiven)))
         )
         ($atom $atomToReceive $stiGiven)
     )
@@ -87,7 +87,7 @@
 (= (spreadImportance $incidentSpace $hebbainSpace)
     (let*
         (
-            ($1 (println! (in herer)))
+            ; ($1 (println! (in herer)))
             ($difatoms (getAfAtoms))
             ($afSize (size-atom $difatoms))
             ($atoms (collapse 
@@ -99,9 +99,9 @@
                     ))
                 )
             ))
-            ($3 (println! (out $atoms)))
+            ; ($3 (println! (out $atoms)))
             (($atom $sti) (tradeList $atoms))
-            ($2 (println! (setting $atom with $sti)))
+            ; ($2 (println! (setting $atom with $sti)))
         )
         (
             (setSti $atom $sti)

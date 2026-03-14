@@ -26,10 +26,7 @@
             ($param (py-call (logger.start_logger $file))) 
             ($val (collapse (get-atoms $attentionParam)))
         )
-        (
-            (updateAttentionParam LOGGER True)
-            (py-call (logger.save_params $val))
-        )
+        (py-call (logger.save_params $val))
     )
 )
 
