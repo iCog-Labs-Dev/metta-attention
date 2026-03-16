@@ -232,6 +232,13 @@
     )
 )
 
+(= (setSti ($atom $sti))
+    (setSti $atom $sti)
+)
+
+(= (setStis $atom $sti)
+    (with_mutex set_mutex (setSti $atom $sti))
+)
 ;;setLti fnction accepts a pattern/node with an Lti value to replace the original
 ;;and set the Lti to the pattern/node.
 ; i.e !(setLti A 500)

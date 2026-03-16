@@ -25,28 +25,6 @@
     )
 )
 
-;;This function will retrieve the diffusion source vector from WA and then call the diffuseAtom function to diffuse the atoms
-;; Parameters $space: The space that will be used to find the diffusion source vector
-;; Return : The diffusion get called
-
-; (: spreadImportanceWA (-> Grounded Empty))
-(= (spreadImportanceWA $space)
-    (let $diffusionSourceVector (collapse (diffusionSourceVectorWA))
-        (if (== (size-atom $diffusionSourceVector) 0.0)
-            ()
-            (let* 
-            (
-                ($target (index-atom $diffusionSourceVector 0))
-                (($atom $atomToReceive $stiGiven) (diffuseAtom $target $space WA))
-                ; ($_ (println! (inside spread importance wa this $atom $atomToReceive $stiGiven)))
-            ) 
-                (tradeSti $atom $atomToReceive $stiGiven)
-            )
-        )
-    )
-)
-
-
 
 (= (diffuseIncidentWA $atom $space $diffAmount $diffPercentage)
     (let*
@@ -55,9 +33,9 @@
             ($incidentAtoms (unify $space ($atom $incidents) $incidents ()))
             ($incidentAndoset (union-atom $foset $incidentAtoms))
             ($diffsize (size-atom $incidentAndoset))
+            ($stiGiven (* (/ $diffPercentage $diffsize) $diffAmount))
             ($atomToReceive (superpose $incidentAndoset))
             ; ($2 (println! (diffAmoun $diffAmount)))
-            ($stiGiven (* (/ $diffPercentage $diffsize) $diffAmount))
             ; ($atomToReceive (if (= (get-metatype $diffuseTo) Expression) (car-atom $diffuseTo) $diffuseTo))
             ; ($1 (println! (out $atomToReceive $atom $stiGiven)))
         ) 
@@ -95,6 +73,10 @@
         ))
     )
 )
+
+;;This function will retrieve the diffusion source vector from WA and then call the diffuseAtom function to diffuse the atoms
+;; Parameters $space: The space that will be used to find the diffusion source vector
+;; Return : The diffusion get called
 (= (spreadImportanceWA $incidentSpace $hebbainSpace)
     (let $diffusionSourceVector (diffusionSourceVectorWA)
         (if (== $diffusionSourceVector ())

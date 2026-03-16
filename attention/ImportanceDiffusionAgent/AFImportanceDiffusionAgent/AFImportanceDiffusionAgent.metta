@@ -23,14 +23,12 @@
 (= (diffuseIncident $atom $space)
     (let*
         (
-            ; ($1 (println! (targets $atom)))
             ($sourceSti (getSti $atom))
             ($maxSpreadPercentage (getAttentionParam MAX_SPREAD_PERCENTAGE))
             ($hebbianMaximumLinkAllocation (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE))
             ($foset (if (= (get-metatype $atom) Expression) (cdr-atom $atom) ()))
             ($incidentAtoms (unify $space ($atom $incidents) $incidents ()))
             ($incidentAndoset (union-atom $foset $incidentAtoms))
-            ; ($2 (println! (inc ets $foset $incidentAtoms $incidentAndoset)))
             ($diffsize (size-atom $incidentAndoset))
             ($diffPercentage (* $maxSpreadPercentage (- 1 $hebbianMaximumLinkAllocation)))
             ($atomToReceive (superpose $incidentAndoset))
@@ -52,7 +50,6 @@
                 (match $space ((ASYMMETRIC_HEBBIAN_LINK $atom $target) $val) ($target $val))
             )
             ($stiGiven (* (* $stiportion (* $mean $conf)) $sourceSti))
-            ; ($1 (println! (atom $atom $atomToReceive $stiGiven)))
         )
         ($atom $atomToReceive $stiGiven)
     )
@@ -69,25 +66,9 @@
 ;; Return : The diffusion get called
 
 ; (: spreadImportance (-> Grounded Grounded Empty))
-(= (spreadImportance $space)
-    (let*
-        (
-            ($difatoms (getAfAtoms))
-            ($atoms (collapse 
-                (let $atom
-                    (superpose $difatoms)
-                    (diffuseAtom $atom $space AF))
-                )
-            )
-        )
-        (bach-p setStis (collapse (tradeList $atoms)))
-    )
-)
-
 (= (spreadImportance $incidentSpace $hebbainSpace)
     (let*
         (
-            ; ($1 (println! (in herer)))
             ($difatoms (getAfAtoms))
             ($afSize (size-atom $difatoms))
             ($atoms (collapse 
@@ -99,26 +80,16 @@
                     ))
                 )
             ))
-            ; ($3 (println! (out $atoms)))
-            (($atom $sti) (tradeList $atoms))
-            ; ($2 (println! (setting $atom with $sti)))
+            ($trades (collapse (tradeList $atoms)))
         )
         (
-            (setSti $atom $sti)
-            ; (empty)
+            (bach-p setStis $trades)
+            (empty)
         )
     )
 )
 
-; (= (setSti ($atom $sti))
-;     ((println! (in set $atom $sti)) (setSti $atom $sti))
-; )
-;
-; (= (setStis $atom $sti)
-;     (with_mutex set_mutex (setSti $atom $sti))
-; )
-
-(: tradeList (-> Expression Expression))
+; (: tradeList (-> Expression Expression))
 (= (tradeList $result)
     (let*
         (
