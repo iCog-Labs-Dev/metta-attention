@@ -1,4 +1,3 @@
-
 !(bind! &insect (new-space))
 ; !(bind! &poison (new-space))
 !(bind! &tempspace (new-space))
@@ -53,7 +52,7 @@
 
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 30.0)
+!(updateAttentionParam MAX_AF_SIZE 80.0)
 !(updateAttentionParam TARGET_STI 60000.0)
 !(updateAttentionParam TARGET_LTI 60000.0) 
 !(updateAttentionParam STI_FUNDS_BUFFER 60000.0) 
@@ -74,7 +73,7 @@
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-(= (batch) 20)
+(= (batch) 8)
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (empty)
