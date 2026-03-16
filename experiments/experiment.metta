@@ -1,19 +1,6 @@
 !(bind! &insect (new-space))
 ; !(bind! &poison (new-space))
-!(bind! &tempspace (new-space))
 !(import! &insect data/insect-sent)
-
-; !(let $x (get-atoms &self) (add-atom &insect $x))
-; !(let $x (match &self $y $y) (remove-atom &self $y))
-
-; !(import! &poison data/poison-sent)
-; !(let $x (get-atoms &self) (add-atom &poison $x))
-; !(let $x (match &self $y $y) (remove-atom &self $y))
-
-; !(import! &tempspace data/sent-kb)
-; !(import! &tempspace data/adagram)
-; !(let $x (get-atoms &self) (add-atom &tempspace $x))
-; !(let $x (match &self $y $y) (remove-atom &self $y))
 
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
@@ -73,7 +60,7 @@
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-(= (batch) 8)
+(= (batch) 1)
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (empty)
