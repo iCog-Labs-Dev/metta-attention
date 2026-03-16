@@ -1,19 +1,6 @@
 !(bind! &insect (new-space))
 ; !(bind! &poison (new-space))
-!(bind! &tempspace (new-space))
 !(import! &insect data/insect-sent)
-
-; !(let $x (get-atoms &self) (add-atom &insect $x))
-; !(let $x (match &self $y $y) (remove-atom &self $y))
-
-; !(import! &poison data/poison-sent)
-; !(let $x (get-atoms &self) (add-atom &poison $x))
-; !(let $x (match &self $y $y) (remove-atom &self $y))
-
-; !(import! &tempspace data/sent-kb)
-; !(import! &tempspace data/adagram)
-; !(let $x (get-atoms &self) (add-atom &tempspace $x))
-; !(let $x (match &self $y $y) (remove-atom &self $y))
 
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
@@ -52,14 +39,15 @@
 
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 80.0)
-!(updateAttentionParam TARGET_STI 60000.0)
-!(updateAttentionParam TARGET_LTI 60000.0) 
-!(updateAttentionParam STI_FUNDS_BUFFER 60000.0) 
-!(updateAttentionParam LTI_FUNDS_BUFFER 60000.0) 
-!(updateAttentionParam FUNDS_STI 100000.0) 
-!(updateAttentionParam FUNDS_LTI 100000.0) 
-!(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.75) 
+!(updateAttentionParam MAX_AF_SIZE 100.0)
+!(updateAttentionParam TARGET_STI 10000.0)
+!(updateAttentionParam TARGET_LTI 10000.0) 
+!(updateAttentionParam STI_FUNDS_BUFFER 10000.0) 
+!(updateAttentionParam LTI_FUNDS_BUFFER 10000.0) 
+!(updateAttentionParam FUNDS_STI 1000000.0) 
+!(updateAttentionParam FUNDS_LTI 1000000.0) 
+!(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.50) 
+!(updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.20) 
 ; !(updateAttentionParam STI_ATOM_WAGE 32) 
 
 ; !(updateAttentionParam STI_FUNDS_BUFFER 99900)
@@ -73,7 +61,7 @@
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-(= (batch) 8)
+(= (batch) 1)
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (empty)
@@ -83,7 +71,7 @@
                 ($rest (cdr-atom $expr))
             )
             ( 
-                (stimulate $now 100)
+                (stimulate $now 40)
                 (println! (stimulating atom --> $now))
                 (if (or (== (% $counter (batch)) 0) (== $rest ()))
                    (collapse (test-superpose &incident)) 
@@ -97,3 +85,4 @@
 
 !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
 (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $a $b) $x) ((ASYMMETRIC_HEBBIAN_LINK $a $b) $x))
+(match &incident (water $x) $x)
