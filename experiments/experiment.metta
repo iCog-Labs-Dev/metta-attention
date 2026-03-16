@@ -74,7 +74,7 @@
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-(= (batch) 2)
+(= (batch) 20)
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (empty)
