@@ -5,7 +5,7 @@
             (AFImportanceDiffusionAgent-Run $incidentSpace (TypeSpace))
             (HebbianCreationAgent-Run (TypeSpace))
             (AFRentCollectionAgent-run)
-            (WAImportanceDiffusionAgent-Run (TypeSpace))
+            (WAImportanceDiffusionAgent-Run $incidentSpace)
             (WARentCollectionAgent-Run)
             ;(forgettingAgent-Run (atomBin))
         )

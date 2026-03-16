@@ -53,7 +53,7 @@
 
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 100.0)
+!(updateAttentionParam MAX_AF_SIZE 30.0)
 !(updateAttentionParam TARGET_STI 60000.0)
 !(updateAttentionParam TARGET_LTI 60000.0) 
 !(updateAttentionParam STI_FUNDS_BUFFER 60000.0) 
@@ -84,7 +84,7 @@
                 ($rest (cdr-atom $expr))
             )
             ( 
-                (stimulate $now 80)
+                (stimulate $now 100)
                 (println! (stimulating atom --> $now))
                 (if (or (== (% $counter (batch)) 0) (== $rest ()))
                    (collapse (test-superpose &incident)) 
