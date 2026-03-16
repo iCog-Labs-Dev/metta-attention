@@ -1,4 +1,3 @@
-
 !(bind! &insect (new-space))
 ; !(bind! &poison (new-space))
 !(bind! &tempspace (new-space))
@@ -74,7 +73,7 @@
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-(= (batch) 20)
+(= (batch) 8)
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (empty)
