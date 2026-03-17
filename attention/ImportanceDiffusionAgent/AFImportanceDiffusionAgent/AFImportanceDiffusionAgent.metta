@@ -26,7 +26,7 @@
             ($sourceSti (getSti $atom))
             ($maxSpreadPercentage (getAttentionParam MAX_SPREAD_PERCENTAGE))
             ($hebbianMaximumLinkAllocation (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE))
-            ($foset (if (= (get-metatype $atom) Expression) (cdr-atom $atom) ()))
+            ($foset (if (== (get-metatype $atom) Expression) (cdr-atom $atom) ()))
             ($incidentAtoms (unify $space ($atom $incidents) $incidents ()))
             ($incidentAndoset (union-atom $foset $incidentAtoms))
             ($diffsize (size-atom $incidentAndoset))
@@ -83,7 +83,7 @@
                     (superpose $katom)
                     (superpose (
                         (diffuseIncident $input $incidentSpace)
-                        (diffuseHebbian $input $hebbainSpace $input)
+                        (diffuseHebbian $input $hebbainSpace $kSize)
                     ))
                 )
             ))
