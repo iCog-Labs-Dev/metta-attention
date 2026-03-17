@@ -39,16 +39,16 @@
 
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 100.0)
-!(updateAttentionParam TARGET_STI 10000.0)
-!(updateAttentionParam TARGET_LTI 10000.0) 
-!(updateAttentionParam STI_FUNDS_BUFFER 10000.0) 
-!(updateAttentionParam LTI_FUNDS_BUFFER 10000.0) 
+!(updateAttentionParam MAX_AF_SIZE 150.0)
+!(updateAttentionParam TARGET_STI 90000.0)
+!(updateAttentionParam TARGET_LTI 90000.0) 
+!(updateAttentionParam STI_FUNDS_BUFFER 90000.0) 
+!(updateAttentionParam LTI_FUNDS_BUFFER 90000.0) 
 !(updateAttentionParam FUNDS_STI 1000000.0) 
 !(updateAttentionParam FUNDS_LTI 1000000.0) 
-!(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.50) 
-!(updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.20) 
-; !(updateAttentionParam STI_ATOM_WAGE 32) 
+!(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.80) 
+!(updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.10) 
+!(updateAttentionParam STI_ATOM_WAGE 2) 
 
 ; !(updateAttentionParam STI_FUNDS_BUFFER 99900)
 ; !(updateAttentionParam LTI_FUNDS_BUFFER 99900)
@@ -61,7 +61,7 @@
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-(= (batch) 1)
+(= (batch) 10)
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (empty)
@@ -71,7 +71,7 @@
                 ($rest (cdr-atom $expr))
             )
             ( 
-                (stimulate $now 40)
+                (stimulate $now 400)
                 (println! (stimulating atom --> $now))
                 (if (or (== (% $counter (batch)) 0) (== $rest ()))
                    (collapse (test-superpose &incident)) 
