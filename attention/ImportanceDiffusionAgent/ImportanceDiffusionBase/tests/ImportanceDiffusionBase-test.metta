@@ -24,9 +24,14 @@
 !(stimulate target4 10)
 !(stimulate target3 10)
 
+
+!(add-atom &incident (source (((ASYMMETRIC_HEBBIAN_LINK source target3)) (1.0 1.0))))
+!(add-atom &incident (source (((INHERITANCE_LINK source target5)) (1.0 1.0))))
+!(add-atom &incident (source (((INHERITANCE_LINK source target6)) (1.0 1.0))))
+
 ; ========= tests ===============
 !(test (size-atom (collapse (filteroset (collapse (match (TypeSpace) (($x $y $z) $val) ($x $y $z)))))) 3)
-!(test (size-atom (collapse (incidentAtoms source (TypeSpace)))) 3)
+!(test (size-atom (collapse (incidentAtoms source &incident))) 3)
 
 !(collapse 
     (let* (

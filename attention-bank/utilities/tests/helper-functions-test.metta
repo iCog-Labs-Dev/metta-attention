@@ -1,4 +1,5 @@
 !(import! &self lib/lib_he)
+!(import! &self lib/lib_spaces)
 !(import! &self ../../../attention/AttentionParam)
 !(import! &self ../helper-functions)
 !(import! &self ../../bank/attentional-focus/attentional-focus)

@@ -1,5 +1,6 @@
 ; !(register-module! ../../../../../metta-attention)
 !(import! &self ../../../AttentionParam)
+!(import! &self lib/lib_spaces)
 !(import! &self ../../../../attention-bank/utilities/helper-functions)
 !(import! &self ../../../../attention-bank/attention-value/getter-and-setter)
 !(import! &self ../../../../attention-bank/bank/attention-bank)
