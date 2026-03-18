@@ -1,25 +1,11 @@
-
 !(bind! &insect (new-space))
 ; !(bind! &poison (new-space))
-!(bind! &tempspace (new-space))
 !(import! &insect data/insect-sent)
-
-; !(let $x (get-atoms &self) (add-atom &insect $x))
-; !(let $x (match &self $y $y) (remove-atom &self $y))
-
-; !(import! &poison data/poison-sent)
-; !(let $x (get-atoms &self) (add-atom &poison $x))
-; !(let $x (match &self $y $y) (remove-atom &self $y))
-
-; !(import! &tempspace data/sent-kb)
-; !(import! &tempspace data/adagram)
-; !(let $x (get-atoms &self) (add-atom &tempspace $x))
-; !(let $x (match &self $y $y) (remove-atom &self $y))
 
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
-!(static-import! &wordnet data/wordnet_stv_clean)
-!(static-import! &incident data/output_prolog_ready)
+!(import! &self lib/lib_he)
+!(static-import! &incident ./data/kg)
 ; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 
@@ -48,8 +34,8 @@
 !(import! &self "../attention/ImportanceDiffusionAgent/getelement.py")
 
 
-!(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-; (match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 ; !(match &tempspace ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 
 
@@ -74,7 +60,7 @@
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-(= (batch) 10)
+(= (batch) 25)
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (empty)
@@ -90,6 +76,7 @@
                    (collapse (test-superpose &incident)) 
                    (println! (agent not called))
                 )
+                ; (py-call (time.sleep 5.0))
                 (insectPoisonReadExp $rest (+ $counter 1)))
          )
     )    
@@ -97,4 +84,3 @@
 
 ; !(match &incident (much $x) (tropical $x))
 !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
-
