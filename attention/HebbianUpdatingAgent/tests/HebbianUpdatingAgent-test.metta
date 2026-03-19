@@ -1,5 +1,6 @@
 !(import! &self lib/lib_he)
 !(import! &self ../../AttentionParam)
+!(import! &self ../../baching)
 !(import! &self ../../../attention-bank/utilities/helper-functions)
 !(import! &self ../../../attention-bank/attention-value/getter-and-setter)
 !(import! &self ../../../attention-bank/utilities/recentVal)
@@ -65,7 +66,7 @@
       False)
   True)
 
-!(test 
+(test 
   (if (>= (getMean (ASYMMETRIC_HEBBIAN_LINK source target4)) 0.01120731707317073)
       True
       False)

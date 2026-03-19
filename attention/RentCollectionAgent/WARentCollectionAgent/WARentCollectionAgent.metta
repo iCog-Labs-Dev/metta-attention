@@ -50,10 +50,12 @@
 )
 
 (= (WARentCollectionAgent-Run)
+(with_mutex warmutex 
    (let $res (selectTargets)
         (if (== $res ())
             (empty)
             (collectRent $res)
         )
     )
+   )
 )

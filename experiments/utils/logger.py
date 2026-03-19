@@ -9,13 +9,13 @@ def format_pattern(pat):
         return f"({' '.join(format_pattern(p) for p in pat)})"
     return str(pat)
 
-def write_string_to_csv(filename, data, header=["timestamp", "pattern", "sti", "lti"], mode='a'):
+def write_string_to_csv(filename, data, header=["timestamp", "pattern", "sti"], mode='a'):
     """Append rows to a CSV. `data` is an iterable of (pattern, av) pairs."""
     rows = []
     for pat in data:
-        pattern, av = pat
-        AV, sti, lti, vlti = av
-        rows.append([str(datetime.now()), format_pattern(pattern), sti, lti])
+        if len(pat)==2:
+            pattern, sti = pat
+            rows.append([str(datetime.now()), format_pattern(pattern), sti])
     with open(filename, mode, newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
         if os.path.getsize(filename) == 0:
@@ -119,10 +119,8 @@ def write_to_csv(afatoms):
     """
     global START_LOGGER_FLAG, CSV_PATH
 
-    if  len(afatoms[0])==0 or not START_LOGGER_FLAG or CSV_PATH is None:
+    if not START_LOGGER_FLAG or CSV_PATH is None or len(afatoms[0])==0:
         return ['not written']
+
     write_string_to_csv(str(CSV_PATH), afatoms)
     return ['wrote']
-
-    
-    
