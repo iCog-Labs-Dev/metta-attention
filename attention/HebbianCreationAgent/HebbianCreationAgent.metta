@@ -36,7 +36,7 @@
                 (addFromOutSideAF $source $farLinks $afAtoms)
                 (let $target (collapse ((superpose $needToBeTarget) $source))
                     (bach-p addHebbian $target)
-                ) 
+                )
              )
          )
        ))
