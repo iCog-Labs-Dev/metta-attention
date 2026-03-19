@@ -54,7 +54,7 @@
 !(assertEqual (match &timer (firstTime $x) $x) True)
 
 !(stimulate Ants 30.0)
-!(test-superpose &incident)
+!(collapse (test-superpose &incident))
 !(size-atom (getAfAtoms))
 
 !(test (subtraction-atom (getAfAtoms) ((SimilarityLink abamectin Ants) Ants)) ())
@@ -81,7 +81,7 @@
 !(stimulate aflatoxin 30.0)
 !(test (getAttentionParam FUNDS_STI) 980.0)
 !(py-call (time.sleep 0.5))
-!(test-superpose &incident)
+!(collapse (test-superpose &incident))
 
 (test (getAttentionParam FUNDS_STI) 980.0)
 (test (> (getAttentionParam FUNDS_STI) 980.0) True)
