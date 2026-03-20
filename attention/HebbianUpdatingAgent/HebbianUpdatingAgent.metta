@@ -16,7 +16,7 @@
     (let $atoms (getAfAtoms)
         (if (== $atoms ())
             ()
-            (let $randomAtom (getRandomAtomInAF $atoms)
+            (let $randomAtom (getRandomAtomInAF)
                 (updateHebbianLinks $randomAtom $space)
             )
         )
