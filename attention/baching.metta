@@ -25,12 +25,9 @@
                                 (bach-p $f (batch 3 $f $x))
                                 (if (== (size-atom $x) 2)
                                     (bach-p $f (batch 2 $f $x))
-                                    (if (== (size-atom $x) 1)
-                                        (let (($1.1 $1.2)) $x ($f $1.1 $1.2))
-                                        (let 
-                                            ($1.1 $1.2) $x
-                                            ($f $1.1 $1.2)
-                                        )
+                                    (let 
+                                        (($1.1 $1.2)) $x
+                                        ($f $1.1 $1.2)
                                     )
                                 )
                             )

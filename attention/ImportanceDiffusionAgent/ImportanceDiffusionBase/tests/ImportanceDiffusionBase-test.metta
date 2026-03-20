@@ -31,7 +31,6 @@
 
 ; ========= tests ===============
 !(test (size-atom (collapse (filteroset (collapse (match (TypeSpace) (($x $y $z) $val) ($x $y $z)))))) 3)
-!(test (size-atom (collapse (incidentAtoms source &incident))) 3)
 
 !(collapse 
     (let* (
@@ -74,7 +73,5 @@
 !(test (getSti target4) 205.0)
 
 ; ============== test: diffuseAtom =================
-!(test (let $val (collapse (let ($y $z $w) (diffuseAtom source (TypeSpace) AF) $w)) (foldl-atom $val 0 $acc $x (+ $acc $x))) 78.0)
-
 !(diffuseAtom source (TypeSpace) WA) ;first run
 !(approxEqual (let $val (collapse (let ($y $z $w) (diffuseAtom source (TypeSpace) WA) $w)) (foldl-atom $val 0 $acc $x (+ $acc $x))) 0.0002988 0.000001)

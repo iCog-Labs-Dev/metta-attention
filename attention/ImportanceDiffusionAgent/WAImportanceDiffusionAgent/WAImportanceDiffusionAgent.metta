@@ -29,17 +29,17 @@
 (= (diffuseIncidentWA $atom $space $diffAmount $diffPercentage)
     (let*
         (
-            ($foset (if (= (get-metatype $atom) Expression) (cdr-atom $atom) ()))
+            ($foset (if (== (get-metatype $atom) Expression) (cdr-atom $atom) ()))
             ($incidentAtoms (unify $space ($atom $incidents) $incidents ()))
             ($incidentAndoset (union-atom $foset $incidentAtoms))
             ($diffsize (size-atom $incidentAndoset))
-            ($stiGiven (* (/ $diffPercentage $diffsize) $diffAmount))
             ($atomToReceive (superpose $incidentAndoset))
-            ; ($2 (println! (diffAmoun $diffAmount)))
-            ; ($atomToReceive (if (= (get-metatype $diffuseTo) Expression) (car-atom $diffuseTo) $diffuseTo))
-            ; ($1 (println! (out $atomToReceive $atom $stiGiven)))
+            ($stiGiven (if (== $diffsize 0) 0.0 (* (/ $diffPercentage $diffsize) $diffAmount)))
         ) 
-        ($atom $atomToReceive $stiGiven)
+        (if (== $diffsize 0)
+            ()
+            ($atom $atomToReceive $stiGiven)
+        )
     )
 )
 
