@@ -19,10 +19,20 @@
 !(import! &self ../RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent)
 !(import! &self ../ImportanceDiffusionAgent/ImportanceDiffusionBase/ImportanceDiffusionBase)
 !(import! &self ../ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent)
+!(import! &self "../ImportanceDiffusionAgent/getelement.py")
 !(import! &self ../ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent)
 !(import! &self ../HebbianUpdatingAgent/HebbianUpdatingAgent)
 !(import! &self ../HebbianCreationAgent/HebbianCreationAgent)
 !(import! &self ../runner-Def)
+
+!(bind! &incident (new-space))
+!(add-atom &incident (Ants ( (SimilarityLink abamectin Ants))))
+!(add-atom &incident (abamectin ( (SimilarityLink abamectin Ants))))
+!(add-atom &incident (aldicarb ( (SimilarityLink aldicarb aflatoxin))))
+!(add-atom &incident (aflatoxin ( (SimilarityLink aldicarb aflatoxin))))
+!(add-atom &incident (acetamiprid ( (SimilarityLink acetamiprid Botulinum))))
+!(add-atom &incident (Botulinum ( (SimilarityLink acetamiprid Botulinum))))
+
 ; =================== Set hyperparameters =====================
 !(updateAttentionParam MAX_AF_SIZE 5.0)
 !(updateAttentionParam TARGET_STI 1000.0) 
@@ -34,11 +44,8 @@
 !(updateAttentionParam AFRentFrequency 9.0)
 
 ; =================== Set links containing prior to testing ==============
-!(setStv (SimilarityLink abamectin  Ants) (0.245 0.9))
 !(setStv (ASYMMETRIC_HEBBIAN_LINK  aphids abamectin) (0.245 0.9))
-!(setStv (SimilarityLink  aldicarb  aflatoxin) (0.075 0.9))
 !(setStv (ASYMMETRIC_HEBBIAN_LINK  aconite  aldicarb) (0.253 0.9))
-!(setStv (SimilarityLink  acetamiprid  Botulinum) (0.075 0.9))
 !(setStv (ASYMMETRIC_HEBBIAN_LINK  alcohol  acetamiprid) (0.253 0.9))
 
 ; ================== assertions About inital state of Ecan spaces =============
@@ -47,13 +54,13 @@
 !(assertEqual (match &timer (firstTime $x) $x) True)
 
 !(stimulate Ants 30.0)
-!(test-superpose)
+!(collapse (test-superpose &incident))
 !(size-atom (getAfAtoms))
 
 !(test (subtraction-atom (getAfAtoms) ((SimilarityLink abamectin Ants) Ants)) ())
-!(test (getSti Ants) 360.0)
+!(test (getSti Ants) 372.0)
 !(test (getLti Ants) 600.0)
-!(test (getSti (SimilarityLink abamectin Ants)) 240.0)
+!(test (getSti (SimilarityLink abamectin Ants)) 228.0)
 !(test (getLti (SimilarityLink abamectin Ants)) 0.0)
 !(test (subtraction-atom (getAllAtomsWithBins) ((SimilarityLink abamectin Ants) Ants)) ())
 !(test (getBin Ants) 52.0)
@@ -74,10 +81,10 @@
 !(stimulate aflatoxin 30.0)
 !(test (getAttentionParam FUNDS_STI) 980.0)
 !(py-call (time.sleep 0.5))
-!(test-superpose)
+!(collapse (test-superpose &incident))
 
-; !(test (getAttentionParam FUNDS_STI) 980.0)
-!(test (> (getAttentionParam FUNDS_STI) 980.0) True)
+(test (getAttentionParam FUNDS_STI) 980.0)
+(test (> (getAttentionParam FUNDS_STI) 980.0) True)
 
 !(let $afAtoms
     (getAfAtoms)
@@ -92,7 +99,7 @@
 
 !(test (getLti (SimilarityLink abamectin Ants)) 0.0)
 
-!(test
+(test
     (let $asym 
         (collapse (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $x $y) $z) (ASYMMETRIC_HEBBIAN_LINK $x $y))) 
         (size-atom $asym)
