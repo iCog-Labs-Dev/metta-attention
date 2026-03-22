@@ -1,19 +1,9 @@
-!(import! &self lib/lib_import)
-!(import! &self lib/lib_spaces)
-
-!(static-import! &wordnet ./wordnet_stv_clean)
-!(static-import! &outputS ./incident_out)
-
-!(let $now 
-    (match &outputS (theoutput $atom) $atom)
-    ($now 
-        (collapse 
-            (superpose
-                (
-                    (match &wordnet (($link $now $target) $val) (($link $now $target) $val))
-                    (match &wordnet (($link $source $now) $val) (($link $source $now) $val))
-                )
-            ) 
-        )
+(exec 0
+    (, ($link $source $target) )
+    (O (+ ($source ($link $source $target)))
+       (+ ($target ($link $source $target)))
+       (+ (theoutput $source))
+       (+ (theoutput $target))
+       (- ($link $source $target))
     )
 )

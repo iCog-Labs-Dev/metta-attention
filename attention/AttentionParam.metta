@@ -36,7 +36,6 @@
 !(add-atom &attentionParam  (LTI_ATOM_WAGE 10))
 !(add-atom &attentionParam  (TOPK 1))
 
-
 ; (: getAttentionParam (-> Symbol Number))
 (= (getAttentionParam $param)
    (match &attentionParam ($param $x) $x)
