@@ -20,6 +20,40 @@
     ) 
 )
 
+(= (diffuseIncident $atom $space)
+    (let*
+        (
+            ($sourceSti (getSti $atom))
+            ($maxSpreadPercentage (getAttentionParam MAX_SPREAD_PERCENTAGE))
+            ($hebbianMaximumLinkAllocation (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE))
+            ($foset (if (== (get-metatype $atom) Expression) (cdr-atom $atom) ()))
+            ($incidentAtoms (unify $space ($atom $incidents) $incidents ()))
+            ($incidentAndoset (union-atom $foset $incidentAtoms))
+            ($diffsize (size-atom $incidentAndoset))
+            ($diffPercentage (* $maxSpreadPercentage (- 1 $hebbianMaximumLinkAllocation)))
+            ($atomToReceive (superpose $incidentAndoset))
+            ($stiGiven (* (/ $diffPercentage $diffsize) $sourceSti))
+        )
+        ($atom $atomToReceive $stiGiven)
+    )
+)
+
+(= (diffuseHebbian $atom $space $diffsize) 
+    (let*
+        (
+            ($sourceSti (getSti $atom))
+            ($maxSpreadPercentage (getAttentionParam MAX_SPREAD_PERCENTAGE))
+            ($hebbianMaximumLinkAllocation (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE))
+            ($diffPercentage (* $maxSpreadPercentage $hebbianMaximumLinkAllocation))
+            ($stiportion (/ $diffPercentage $diffsize))
+            (($atomToReceive (STV $mean $conf)) 
+                (match $space ((ASYMMETRIC_HEBBIAN_LINK $atom $target) $val) ($target $val))
+            )
+            ($stiGiven (* (* $stiportion (* $mean $conf)) $sourceSti))
+        )
+        ($atom $atomToReceive $stiGiven)
+    )
+)
 
 ;; This function will calculate the diffusion amount
 ;; Parameters $atom: The atom that will be used to calculate the diffusion amount
@@ -32,77 +66,43 @@
 ;; Return : The diffusion get called
 
 ; (: spreadImportance (-> Grounded Grounded Empty))
-(= (spreadImportance $space)
-        (let*
-        (
-            ($difatoms (getAfAtoms))
-            ($atoms (collapse 
-                (let $atom
-                    (superpose $difatoms)
-                    (diffuseAtom $atom $space AF))
-                )
-            ) 
-            (($atom $sti) (tradeList $atoms))
-            
-        )
-         (collapse (setSti $atom $sti))
-        )
-    )
-
-
-(: tradeList (-> Expression Expression))
-(= (tradeList $result)
+(= (spreadImportance $incidentSpace $hebbainSpace)
     (let*
         (
-            ($diffusingAtoms (collapse 
-                (let ($atom $atomToReceive $stiGiven)
-                    (superpose $result)
-                    $atom 
+            ($difatoms (getAfAtoms))
+            ($param (getAttentionParam TOPK))
+            ($afSize (size-atom $difatoms))
+            ($stilist (getListsti $difatoms))
+            ($number (trunc-math (* $afSize $param)))
+            ($topk (py-call (getelement.getTopK $stilist $number)))
+            ($atomss (getListatom $topk)) ; this function might return more than k atoms due to similar sti value
+            ($katom (py-call (getelement.getK $atomss $number)))
+            ($kSize (size-atom $katom))
+            ($atoms (collapse 
+                 (let $input
+                    (superpose $katom)
+                    (superpose (
+                        (diffuseIncident $input $incidentSpace)
+                        (diffuseHebbian $input $hebbainSpace $kSize)
+                    ))
                 )
             ))
-            ($recivingAtoms (collapse 
-                (let ($atom $atomToReceive $stiGiven)
-                    (superpose $result)
-                    $atomToReceive 
-                )
-            ))
-            ($combindedAtoms (union-atom $diffusingAtoms $recivingAtoms))
-            ($sources (unique-atom $combindedAtoms))
-            ($source (superpose $sources))
-            ($sourceSti (collapse (filterTrade $result $source)))
-            ($trade (foldl-atom $sourceSti 0 $acc $x (+ $acc $x)))
-            ($newTrade (+ (getSti $source) $trade))
+            ($trades (collapse (tradeList $atoms)))
         )
-        ($source $newTrade)
+        (
+            (bach-p setStis $trades)
+            (empty)
+        )
     )
 )
 
-;; This function filters returns sti transfers for a given atom and negates all values 
-;; where it is giving sti
-;; Parameters:
-;;      $result: list of all trades
-;;      $source: atom in consideration
-;; Result: (non - deterministic)
-;;      Number value of sti trade of an atom
-(: filterTrade (-> Expression Atom Number))
-(= (filterTrade $result $source)
-    (let ($atom $atomToReceive $stiGiven)
-        (superpose $result)
-        (if (== $atom $source)
-            (* -1 $stiGiven)
-            (if (== $atomToReceive $source)
-                $stiGiven
-                (empty)
-            )
-        )
-    )
-)
 ;; This function is the entry point to the AFImportance Diffusion Agent
 ;; Parameters $space: The space that will be used to find the diffusion source vector
 ;;            $space2: The space that will be used to find incomingSets
 ;; Return : The spreadImportance function is called
-
 ; (: AFImportanceDiffusionAgent-Run (-> Grounded Grounded Empty))
-(= (AFImportanceDiffusionAgent-Run $space)
-    (spreadImportance $space)
+(= (AFImportanceDiffusionAgent-Run $incidentSpace $hebbainSpace)
+    ; (with_mutex afmutex 
+        (spreadImportance $incidentSpace $hebbainSpace)
+    ; )
 )

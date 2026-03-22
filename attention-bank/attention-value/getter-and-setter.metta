@@ -35,7 +35,7 @@
 
            ($stiDiff (- $oldSti $sti))
            ($ltiDiff (- $oldLti $lti))
-        ;    ($_ (println! (lti $ltiDiff)))
+        ;    ($_ (println! (sti $pattern $stiDiff)))
            ($fundsSTI (getAttentionParam FUNDS_STI))
            ($fundsLTI (getAttentionParam FUNDS_LTI))
            ($newstifund (+ $fundsSTI $stiDiff))
@@ -45,7 +45,7 @@
            ($updater (attentionValueChanged $pattern $newstifund $newltifund $sti))  ; Update attentional focus and global paremeter
            
     )
-   ()
+   (eval (updateAf $pattern $sti))
 ))
 
 
@@ -232,6 +232,13 @@
     )
 )
 
+(= (setSti ($atom $sti))
+    (setSti $atom $sti)
+)
+
+(= (setStis $atom $sti)
+    (with_mutex set_mutex (setSti $atom $sti))
+)
 ;;setLti fnction accepts a pattern/node with an Lti value to replace the original
 ;;and set the Lti to the pattern/node.
 ; i.e !(setLti A 500)

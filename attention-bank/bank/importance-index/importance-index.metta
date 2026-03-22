@@ -133,7 +133,7 @@
     (let*
       (
         ($vals (getAtomsByBin $lower))
-        ($r (println! $lower))
+        ; ($r (println! $lower))
         ($rest (getContent (+ $lower 1.0) $higher))
       )
       (union-atom $vals $rest)
