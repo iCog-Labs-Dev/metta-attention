@@ -22,12 +22,14 @@
             ($probabilityVectorIncident (collapse (probabilityVectorIncident $incidentAndoset)))
             ($probabilityVectorHebbianAjacent (collapse (probabilityVectorHebbianAjacent $atom $iset)))
             ($combProbabilityVector (combineIncidentAdjacentVectors $probabilityVectorIncident $probabilityVectorHebbianAjacent))
-            
+            ; ($1 (println! (incident $incidentAtoms $iset)))
+            ; ($2 (println! (combp $combProbabilityVector)))
             ($totaldiffusionAmount (if (== $AForWA AF)
                                        (calculateDiffusionAmount $atom)
                                        (calculateDiffusionAmountWA $atom)
                                     )
             )
+            ($3 (println! (diffusionAmount $totaldiffusionAmount)))
             (($atomToReceive $stiGiven)
                     (if (== $totaldiffusionAmount 0.0)
                         (() 0.0)
@@ -306,15 +308,62 @@
             (
                 ($sourceSTI (getSti $source))
                 ($targetSti (getSti $target))
-                
                 ($newSourceSTI (- $sourceSTI $value))
                 ($newTargetSti (+ $targetSti $value))
-                ; ($r (println! (newSourceSTI $newSourceSTI newTargetStit $newTargetSti)))
-                ($1 (setSti $target $newTargetSti))
-                ($2 (setSti $source $newSourceSTI))
-                ; ($3 (println! (we diffused for the atom)))
             )
-            ()
+            (
+                (setSti $target $newTargetSti)
+                (setSti $source $newSourceSTI)
+                (empty)
+            )
         )
+    )
+)
+
+;; This function filters returns sti transfers for a given atom and negates all values 
+;; where it is giving sti
+;; Parameters:
+;;      $result: list of all trades
+;;      $source: atom in consideration
+;; Result: (non - deterministic)
+;;      Number value of sti trade of an atom
+; (: filterTrade (-> Expression Atom Number))
+(= (filterTrade $result $source)
+    (let ($atom $atomToReceive $stiGiven)
+        (superpose $result)
+        (if (== $atom $source)
+            (* -1 $stiGiven)
+            (if (== $atomToReceive $source)
+                $stiGiven
+                (empty)
+            )
+        )
+    )
+)
+
+; (: tradeList (-> Expression Expression))
+(= (tradeList $result)
+    (let*
+        (
+            ($diffusingAtoms (collapse 
+                (let ($atom $atomToReceive $stiGiven)
+                    (superpose $result)
+                    $atom 
+                )
+            ))
+            ($recivingAtoms (collapse 
+                (let ($atom $atomToReceive $stiGiven)
+                    (superpose $result)
+                    $atomToReceive 
+                )
+            ))
+            ($combindedAtoms (union-atom $diffusingAtoms $recivingAtoms))
+            ($sources (unique-atom $combindedAtoms))
+            ($source (superpose $sources))
+            ($sourceSti (collapse (filterTrade $result $source)))
+            ($trade (foldl-atom $sourceSti 0 $acc $x (+ $acc $x)))
+            ($newTrade (+ (getSti $source) $trade))
+        )
+        ($source $newTrade)
     )
 )
