@@ -20,19 +20,27 @@
     ) 
 )
 
+(= (getIncident $atom $space)
+    (let*
+        (
+            ($foset (if (== (get-metatype $atom) Expression) (cdr-atom $atom) ()))
+            ($incidentAtoms (unify $space ($atom $incidents) $incidents ()))
+        )
+        (union-atom $foset $incidentAtoms)
+    )
+)
+
 (= (diffuseIncident $atom $space)
     (let*
         (
             ($sourceSti (getSti $atom))
             ($maxSpreadPercentage (getAttentionParam MAX_SPREAD_PERCENTAGE))
             ($hebbianMaximumLinkAllocation (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE))
-            ($foset (if (== (get-metatype $atom) Expression) (cdr-atom $atom) ()))
-            ($incidentAtoms (unify $space ($atom $incidents) $incidents ()))
-            ($incidentAndoset (union-atom $foset $incidentAtoms))
+            ($incidentAndoset (getVectorIncident $atom 30))
             ($diffsize (size-atom $incidentAndoset))
             ($diffPercentage (* $maxSpreadPercentage (- 1 $hebbianMaximumLinkAllocation)))
-            ($atomToReceive (superpose $incidentAndoset))
-            ($stiGiven (* (/ $diffPercentage $diffsize) $sourceSti))
+            (($atomToReceive $score) (superpose $incidentAndoset))
+            ($stiGiven (* (* (/ $diffPercentage $diffsize) $sourceSti) $score))
         )
         ($atom $atomToReceive $stiGiven)
     )

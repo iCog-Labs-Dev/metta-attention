@@ -11,7 +11,8 @@
 
 !(import! &self ../vectorIndicent)
 
-!(topk happy (sad angrt excited tired) 23)
+(topk happy (sad angrt excited tired) 23)
 
+!(FilterScore greaterScore (a 0.1) ((b 0.01) (c 0.1) (d 0.3) (e 0.4)) ())
 (getEmbd angrt)
-!(topNeighbours happy 10)
+(getVectorIncident dog 100)

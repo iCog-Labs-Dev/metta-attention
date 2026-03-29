@@ -7,8 +7,8 @@ import plotly.express as px
 import json
 import sys
 
-class Plotter:
 
+class Plotter:
     def __init__(self, output_path: Union[str, Path]):
         self.output_path = Path(output_path).resolve()
         self.data_path = self.get_data_path()
@@ -17,9 +17,9 @@ class Plotter:
         self.word_to_category = self.create_word_lookup()
         self.data_frame = self.read_csv()
         self.plot()
-    
+
     def get_data_path(self) -> Path:
-        data_path = self.output_path / 'data'
+        data_path = self.output_path / "data"
         if not data_path.exists() or not data_path.is_dir():
             raise FileNotFoundError(f"No {data_path} directory found")
         file_paths = list(data_path.glob("words.json"))
@@ -30,15 +30,15 @@ class Plotter:
         return file_paths[0]
 
     def read_params(self) -> dict:
-        settings_path = self.output_path / 'output' / 'settings.json'
+        settings_path = self.output_path / "output" / "settings.json"
         if not settings_path.exists():
             raise FileNotFoundError(f"No {settings_path} found in output directory")
-        with open(settings_path, 'r') as f:
+        with open(settings_path, "r") as f:
             setting_json = json.load(f)
         return setting_json
 
     def create_category(self) -> dict:
-        with open(self.data_path, 'r') as f:
+        with open(self.data_path, "r") as f:
             return json.load(f)
 
     def create_word_lookup(self) -> dict:
@@ -53,16 +53,24 @@ class Plotter:
 
     def categorize_pattern(self, pattern) -> str:
         word = str(pattern).split()[0].lstrip("(")
-        return self.word_to_category.get(word, 'Entered through spreading')
+        return self.word_to_category.get(word, "Entered through spreading")
 
     def read_csv(self) -> pd.DataFrame:
-        csv = self.output_path / 'output' / 'output.csv'
-        df = pd.read_csv(csv, parse_dates=['timestamp'])
-        words = df['pattern'].astype(str).str.extract(r'^\(?([^\s()]+)', expand=False)
-        df['category'] = words.map(self.word_to_category).fillna('Entered through spreading')
-        df['time_windows'] = df['timestamp'].dt.floor('0.0001s')
-        category_counts = df.groupby(['time_windows', 'category']).size().unstack(fill_value=0)
-        af_size = int(float(self.params['MAX_AF_SIZE']))
+        csv = self.output_path / "output" / "output.csv"
+        df = pd.read_csv(csv)
+        df = df.assign(
+            timestamp=pd.to_datetime(df["timestamp"], format="ISO8601"),
+            category=df["pattern"]
+            .astype(str)
+            .str.extract(r"^\(?([^\s()]+)", expand=False)
+            .map(self.word_to_category)
+            .fillna("Entered through spreading"),
+        )
+        df = df.assign(time_windows=df["timestamp"].dt.floor("0.0015s"))
+        category_counts = (
+            df.groupby(["time_windows", "category"]).size().unstack(fill_value=0)
+        )
+        af_size = int(float(self.params["MAX_AF_SIZE"]))
         return category_counts / af_size
 
     def plot(self) -> None:
@@ -92,43 +100,47 @@ class Plotter:
                 label=category,
                 color=color,
                 linewidth=1.0,
-                alpha=0.9
+                alpha=0.9,
             )
             axs[i].set_title(category, fontsize=11)
-            axs[i].grid(True, linestyle='--', alpha=0.4)
+            axs[i].grid(True, linestyle="--", alpha=0.4)
             axs[i].set_ylim(-0.02, 1.02)
 
         for j in range(len(all_categories), len(axs)):
             fig.delaxes(axs[j])  # Remove unused axes
 
-        fig.suptitle('All Category Frequencies Over Time', fontsize=14)
-        fig.supxlabel('Time Window', fontsize=12)
-        fig.supylabel(f'Attentional focus size {self.params["MAX_AF_SIZE"]}', fontsize=12)
+        fig.suptitle("All Category Frequencies Over Time", fontsize=14)
+        fig.supxlabel("Time Window", fontsize=12)
+        fig.supylabel(
+            f"Attentional focus size {self.params['MAX_AF_SIZE']}", fontsize=12
+        )
         plt.xticks(rotation=45)
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-        plot_file = self.output_path / 'output' / 'plot_faceted.png'
+        plot_file = self.output_path / "output" / "plot_faceted.png"
         plt.savefig(plot_file)
         print("Faceted plot saved to", plot_file)
 
         # === 5. Optional: Interactive Plotly Plot ===
         try:
             df_reset = smoothed_counts.reset_index().melt(
-                id_vars='time_windows', var_name='Category', value_name='Frequency')
+                id_vars="time_windows", var_name="Category", value_name="Frequency"
+            )
             fig = px.line(
                 df_reset,
-                x='time_windows',
-                y='Frequency',
-                color='Category',
-                title='Interactive All Category Frequency Over Time'
+                x="time_windows",
+                y="Frequency",
+                color="Category",
+                title="Interactive All Category Frequency Over Time",
             )
-            html_file = self.output_path / 'output' / 'plot_interactive.html'
+            html_file = self.output_path / "output" / "plot_interactive.html"
             fig.write_html(str(html_file))
             print("Interactive plot saved to", html_file)
         except Exception as e:
             print("Plotly interactive plot failed:", e)
 
+
 if __name__ == "__main__":
-    base_dir = Path(__file__).parent.resolve() 
+    base_dir = Path(__file__).parent.resolve()
     if len(sys.argv) >= 2:
         output_csv = sys.argv[1:]
     else:
