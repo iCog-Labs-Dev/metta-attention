@@ -1,8 +1,11 @@
+!(bind! &cache (new-space))
+(= (cacheSpace) &cache)
+
 (= (defaultEmbd $n)
-  (if (> 0.0 $n)
-    (0.001)
-    (cons-atom 0.0001 (defaultEmbd (- $n 1)))
-  )
+    (if (> 0.0 $n)
+        (0.1)
+        (cons-atom 0.1 (defaultEmbd (- $n 1)))
+    )
 )
 
 (= (getEmbd $atom)
@@ -30,22 +33,21 @@
 
 (= (calculateCosine $atom (cons $head $tail) $out)
     (calculateCosine $atom $tail 
-      (cons-atom 
-        ($head (cosine (getEmbd $atom) (getEmbd $head))) $out
-      )
+        (cons-atom
+            ($head (cosine (getEmbd $atom) (getEmbd $head))) $out
+        )
     )
 )
 
 (= (greaterScore ($atom $score) ($head $hscore))
-  (>= $score $hscore)
+    (<= $score $hscore)
 )
 
 (= (lesserScore ($atom $score) ($head $hscore))
-  (< $score $hscore)
+    (> $score $hscore)
 )
 
 (= (FilterScore $f $pivot () $out) $out)
-
 (= (FilterScore $f $pivot (cons $head $tail) $out)
     (if ($f $pivot $head)
         (FilterScore $f $pivot $tail (cons-atom $head $out))
@@ -54,7 +56,6 @@
 )
 
 (= (acesndingScore ()) ())
-
 (= (acesndingScore (cons $pivot $tail))
     (let*
         (
@@ -63,17 +64,33 @@
             ($sortedLesser (acesndingScore $lesser))
             ($sortedGreater (acesndingScore $greater))
         )
-        (concatTuple $sortedGreater (cons-atom $pivot $sortedLesser))
+        (union-atom $sortedGreater (cons-atom $pivot $sortedLesser))
+    )
+)
+
+(= (getCappedNatoms () $k $out) $out)
+(= (getCappedNatoms (cons $head $tail) $k $out)
+    (if (>= $k 1)
+        (cons-atom $head (getCappedNatoms $tail (- $k 1) $out))
+        $out
     )
 )
 
 (= (topk $atom $atoms $k)
-    (if (atominVec $atom)
-        (getNatoms (cdr-atom (acesndingScore (calculateCosine $atom $atoms ()))) $k)
-        (getNatoms (acesndingScore (calculateCosine $atom $atoms ())) $k)
-    )
+    (getNatoms (cdr-atom (acesndingScore (calculateCosine $atom $atoms ()))) $k)
 )
 
 (= (getVectorIncident $atom $k)
-   (topk $atom (collapse (match (VecSpace) ($s $embd) $s)) $k)
+    (let $cache 
+        (cacheSpace)
+        (unify $cache ($atom $target) $target
+            (let*  
+                (
+                    ($targets (topk $atom (collapse (match (VecSpace) ($s $embd) $s)) $k)); -> ant 
+                    ($added (add-atom $cache ($atom $targets)))
+                )
+                $targets
+            )
+        )
+    )
 )
