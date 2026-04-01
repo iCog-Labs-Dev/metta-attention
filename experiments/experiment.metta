@@ -1,18 +1,16 @@
 !(bind! &insect (new-space))
-(bind! &poison (new-space))
 !(import! &insect data/insect-sent)
-(import! &poison data/poison-sent)
 
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
-!(import! &self lib/lib_he)
-!(import! &self lib/lib_vector)
 (static-import! &incident ./data/kg)
-!(static-import! &vecEmbd ../larger_vec)
+!(static-import! &vecEmbd ./data/larger_vec)
 ; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 (= (VecSpace) &vecEmbd)
 
+!(import! &self lib/lib_he)
+!(import! &self lib/lib_vector)
 !(import! &self ../attention/AttentionParam)
 !(import! &self ../attention/baching)
 !(import! &self ../attention-bank/attention-value/getter-and-setter)
@@ -46,46 +44,40 @@
 
 ; write the params to a file
 !(updateAttentionParam MAX_AF_SIZE 90.0)
-!(updateAttentionParam TARGET_STI 1000.0)
-!(updateAttentionParam TARGET_LTI 1000.0) 
-!(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
-!(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
+!(updateAttentionParam TARGET_STI 10000.0)
+!(updateAttentionParam TARGET_LTI 10000.0) 
+!(updateAttentionParam STI_FUNDS_BUFFER 10000.0) 
+!(updateAttentionParam LTI_FUNDS_BUFFER 10000.0) 
 !(updateAttentionParam FUNDS_STI 100000.0) 
 !(updateAttentionParam FUNDS_LTI 100000.0) 
 !(updateAttentionParam TOPK 0.5)
-
-; !(updateAttentionParam STI_FUNDS_BUFFER 99900)
-; !(updateAttentionParam LTI_FUNDS_BUFFER 99900)
-; !(updateAttentionParam TARGET_STI 99900)
-; !(updateAttentionParam TARGET_LTI 99900)
-; !(updateAttentionParam AFRentFrequency 2.0)
-; !(updateAttentionParam MAX_AF_SIZE 12)
 
 
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-; (= (batch) 2)
-;(= (insectPoisonReadExp $expr $counter)
-;   (if (== $expr ())
-;       (empty)
-;       (let* 
-;           (
-;               ($now (car-atom $expr))
-;               ($rest (cdr-atom $expr))
-;           )
-;           ( 
-;               (stimulate $now 30)
-;               (println! (stimulating atom --> $now))
-;               (if (or (== (% $counter (batch)) 0) (== $rest ()))
-;                  (collapse (test-superpose &incident)) 
-;                  (println! (agent not called))
-;               )
-;               ; (py-call (time.sleep 5.0))
-;               (insectPoisonReadExp $rest (+ $counter 1)))
-;        )
-;   )    
-;)
+(= (batch) 1)
+(= (insectPoisonReadExp $expr $counter)
+    (if (== $expr ())
+        (empty)
+        (let* 
+            (
+                ($now (car-atom $expr))
+                ($rest (cdr-atom $expr))
+            )
+            ( 
+                (stimulate $now 30)
+                (println! (stimulating atom --> $now))
+                (if (or (== (% $counter (batch)) 0) (== $rest ()))
+                    (println! (at (unify &incident ($now $x) (found $now) (not found $now)))); (collapse (test-superpose &incident)) 
+                    (println! (agent not called))
+                )
+                ; (py-call (time.sleep 5.0))
+                (insectPoisonReadExp $rest (+ $counter 1))
+            )
+        )
+    )
+)
 
 (= (loop $counter)
     (if (== $counter 0)
@@ -107,13 +99,12 @@
     (stimulate $words 30)
 )
 
-!(loop 10)
+!(loop 20)
 
 !(let $words
     (match &insect (poisonSent $x) (superpose $x))
-    (stimulate $words 30)
+    (stimulate $words 300)
 )
 
 
-!(loop 20)
-
+!(loop 30)
