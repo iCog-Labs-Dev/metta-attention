@@ -1,0 +1,1 @@
+!(subtraction-atom (a b c) (b c d))

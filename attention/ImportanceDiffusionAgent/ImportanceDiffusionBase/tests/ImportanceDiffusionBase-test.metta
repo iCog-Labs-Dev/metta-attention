@@ -31,7 +31,9 @@
 
 ; ========= tests ===============
 !(test (size-atom (collapse (filteroset (collapse (match (TypeSpace) (($x $y $z) $val) ($x $y $z)))))) 3)
-
+!(collapse (match (TypeSpace) (($x $y $z) $val) ($x $y $z)))
+!(collapse (filteroset (collapse (match (TypeSpace) (($x $y $z) $val) ($x $y $z)))))
+!(getOutGoingAtoms (source a b))
 !(collapse 
     (let* (
             ($x (collapse (incidentAtoms source (TypeSpace))))

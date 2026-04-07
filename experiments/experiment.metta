@@ -34,8 +34,8 @@
 !(import! &self "../attention/ImportanceDiffusionAgent/getelement.py")
 
 
-(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+; !(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+; !(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 ; !(match &tempspace ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 
 
