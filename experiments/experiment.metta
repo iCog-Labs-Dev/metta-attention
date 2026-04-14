@@ -8,11 +8,11 @@
 !(static-import! &incident ./data/kg)
 ; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
-
 !(import! &self ../attention/AttentionParam)
 !(import! &self ../attention/baching)
 !(import! &self ../attention-bank/utilities/helper-functions)
 !(import! &self ../attention-bank/utilities/recentVal)
+!(import! &self "../attention/ImportanceDiffusionAgent/getelement.py")
 
 !(import! &self ../attention-bank/attention-value/getter-and-setter)
 !(import! &self ../attention-bank/bank/attention-bank)
@@ -31,7 +31,7 @@
 !(import! &self ../attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
 !(import! &self ../attention/HebbianCreationAgent/HebbianCreationAgent)
 !(import! &self ../attention/runner-Def)
-!(import! &self "../attention/ImportanceDiffusionAgent/getelement.py")
+!(import! &self ../attention-bank/synapse/ratio)
 
 
 (match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
@@ -60,7 +60,7 @@
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-(= (batch) 25)
+(= (batch) 20)
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (empty)
@@ -68,19 +68,43 @@
             (
                 ($now (car-atom $expr))
                 ($rest (cdr-atom $expr))
+                ($af (getAfAtoms))
             )
             ( 
                 (stimulate $now 30)
                 (println! (stimulating atom --> $now))
                 (if (or (== (% $counter (batch)) 0) (== $rest ()))
-                   (collapse (test-superpose &incident)) 
-                   (println! (agent not called))
+                    (
+                        (collapse (match (afSnap) (prevState $val) (remove-atom &afsnap (prevState $val))))
+                        (add-atom &afsnap (prevState $af))
+                        (collapse (test-superpose &incident))
+                        (collapse (match (afSnap) (currState $val) (remove-atom &afsnap (currState $val))))
+                        (let $nextaf
+                            (getAfAtoms)
+                            (add-atom &afsnap (currState $nextaf))
+                        )
+                        (println! (retention (contextRetention 
+                            (car-atom (collapse (match (afSnap) (prevState $x) $x)))
+                            (car-atom (collapse (match (afSnap) (currState $x) $x)))
+                            )))
+                    )
+                    (println! (agent not called))
                 )
                 ; (py-call (time.sleep 5.0))
                 (insectPoisonReadExp $rest (+ $counter 1)))
-         )
+        )
     )    
 )
 
 ; !(match &incident (much $x) (tropical $x))
 !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
+!(println! (af resource (afResourceUsage)))
+!(println! (sti concentration (stiConcentration)))
+!(println! (link density (linkDensity)))
+
+!(println! (retention (contextRetention
+        (car-atom (collapse (match &afSnap (prevState $x) $x)))
+        (car-atom (collapse (match &afSnap (currState $x) $x)))
+)))
+!(println! (p-correlation (correlation)))
+!(println! (modulation (selectionModulation)))
