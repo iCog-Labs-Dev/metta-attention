@@ -338,3 +338,34 @@
     )
 )
 
+= (countTriangles $links)
+    0
+)
+
+(= (calculateBetti0 $links)
+    1
+)
+
+(= (calculateBetti1 $links)
+    0
+)
+
+(= (calculateBetti2 $links)
+    0
+)
+
+(= (presistentHomologyInvariants $state)
+    (let*
+        ( 
+          ($allAtoms (getAllAtomsWithBins))
+          ($hlinks (getHebLinks $allAtoms ()))
+            
+          ($triangles (countTriangles $hlinks))
+          ($betti0 (calculateBetti0 $hlinks))
+          ($betti1 (calculateBetti1 $hlinks))
+          ($betti2 (calculateBetti2 $hlinks))
+        )        
+        (TopologyReport $triangles $betti0 $betti1 $betti2)
+      
+    )
+)
