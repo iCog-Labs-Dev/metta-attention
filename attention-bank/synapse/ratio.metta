@@ -132,3 +132,5 @@
         (/ $variance $maxVariance)
     )
 )
+
+(= (unrelatedhistorytest $x) 1)
