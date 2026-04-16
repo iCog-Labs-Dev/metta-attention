@@ -154,7 +154,7 @@
         ($totalLinks (size-atom $allAfLinks))
 
         ;; map over links to get the internal ones
-        ($internalFlags (map-atom $allAfLinks $link (isInternalLink $link $afAtoms))
+        ($internalFlags (map-atom $allAfLinks $link (isInternalLink $link $afAtoms)))
         ($internalLinks (foldl-atom $internalFlags 0 $acc $x (+ $acc $x)))
       )
         (
@@ -178,10 +178,10 @@
         ($allAtoms (getAllAtomsWithBins))
         ($totalAtoms (size-atom $allAtoms))
         ($totalSti (getTotalSti $allAtoms 0))
-        ($probabilities (map-atom $allAtoms $atom)(/ (getsti $atom) $totalSti))
-        ($entropyTerms (map-atom $probabiliries $p (entropyTerm $p)))
+        ($probabilities (map-atom $allAtoms $atom (/ (getSti $atom) $totalSti)))
+        ($entropyTerms (map-atom $probabilities $p (entropyTerm $p)))
         ($sumTerms (foldl-atom $entropyTerms 0 $acc $x (+ $acc $x)))
-        ($entropy (* -1 $sumTerms))
+        ($entropy (* -1.0 $sumTerms))
         ($maxEntropy (log2-math $totalAtoms))
       )
 
@@ -204,13 +204,13 @@
 (= (cognitiveMaintainanceHelper (cons $state1 (cons $state2 $tail)) $sum $count)
      (let*
           (
-             ($retenttion (contextRetention $state1 $state2))
+             ($retention (contextRetention $state1 $state2))
              ($newSum (+ $sum $retention))
              ($newCount (+ $count 1))
           )
      )
      (
-       (cognitiveMaintainanceHelper (cons state2 $tail) $newSum $newCount)
+       (cognitiveMaintainanceHelper (cons $state2 $tail) $newSum $newCount)
      )
 )
 (= (cognitiveMaintainance $trajectory)
@@ -236,7 +236,7 @@
           ($internalFlags (map-atom $allLinks $link (isInternalLink $link $moduleAtoms)))
           ($internalCount (foldl-atom $internalFlags 0 $acc $x (+ $acc $x)))
 
-          ($maxLinks (* $moduleSize (- $moduleSize)))
+          ($maxLinks (* $moduleSize (- $moduleSize 1)))
         )
         (if (> $maxLinks 0) (/ $internalCount $maxLinks) 0.0)
      )
@@ -255,12 +255,12 @@
             ($internalCounts (map-atom $modules $mod 
                 (foldl-atom (map-atom (getHebLinks $mod ()) $link (isInternalLink $link $mod)) 0 $acc $x (+ $acc $x))
             ))
-            ($totalInternal (foldl-atom $internalCounts 0 $acc $x (+ $acc $x))
+            ($totalInternal (foldl-atom $internalCounts 0 $acc $x (+ $acc $x)))
 
             ($totalExternal (- $totalLinks $totalInternal))
-            ($globalCoherence(if (> $totalLinks 0) (/ $totalExternal $totalLinks) 0.0)
+            ($globalCoherence (if (> $totalLinks 0) (/ $totalExternal $totalLinks) 0.0))
 
-            ($coordination (sqrt-math (* *localCOherence *globalCoherence)))
+            ($coordination (sqrt-math (* $localCoherence $globalCoherence)))
          )
         $coordination
     )
@@ -317,10 +317,10 @@
 (= (initializeBaselineClip $initialState)
     (let*
         (
-            ($metrics (measureAllMetrics $initialState))
+            ($metrics (measureAllMetrics $initialState ()))
             ($timestamp (currentTime))
         )
-        (CIPSnapshot 0 initialState $timestamp $metrics)
+        (CIPSnapshot 0 $initialState $timestamp $metrics)
     )
 )
 
@@ -338,7 +338,8 @@
     )
 )
 
-= (countTriangles $links)
+;; todo -> implement the ones below
+(= (countTriangles $links)
     0
 )
 
