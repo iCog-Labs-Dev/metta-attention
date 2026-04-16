@@ -31,7 +31,7 @@
             ($stiDistance (foldl-atom (map-atom $afAtoms $x (pow-math (- (getSti $x) $meanSti) 2)) 0 $acc $x (+ $acc $x)))
             ($ltiDistance (foldl-atom (map-atom $afAtoms $x (pow-math (- (getLti $x) $meanLti) 2)) 0 $acc $x (+ $acc $x)))
             ($denomenator (sqrt-math (* $stiDistance $ltiDistance)))
-        )
+        ) 
         (/ $numenator $denomenator)
     )
 )
@@ -98,7 +98,7 @@
 (= (correlation)
     (let*
         (
-            ($afAtoms (getAfAtoms))
+            ($afAtoms (getAllAtomsWithBins))
             ($stival (map-atom $afAtoms getSti))
             ($ltival (map-atom $afAtoms getLti))
             ($totalSti (foldl-atom $stival 0 $acc $x (+ $acc $x)))
@@ -123,7 +123,7 @@
 (= (selectionModulation)
     (let* 
         (
-            ($afAtoms (getAfAtoms))
+            ($afAtoms (getAllAtomsWithBins))
             ($stiValue (map-atom $afAtoms getSti))
             ($variance (variance $stiValue))
             ($maxVariance (variance-uniform $stiValue))
@@ -165,6 +165,13 @@
   )
 )
 
+(= (log2-math $x)
+    (if (> $x 0.0)
+        (log-math 2.0 $x)
+        0.0
+    )
+)
+
 (= (entropyTerm $p)
      (if (> $p 0)
        (* $p (log2-math $p))
@@ -182,7 +189,7 @@
         ($entropyTerms (map-atom $probabilities $p (entropyTerm $p)))
         ($sumTerms (foldl-atom $entropyTerms 0 $acc $x (+ $acc $x)))
         ($entropy (* -1.0 $sumTerms))
-        ($maxEntropy (log2-math $totalAtoms))
+        ($maxEntropy (if (> $totalAtoms 1) (log2-math $totalAtoms) 0.0))
       )
 
         (if (> $maxEntropy 0)
