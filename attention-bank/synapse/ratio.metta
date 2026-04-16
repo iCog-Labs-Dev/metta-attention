@@ -199,29 +199,44 @@
   )
 )
 
-;; cognitive maintainance
-(= (cognitiveMaintainanceHelper () $sum $count)
-     (if (> $count 0) (/ $sum $count) 0.0)
-)
+; ;; cognitive maintainance (recursive list version)
+; (= (cognitiveMaintainanceHelper () $sum $count)
+;      (if (> $count 0) (/ $sum $count) 0.0)
+; )
+;
+; (= (cognitiveMaintainanceHelper (cons $single ()) $sum $count)
+;      (if (> $count 0) (/ $sum $count) 0.0)
+; )
+;
+; (= (cognitiveMaintainanceHelper (cons $state1 (cons $state2 $tail)) $sum $count)
+;      (let*
+;           (
+;              ($retention (contextRetention $state1 $state2))
+;              ($newSum (+ $sum $retention))
+;              ($newCount (+ $count 1))
+;           )
+;      )
+;      (
+;        (cognitiveMaintainanceHelper (cons $state2 $tail) $newSum $newCount)
+;      )
+; )
+;
+; (= (cognitiveMaintainance $trajectory)
+;      (cognitiveMaintainanceHelper $trajectory 0.0 0)
+; )
 
-(= (cognitiveMaintainanceHelper (cons $single ()) $sum $count)
-     (if (> $count 0) (/ $sum $count) 0.0)
-)
-
-(= (cognitiveMaintainanceHelper (cons $state1 (cons $state2 $tail)) $sum $count)
-     (let*
-          (
-             ($retention (contextRetention $state1 $state2))
-             ($newSum (+ $sum $retention))
-             ($newCount (+ $count 1))
-          )
-     )
-     (
-       (cognitiveMaintainanceHelper (cons $state2 $tail) $newSum $newCount)
-     )
-)
-(= (cognitiveMaintainance $trajectory)
-     (cognitiveMaintainanceHelper $trajectory 0.0 0)
+(= (cognitiveMaintenance $oldState $newState $oldMean $oldCount)
+    (let*
+        (
+            ($retention (contextRetention $oldState $newState))
+            ($newCount (+ $oldCount 1.0))
+            ($weightOld (* $oldMean (/ $oldCount $newCount)))
+            ($weightNew (/ $retention $newCount))
+            
+            ($newMean (+ $weightOld $weightNew))
+        )
+        $newMean
+    )
 )
 
 (= (averageList $list)
