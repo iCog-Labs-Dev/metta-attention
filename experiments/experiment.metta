@@ -102,6 +102,9 @@
 !(println! (sti concentration (stiConcentration)))
 !(println! (link density (linkDensity)))
 
+!(println! (Connection Ratio (connectionRatio)))
+!(println! (Normalized STI Entropy (preallocationSpace)))
+
 !(println! (retention (contextRetention
         (car-atom (collapse (match &afSnap (prevState $x) $x)))
         (car-atom (collapse (match &afSnap (currState $x) $x)))
