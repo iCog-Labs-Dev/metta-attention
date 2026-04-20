@@ -1,7 +1,6 @@
 !(bind! &insect (new-space))
 ; !(bind! &poison (new-space))
 !(import! &insect data/insect-sent)
-
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
 !(import! &self lib/lib_he)
@@ -10,6 +9,7 @@
 
 !(import! &self ../attention/AttentionParam)
 !(import! &self ../attention/baching)
+
 !(import! &self ../attention-bank/utilities/helper-functions)
 !(import! &self ../attention-bank/utilities/recentVal)
 !(import! &self "../attention/ImportanceDiffusionAgent/getelement.py")
@@ -61,6 +61,30 @@
 !(start-log (attentionParam) "experiments")
 
 (= (batch) 20)
+
+(= (logCurrStateMetrics $counter)
+    (
+        (let*
+            (
+                ($prevState (car-atom (collapse (match (afSnap) (prevState $x) $x))))
+                ($currState (car-atom (collapse (match (afSnap) (currState $x) $x))))
+                ($retentionValue (contextRetention $prevState $currState))
+                ($afResource (afResourceUsage))
+                ($stiConc (stiConcentration))
+                ($linkDen (linkDensity))
+                ($connRatio (connectionRatio))
+                ($stiEntropy (preallocationSpace))
+                ($pcorr (correlation))
+                ($modulation (selectionModulation))
+            )
+            (
+                (println! (retention $retentionValue))
+                (write_metrics_wrapper $counter $afResource $stiConc $linkDen $connRatio $stiEntropy $retentionValue $pcorr $modulation)
+            )
+        )
+    )
+)
+
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (empty)
@@ -78,17 +102,18 @@
                         (collapse (match (afSnap) (prevState $val) (remove-atom &afsnap (prevState $val))))
                         (add-atom &afsnap (prevState $af))
                         (collapse (test-superpose &incident))
+                        ; (unify $incident ($now $links) (found $now) (notfound $now))
                         (collapse (match (afSnap) (currState $val) (remove-atom &afsnap (currState $val))))
                         (let $nextaf
                             (getAfAtoms)
                             (add-atom &afsnap (currState $nextaf))
                         )
-                        (println! (retention (contextRetention 
-                            (car-atom (collapse (match (afSnap) (prevState $x) $x)))
-                            (car-atom (collapse (match (afSnap) (currState $x) $x)))
-                            )))
+                        (logCurrStateMetrics $counter)
                     )
-                    (println! (agent not called))
+                    (
+                        (println! (agent not called))
+                        (write_metrics_wrapper $counter (afResourceUsage) (stiConcentration) (linkDensity) (connectionRatio) (preallocationSpace) "NaN" (correlation) (selectionModulation))
+                    )
                 )
                 ; (py-call (time.sleep 5.0))
                 (insectPoisonReadExp $rest (+ $counter 1)))
@@ -101,6 +126,9 @@
 !(println! (af resource (afResourceUsage)))
 !(println! (sti concentration (stiConcentration)))
 !(println! (link density (linkDensity)))
+
+!(println! (Connection Ratio (connectionRatio)))
+!(println! (Normalized STI Entropy (preallocationSpace)))
 
 !(println! (retention (contextRetention
         (car-atom (collapse (match &afSnap (prevState $x) $x)))
