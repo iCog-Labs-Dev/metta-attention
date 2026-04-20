@@ -1,7 +1,6 @@
 !(bind! &insect (new-space))
 ; !(bind! &poison (new-space))
 !(import! &insect data/insect-sent)
-
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
 !(import! &self lib/lib_he)
@@ -83,12 +82,29 @@
                             (getAfAtoms)
                             (add-atom &afsnap (currState $nextaf))
                         )
-                        (println! (retention (contextRetention 
-                            (car-atom (collapse (match (afSnap) (prevState $x) $x)))
-                            (car-atom (collapse (match (afSnap) (currState $x) $x)))
-                            )))
+                        (let* 
+                            (
+                                ($prevState (car-atom (collapse (match (afSnap) (prevState $x) $x))))
+                                ($currState (car-atom (collapse (match (afSnap) (currState $x) $x))))
+                                ($retentionValue (contextRetention $prevState $currState))
+                                ($afResource (afResourceUsage))
+                                ($stiConc (stiConcentration))
+                                ($linkDen (linkDensity))
+                                ($connRatio (connectionRatio))
+                                ($stiEntropy (preallocationSpace))
+                                ($pcorr (correlation))
+                                ($modulation (selectionModulation))
+                            )
+                            (
+                                (println! (retention $retentionValue))
+                                (write_metrics_wrapper $counter $now true $afResource $stiConc $linkDen $connRatio $stiEntropy $retentionValue $pcorr $modulation)
+                            )
+                        )
                     )
-                    (println! (agent not called))
+                    (
+                        (println! (agent not called))
+                        (write_metrics_wrapper $counter $now false (afResourceUsage) (stiConcentration) (linkDensity) (connectionRatio) (preallocationSpace) 0.0 (correlation) (selectionModulation))
+                    )
                 )
                 ; (py-call (time.sleep 5.0))
                 (insectPoisonReadExp $rest (+ $counter 1)))

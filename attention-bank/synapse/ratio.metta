@@ -32,18 +32,26 @@
             ($ltiDistance (foldl-atom (map-atom $afAtoms $x (pow-math (- (getLti $x) $meanLti) 2)) 0 $acc $x (+ $acc $x)))
             ($denomenator (sqrt-math (* $stiDistance $ltiDistance)))
         ) 
-        (/ $numenator $denomenator)
+        (if (> $denomenator 0)
+            (/ $numenator $denomenator)
+            0.0
+        )
     )
 )
 
 (= (variance $stiValue) 
     (let*
         (
-            ($mean (/ (foldl-atom $stiValue 0 $acc $x (+ $acc $x)) (size-atom $stiValue)))
+            ($size (size-atom $stiValue))
+            ($sum (foldl-atom $stiValue 0 $acc $x (+ $acc $x)))
+            ($mean (if (> $size 0) (/ $sum $size) 0.0))
             ($meanDiff (map-atom $stiValue $x (pow-math (- $x $mean) 2)))
             ($numenator (foldl-atom $meanDiff 0 $acc $x (+ $acc $x)))
         )
-        (/ $numenator (size-atom $stiValue))
+        (if (> $size 0)
+            (/ $numenator $size)
+            0.0
+        )
     )
 )
 
@@ -103,10 +111,15 @@
             ($ltival (map-atom $afAtoms getLti))
             ($totalSti (foldl-atom $stival 0 $acc $x (+ $acc $x)))
             ($totalLti (foldl-atom $ltival 0 $acc $x (+ $acc $x)))
-            ($meanSti (/ $totalSti (size-atom $stival)))
-            ($meanLti (/ $totalLti (size-atom $ltival)))
+            ($sizeSti (size-atom $stival))
+            ($sizeLti (size-atom $ltival))
+            ($meanSti (if (> $sizeSti 0) (/ $totalSti $sizeSti) 0.0))
+            ($meanLti (if (> $sizeLti 0) (/ $totalLti $sizeLti) 0.0))
         )
-        (pearsonCorrelation $afAtoms $meanSti $meanLti)
+        (if (and (> $sizeSti 0) (> $sizeLti 0))
+            (pearsonCorrelation $afAtoms $meanSti $meanLti)
+            0.0
+        )
     )
 )
 
@@ -116,7 +129,10 @@
             ($overlap (size-atom (intersection-atom $state $prevState)))
             ($unionSize (+ (size-atom $prevState) (- (size-atom $state) $overlap)))
         )
-        (/ $overlap $unionSize)
+        (if (> $unionSize 0)
+            (/ $overlap $unionSize)
+            0.0
+        )
     )
 )
 
@@ -129,7 +145,10 @@
             ($maxVariance (variance-uniform $stiValue))
             ($1 (println! (sti $maxVariance $variance )))
         )
-        (/ $variance $maxVariance)
+        (if (> $maxVariance 0)
+            (/ $variance $maxVariance)
+            0.0
+        )
     )
 )
 
@@ -185,7 +204,10 @@
         ($allAtoms (getAllAtomsWithBins))
         ($totalAtoms (size-atom $allAtoms))
         ($totalSti (getTotalSti $allAtoms 0))
-        ($probabilities (map-atom $allAtoms $atom (/ (getSti $atom) $totalSti)))
+        ($probabilities (if (> $totalSti 0)
+            (map-atom $allAtoms $atom (/ (getSti $atom) $totalSti))
+            ()
+        ))
         ($entropyTerms (map-atom $probabilities $p (entropyTerm $p)))
         ($sumTerms (foldl-atom $entropyTerms 0 $acc $x (+ $acc $x)))
         ($entropy (* -1.0 $sumTerms))
@@ -328,7 +350,7 @@
 (= (getClipIndex (CIPSnapshot $index $state $time $metrics)) $index)
 
 (= (cipCurrentTime)
-  (current-time)
+ (current-time)
 )
 
 (= (measureAllMetrics $state $trajectory)

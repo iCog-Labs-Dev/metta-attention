@@ -29,6 +29,7 @@ START_LOGGER_FLAG = False
 LOGGING_DIRECTORY = None
 SETTING_PATH = None
 CSV_PATH = None
+METRICS_PATH = None
 
 
 def start_logger(directory):
@@ -37,7 +38,7 @@ def start_logger(directory):
     `directory` may be a string path or an object exposing `get_name()`.
     Returns a Hyperon-style empty result.
     """
-    global START_LOGGER_FLAG, LOGGING_DIRECTORY, SETTING_PATH, CSV_PATH
+    global START_LOGGER_FLAG, LOGGING_DIRECTORY, SETTING_PATH, CSV_PATH, METRICS_PATH
 
     # Accept either string path or an object with get_name()
     if isinstance(directory, str):
@@ -62,11 +63,13 @@ def start_logger(directory):
 
     SETTING_PATH = log_dir / "settings.json"
     CSV_PATH = log_dir / "output.csv"
+    METRICS_PATH = log_dir / "metrics.csv"
 
 
 
     SETTING_PATH.write_text("")
     CSV_PATH.write_text("")
+    METRICS_PATH.write_text("")
 
     START_LOGGER_FLAG = True
     return ['started']
@@ -123,4 +126,53 @@ def write_to_csv(afatoms):
         return ['not written']
 
     write_string_to_csv(str(CSV_PATH), afatoms)
+    return ['wrote']
+
+
+def write_metrics_row(counter, token, batch_called, af_resource, sti_concentration, link_density,
+                      connection_ratio, normalized_sti_entropy, retention, p_correlation, modulation):
+    
+    # Append one metrics row per iteration to metrics.csv.
+
+    global START_LOGGER_FLAG, METRICS_PATH
+
+    if not START_LOGGER_FLAG or METRICS_PATH is None:
+        return ['not written']
+
+    header = [
+        "timestamp",
+        "counter",
+        "token",
+        "batch_called",
+        "af_resource",
+        "sti_concentration",
+        "link_density",
+        "connection_ratio",
+        "normalized_sti_entropy",
+        "retention",
+        "p_correlation",
+        "modulation",
+    ]
+
+    row = [
+        str(datetime.now()),
+        str(counter),
+        str(token),
+        str(batch_called),
+        str(af_resource),
+        str(sti_concentration),
+        str(link_density),
+        str(connection_ratio),
+        str(normalized_sti_entropy),
+        str(retention),
+        str(p_correlation),
+        str(modulation),
+    ]
+
+    with open(METRICS_PATH, 'a', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        if os.path.getsize(METRICS_PATH) == 0:
+            writer.writerow(header)
+        writer.writerow(row)
+
     return ['wrote']
