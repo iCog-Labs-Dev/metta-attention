@@ -328,8 +328,7 @@
 (= (getClipIndex (CIPSnapshot $index $state $time $metrics)) $index)
 
 (= (cipCurrentTime)
- ;; bind to an actual time lib
- 0 
+  (current-time)
 )
 
 (= (measureAllMetrics $state $trajectory)
