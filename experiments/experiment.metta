@@ -9,6 +9,7 @@
 
 !(import! &self ../attention/AttentionParam)
 !(import! &self ../attention/baching)
+
 !(import! &self ../attention-bank/utilities/helper-functions)
 !(import! &self ../attention-bank/utilities/recentVal)
 !(import! &self "../attention/ImportanceDiffusionAgent/getelement.py")
@@ -111,7 +112,7 @@
                     )
                     (
                         (println! (agent not called))
-                        (write_metrics_wrapper $counter (afResourceUsage) (stiConcentration) (linkDensity) (connectionRatio) (preallocationSpace) 0.0 (correlation) (selectionModulation))
+                        (write_metrics_wrapper $counter (afResourceUsage) (stiConcentration) (linkDensity) (connectionRatio) (preallocationSpace) "NaN" (correlation) (selectionModulation))
                     )
                 )
                 ; (py-call (time.sleep 5.0))

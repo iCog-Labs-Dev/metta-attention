@@ -180,10 +180,9 @@ class MetricsPlotter:
         df = self.data_frame
         metric_columns = [column for column in self.METRIC_COLUMNS if column in df.columns]
 
-        plot_df = df.dropna(subset=metric_columns)
-        if "timestamp" in plot_df.columns:
+        if "timestamp" in df.columns:
             grouped = (
-                plot_df.set_index("timestamp")[metric_columns]
+                df.set_index("timestamp")[metric_columns]
                 .resample(self.RESAMPLE_RULE)
                 .mean()
                 .dropna(how="all")
@@ -191,11 +190,8 @@ class MetricsPlotter:
             )
             x_axis = "timestamp"
         else:
-            grouped = plot_df[["counter", *metric_columns]].copy()
+            grouped = df[["counter", *metric_columns]].copy()
             x_axis = "counter"
-
-        smoothed = grouped[metric_columns].rolling(window=3, min_periods=1).mean()
-        smoothed[x_axis] = grouped[x_axis].values
 
         n_cols = 2
         n_rows = (len(metric_columns) + n_cols - 1) // n_cols
@@ -205,9 +201,16 @@ class MetricsPlotter:
         colors = sns.color_palette("tab10", n_colors=len(metric_columns))
 
         for idx, (metric, color) in enumerate(zip(metric_columns, colors)):
+            series = grouped[[x_axis, metric]].dropna(subset=[metric]).copy()
+            if series.empty:
+                axs[idx].set_title(metric, fontsize=11)
+                axs[idx].grid(True, linestyle="--", alpha=0.35)
+                continue
+
+            series[metric] = series[metric].rolling(window=3, min_periods=1).mean()
             axs[idx].plot(
-                smoothed[x_axis],
-                smoothed[metric],
+                series[x_axis],
+                series[metric],
                 color=color,
                 linewidth=1.2,
                 alpha=0.95,
@@ -231,7 +234,20 @@ class MetricsPlotter:
         print("Metrics faceted plot saved to", png_path)
 
         try:
-            melted = smoothed.melt(id_vars=x_axis, var_name="Metric", value_name="Value")
+            long_frames = []
+            for metric in metric_columns:
+                series = grouped[[x_axis, metric]].dropna(subset=[metric]).copy()
+                if series.empty:
+                    continue
+                series[metric] = series[metric].rolling(window=3, min_periods=1).mean()
+                series = series.rename(columns={metric: "Value"})
+                series["Metric"] = metric
+                long_frames.append(series[[x_axis, "Metric", "Value"]])
+
+            if not long_frames:
+                raise ValueError("No metric data available for interactive plotting")
+
+            melted = pd.concat(long_frames, ignore_index=True)
             fig = px.line(
                 melted,
                 x=x_axis,
