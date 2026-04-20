@@ -60,6 +60,30 @@
 !(start-log (attentionParam) "experiments")
 
 (= (batch) 20)
+
+(= (logCurrStateMetrics $counter)
+    (
+        (let*
+            (
+                ($prevState (car-atom (collapse (match (afSnap) (prevState $x) $x))))
+                ($currState (car-atom (collapse (match (afSnap) (currState $x) $x))))
+                ($retentionValue (contextRetention $prevState $currState))
+                ($afResource (afResourceUsage))
+                ($stiConc (stiConcentration))
+                ($linkDen (linkDensity))
+                ($connRatio (connectionRatio))
+                ($stiEntropy (preallocationSpace))
+                ($pcorr (correlation))
+                ($modulation (selectionModulation))
+            )
+            (
+                (println! (retention $retentionValue))
+                (write_metrics_wrapper $counter $afResource $stiConc $linkDen $connRatio $stiEntropy $retentionValue $pcorr $modulation)
+            )
+        )
+    )
+)
+
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (empty)
@@ -77,33 +101,17 @@
                         (collapse (match (afSnap) (prevState $val) (remove-atom &afsnap (prevState $val))))
                         (add-atom &afsnap (prevState $af))
                         (collapse (test-superpose &incident))
+                        ; (unify $incident ($now $links) (found $now) (notfound $now))
                         (collapse (match (afSnap) (currState $val) (remove-atom &afsnap (currState $val))))
                         (let $nextaf
                             (getAfAtoms)
                             (add-atom &afsnap (currState $nextaf))
                         )
-                        (let* 
-                            (
-                                ($prevState (car-atom (collapse (match (afSnap) (prevState $x) $x))))
-                                ($currState (car-atom (collapse (match (afSnap) (currState $x) $x))))
-                                ($retentionValue (contextRetention $prevState $currState))
-                                ($afResource (afResourceUsage))
-                                ($stiConc (stiConcentration))
-                                ($linkDen (linkDensity))
-                                ($connRatio (connectionRatio))
-                                ($stiEntropy (preallocationSpace))
-                                ($pcorr (correlation))
-                                ($modulation (selectionModulation))
-                            )
-                            (
-                                (println! (retention $retentionValue))
-                                (write_metrics_wrapper $counter $now true $afResource $stiConc $linkDen $connRatio $stiEntropy $retentionValue $pcorr $modulation)
-                            )
-                        )
+                        (logCurrStateMetrics $counter)
                     )
                     (
                         (println! (agent not called))
-                        (write_metrics_wrapper $counter $now false (afResourceUsage) (stiConcentration) (linkDensity) (connectionRatio) (preallocationSpace) 0.0 (correlation) (selectionModulation))
+                        (write_metrics_wrapper $counter (afResourceUsage) (stiConcentration) (linkDensity) (connectionRatio) (preallocationSpace) 0.0 (correlation) (selectionModulation))
                     )
                 )
                 ; (py-call (time.sleep 5.0))

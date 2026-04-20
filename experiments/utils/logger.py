@@ -129,7 +129,7 @@ def write_to_csv(afatoms):
     return ['wrote']
 
 
-def write_metrics_row(counter, token, batch_called, af_resource, sti_concentration, link_density,
+def write_metrics_row(counter, af_resource, sti_concentration, link_density,
                       connection_ratio, normalized_sti_entropy, retention, p_correlation, modulation):
     
     # Append one metrics row per iteration to metrics.csv.
@@ -142,8 +142,6 @@ def write_metrics_row(counter, token, batch_called, af_resource, sti_concentrati
     header = [
         "timestamp",
         "counter",
-        "token",
-        "batch_called",
         "af_resource",
         "sti_concentration",
         "link_density",
@@ -157,8 +155,6 @@ def write_metrics_row(counter, token, batch_called, af_resource, sti_concentrati
     row = [
         str(datetime.now()),
         str(counter),
-        str(token),
-        str(batch_called),
         str(af_resource),
         str(sti_concentration),
         str(link_density),
