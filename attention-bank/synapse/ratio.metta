@@ -167,7 +167,6 @@
             ($stiValue (map-atom $afAtoms getSti))
             ($variance (variance $stiValue))
             ($maxVariance (variance-uniform $stiValue))
-            ($1 (println! (sti $maxVariance $variance )))
         )
         (if (> $maxVariance 0)
             (/ $variance $maxVariance)
@@ -243,5 +242,3 @@
         $newMean
     )
 )
-
-

@@ -40,13 +40,14 @@
 
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 70.0)
+!(updateAttentionParam MAX_AF_SIZE 120.0)
 !(updateAttentionParam TARGET_STI 1000.0)
 !(updateAttentionParam TARGET_LTI 1000.0) 
 !(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
 !(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
 !(updateAttentionParam FUNDS_STI 100000.0) 
 !(updateAttentionParam FUNDS_LTI 100000.0) 
+!(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.8)
 !(updateAttentionParam TOPK 0.5)
 
 ; !(updateAttentionParam STI_FUNDS_BUFFER 99900)
@@ -59,8 +60,6 @@
 
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
-
-(= (batch) 20)
 
 (= (logCurrStateMetrics $counter)
     (
@@ -77,14 +76,12 @@
                 ($pcorr (correlation))
                 ($modulation (selectionModulation))
             )
-            (
-                (println! (retention $retentionValue))
-                (write_metrics_wrapper $counter $afResource $stiConc $linkDen $connRatio $stiEntropy $retentionValue $pcorr $modulation)
-            )
+            (write_metrics_wrapper $counter $afResource $stiConc $linkDen $connRatio $stiEntropy $retentionValue $pcorr $modulation)
         )
     )
 )
 
+(= (batch) 10)
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (empty)
@@ -118,21 +115,7 @@
                 ; (py-call (time.sleep 5.0))
                 (insectPoisonReadExp $rest (+ $counter 1)))
         )
-    )    
+    )
 )
 
-; !(match &incident (much $x) (tropical $x))
 !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
-!(println! (af resource (afResourceUsage)))
-!(println! (sti concentration (stiConcentration)))
-!(println! (link density (linkDensity)))
-
-!(println! (Connection Ratio (connectionRatio)))
-!(println! (Normalized STI Entropy (preallocationSpace)))
-
-!(println! (retention (contextRetention
-        (car-atom (collapse (match &afSnap (prevState $x) $x)))
-        (car-atom (collapse (match &afSnap (currState $x) $x)))
-)))
-!(println! (p-correlation (correlation)))
-!(println! (modulation (selectionModulation)))
