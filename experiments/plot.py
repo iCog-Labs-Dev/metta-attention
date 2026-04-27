@@ -148,6 +148,7 @@ class MetricsPlotter:
         "retention",
         "p_correlation",
         "modulation",
+        "global_coordination",
     ]
     RESAMPLE_RULE = "15s"
 

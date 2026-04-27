@@ -1,3 +1,5 @@
+!(import! &self "../../../experiments/utils/community_detector.py")
+
 !(bind! &afsnap (new-space))
 (= (afSnap) &afsnap)
 
@@ -88,6 +90,11 @@
         (if (> $count 0) (/ $sum $count) 0.0)
     )
 )
+
+(= (identifyModules $state)
+    (py-call (community_detector.get_af_modules $state))
+)
+
 
 (= (afResourceUsage)
     (let $allSize
@@ -241,6 +248,45 @@
             ($newMean (+ $weightOld $weightNew))
         )
         $newMean
+    )
+)
+
+;; internal coherence for a single module
+(= (moduleInternalCoherence $moduleAtoms)
+    (let*
+        (
+          ($moduleSize (size-atom $moduleAtoms))
+          ($allLinks (getHebLinks $moduleAtoms ()))
+          ($internalFlags (map-atom $allLinks $link (isInternalLink $link $moduleAtoms)))
+          ($internalCount (foldl-atom $internalFlags 0 $acc $x (+ $acc $x)))
+
+          ($maxLinks (* $moduleSize (- $moduleSize 1)))
+        )
+        (if (> $maxLinks 0) (/ $internalCount $maxLinks) 0.0)
+    )
+)
+
+(= (globalCoordination $state)
+    (let*
+        (
+            ($modules (identifyModules $state))
+
+            ($localCoherences (map-atom $modules $mod (moduleInternalCoherence $mod)))
+            ($localCoherence (averageList $localCoherences))
+            ($allAtoms (getAllAtomsWithBins))
+            ($totalLinks (size-atom (getHebLinks $allAtoms ())))
+            
+            ($internalCounts (map-atom $modules $mod 
+                (foldl-atom (map-atom (getHebLinks $mod ()) $link (isInternalLink $link $mod)) 0 $acc $x (+ $acc $x))
+            ))
+            ($totalInternal (foldl-atom $internalCounts 0 $acc $x (+ $acc $x)))
+
+            ($totalExternal (- $totalLinks $totalInternal))
+            ($globalCoherence (if (> $totalLinks 0) (/ $totalExternal $totalLinks) 0.0))
+
+            ($coordination (sqrt-math (* $localCoherence $globalCoherence)))
+        )
+        $coordination
     )
 )
 
