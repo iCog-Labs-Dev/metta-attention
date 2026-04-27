@@ -47,6 +47,7 @@
 !(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
 !(updateAttentionParam FUNDS_STI 100000.0) 
 !(updateAttentionParam FUNDS_LTI 100000.0) 
+!(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.8)
 !(updateAttentionParam TOPK 0.5)
 
 ; !(updateAttentionParam STI_FUNDS_BUFFER 99900)
@@ -59,8 +60,6 @@
 
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
-
-(= (batch) 20)
 
 (= (logCurrStateMetrics $counter)
     (
@@ -80,13 +79,13 @@
             )
             (
                 (println! (retention $retentionValue))
-                (println! (globalCoordination $gCoord))
                 (write_metrics_wrapper $counter $afResource $stiConc $linkDen $connRatio $stiEntropy $retentionValue $pcorr $modulation $gCoord)
             )
         )
     )
 )
 
+(= (batch) 10)
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (empty)
@@ -120,10 +119,9 @@
                 ; (py-call (time.sleep 5.0))
                 (insectPoisonReadExp $rest (+ $counter 1)))
         )
-    )    
+    )
 )
 
-; !(match &incident (much $x) (tropical $x))
 !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
 !(println! (af resource (afResourceUsage)))
 !(println! (sti concentration (stiConcentration)))

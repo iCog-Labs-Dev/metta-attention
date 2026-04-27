@@ -138,7 +138,6 @@ class Plotter:
 
 
 class MetricsPlotter:
-
     METRIC_COLUMNS = [
         "af_resource",
         "sti_concentration",
@@ -155,6 +154,7 @@ class MetricsPlotter:
     def __init__(self, output_path: Union[str, Path]):
         self.output_path = resolve_output_root(output_path)
         self.metrics_path = self.get_metrics_path()
+        self.params = self.read_params()
         self.data_frame = self.read_metrics_csv()
         self.plot()
 
@@ -163,6 +163,13 @@ class MetricsPlotter:
         if not metrics_path.exists():
             raise FileNotFoundError(f"No {metrics_path} found")
         return metrics_path
+
+    def read_params(self) -> dict:
+        settings_path = self.output_path / "output" / "settings.json"
+        if not settings_path.exists():
+            raise FileNotFoundError(f"No {settings_path} found in output directory")
+        with open(settings_path, "r") as f:
+            return json.load(f)
 
     def read_metrics_csv(self) -> pd.DataFrame:
         df = pd.read_csv(self.metrics_path, parse_dates=["timestamp"])
@@ -179,7 +186,9 @@ class MetricsPlotter:
 
     def plot(self) -> None:
         df = self.data_frame
-        metric_columns = [column for column in self.METRIC_COLUMNS if column in df.columns]
+        metric_columns = [
+            column for column in self.METRIC_COLUMNS if column in df.columns
+        ]
 
         if "timestamp" in df.columns:
             grouped = (
@@ -196,15 +205,39 @@ class MetricsPlotter:
 
         n_cols = 2
         n_rows = (len(metric_columns) + n_cols - 1) // n_cols
-        fig, axs = plt.subplots(n_rows, n_cols, figsize=(16, max(6, n_rows * 2.8)), sharex=True)
+        fig, axs = plt.subplots(
+            n_rows, n_cols, figsize=(39, max(6, n_rows * 2.8) + 11.5), sharex=True
+        )
         axs = axs.flatten()
+
+        params_text = "\n".join(
+            [
+                f"MAX_AF_SIZE: {self.params['MAX_AF_SIZE']}",
+                f"MAX_SPREAD_PERCENTAGE: {self.params['MAX_SPREAD_PERCENTAGE']}",
+                f"HEBBIAN_MAX_ALLOCATION_PERCENTAGE : {self.params['HEBBIAN_MAX_ALLOCATION_PERCENTAGE']}",
+                f"FUNDS_STI: {self.params['FUNDS_STI']}",
+                f"FUNDS_LTI: {self.params['FUNDS_LTI']}",
+                f"TARGET_STI: {self.params['TARGET_STI']}",
+                f"TARGET_LTI: {self.params['TARGET_LTI']}",
+                f"AFRentFrequency: {self.params['AFRentFrequency']}",
+            ]
+        )
+        fig.text(
+            0.98,
+            0.01,
+            params_text,
+            transform=fig.transFigure,
+            fontsize=23,
+            horizontalalignment="right",
+            bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.8),
+        )
 
         colors = sns.color_palette("tab10", n_colors=len(metric_columns))
 
         for idx, (metric, color) in enumerate(zip(metric_columns, colors)):
             series = grouped[[x_axis, metric]].dropna(subset=[metric]).copy()
             if series.empty:
-                axs[idx].set_title(metric, fontsize=11)
+                axs[idx].set_title(metric, fontsize=28)
                 axs[idx].grid(True, linestyle="--", alpha=0.35)
                 continue
 
@@ -216,19 +249,22 @@ class MetricsPlotter:
                 linewidth=1.2,
                 alpha=0.95,
             )
-            axs[idx].set_title(metric, fontsize=11)
+            axs[idx].set_title(metric, fontsize=28)
             axs[idx].grid(True, linestyle="--", alpha=0.35)
+            axs[idx].tick_params(axis='both', labelsize=25)
 
         for idx in range(len(metric_columns), len(axs)):
             fig.delaxes(axs[idx])
 
-        fig.suptitle("Evaluation Metrics Over Iterations", fontsize=14)
+        fig.suptitle("Evaluation Metrics Over Iterations", fontsize=24)
         fig.supxlabel(
-            "Iteration Counter" if x_axis == "counter" else f"Timestamp ({self.RESAMPLE_RULE} bins)",
-            fontsize=12,
+            "Iteration Counter"
+            if x_axis == "counter"
+            else f"Timestamp ({self.RESAMPLE_RULE} bins)",
+            fontsize=28,
         )
-        fig.supylabel("Metric Value", fontsize=12)
-        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+        # fig.supylabel("Metric Value", fontsize=22)
+        plt.tight_layout(rect=[0.001, 0.12, 1, 0.95])
 
         png_path = self.output_path / "output" / "metrics_plot_faceted.png"
         plt.savefig(png_path)
@@ -262,12 +298,15 @@ class MetricsPlotter:
         except Exception as error:
             print("Plotly metrics plot failed:", error)
 
+
 if __name__ == "__main__":
-    base_dir = Path(__file__).parent.resolve() 
+    base_dir = Path(__file__).parent.resolve()
     if len(sys.argv) >= 2:
         targets = sys.argv[1:]
     else:
-        targets = sorted({str(path.parent.parent) for path in base_dir.glob("**/output/output.csv")})
+        targets = sorted(
+            {str(path.parent.parent) for path in base_dir.glob("**/output/output.csv")}
+        )
 
     for target in targets:
         root = resolve_output_root(target)
