@@ -40,7 +40,7 @@
 
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 70.0)
+!(updateAttentionParam MAX_AF_SIZE 120.0)
 !(updateAttentionParam TARGET_STI 1000.0)
 !(updateAttentionParam TARGET_LTI 1000.0) 
 !(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
