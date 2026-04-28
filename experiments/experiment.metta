@@ -123,17 +123,4 @@
 )
 
 !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
-!(println! (af resource (afResourceUsage)))
-!(println! (sti concentration (stiConcentration)))
-!(println! (link density (linkDensity)))
 
-!(println! (Connection Ratio (connectionRatio)))
-!(println! (Normalized STI Entropy (preallocationSpace)))
-
-!(println! (retention (contextRetention
-        (car-atom (collapse (match &afSnap (prevState $x) $x)))
-        (car-atom (collapse (match &afSnap (currState $x) $x)))
-)))
-!(println! (p-correlation (correlation)))
-!(println! (modulation (selectionModulation)))
-!(println! (Global Coordination (globalCoordination (getAfAtoms))))
