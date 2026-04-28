@@ -61,7 +61,7 @@ def write_communities_to_file(communities, output_file_path: str):
 
 def _build_arg_parser():
     default_input = "experiments/data/kg.metta"
-    default_output = "experiments/utils/found_communities.txt"
+    default_output = "experiments/data/found_communities.txt"
 
     parser = argparse.ArgumentParser(
         description="Detect communities from a MeTTa file and optionally write to output."
@@ -76,7 +76,7 @@ def _build_arg_parser():
         "output",
         nargs="?",
         default=str(default_output),
-        help="Output text file path (default: experiments/utils/found_communities.txt).",
+        help="Output text file path (default: experiments/data/found_communities.txt).",
     )
     parser.add_argument(
         "--no-write",
@@ -122,11 +122,11 @@ def get_af_modules(af_atoms):
     global _MODULE_CACHE
     
     if not _MODULE_CACHE:
-        script_dir = Path(__file__).resolve().parent
-        output_file = script_dir / "found_communities.txt" 
+        repo_root = Path(__file__).resolve().parents[2]
+        output_file = repo_root / "experiments" / "data" / "found_communities.txt"
         
         try:
-            with open(output_file, "r", encoding="utf-8") as f:
+            with open(output_file, "r", encoding="reutf-8") as f:
                 for line in f:
                     if line.startswith("Module"):
                         parts = line.split("): ")
@@ -136,7 +136,10 @@ def get_af_modules(af_atoms):
                             for node in nodes:
                                 _MODULE_CACHE[node] = mod_id
         except FileNotFoundError:
-            print("Warning: found_communities.txt not found. Run the detector offline first!")
+            print(
+                "Warning: experiments/data/found_communities.txt not found. "
+                "Run the detector offline first!"
+            )
 
     grouped = {}
     af_atoms_norm = _normalize_af_atoms(af_atoms)
@@ -157,6 +160,7 @@ def get_af_modules(af_atoms):
 
 if __name__ == "__main__":
     args = _build_arg_parser().parse_args()
+    print("Identifying modules... (this may take a moment)")
     communities = identify_modules_from_kg_file(args.input)
 
     print(f"Found {len(communities)} communities")
