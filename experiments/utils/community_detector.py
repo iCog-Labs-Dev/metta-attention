@@ -7,6 +7,10 @@ from networkx.algorithms import community
 
 
 _RELATION_TRIPLET_PATTERN = re.compile(r"\(\s*([^\s()]+)\s+([^\s()]+)\s+([^\s()]+)\s*\)")
+_MODULE_LIST_PATTERN = re.compile(
+    r"\(\s*module\s+([^\s()]+)\s+\(([^)]*)\)\s*\)"
+)
+_MODULE_NODE_PATTERN = re.compile(r"[^\s()]+")
 
 
 def get_communities(metta_data_string: str):
@@ -51,17 +55,18 @@ def write_communities_to_file(communities, output_file_path: str):
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    lines = [f"Found {len(communities)} communities:"]
+    lines = [f"; Identified {len(communities)} modules"]
     for index, module in enumerate(communities, 1):
-        nodes = ", ".join(module)
-        lines.append(f"Module {index} (size={len(module)}): {nodes}")
+        mod_id = f"Module{index}"
+        nodes = " ".join(module)
+        lines.append(f"(module {mod_id} ({nodes}))")
 
     output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return str(output_path)
 
 def _build_arg_parser():
     default_input = "experiments/data/kg.metta"
-    default_output = "experiments/data/found_communities.txt"
+    default_output = "experiments/data/found_communities.metta"
 
     parser = argparse.ArgumentParser(
         description="Detect communities from a MeTTa file and optionally write to output."
@@ -76,7 +81,7 @@ def _build_arg_parser():
         "output",
         nargs="?",
         default=str(default_output),
-        help="Output text file path (default: experiments/data/found_communities.txt).",
+        help="Output MeTTa file path (default: experiments/data/found_communities.metta).",
     )
     parser.add_argument(
         "--no-write",
@@ -123,21 +128,16 @@ def get_af_modules(af_atoms):
     
     if not _MODULE_CACHE:
         repo_root = Path(__file__).resolve().parents[2]
-        output_file = repo_root / "experiments" / "data" / "found_communities.txt"
+        output_file = repo_root / "experiments" / "data" / "found_communities.metta"
         
         try:
-            with open(output_file, "r", encoding="reutf-8") as f:
-                for line in f:
-                    if line.startswith("Module"):
-                        parts = line.split("): ")
-                        if len(parts) == 2:
-                            mod_id = parts[0].split()[1] 
-                            nodes = parts[1].strip().split(", ")
-                            for node in nodes:
-                                _MODULE_CACHE[node] = mod_id
+            content = output_file.read_text(encoding="utf-8", errors="ignore")
+            for mod_id, node_list in _MODULE_LIST_PATTERN.findall(content):
+                for node in _MODULE_NODE_PATTERN.findall(node_list):
+                    _MODULE_CACHE[node] = mod_id
         except FileNotFoundError:
             print(
-                "Warning: experiments/data/found_communities.txt not found. "
+                "Warning: experiments/data/found_communities.metta not found. "
                 "Run the detector offline first!"
             )
 
@@ -163,7 +163,7 @@ if __name__ == "__main__":
     print("Identifying modules... (this may take a moment)")
     communities = identify_modules_from_kg_file(args.input)
 
-    print(f"Found {len(communities)} communities")
+    print(f"Identified {len(communities)} modules")
 
     if not args.no_write:
         output_path = write_communities_to_file(communities, args.output)
