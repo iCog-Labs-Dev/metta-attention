@@ -2,8 +2,6 @@ import argparse
 import re
 from pathlib import Path
 
-import networkx as nx
-from networkx.algorithms import community
 
 
 _RELATION_TRIPLET_PATTERN = re.compile(r"\(\s*([^\s()]+)\s+([^\s()]+)\s+([^\s()]+)\s*\)")
@@ -14,6 +12,10 @@ _MODULE_NODE_PATTERN = re.compile(r"[^\s()]+")
 
 
 def get_communities(metta_data_string: str):
+
+    import networkx as nx
+    from networkx.algorithms import community
+
     graph = nx.Graph()
 
     for _relation, node1, node2 in _RELATION_TRIPLET_PATTERN.findall(metta_data_string):
