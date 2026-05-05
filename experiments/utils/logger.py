@@ -130,7 +130,8 @@ def write_to_csv(afatoms):
 
 
 def write_metrics_row(counter, af_resource, sti_concentration, link_density,
-                      connection_ratio, normalized_sti_entropy, retention, p_correlation, modulation):
+                      connection_ratio, normalized_sti_entropy, retention, p_correlation, modulation,
+                      global_coordination):
     
     # Append one metrics row per iteration to metrics.csv.
 
@@ -150,6 +151,7 @@ def write_metrics_row(counter, af_resource, sti_concentration, link_density,
         "retention",
         "p_correlation",
         "modulation",
+        "global_coordination",
     ]
 
     row = [
@@ -163,6 +165,7 @@ def write_metrics_row(counter, af_resource, sti_concentration, link_density,
         str(retention),
         str(p_correlation),
         str(modulation),
+        str(global_coordination),
     ]
 
     with open(METRICS_PATH, 'a', newline='', encoding='utf-8') as file:

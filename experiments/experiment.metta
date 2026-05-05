@@ -75,8 +75,12 @@
                 ($stiEntropy (preallocationSpace))
                 ($pcorr (correlation))
                 ($modulation (selectionModulation))
+                ($gCoord (globalCoordination $currState))
             )
-            (write_metrics_wrapper $counter $afResource $stiConc $linkDen $connRatio $stiEntropy $retentionValue $pcorr $modulation)
+            (
+                (println! (retention $retentionValue))
+                (write_metrics_wrapper $counter $afResource $stiConc $linkDen $connRatio $stiEntropy $retentionValue $pcorr $modulation $gCoord)
+            )
         )
     )
 )
@@ -109,7 +113,7 @@
                     )
                     (
                         (println! (agent not called))
-                        (write_metrics_wrapper $counter (afResourceUsage) (stiConcentration) (linkDensity) (connectionRatio) (preallocationSpace) "NaN" (correlation) (selectionModulation))
+                        (write_metrics_wrapper $counter (afResourceUsage) (stiConcentration) (linkDensity) (connectionRatio) (preallocationSpace) "NaN" (correlation) (selectionModulation) (globalCoordination (getAfAtoms)))
                     )
                 )
                 ; (py-call (time.sleep 5.0))
@@ -119,3 +123,4 @@
 )
 
 !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
+
