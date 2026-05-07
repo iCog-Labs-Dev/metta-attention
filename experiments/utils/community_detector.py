@@ -1,170 +1,146 @@
-import argparse
 import re
+import argparse
+import time
 from pathlib import Path
-
+from typing import List, Tuple, Any
+import igraph as ig
 
 
 _RELATION_TRIPLET_PATTERN = re.compile(r"\(\s*([^\s()]+)\s+([^\s()]+)\s+([^\s()]+)\s*\)")
-_MODULE_LIST_PATTERN = re.compile(
-    r"\(\s*module\s+([^\s()]+)\s+\(([^)]*)\)\s*\)"
-)
-_MODULE_NODE_PATTERN = re.compile(r"[^\s()]+")
 
 
-def get_communities(metta_data_string: str):
-
-    import networkx as nx
-    from networkx.algorithms import community
-
-    graph = nx.Graph()
-
-    for _relation, node1, node2 in _RELATION_TRIPLET_PATTERN.findall(metta_data_string):
-        graph.add_edge(node1, node2)
-
-    if graph.number_of_nodes() == 0:
+def _normalize_atoms(atoms: Any) -> List[Any]:
+    if atoms is None or isinstance(atoms, (int, float, bool)):
         return []
-
-    if graph.number_of_edges() == 0:
-        return [[node] for node in graph.nodes()]
-
+    if isinstance(atoms, (str, bytes)):
+        return [atoms]
     try:
-        modules = community.louvain_communities(graph)
-    except Exception:
-        modules = list(nx.connected_components(graph))
-
-    return [sorted(list(module)) for module in modules]
-
-
-def identify_modules_from_kg_file(file_path: str):
-    """
-    Load a KG MeTTa file and return communities.
-    """
-    path = Path(file_path)
-    if not path.is_absolute():
-        repo_root = Path(__file__).resolve().parents[2]
-        path = repo_root / path
-
-    data = path.read_text(encoding="utf-8", errors="ignore")
-    return get_communities(data)
-
-
-def write_communities_to_file(communities, output_file_path: str):
-    
-    output_path = Path(output_file_path)
-    if not output_path.is_absolute():
-        repo_root = Path(__file__).resolve().parents[2]
-        output_path = repo_root / output_path
-
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    lines = [f"; Identified {len(communities)} modules"]
-    for index, module in enumerate(communities, 1):
-        mod_id = f"Module{index}"
-        nodes = " ".join(module)
-        lines.append(f"(module {mod_id} ({nodes}))")
-
-    output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    return str(output_path)
-
-def _build_arg_parser():
-    default_input = "experiments/data/kg.metta"
-    default_output = "experiments/data/found_communities.metta"
-
-    parser = argparse.ArgumentParser(
-        description="Detect communities from a MeTTa file and optionally write to output."
-    )
-    parser.add_argument(
-        "input",
-        nargs="?",
-        default=str(default_input),
-        help="Input MeTTa file path (default: experiments/data/kg.metta).",
-    )
-    parser.add_argument(
-        "output",
-        nargs="?",
-        default=str(default_output),
-        help="Output MeTTa file path (default: experiments/data/found_communities.metta).",
-    )
-    parser.add_argument(
-        "--no-write",
-        action="store_true",
-        help="Only print communities to stdout; do not write output file.",
-    )
-    return parser
-
-# Create a global cache so we only read the massive text file ONCE
-_MODULE_CACHE = {}
-
-
-def _normalize_af_atoms(af_atoms):
-    if af_atoms is None:
-        return []
-
-    if isinstance(af_atoms, (int, float, bool)):
-        return []
-
-    if isinstance(af_atoms, (str, bytes)):
-        return [af_atoms]
-
-    try:
-        return list(af_atoms)
+        return list(atoms)
     except TypeError:
-        return [af_atoms]
+        return [atoms]
 
 
-def _atom_to_name(atom):
+def _atom_to_name(atom: Any) -> str:
     try:
         if hasattr(atom, "get_name"):
             return str(atom.get_name()).strip()
     except Exception:
         pass
-
     return str(atom).replace('(', '').replace(')', '').strip()
 
-def get_af_modules(af_atoms):
-    """
-    Called live by MeTTa. Takes the active atoms in the Attentional Focus, 
-    looks up their Global Module ID, and groups them together.
-    """
-    global _MODULE_CACHE
+
+def get_communities(metta_data_string: str) -> List[List[str]]:
+    """Offline high-performance clustering for the static KG."""
+    nodes = set()
+    edges = []
+
+    for _, node1, node2 in _RELATION_TRIPLET_PATTERN.findall(metta_data_string):
+        nodes.update([node1, node2])
+        edges.append((node1, node2))
+
+    if not nodes:
+        return []
+    if not edges:
+        return [[node] for node in nodes]
+
+    node_list = list(nodes)
+    node_to_id = {node: i for i, node in enumerate(node_list)}
+    edge_ids = [(node_to_id[u], node_to_id[v]) for u, v in edges]
+
+    graph = ig.Graph(directed=False)
+    graph.add_vertices(len(node_list))
+    graph.vs["name"] = node_list
+    graph.add_edges(edge_ids)
+
+    try:
+        partition = graph.community_multilevel()
+    except Exception:
+        partition = graph.components()
+
+    return [sorted([graph.vs[vid]["name"] for vid in cluster]) for cluster in partition]
+
+
+def get_dynamic_modules(af_atoms: Any, af_links: Any) -> List[List[Any]]:
+    """Live dynamic clustering for the active Attentional Focus."""
+    af_atoms_norm = _normalize_atoms(af_atoms)
     
-    if not _MODULE_CACHE:
-        repo_root = Path(__file__).resolve().parents[2]
-        output_file = repo_root / "experiments" / "data" / "found_communities.metta"
-        
-        try:
-            content = output_file.read_text(encoding="utf-8", errors="ignore")
-            for mod_id, node_list in _MODULE_LIST_PATTERN.findall(content):
-                for node in _MODULE_NODE_PATTERN.findall(node_list):
-                    _MODULE_CACHE[node] = mod_id
-        except FileNotFoundError:
-            print(
-                "Warning: experiments/data/found_communities.metta not found. "
-                "Run the detector offline first!"
-            )
-
-    grouped = {}
-    af_atoms_norm = _normalize_af_atoms(af_atoms)
-
-    for atom in af_atoms_norm:
+    node_to_id = {}
+    id_to_original_atom = {}
+    
+    for i, atom in enumerate(af_atoms_norm):
         atom_name = _atom_to_name(atom)
+        if atom_name:
+            node_to_id[atom_name] = i
+            id_to_original_atom[i] = atom
 
-        if atom_name == "":
-            continue
-        mod_id = _MODULE_CACHE.get(atom_name, "isolated_" + atom_name) 
-        
-        if mod_id not in grouped:
-            grouped[mod_id] = []
-        grouped[mod_id].append(atom)
+    edges = []
+    weights = []
+    
+    for link in _normalize_atoms(af_links):
+        link_str = str(link).replace("(", "").replace(")", "").split()
+        if len(link_str) >= 3:
+            src, tgt = link_str[1], link_str[2]
+            weight = float(link_str[3]) if len(link_str) > 3 else 0.5
+            
+            if src in node_to_id and tgt in node_to_id:
+                edges.append((node_to_id[src], node_to_id[tgt]))
+                weights.append(weight)
 
-    return list(grouped.values())
+    if not node_to_id:
+        return []
+
+    graph = ig.Graph(directed=False)
+    graph.add_vertices(len(node_to_id))
+    
+    if edges:
+        graph.add_edges(edges)
+        graph.es["weight"] = weights
+
+    try:
+        partition = graph.community_multilevel(weights=graph.es["weight"]) if edges else graph.components()
+    except Exception:
+        partition = graph.components()
+
+    return [[id_to_original_atom[vid] for vid in cluster] for cluster in partition]
+
+
+def identify_modules_from_kg_file(file_path: str) -> List[List[str]]:
+    path = Path(file_path)
+    if not path.is_absolute():
+        path = Path(__file__).resolve().parents[2] / path
+    return get_communities(path.read_text(encoding="utf-8", errors="ignore"))
+
+
+def write_communities_to_file(communities: List[List[str]], output_file_path: str) -> str:
+    output_path = Path(output_file_path)
+    if not output_path.is_absolute():
+        output_path = Path(__file__).resolve().parents[2] / output_path
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    lines = [f"; Identified {len(communities)} modules"]
+    for index, module in enumerate(communities, 1):
+        lines.append(f"(module Module{index} ({" ".join(module)}))")
+
+    output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return str(output_path)
+
+
+def _build_arg_parser():
+    parser = argparse.ArgumentParser(description="Detect communities from a MeTTa file using igraph.")
+    parser.add_argument("input", nargs="?", default="experiments/data/kg.metta", help="Input MeTTa file path.")
+    parser.add_argument("output", nargs="?", default="experiments/data/found_communities.metta", help="Output file path.")
+    parser.add_argument("--no-write", action="store_true", help="Only print communities to stdout.")
+    return parser
 
 
 if __name__ == "__main__":
     args = _build_arg_parser().parse_args()
-    print("Identifying modules... (this may take a moment)")
+    print("Identifying modules using louvain...")
+    
+    start_time = time.time()
     communities = identify_modules_from_kg_file(args.input)
-
+    
     print(f"Identified {len(communities)} modules")
 
     if not args.no_write:
