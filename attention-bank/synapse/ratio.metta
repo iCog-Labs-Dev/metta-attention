@@ -1,4 +1,5 @@
 !(import! &self "../../../experiments/utils/community_detector.py")
+!(import! &self "../../../experiments/utils/history_tracker.py")
 
 !(bind! &afsnap (new-space))
 (= (afSnap) &afsnap)
@@ -251,42 +252,171 @@
 )
 
 ;; internal coherence for a single module
-(= (moduleInternalCoherence $moduleAtoms)
-    (let*
-        (
-          ($moduleSize (size-atom $moduleAtoms))
-          ($allLinks (getHebLinks $moduleAtoms ()))
-          ($internalFlags (map-atom $allLinks $link (isInternalLink $link $moduleAtoms)))
-          ($internalCount (foldl-atom $internalFlags 0 $acc $x (+ $acc $x)))
+; (= (moduleInternalCoherence $moduleAtoms)
+;     (let*
+;         (
+;           ($moduleSize (size-atom $moduleAtoms))
+;           ($allLinks (getHebLinks $moduleAtoms ()))
+;           ($internalFlags (map-atom $allLinks $link (isInternalLink $link $moduleAtoms)))
+;           ($internalCount (foldl-atom $internalFlags 0 $acc $x (+ $acc $x)))
+;
+;           ($maxLinks (* $moduleSize (- $moduleSize 1)))
+;         )
+;         (if (> $maxLinks 0) (/ $internalCount $maxLinks) 0.0)
+;     )
+; )
+;
+; (= (globalCoordination $state)
+;     (let*
+;         (
+;             ($modules (identifyModules $state))
+;
+;             ($localCoherences (map-atom $modules $mod (moduleInternalCoherence $mod)))
+;             ($localCoherence (averageList $localCoherences))
+;             ($allAtoms (getAllAtomsWithBins))
+;             ($totalLinks (size-atom (getHebLinks $allAtoms ())))
+;             
+;             ($internalCounts (map-atom $modules $mod 
+;                 (foldl-atom (map-atom (getHebLinks $mod ()) $link (isInternalLink $link $mod)) 0 $acc $x (+ $acc $x))
+;             ))
+;             ($totalInternal (foldl-atom $internalCounts 0 $acc $x (+ $acc $x)))
+;
+;             ($totalExternal (- $totalLinks $totalInternal))
+;             ($globalCoherence (if (> $totalLinks 0) (/ $totalExternal $totalLinks) 0.0))
+;
+;             ($coordination (sqrt-math (* $localCoherence $globalCoherence)))
+;         )
+;         $coordination
+;     )
+; )
 
-          ($maxLinks (* $moduleSize (- $moduleSize 1)))
-        )
-        (if (> $maxLinks 0) (/ $internalCount $maxLinks) 0.0)
+(= (getStiSeries $atom)
+    (py-call (history_tracker.get_sti_series $atom))
+)
+
+(= (filterLinksByFlag () ()) ())
+(= (filterLinksByFlag (cons $link $ltail) (cons $flag $ftail))
+    (if (== $flag 1)
+        (cons $link (filterLinksByFlag $ltail $ftail))
+        (filterLinksByFlag $ltail $ftail)
     )
 )
+
+(= (isSameModule $src $tgt $module)
+    (let* (
+        ($hasSrc (size-atom (intersection-atom $module (cons $src ()))))
+        ($hasTgt (size-atom (intersection-atom $module (cons $tgt ()))))
+    )
+    (if (and (> $hasSrc 0) (> $hasTgt 0)) 1 0)
+    )
+)
+
+(= (isExternalLink $link $modules)
+    (let* (
+        ($src (getLinkSource $link))
+        ($tgt (getLinkTarget $link))
+        ($internalCount (foldl-atom (map-atom $modules $mod (isSameModule $src $tgt $mod)) 0 $acc $x (+ $acc $x)))
+    )
+    (if (== $internalCount 0) 1 0) 
+    )
+)
+
+(= (pearsonCorrelationLists $listX $listY)
+    (let* (
+        ($sizeX (size-atom $listX))
+        ($sizeY (size-atom $listY))
+    )
+    (if (or (== $sizeX 0) (== $sizeY 0)) 
+        0.0
+        (let* (
+            ($meanX (averageList $listX))
+            ($meanY (averageList $listY))
+            
+            ($diffX (map-atom $listX $x (- $x $meanX)))
+            ($diffY (map-atom $listY $y (- $y $meanY)))
+            
+            ($covarTerms (zipMultiplyLists $diffX $diffY))
+            ($covar (foldl-atom $covarTerms 0.0 $a $b (+ $a $b)))
+
+            ($varXTerms (map-atom $diffX $dx (* $dx $dx)))
+            ($varYTerms (map-atom $diffY $dy (* $dy $dy)))
+            ($varX (foldl-atom $varXTerms 0.0 $a $b (+ $a $b)))
+            ($varY (foldl-atom $varYTerms 0.0 $a $b (+ $a $b)))
+
+            ($denominator (sqrt-math (* $varX $varY)))
+        )
+        (if (> $denominator 0) (/ $covar $denominator) 0.0)
+        )
+    ))
+)
+
+(= (zipMultiplyLists () ()) ())
+(= (zipMultiplyLists (cons $h1 $t1) (cons $h2 $t2))
+   (cons (* $h1 $h2) (zipMultiplyLists $t1 $t2))
+)
+
+(= (getLinkSource (ASYMMETRIC_HEBBIAN_LINK $src $tgt)) $src)
+
+(= (temporalConjunction $atomI $atomJ)
+    (let* 
+         (
+            ($stiI (getStiSeries $atomI))
+            ($stiJ (getStiSeries $atomJ))
+            ($multiplied (zipMultiplyLists $stiI $stiJ))
+         )
+         (averageList $multiplied)
+    )
+)
+
+(= (temporalConjunctionLink $link) 
+    (temporalConjunction (getLinkSource $link) (getLinkTarget $link))
+)
+
+(= (getProbability $link)
+     (if (== (getStv $link) %Undefined%)
+       0.5
+       (getMean $link)
+   )
+)
+
+(= (moduleInternalCoherence $moduleAtoms)
+    (let*
+      (
+        ($allLinks (getHebLinks $moduleAtoms ()))
+        ($internalFlags (map-atom $allLinks $link (isInternalLink $link $moduleAtoms)))
+        ($internalLinks (filterLinksByFlag $allLinks $internalFlags))
+
+        ($linksProbs (map-atom $internalLinks getProbability))
+        ($conjunctions (map-atom $internalLinks temporalConjunctionLink))
+      )
+      (pearsonCorrelationLists $linksProbs $conjunctions)
+    )
+
+)
+
+(= (getDynamicModules $state $afLinks)
+    (py-call (community_detector.get_dynamic_modules $state $afLinks))
+)
+
 
 (= (globalCoordination $state)
     (let*
         (
-            ($modules (identifyModules $state))
+            ($afLinks (getHebLinks $state ()))
+            ($modules (getDynamicModules $state $afLinks))
 
             ($localCoherences (map-atom $modules $mod (moduleInternalCoherence $mod)))
             ($localCoherence (averageList $localCoherences))
-            ($allAtoms (getAllAtomsWithBins))
-            ($totalLinks (size-atom (getHebLinks $allAtoms ())))
-            
-            ($internalCounts (map-atom $modules $mod 
-                (foldl-atom (map-atom (getHebLinks $mod ()) $link (isInternalLink $link $mod)) 0 $acc $x (+ $acc $x))
-            ))
-            ($totalInternal (foldl-atom $internalCounts 0 $acc $x (+ $acc $x)))
 
-            ($totalExternal (- $totalLinks $totalInternal))
-            ($globalCoherence (if (> $totalLinks 0) (/ $totalExternal $totalLinks) 0.0))
+            ($interFlags (map-atom $afLinks $link (isExternalLink $link $modules)))
+            ($interLinks (filterLinksByFlag $afLinks $interFlags))
+
+            ($linkProbs (map-atom $interLinks getProbability))
+            ($conjunctions (map-atom $interLinks temporalConjunctionLink))
+            ($globalCoherence (pearsonCorrelationLists $linkProbs $conjunctions))
 
             ($coordination (sqrt-math (* $localCoherence $globalCoherence)))
         )
         $coordination
     )
 )
-
-
