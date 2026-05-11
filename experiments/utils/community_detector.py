@@ -61,6 +61,7 @@ def get_communities(metta_data_string: str) -> List[List[str]]:
 
 
 def get_dynamic_modules(af_atoms: Any, af_links: Any) -> List[List[Any]]:
+
     """Live dynamic clustering for the active Attentional Focus."""
     af_atoms_norm = _normalize_atoms(af_atoms)
     
@@ -77,10 +78,10 @@ def get_dynamic_modules(af_atoms: Any, af_links: Any) -> List[List[Any]]:
     weights = []
     
     for link in _normalize_atoms(af_links):
-        link_str = str(link).replace("(", "").replace(")", "").split()
-        if len(link_str) >= 3:
-            src, tgt = link_str[1], link_str[2]
-            weight = float(link_str[3]) if len(link_str) > 3 else 0.5
+        if isinstance(link, list) and len(link) >= 3:
+            src = str(link[1]).strip()
+            tgt = str(link[2]).strip()
+            weight = float(link[3]) if len(link) > 3 else 0.5
             
             if src in node_to_id and tgt in node_to_id:
                 edges.append((node_to_id[src], node_to_id[tgt]))
@@ -101,7 +102,17 @@ def get_dynamic_modules(af_atoms: Any, af_links: Any) -> List[List[Any]]:
     except Exception:
         partition = graph.components()
 
-    return [[id_to_original_atom[vid] for vid in cluster] for cluster in partition]
+    grouped = [[id_to_original_atom[vid] for vid in cluster] for cluster in partition]
+
+    # print(f"\n[LOUVAIN DEBUG] Active Atoms: {len(node_to_id)} | Active Links: {len(edges)}")
+    # print(f"[LOUVAIN DEBUG] Louvain generated {len(grouped)} distinct modules.")
+    # for idx, mod in enumerate(grouped):
+    #     print(f"   -> Module {idx + 1} size: {len(mod)} atoms")
+    # print("-" * 40)
+
+    return grouped
+
+
 
 
 def identify_modules_from_kg_file(file_path: str) -> List[List[str]]:
