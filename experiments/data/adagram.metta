@@ -39,3 +39,6 @@
 ((SimilarityLink dicofol hemlock) (0.266 1.0))
 ((SimilarityLink ethion venom) (0.435 1.0))
 ((SimilarityLink insecticide tetanospasmin) (0.544 1.0))
+((insynset able able_a_01) (0.8 0.9)) 
+((antonymlink able unable) (0.8 0.9)) 
+((insynset able able_s_02) (0.8 0.9)) 
