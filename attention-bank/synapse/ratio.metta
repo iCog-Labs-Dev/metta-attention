@@ -98,7 +98,7 @@
 (= (getStiSeries $atom)
     (let $res (collapse (match &self (StiHistory $atom $hist) $hist))
         (if (== $res ())
-            (cons-atom 0.0 ()) ;; Default fallback (like [0.0] in Python)
+            (cons-atom 0.0 ())
             (car-atom $res)
         )
     )
