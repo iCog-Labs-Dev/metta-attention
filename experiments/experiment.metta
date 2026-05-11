@@ -110,9 +110,12 @@
                             (add-atom &afsnap (currState $nextaf))
                         )
                         
-                        (let $afWithSti (map-atom (getAfAtoms) $atom 
-                                  (let $sti (getSti $atom) (Pair $atom $sti)))
-                            (py-call (history_tracker.record_cip_series $afWithSti))
+                        (map-atom (getAfAtoms) $atom 
+                            (let $res (collapse (getSti $atom))
+                                (let $sti (if (== $res ()) 0.0 (car-atom $res))
+                                    (updateAtomHistory $atom $sti)
+                                )
+                            )
                         )
 
                         (logCurrStateMetrics $counter)

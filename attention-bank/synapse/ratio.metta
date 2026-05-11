@@ -1,5 +1,4 @@
 !(import! &self "../../../experiments/utils/community_detector.py")
-!(import! &self "../../../experiments/utils/history_tracker.py")
 
 !(bind! &afsnap (new-space))
 (= (afSnap) &afsnap)
@@ -96,6 +95,129 @@
     (py-call (community_detector.get_dynamic_modules $state $afLinks))
 )
 
+(= (getStiSeries $atom)
+    (let $res (collapse (match &self (StiHistory $atom $hist) $hist))
+        (if (== $res ())
+            (cons-atom 0.0 ()) ;; Default fallback (like [0.0] in Python)
+            (car-atom $res)
+        )
+    )
+)
+
+(= (updateAtomHistory $atom $newSti)
+    (let $oldHist (collapse (match &self (StiHistory $atom $hist) $hist))
+        (if (== $oldHist ())
+            (let $newHistory (cons-atom $newSti ())
+                (add-atom &self (StiHistory $atom $newHistory))
+            )
+            (let $historyTuple (car-atom $oldHist)
+                (let $newHistory (cons-atom $newSti $historyTuple)
+                    (let $dummy (remove-atom &self (StiHistory $atom $historyTuple))
+                        (add-atom &self (StiHistory $atom $newHistory))
+                    )
+                )
+            )
+        )
+    )
+)
+
+(= (filterLinksByFlag () ()) ())
+(= (filterLinksByFlag (cons $link $ltail) (cons $flag $ftail))
+    (if (== $flag 1)
+        (cons $link (filterLinksByFlag $ltail $ftail))
+        (filterLinksByFlag $ltail $ftail)
+    )
+)
+
+(= (isSameModule $src $tgt $module)
+    (let* (
+        ($hasSrc (size-atom (intersection-atom $module (cons $src ()))))
+        ($hasTgt (size-atom (intersection-atom $module (cons $tgt ()))))
+    )
+    (if (and (> $hasSrc 0) (> $hasTgt 0)) 1 0)
+    )
+)
+
+(= (getLinkSource (ASYMMETRIC_HEBBIAN_LINK $src $tgt)) $src)
+
+(= (isExternalLink $link $modules)
+    (let* (
+        ($src (getLinkSource $link))
+        ($tgt (getLinkTarget $link))
+        ($internalCount (foldl-atom (map-atom $modules $mod (isSameModule $src $tgt $mod)) 0 $acc $x (+ $acc $x)))
+    )
+    (if (== $internalCount 0) 1 0) 
+    )
+)
+
+(= (zipMultiply $list1 $list2)
+    (if (or (== $list1 ()) (== $list2 ()))
+        ()
+        (let* (
+            ($h1 (car-atom $list1))
+            ($t1 (cdr-atom $list1))
+            ($h2 (car-atom $list2))
+            ($t2 (cdr-atom $list2))
+        )
+        (cons-atom (* $h1 $h2) (zipMultiply $t1 $t2))
+        )
+    )
+)
+
+(= (getProbability $link)
+    (let $meanSet (collapse (getMean $link))
+        (if (== $meanSet ())
+            0.5               
+            (car-atom $meanSet) 
+        )
+    )
+)
+
+(= (pearsonCorrelationLists $listX $listY)
+    (let* (
+        ($sizeX (size-atom $listX))
+        ($sizeY (size-atom $listY))
+    )
+    (if (or (== $sizeX 0) (== $sizeY 0)) 
+        0.0
+        (let* (
+            ($meanX (averageList $listX))
+            ($meanY (averageList $listY))
+            
+            ($diffX (map-atom $listX $x (- $x $meanX)))
+            ($diffY (map-atom $listY $y (- $y $meanY)))
+            
+            ($covarTerms (zipMultiply $diffX $diffY))
+            ($covar (foldl-atom $covarTerms 0.0 $a $b (+ $a $b)))
+
+            ($varXTerms (map-atom $diffX $dx (* $dx $dx)))
+            ($varYTerms (map-atom $diffY $dy (* $dy $dy)))
+            ($varX (foldl-atom $varXTerms 0.0 $a $b (+ $a $b)))
+            ($varY (foldl-atom $varYTerms 0.0 $a $b (+ $a $b)))
+            ($varProd (* $varX $varY))
+            ($denominator (if (> $varProd 0) (sqrt-math $varProd) 0.0))
+        )
+        (if (> $denominator 0) (/ $covar $denominator) 0.0)
+        )
+    ))
+)
+
+(= (temporalConjunction $atomI $atomJ)
+    (let* (
+        ($stiI (getStiSeries $atomI))
+        ($stiJ (getStiSeries $atomJ))
+        ($multiplied (zipMultiply $stiI $stiJ))
+    )
+    (if (== $multiplied ()) 
+        0.0 
+        (averageList $multiplied)
+    )
+    )
+)
+
+(= (temporalConjunctionLink $link) 
+    (temporalConjunction (getLinkSource $link) (getLinkTarget $link))
+)
 
 (= (afResourceUsage)
     (let $allSize
@@ -248,102 +370,6 @@
             ($newMean (+ $weightOld $weightNew))
         )
         $newMean
-    )
-)
-
-
-(= (getStiSeries $atom)
-    (py-call (history_tracker.get_sti_series $atom))
-)
-
-(= (filterLinksByFlag () ()) ())
-(= (filterLinksByFlag (cons $link $ltail) (cons $flag $ftail))
-    (if (== $flag 1)
-        (cons $link (filterLinksByFlag $ltail $ftail))
-        (filterLinksByFlag $ltail $ftail)
-    )
-)
-
-(= (isSameModule $src $tgt $module)
-    (let* (
-        ($hasSrc (size-atom (intersection-atom $module (cons $src ()))))
-        ($hasTgt (size-atom (intersection-atom $module (cons $tgt ()))))
-    )
-    (if (and (> $hasSrc 0) (> $hasTgt 0)) 1 0)
-    )
-)
-
-(= (getLinkSource (ASYMMETRIC_HEBBIAN_LINK $src $tgt)) $src)
-
-(= (isExternalLink $link $modules)
-    (let* (
-        ($src (getLinkSource $link))
-        ($tgt (getLinkTarget $link))
-        ($internalCount (foldl-atom (map-atom $modules $mod (isSameModule $src $tgt $mod)) 0 $acc $x (+ $acc $x)))
-    )
-    (if (== $internalCount 0) 1 0) 
-    )
-)
-
-(= (zipMultiply () ()) ())
-(= (zipMultiply (cons $h1 $t1) (cons $h2 $t2))
-   (cons (* $h1 $h2) (zipMultiply $t1 $t2))
-)
-
-(= (pearsonCorrelationLists $listX $listY)
-    (let* (
-        ($sizeX (size-atom $listX))
-        ($sizeY (size-atom $listY))
-    )
-    (if (or (== $sizeX 0) (== $sizeY 0)) 
-        0.0
-        (let* (
-            ($meanX (averageList $listX))
-            ($meanY (averageList $listY))
-            
-            ($diffX (map-atom $listX $x (- $x $meanX)))
-            ($diffY (map-atom $listY $y (- $y $meanY)))
-            
-            ($covarTerms (zipMultiply $diffX $diffY))
-            ($covar (foldl-atom $covarTerms 0.0 $a $b (+ $a $b)))
-
-            ($varXTerms (map-atom $diffX $dx (* $dx $dx)))
-            ($varYTerms (map-atom $diffY $dy (* $dy $dy)))
-            ($varX (foldl-atom $varXTerms 0.0 $a $b (+ $a $b)))
-            ($varY (foldl-atom $varYTerms 0.0 $a $b (+ $a $b)))
-            ($varProd (* $varX $varY))
-            ($denominator (if (> $varProd 0) (sqrt-math $varProd) 0.0))
-        )
-        (if (> $denominator 0) (/ $covar $denominator) 0.0)
-        )
-    ))
-)
-
-;(= (temporalConjunction $atomI $atomJ)
-;    (let* 
-;        (
-;            ($stiI (getStiSeries $atomI))
-;            ($stiJ (getStiSeries $atomJ))
-;            ($multiplied (zipMultiply $stiI $stiJ))
-;         )
-;         (averageList $multiplied)
-;    )
-;)
-
-(= (temporalConjunction $atomI $atomJ)
-    (py-call (history_tracker.temporal_conjunction $atomI $atomJ))
-)
-
-(= (temporalConjunctionLink $link) 
-    (temporalConjunction (getLinkSource $link) (getLinkTarget $link))
-)
-
-(= (getProbability $link)
-    (let $meanSet (collapse (getMean $link))
-        (if (== $meanSet ())
-            0.5               
-            (car-atom $meanSet) 
-        )
     )
 )
 
