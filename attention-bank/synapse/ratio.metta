@@ -98,7 +98,7 @@
 (= (getStiSeries $atom)
     (let $res (collapse (match &self (StiHistory $atom $hist) $hist))
         (if (== $res ())
-            (cons-atom 0.0 ()) ;; Default fallback (like [0.0] in Python)
+            (cons-atom 0.0 ()) ;; Default fallback (like [0.0] in Python) ;; Fix simply by returning (0.0)
             (car-atom $res)
         )
     )
@@ -109,7 +109,7 @@
         (if (== $oldHist ())
             (let $newHistory (cons-atom $newSti ())
                 (add-atom &self (StiHistory $atom $newHistory))
-            )
+            ) ; FIX simplify by simply using add atom ($newHistory)
             (let $historyTuple (car-atom $oldHist)
                 (let $newHistory (cons-atom $newSti $historyTuple)
                     (let $dummy (remove-atom &self (StiHistory $atom $historyTuple))
@@ -131,8 +131,8 @@
 
 (= (isSameModule $src $tgt $module)
     (let* (
-        ($hasSrc (size-atom (intersection-atom $module (cons $src ()))))
-        ($hasTgt (size-atom (intersection-atom $module (cons $tgt ()))))
+        ($hasSrc (size-atom (intersection-atom $module (cons $src ())))) ; FIX use ($src) instead
+        ($hasTgt (size-atom (intersection-atom $module (cons $tgt ())))) ; FIX use ($target) instead
     )
     (if (and (> $hasSrc 0) (> $hasTgt 0)) 1 0)
     )
@@ -144,7 +144,7 @@
     (let* (
         ($src (getLinkSource $link))
         ($tgt (getLinkTarget $link))
-        ($internalCount (foldl-atom (map-atom $modules $mod (isSameModule $src $tgt $mod)) 0 $acc $x (+ $acc $x)))
+        ($internalCount (foldl-atom (map-atom $modules $mod (isSameModule $src $tgt $mod)) 0 $acc $x (+ $acc $x))) ; TODO a function that takes an atom and retun its module can simplify this
     )
     (if (== $internalCount 0) 1 0) 
     )
@@ -165,12 +165,7 @@
 )
 
 (= (getProbability $link)
-    (let $meanSet (collapse (getMean $link))
-        (if (== $meanSet ())
-            0.5               
-            (car-atom $meanSet) 
-        )
-    )
+    (getMean $link)
 )
 
 (= (pearsonCorrelationLists $listX $listY)
@@ -336,23 +331,43 @@
     )
 )
 
+(= (stiProbablity $atomSti $allSti)
+    (let*
+        (
+            ($stiCount (car-atom (intersection-atom $allSti $atomSti)))
+            ($ratio (/ $stiCount (size-atom $allSti)))
+        )
+        $ratio
+    )
+)
+
+(= (shanon-entropy $stiDistribution)
+    (let*
+        (
+            ($probabilities
+                (map-atom $stiDistribution $atom (stiProbablity ($atom) $stiDistribution))
+            )
+            ($entropyTerms (map-atom $probabilities $p (entropyTerm $p)))
+            ($sumTerms (foldl-atom $entropyTerms 0 $acc $x (+ $acc $x)))
+        )
+        (* -1.0 $sumTerms)
+    )
+)
 
 (= (preallocationSpace)
-  (let* 
-     (
-        ($allAtoms (getAllAtomsWithBins))
-        ($totalAtoms (size-atom $allAtoms))
-        ($totalSti (getTotalSti $allAtoms 0))
-        ($probabilities (if (> $totalSti 0)
-            (map-atom $allAtoms $atom (/ (getSti $atom) $totalSti))
-            ()
-        ))
-        ($entropyTerms (map-atom $probabilities $p (entropyTerm $p)))
-        ($sumTerms (foldl-atom $entropyTerms 0 $acc $x (+ $acc $x)))
-        ($entropy (* -1.0 $sumTerms))
-        ($maxEntropy (if (> $totalAtoms 1) (log2-math $totalAtoms) 0.0))
-      )
-
+    (let* 
+        (
+            ($allAtoms (getAllAtomsWithBins))
+            ($totalAtoms (size-atom $allAtoms))
+            ($stiValues (map-atom $allAtoms $atom (getSti $atom)))
+            ($minSti (min-atom $stiValues))
+            ($shifted (map-atom $stiValues $val (- $val $minSti)))
+            ($tt (foldl-atom $shifted 0 $acc $x (+ $acc $x)))
+            ($total (if (== $tt 0.0) 1.0 $tt))
+            ($stiDistribution (map-atom $shifted $s (/ $s $total)))
+            ($entropy (shanon-entropy $stiDistribution))
+            ($maxEntropy (log2-math $totalAtoms))
+        )
         (if (> $maxEntropy 0)
             (/ $entropy $maxEntropy)
             0.0
@@ -391,7 +406,7 @@
 (= (globalCoordination $state)
     (let*
         (
-            ($afLinks (getHebLinks $state ()))
+            ($afLinks (getAllHebLinks))
             ($modules (identifyModules $state $afLinks))
 
             ($localCoherences (map-atom $modules $mod (moduleInternalCoherence $mod)))
