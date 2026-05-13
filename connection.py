@@ -1,6 +1,7 @@
 import re
 import argparse
 import numpy as np
+import scipy.linalg
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 MATPLOTLIB_AVAILABLE = True
@@ -9,19 +10,25 @@ grid_size = 36
 N = grid_size * grid_size
 
 STATIC_STI = {
+    # 'dichloropropene' : 300,
+    'beanleafroller': 360,
+    'dobsonfly': 292,
+    'grasshopper': 352,
+    'hemlock': 522,
+    'leafhopper': 135,
+    'moth': 421,
     'diazinon': 747,
     'alachlor': 131,
     'bactericide': 187,
     'beanleafrollers': 178,
     'dicofol': 178,
-    'beanleafroller': 157,
     'caterpillar': 107,
     'dilan': 117,
     'borer': 121,
     'caterpillars': 121,
 }
 
-DEFAULT_STI = 100
+DEFAULT_STI = 0
 
 
 def normalize_sti(sti_dict):
@@ -42,21 +49,68 @@ def parse_metta(filepath):
     return edges
 
 
-def build_adjacency_matrix(edges, make_symmetric=True):
-    nodes = sorted(set([e[0] for e in edges] + [e[1] for e in edges]))
+def build_adjacency_matrix(edges, nodes, make_symmetric=False):
     node_to_idx = {n: i for i, n in enumerate(nodes)}
     n = len(nodes)
 
     matrix = [[0.0] * n for _ in range(n)]
     for src, dst, s1, s2 in edges:
         i, j = node_to_idx[src], node_to_idx[dst]
-        matrix[i][j] = s1
+        matrix[i][j] = s1 * s2
         if make_symmetric:
             existing = matrix[j][i]
             matrix[j][i] = (s1 + existing) / 2
 
-    return np.array(matrix, dtype=np.float64), nodes, node_to_idx
+    return np.array(matrix, dtype=np.float64), node_to_idx
 
+
+def get_spectral_coordinates_magnetic(matrix, nodes, q=0.1):
+    """
+    Get 2D spectral coordinates using the Magnetic Laplacian for directed graphs.
+    q: The 'magnetic charge' parameter (typically 0.1 to 0.25) controlling directional flow.
+    """
+    A = np.array(matrix, dtype=np.float64)
+    n = len(nodes)
+    
+    # 1. Construct the Symmetric Weight and Phase Matrices
+    W = 0.5 * (A + A.T)                           # Symmetric connection strength
+    Theta = 2 * np.pi * q * (A - A.T)             # Phase encoding directionality
+    
+    # 2. Construct the Complex Hermitian Matrix (H)
+    # Using 1j for the imaginary unit in Python
+    H = W * np.exp(1j * Theta) 
+    
+    # 3. Construct the Degree Matrix (D) and Magnetic Laplacian (L)
+    D = np.diag(np.sum(W, axis=1))
+    L = D - H
+    
+    try:
+        # 4. Eigendecomposition
+        # scipy.linalg.eigh is explicitly for Hermitian matrices. 
+        # It is faster, more stable, and guarantees real eigenvalues.
+        # It automatically sorts eigenvalues in ascending order.
+        eigenvalues, eigenvectors = scipy.linalg.eigh(L)
+        
+        # 5. Extract Coordinates
+        # The 0th eigenvector corresponds to eigenvalue ~0 (trivial).
+        # We take the 1st eigenvector. Because it is complex, a single 
+        # eigenvector provides BOTH X (real) and Y (imaginary) coordinates!
+        v1 = eigenvectors[:, 1]
+        
+        coords = {}
+        for i, node in enumerate(nodes):
+            # Extract real and imaginary parts for X and Y
+            x = float(np.real(v1[i]))
+            y = float(np.imag(v1[i]))
+            coords[node] = (x, y)
+            
+    except Exception as e:
+        print(f"Eigendecomposition failed: {e}")
+        # Fallback to circle layout
+        coords = {node: (float(np.cos(2 * np.pi * i / n)), float(np.sin(2 * np.pi * i / n))) 
+                  for i, node in enumerate(nodes)}
+        
+    return coords
 
 def get_spectral_coordinates_fft(matrix, nodes):
     """Get spectral coordinates using eigendecomposition for better spread."""
@@ -124,48 +178,59 @@ def print_atom_mapping(spectral_coords, sti_values, node_densities, grid_size, r
     if not spectral_coords:
         print("No spectral coordinates available")
         return
-    
+
+    total_sti = sum(sti_values.values()) if sti_values else 0
+    total_density = sum(node_densities.values()) if node_densities else 1.0
+
     coords_arr = np.array(list(spectral_coords.values()))
     coord_min = coords_arr.min()
     coord_max = coords_arr.max()
     coord_range = coord_max - coord_min + 1e-10
-    
-    print("\n" + "="*80)
-    print(f"{'Atom':<25} {'Grid':<10} {'Eigenvector':<25} {'Initial STI':<12} {'Final Density'}")
-    print("="*80)
-    
-    for node in sorted(spectral_coords.keys()):
+
+    rows = []
+    for node in spectral_coords.keys():
         x, y = spectral_coords[node]
-        
+
         gx = int(((x - coord_min) / coord_range) * grid_size) % grid_size
         gy = int(((y - coord_min) / coord_range) * grid_size) % grid_size
-        
+
         initial_sti = sti_values.get(node, DEFAULT_STI) if sti_values else DEFAULT_STI
-        final_density = node_densities.get(node, 0.0)
-        
-        print(f"{node:<25} ({gx:2d},{gy:2d})    ({x:>10.4f}, {y:>10.4f})    {initial_sti:<12} {final_density:.6f}")
-    
+        final_density = node_densities.get(node, 0.0) / total_density
+        final_sti = total_sti * final_density
+
+        rows.append((node, gx, gy, x, y, initial_sti, final_density, final_sti))
+
+    rows.sort(key=lambda r: r[7], reverse=True)
+
+    print("\n" + "="*80)
+    print(f"{'Atom':<25} {'Grid':<10} {'Eigenvector':<25} {'Initial STI':<12} {'Final Density':<14} {'Final STI'}")
+    print("="*80)
+
+    for row in rows:
+        node, gx, gy, x, y, initial_sti, final_density, final_sti = row
+        print(f"{node:<25} ({gx:2d},{gy:2d})    ({x:>10.4f}, {y:>10.4f})    {initial_sti:<12} {final_density:.6f}    {final_sti:.6f}")
+
     print("="*80)
 
 
 def nodes_to_distributed_mass(edges, nodes, grid_size=36, spread_sigma=1.0, sti_values=None):
     """Map nodes to rho field via spectral embedding + Gaussian spread."""
-    matrix, nodes_list, node_to_idx = build_adjacency_matrix(edges)
+    matrix, node_to_idx = build_adjacency_matrix(edges, nodes)
     
-    spectral_coords = get_spectral_coordinates_fft(matrix, nodes_list)
+    spectral_coords = get_spectral_coordinates_magnetic(matrix, nodes)
     
     if sti_values:
         node_sti = sti_values
     else:
         node_sti = {}
-        for node in nodes_list:
+        for node in nodes:
             idx = node_to_idx.get(node, 0)
             weight = np.mean(matrix[idx, :]) if idx < len(matrix) else DEFAULT_STI
             node_sti[node] = weight
     
     if not spectral_coords:
         rho = np.zeros((grid_size, grid_size))
-        return rho, spectral_coords, nodes_list, node_to_idx
+        return rho, spectral_coords, nodes, node_to_idx
     
     coord_arr = np.array(list(spectral_coords.values()))
     coord_min = coord_arr.min()
@@ -191,7 +256,7 @@ def nodes_to_distributed_mass(edges, nodes, grid_size=36, spread_sigma=1.0, sti_
     
     rho = rho / (np.sum(rho) + 1e-10)
     
-    return rho, spectral_coords, nodes_list, node_to_idx
+    return rho, spectral_coords, nodes, node_to_idx
 
 
 def get_center_seed(grid_size, n_seeds=4):
@@ -450,11 +515,6 @@ if __name__ == "__main__":
         print(f"Generated {len(rho_history)} frames")
         print(f"Creating animation: {args.output}")
         
-        create_flow_animation(rho_history, coords, args.grid, args.output)
-        
-        print(f"Final rho sum: {np.sum(rho_final):.6f}")
-        print(f"Max velocity: {np.max(np.sqrt(u_x**2 + u_y**2)):.4f}")
-        
         if args.debug:
             print_atom_mapping(coords, raw_sti, node_densities, args.grid)
         else:
@@ -462,6 +522,12 @@ if __name__ == "__main__":
             sorted_atoms = sorted(node_densities.items(), key=lambda x: x[1], reverse=True)[:args.top]
             for atom, density in sorted_atoms:
                 print(f"  {atom}: {density:.4f}")
+
+        create_flow_animation(rho_history, coords, args.grid, args.output)
+        
+        print(f"Final rho sum: {np.sum(rho_final):.6f}")
+        print(f"Max velocity: {np.max(np.sqrt(u_x**2 + u_y**2)):.4f}")
+        
     else:
         rho_final, (u_x, u_y), coords, node_densities = compute_coordinates(
             metta_path=args.input,
