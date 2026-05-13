@@ -52,14 +52,6 @@
 !(updateAttentionParam TOPK 0.8)
 !(updateAttentionParam AFRentFrequency 2.0)
 
-; !(updateAttentionParam STI_FUNDS_BUFFER 99900)
-; !(updateAttentionParam LTI_FUNDS_BUFFER 99900)
-; !(updateAttentionParam TARGET_STI 99900)
-; !(updateAttentionParam TARGET_LTI 99900)
-; !(updateAttentionParam AFRentFrequency 2.0)
-; !(updateAttentionParam MAX_AF_SIZE 12)
-
-
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
@@ -78,11 +70,9 @@
                 ($pcorr (correlation))
                 ($modulation (selectionModulation))
                 ($gCoord (globalCoordination $currState))
+                ($coherance (moduleInternalCoherence $currState))
             )
-            (
-                (println! (retention $retentionValue))
-                (write_metrics_wrapper $counter $afResource $stiConc $linkDen $connRatio $stiEntropy $retentionValue $pcorr $modulation $gCoord)
-            )
+            (write_metrics_wrapper $counter $afResource $stiConc $linkDen $coherance $connRatio $stiEntropy $retentionValue $pcorr $modulation $gCoord)
         )
     )
 )
@@ -124,7 +114,7 @@
                     )
                     (
                         (println! (agent not called))
-                        (write_metrics_wrapper $counter (afResourceUsage) (stiConcentration) (linkDensity) (connectionRatio) (preallocationSpace) "NaN" (correlation) (selectionModulation) (globalCoordination (getAfAtoms)))
+                        ; (write_metrics_wrapper $counter (afResourceUsage) (stiConcentration) (linkDensity) (moduleInternalCoherence (getAfAtoms)) (connectionRatio) (preallocationSpace) "NaN" (correlation) (selectionModulation) (globalCoordination (getAfAtoms)))
                     )
                 )
                 ; (py-call (time.sleep 5.0))

@@ -493,7 +493,7 @@
          (trace! () ("Updated"))
     )
 )
- 
+
 (= (getAllHebLinks)
     (collapse 
         (match (TypeSpace) 

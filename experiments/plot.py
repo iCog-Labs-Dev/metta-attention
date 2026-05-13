@@ -142,6 +142,7 @@ class MetricsPlotter:
         "af_resource",
         "sti_concentration",
         "link_density",
+        "coherance",
         "connection_ratio",
         "normalized_sti_entropy",
         "retention",
