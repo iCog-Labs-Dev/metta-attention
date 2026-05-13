@@ -98,7 +98,7 @@
 (= (getStiSeries $atom)
     (let $res (collapse (match &self (StiHistory $atom $hist) $hist))
         (if (== $res ())
-            (cons-atom 0.0 ())
+            (0.0)
             (car-atom $res)
         )
     )
@@ -107,9 +107,8 @@
 (= (updateAtomHistory $atom $newSti)
     (let $oldHist (collapse (match &self (StiHistory $atom $hist) $hist))
         (if (== $oldHist ())
-            (let $newHistory (cons-atom $newSti ())
-                (add-atom &self (StiHistory $atom $newHistory))
-            )
+            (add-atom &self (StiHistory $atom ($newSti)))
+
             (let $historyTuple (car-atom $oldHist)
                 (let $newHistory (cons-atom $newSti $historyTuple)
                     (let $dummy (remove-atom &self (StiHistory $atom $historyTuple))
@@ -131,8 +130,8 @@
 
 (= (isSameModule $src $tgt $module)
     (let* (
-        ($hasSrc (size-atom (intersection-atom $module (cons $src ()))))
-        ($hasTgt (size-atom (intersection-atom $module (cons $tgt ()))))
+        ($hasSrc (size-atom (intersection-atom $module ($src))))
+        ($hasTgt (size-atom (intersection-atom $module ($tgt))))
     )
     (if (and (> $hasSrc 0) (> $hasTgt 0)) 1 0)
     )
@@ -165,12 +164,7 @@
 )
 
 (= (getProbability $link)
-    (let $meanSet (collapse (getMean $link))
-        (if (== $meanSet ())
-            0.5               
-            (car-atom $meanSet) 
-        )
-    )
+    (getMean $link)
 )
 
 (= (pearsonCorrelationLists $listX $listY)
@@ -391,9 +385,8 @@
 (= (globalCoordination $state)
     (let*
         (
-            ($afLinks (getHebLinks $state ()))
+            ($afLinks (getAllHebLinks))
             ($modules (identifyModules $state $afLinks))
-
             ($localCoherences (map-atom $modules $mod (moduleInternalCoherence $mod)))
             ($localCoherence (averageList $localCoherences))
 
