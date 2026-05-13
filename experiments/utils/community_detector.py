@@ -59,21 +59,3 @@ def get_dynamic_modules(af_atoms: Any, af_links: Any) -> List[List[Any]]:
     grouped = [[id_to_original_atom[vid] for vid in cluster] for cluster in partition]
 
     return grouped
-
-# def _normalize_atoms(atoms: Any) -> List[Any]:
-#     if atoms is None or isinstance(atoms, (int, float, bool)):
-#         return []
-#     if isinstance(atoms, (str, bytes)):
-#         return [atoms]
-#     try:
-#         return list(atoms)
-#     except TypeError:
-#         return [atoms]
-
-# def _atom_to_name(atom: Any) -> str:
-#     try:
-#         if hasattr(atom, "get_name"):
-#             return str(atom.get_name()).strip()
-#     except Exception:
-#         pass
-#     return str(atom).replace('(', '').replace(')', '').strip()
