@@ -26,6 +26,7 @@ STATIC_STI = {
     'dilan': 117,
     'borer': 121,
     'caterpillars': 121,
+    'zelatrix': 300
 }
 
 DEFAULT_STI = 0
@@ -64,7 +65,66 @@ def build_adjacency_matrix(edges, nodes, make_symmetric=False):
     return np.array(matrix, dtype=np.float64), node_to_idx
 
 
-def get_spectral_coordinates_magnetic(matrix, nodes, q=0.1):
+def get_normalized_spectral_coordinates(matrix, nodes, q=0.1):
+    A = np.array(matrix, dtype=np.float64)
+    n = len(nodes)
+    
+    # 1. Symmetric Weight and Phase Matrices
+    W = 0.5 * (A + A.T)
+    Theta = 2 * np.pi * q * (A - A.T)
+    
+    # 2. Complex Hermitian Matrix
+    H = W * np.exp(1j * Theta) 
+    
+    # 3. Compute Degrees
+    degrees = np.sum(W, axis=1)
+    
+    # Prevent division by zero for completely isolated nodes
+    degrees[degrees == 0] = 1e-10 
+    
+    # 4. Construct Inverse Square Root Degree Matrix (D^{-1/2})
+    d_inv_sqrt = np.power(degrees, -0.5)
+    D_inv_sqrt = np.diag(d_inv_sqrt)
+    
+    # 5. Symmetric Normalized Magnetic Laplacian (L_sym = I - D^{-1/2} H D^{-1/2})
+    I = np.eye(n)
+    L_sym = I - (D_inv_sqrt @ H @ D_inv_sqrt)
+    
+    try:
+        # 6. Eigendecomposition
+        eigenvalues, eigenvectors = scipy.linalg.eigh(L_sym)
+        
+        # 7. Find the Eigen-gap (skip values practically equal to 0)
+        # We look for the first eigenvalue clearly greater than a tiny threshold
+        valid_idx = np.where(eigenvalues > 1e-5)[0]
+        
+        if len(valid_idx) == 0:
+            raise ValueError("All eigenvalues are zero. Graph is completely collapsed.")
+            
+        first_valid_idx = valid_idx[0]
+        
+        # 8. Extract Coordinates using the first non-trivial eigenvector
+        v1 = eigenvectors[:, first_valid_idx]
+        
+        # Re-normalize the coordinates back to the original node scale
+        # (Standard practice when using the Normalized Laplacian)
+        v1 = D_inv_sqrt @ v1
+        
+        coords = {}
+        for i, node in enumerate(nodes):
+            x = float(np.real(v1[i]))
+            y = float(np.imag(v1[i]))
+            coords[node] = (x, y)
+            
+    except Exception as e:
+        print(f"Eigendecomposition failed: {e}")
+        # Fallback layout
+        coords = {node: (float(np.cos(2 * np.pi * i / n)), float(np.sin(2 * np.pi * i / n))) 
+                  for i, node in enumerate(nodes)}
+        
+    return coords
+
+def get_spectral_coordinates_magnetic(matrix, nodes, q=0.8):
     """
     Get 2D spectral coordinates using the Magnetic Laplacian for directed graphs.
     q: The 'magnetic charge' parameter (typically 0.1 to 0.25) controlling directional flow.
@@ -213,10 +273,28 @@ def print_atom_mapping(spectral_coords, sti_values, node_densities, grid_size, r
     print("="*80)
 
 
+def spectral_to_grid_coords(spectral_coords, grid_size):
+    """Convert spectral (eigenvector) coordinates to grid positions."""
+    if not spectral_coords:
+        return {}
+
+    coord_arr = np.array(list(spectral_coords.values()))
+    coord_min = coord_arr.min()
+    coord_max = coord_arr.max()
+    coord_range = coord_max - coord_min + 1e-10
+
+    grid_positions = {}
+    for node, (x, y) in spectral_coords.items():
+        gx = int(((x - coord_min) / coord_range) * grid_size) % grid_size
+        gy = int(((y - coord_min) / coord_range) * grid_size) % grid_size
+        grid_positions[node] = (gx, gy)
+    return grid_positions
+
+
 def nodes_to_distributed_mass(edges, nodes, grid_size=36, spread_sigma=1.0, sti_values=None):
     """Map nodes to rho field via spectral embedding + Gaussian spread."""
     matrix, node_to_idx = build_adjacency_matrix(edges, nodes)
-    
+
     spectral_coords = get_spectral_coordinates_magnetic(matrix, nodes)
     
     if sti_values:
@@ -238,7 +316,7 @@ def nodes_to_distributed_mass(edges, nodes, grid_size=36, spread_sigma=1.0, sti_
     coord_range = coord_max - coord_min + 1e-10
     
     rho = np.zeros((grid_size, grid_size))
-    
+
     for node, (x, y) in spectral_coords.items():
         gx = int(((x - coord_min) / coord_range) * grid_size) % grid_size
         gy = int(((y - coord_min) / coord_range) * grid_size) % grid_size
@@ -294,7 +372,7 @@ def run_fluid_simulation(rho_initial, af_seeds=None, num_steps=100, dt=0.1, visc
     rho_history = [] if track_history else None
     
     if viscosity is None:
-        viscosity = np.full((grid_size, grid_size), 0.9)
+        viscosity = np.full((grid_size, grid_size), 0.01)
     
     laplacian_op = compute_torus_distance(grid_size)
     
@@ -416,37 +494,35 @@ def compute_coordinates(metta_path="experiments/data/adagram.metta", mode="fluid
     return rho_final, velocity_field, spectral_coords, node_densities
 
 
-def create_flow_animation(rho_history, node_coords, grid_size, output_path="flow_evolution.gif"):
+def create_flow_animation(rho_history, node_grid_positions, grid_size, output_path="flow_evolution.gif"):
     """Generate animation GIF with node overlay."""
     if not MATPLOTLIB_AVAILABLE:
         print("Warning: matplotlib not available. Skipping animation.")
         return
-    
+
     fig, ax = plt.subplots(figsize=(7, 6))
     vmax = np.max(rho_history)
-    
+
     def update(frame):
         ax.clear()
         ax.imshow(rho_history[frame], vmin=0, vmax=vmax, cmap='hot', origin='lower')
-        
-        for node, (x, y) in node_coords.items():
-            grid_x = int((x / (2*np.pi)) * grid_size) % grid_size
-            grid_y = int((y / (2*np.pi)) * grid_size) % grid_size
+
+        for node, (grid_x, grid_y) in node_grid_positions.items():
             ax.plot(grid_x, grid_y, 'o', color='cyan', markersize=4, markeredgecolor='white', markeredgewidth=0.5)
-        
+
         ax.set_title(f'Flow Evolution (Timestep {frame})')
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
         return ax.images,
-    
+
     ani = FuncAnimation(fig, update, frames=len(rho_history), interval=50, blit=False)
-    
+
     try:
         ani.save(output_path, writer='pillow')
         print(f"Animation saved to {output_path}")
     except Exception as e:
         print(f"Error saving animation: {e}")
-    
+
     plt.close(fig)
 
 
@@ -523,7 +599,8 @@ if __name__ == "__main__":
             for atom, density in sorted_atoms:
                 print(f"  {atom}: {density:.4f}")
 
-        create_flow_animation(rho_history, coords, args.grid, args.output)
+        grid_positions = spectral_to_grid_coords(coords, args.grid)
+        create_flow_animation(rho_history, grid_positions, args.grid, args.output)
         
         print(f"Final rho sum: {np.sum(rho_final):.6f}")
         print(f"Max velocity: {np.max(np.sqrt(u_x**2 + u_y**2)):.4f}")
