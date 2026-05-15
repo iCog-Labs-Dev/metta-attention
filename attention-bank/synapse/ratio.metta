@@ -91,10 +91,127 @@
     )
 )
 
-(= (identifyModules $state)
-    (py-call (community_detector.get_af_modules $state))
+(= (identifyModules $state $afLinks)
+    (py-call (community_detector.get_dynamic_modules $state $afLinks))
 )
 
+(= (getStiSeries $atom)
+    (let $res (collapse (match &self (StiHistory $atom $hist) $hist))
+        (if (== $res ())
+            (0.0)
+            (car-atom $res)
+        )
+    )
+)
+
+(= (updateAtomHistory $atom $newSti)
+    (let $oldHist (collapse (match &self (StiHistory $atom $hist) $hist))
+        (if (== $oldHist ())
+            (add-atom &self (StiHistory $atom ($newSti)))
+
+            (let $historyTuple (car-atom $oldHist)
+                (let $newHistory (cons-atom $newSti $historyTuple)
+                    (let $dummy (remove-atom &self (StiHistory $atom $historyTuple))
+                        (add-atom &self (StiHistory $atom $newHistory))
+                    )
+                )
+            )
+        )
+    )
+)
+
+(= (filterLinksByFlag () ()) ())
+(= (filterLinksByFlag (cons $link $ltail) (cons $flag $ftail))
+    (if (== $flag 1)
+        (cons $link (filterLinksByFlag $ltail $ftail))
+        (filterLinksByFlag $ltail $ftail)
+    )
+)
+
+(= (isSameModule $src $tgt $module)
+    (let* (
+        ($hasSrc (size-atom (intersection-atom $module ($src))))
+        ($hasTgt (size-atom (intersection-atom $module ($tgt))))
+    )
+    (if (and (> $hasSrc 0) (> $hasTgt 0)) 1 0)
+    )
+)
+
+(= (getLinkSource (ASYMMETRIC_HEBBIAN_LINK $src $tgt)) $src)
+
+(= (isExternalLink $link $modules)
+    (let* (
+        ($src (getLinkSource $link))
+        ($tgt (getLinkTarget $link))
+        ($internalCount (foldl-atom (map-atom $modules $mod (isSameModule $src $tgt $mod)) 0 $acc $x (+ $acc $x))) ; TODO a function that takes an atom and retun its module can simplify this
+    )
+    (if (== $internalCount 0) 1 0) 
+    )
+)
+
+(= (zipMultiply $list1 $list2)
+    (if (or (== $list1 ()) (== $list2 ()))
+        ()
+        (let* (
+            ($h1 (car-atom $list1))
+            ($t1 (cdr-atom $list1))
+            ($h2 (car-atom $list2))
+            ($t2 (cdr-atom $list2))
+        )
+        (cons-atom (* $h1 $h2) (zipMultiply $t1 $t2))
+        )
+    )
+)
+
+(= (getProbability $link)
+    (getMean $link)
+)
+
+(= (pearsonCorrelationLists $listX $listY)
+    (let* (
+        ($sizeX (size-atom $listX))
+        ($sizeY (size-atom $listY))
+    )
+    (if (or (== $sizeX 0) (== $sizeY 0)) 
+        0.0
+        (let* (
+            ($meanX (averageList $listX))
+            ($meanY (averageList $listY))
+            
+            ($diffX (map-atom $listX $x (- $x $meanX)))
+            ($diffY (map-atom $listY $y (- $y $meanY)))
+            
+            ($covarTerms (zipMultiply $diffX $diffY))
+            ($covar (foldl-atom $covarTerms 0.0 $a $b (+ $a $b)))
+
+            ($varXTerms (map-atom $diffX $dx (* $dx $dx)))
+            ($varYTerms (map-atom $diffY $dy (* $dy $dy)))
+            ($varX (foldl-atom $varXTerms 0.0 $a $b (+ $a $b)))
+            ($varY (foldl-atom $varYTerms 0.0 $a $b (+ $a $b)))
+            ($varProd (* $varX $varY))
+            ($denominator (if (> $varProd 0) (sqrt-math $varProd) 0.0))
+        )
+        (if (> $denominator 0) (/ $covar $denominator) 0.0)
+        )
+    ))
+)
+
+(= (temporalConjunction $atomI $atomJ)
+    (let* (
+        ($stiI (getStiSeries $atomI))
+        ($stiJ (getStiSeries $atomJ))
+        ($multiplied (zipMultiply $stiI $stiJ))
+    )
+    (if (== $multiplied ()) 
+        0.0 
+        (averageList $multiplied)
+    )
+    )
+)
+
+(= (temporalConjunctionLink $link) 
+    (temporalConjunction (getLinkSource $link) (getLinkTarget $link))
+)
 
 (= (afResourceUsage)
     (let $allSize
@@ -213,23 +330,43 @@
     )
 )
 
+(= (stiProbablity $atomSti $allSti)
+    (let*
+        (
+            ($stiCount (car-atom (intersection-atom $allSti $atomSti)))
+            ($ratio (/ $stiCount (size-atom $allSti)))
+        )
+        $ratio
+    )
+)
+
+(= (shanon-entropy $stiDistribution)
+    (let*
+        (
+            ($probabilities
+                (map-atom $stiDistribution $atom (stiProbablity ($atom) $stiDistribution))
+            )
+            ($entropyTerms (map-atom $probabilities $p (entropyTerm $p)))
+            ($sumTerms (foldl-atom $entropyTerms 0 $acc $x (+ $acc $x)))
+        )
+        (* -1.0 $sumTerms)
+    )
+)
 
 (= (preallocationSpace)
-  (let* 
-     (
-        ($allAtoms (getAllAtomsWithBins))
-        ($totalAtoms (size-atom $allAtoms))
-        ($totalSti (getTotalSti $allAtoms 0))
-        ($probabilities (if (> $totalSti 0)
-            (map-atom $allAtoms $atom (/ (getSti $atom) $totalSti))
-            ()
-        ))
-        ($entropyTerms (map-atom $probabilities $p (entropyTerm $p)))
-        ($sumTerms (foldl-atom $entropyTerms 0 $acc $x (+ $acc $x)))
-        ($entropy (* -1.0 $sumTerms))
-        ($maxEntropy (if (> $totalAtoms 1) (log2-math $totalAtoms) 0.0))
-      )
-
+    (let* 
+        (
+            ($allAtoms (getAllAtomsWithBins))
+            ($totalAtoms (size-atom $allAtoms))
+            ($stiValues (map-atom $allAtoms $atom (getSti $atom)))
+            ($minSti (min-atom $stiValues))
+            ($shifted (map-atom $stiValues $val (- $val $minSti)))
+            ($tt (foldl-atom $shifted 0 $acc $x (+ $acc $x)))
+            ($total (if (== $tt 0.0) 1.0 $tt))
+            ($stiDistribution (map-atom $shifted $s (/ $s $total)))
+            ($entropy (shanon-entropy $stiDistribution))
+            ($maxEntropy (log2-math $totalAtoms))
+        )
         (if (> $maxEntropy 0)
             (/ $entropy $maxEntropy)
             0.0
@@ -250,43 +387,39 @@
     )
 )
 
-;; internal coherence for a single module
 (= (moduleInternalCoherence $moduleAtoms)
     (let*
-        (
-          ($moduleSize (size-atom $moduleAtoms))
-          ($allLinks (getHebLinks $moduleAtoms ()))
-          ($internalFlags (map-atom $allLinks $link (isInternalLink $link $moduleAtoms)))
-          ($internalCount (foldl-atom $internalFlags 0 $acc $x (+ $acc $x)))
+      (
+        ($allLinks (getHebLinks $moduleAtoms ()))
+        ($internalFlags (map-atom $allLinks $link (isInternalLink $link $moduleAtoms)))
+        ($internalLinks (filterLinksByFlag $allLinks $internalFlags))
 
-          ($maxLinks (* $moduleSize (- $moduleSize 1)))
-        )
-        (if (> $maxLinks 0) (/ $internalCount $maxLinks) 0.0)
+        ($linksProbs (map-atom $internalLinks getProbability))
+        ($conjunctions (map-atom $internalLinks temporalConjunctionLink))
+      )
+      (pearsonCorrelationLists $linksProbs $conjunctions)
     )
+
 )
 
 (= (globalCoordination $state)
     (let*
         (
-            ($modules (identifyModules $state))
-
+            ($afLinks (getAllHebLinks))
+            ($modules (identifyModules $state $afLinks))
             ($localCoherences (map-atom $modules $mod (moduleInternalCoherence $mod)))
             ($localCoherence (averageList $localCoherences))
-            ($allAtoms (getAllAtomsWithBins))
-            ($totalLinks (size-atom (getHebLinks $allAtoms ())))
-            
-            ($internalCounts (map-atom $modules $mod 
-                (foldl-atom (map-atom (getHebLinks $mod ()) $link (isInternalLink $link $mod)) 0 $acc $x (+ $acc $x))
-            ))
-            ($totalInternal (foldl-atom $internalCounts 0 $acc $x (+ $acc $x)))
 
-            ($totalExternal (- $totalLinks $totalInternal))
-            ($globalCoherence (if (> $totalLinks 0) (/ $totalExternal $totalLinks) 0.0))
+            ($interFlags (map-atom $afLinks $link (isExternalLink $link $modules)))
+            ($interLinks (filterLinksByFlag $afLinks $interFlags))
 
-            ($coordination (sqrt-math (* $localCoherence $globalCoherence)))
+            ($linkProbs (map-atom $interLinks getProbability))
+            ($conjunctions (map-atom $interLinks temporalConjunctionLink))
+            ($globalCoherence (pearsonCorrelationLists $linkProbs $conjunctions))
+
+            ($product (* $localCoherence $globalCoherence))
+            ($coordination (if (> $product 0) (sqrt-math $product) 0.0))
         )
         $coordination
     )
 )
-
-

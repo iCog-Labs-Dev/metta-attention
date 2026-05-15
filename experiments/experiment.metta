@@ -40,23 +40,17 @@
 
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 120.0)
-!(updateAttentionParam TARGET_STI 1000.0)
-!(updateAttentionParam TARGET_LTI 1000.0) 
-!(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
-!(updateAttentionParam LTI_FUNDS_BUFFER 1000.0) 
+!(updateAttentionParam MAX_AF_SIZE 70.0)
+!(updateAttentionParam TARGET_STI 90000.0)
+!(updateAttentionParam TARGET_LTI 90000.0) 
+!(updateAttentionParam STI_FUNDS_BUFFER 90000.0) 
+!(updateAttentionParam LTI_FUNDS_BUFFER 90000.0) 
 !(updateAttentionParam FUNDS_STI 100000.0) 
 !(updateAttentionParam FUNDS_LTI 100000.0) 
 !(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.8)
-!(updateAttentionParam TOPK 0.5)
-
-; !(updateAttentionParam STI_FUNDS_BUFFER 99900)
-; !(updateAttentionParam LTI_FUNDS_BUFFER 99900)
-; !(updateAttentionParam TARGET_STI 99900)
-; !(updateAttentionParam TARGET_LTI 99900)
-; !(updateAttentionParam AFRentFrequency 2.0)
-; !(updateAttentionParam MAX_AF_SIZE 12)
-
+!(updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.5)
+!(updateAttentionParam TOPK 0.8)
+!(updateAttentionParam AFRentFrequency 2.0)
 
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
@@ -76,11 +70,9 @@
                 ($pcorr (correlation))
                 ($modulation (selectionModulation))
                 ($gCoord (globalCoordination $currState))
+                ($coherance (moduleInternalCoherence $currState))
             )
-            (
-                (println! (retention $retentionValue))
-                (write_metrics_wrapper $counter $afResource $stiConc $linkDen $connRatio $stiEntropy $retentionValue $pcorr $modulation $gCoord)
-            )
+            (write_metrics_wrapper $counter $afResource $stiConc $linkDen $coherance $connRatio $stiEntropy $retentionValue $pcorr $modulation $gCoord)
         )
     )
 )
@@ -109,11 +101,20 @@
                             (getAfAtoms)
                             (add-atom &afsnap (currState $nextaf))
                         )
+                        
+                        (map-atom (getAfAtoms) $atom 
+                            (let $res (collapse (getSti $atom))
+                                (let $sti (if (== $res ()) 0.0 (car-atom $res))
+                                    (updateAtomHistory $atom $sti)
+                                )
+                            )
+                        )
+
                         (logCurrStateMetrics $counter)
                     )
                     (
                         (println! (agent not called))
-                        (write_metrics_wrapper $counter (afResourceUsage) (stiConcentration) (linkDensity) (connectionRatio) (preallocationSpace) "NaN" (correlation) (selectionModulation) (globalCoordination (getAfAtoms)))
+                        ; (write_metrics_wrapper $counter (afResourceUsage) (stiConcentration) (linkDensity) (moduleInternalCoherence (getAfAtoms)) (connectionRatio) (preallocationSpace) "NaN" (correlation) (selectionModulation) (globalCoordination (getAfAtoms)))
                     )
                 )
                 ; (py-call (time.sleep 5.0))

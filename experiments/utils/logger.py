@@ -129,7 +129,7 @@ def write_to_csv(afatoms):
     return ['wrote']
 
 
-def write_metrics_row(counter, af_resource, sti_concentration, link_density,
+def write_metrics_row(counter, af_resource, sti_concentration, link_density, coherance,
                       connection_ratio, normalized_sti_entropy, retention, p_correlation, modulation,
                       global_coordination):
     
@@ -146,6 +146,7 @@ def write_metrics_row(counter, af_resource, sti_concentration, link_density,
         "af_resource",
         "sti_concentration",
         "link_density",
+        "coherance",
         "connection_ratio",
         "normalized_sti_entropy",
         "retention",
@@ -160,6 +161,7 @@ def write_metrics_row(counter, af_resource, sti_concentration, link_density,
         str(af_resource),
         str(sti_concentration),
         str(link_density),
+        str(coherance),
         str(connection_ratio),
         str(normalized_sti_entropy),
         str(retention),
