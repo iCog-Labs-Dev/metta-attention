@@ -6,11 +6,9 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 MATPLOTLIB_AVAILABLE = True
 
-grid_size = 36
-N = grid_size * grid_size
 
 STATIC_STI = {
-    # 'dichloropropene' : 300,
+    'dichloropropene' : 300,
     'beanleafroller': 360,
     'dobsonfly': 292,
     'grasshopper': 352,
@@ -59,72 +57,12 @@ def build_adjacency_matrix(edges, nodes, make_symmetric=False):
         i, j = node_to_idx[src], node_to_idx[dst]
         matrix[i][j] = s1 * s2
         if make_symmetric:
-            existing = matrix[j][i]
-            matrix[j][i] = (s1 + existing) / 2
+            matrix[j][i] = matrix[i][j]
 
     return np.array(matrix, dtype=np.float64), node_to_idx
 
 
-def get_normalized_spectral_coordinates(matrix, nodes, q=0.1):
-    A = np.array(matrix, dtype=np.float64)
-    n = len(nodes)
-    
-    # 1. Symmetric Weight and Phase Matrices
-    W = 0.5 * (A + A.T)
-    Theta = 2 * np.pi * q * (A - A.T)
-    
-    # 2. Complex Hermitian Matrix
-    H = W * np.exp(1j * Theta) 
-    
-    # 3. Compute Degrees
-    degrees = np.sum(W, axis=1)
-    
-    # Prevent division by zero for completely isolated nodes
-    degrees[degrees == 0] = 1e-10 
-    
-    # 4. Construct Inverse Square Root Degree Matrix (D^{-1/2})
-    d_inv_sqrt = np.power(degrees, -0.5)
-    D_inv_sqrt = np.diag(d_inv_sqrt)
-    
-    # 5. Symmetric Normalized Magnetic Laplacian (L_sym = I - D^{-1/2} H D^{-1/2})
-    I = np.eye(n)
-    L_sym = I - (D_inv_sqrt @ H @ D_inv_sqrt)
-    
-    try:
-        # 6. Eigendecomposition
-        eigenvalues, eigenvectors = scipy.linalg.eigh(L_sym)
-        
-        # 7. Find the Eigen-gap (skip values practically equal to 0)
-        # We look for the first eigenvalue clearly greater than a tiny threshold
-        valid_idx = np.where(eigenvalues > 1e-5)[0]
-        
-        if len(valid_idx) == 0:
-            raise ValueError("All eigenvalues are zero. Graph is completely collapsed.")
-            
-        first_valid_idx = valid_idx[0]
-        
-        # 8. Extract Coordinates using the first non-trivial eigenvector
-        v1 = eigenvectors[:, first_valid_idx]
-        
-        # Re-normalize the coordinates back to the original node scale
-        # (Standard practice when using the Normalized Laplacian)
-        v1 = D_inv_sqrt @ v1
-        
-        coords = {}
-        for i, node in enumerate(nodes):
-            x = float(np.real(v1[i]))
-            y = float(np.imag(v1[i]))
-            coords[node] = (x, y)
-            
-    except Exception as e:
-        print(f"Eigendecomposition failed: {e}")
-        # Fallback layout
-        coords = {node: (float(np.cos(2 * np.pi * i / n)), float(np.sin(2 * np.pi * i / n))) 
-                  for i, node in enumerate(nodes)}
-        
-    return coords
-
-def get_spectral_coordinates_magnetic(matrix, nodes, q=0.8):
+def get_spectral_coordinates_magnetic(matrix, nodes, q=0.25):
     """
     Get 2D spectral coordinates using the Magnetic Laplacian for directed graphs.
     q: The 'magnetic charge' parameter (typically 0.1 to 0.25) controlling directional flow.
@@ -172,40 +110,7 @@ def get_spectral_coordinates_magnetic(matrix, nodes, q=0.8):
         
     return coords
 
-def get_spectral_coordinates_fft(matrix, nodes):
-    """Get spectral coordinates using eigendecomposition for better spread."""
-    A = matrix
-    n = len(nodes)
-    
-    try:
-        eigenvalues, eigenvectors = np.linalg.eig(A)
-        
-        eigenvalues = np.real(eigenvalues)
-        eigenvectors = np.real(eigenvectors)
-        
-        idx = np.argsort(np.abs(eigenvalues))[::-1]
-        
-        if len(idx) >= 3:
-            psi2 = eigenvectors[:, idx[1]]
-            psi3 = eigenvectors[:, idx[2]]
-        else:
-            psi2 = np.zeros(n)
-            psi3 = np.zeros(n)
-    except Exception:
-        psi2 = np.linspace(0, 2*np.pi, n)
-        psi3 = np.linspace(0, 2*np.pi, n)
-    
-    coords = {}
-    for i, node in enumerate(nodes):
-        x = float(psi2[i]) if i < len(psi2) else 0.0
-        y = float(psi3[i]) if i < len(psi3) else 0.0
-        
-        coords[node] = (float(x), float(y))
-    
-    return coords
-
-
-def map_density_to_atoms(rho, spectral_coords, grid_size, radius=2):
+def map_density_to_atoms(rho, spectral_coords, grid_size, radius=3):
     """Aggregates density in a local neighborhood for more robust node weights."""
     discrete_weights = {}
     
@@ -230,6 +135,7 @@ def map_density_to_atoms(rho, spectral_coords, grid_size, radius=2):
         
         discrete_weights[node] = local_density
     
+    print(f"discrete_weights {discrete_weights}")
     return discrete_weights
 
 
@@ -606,7 +512,7 @@ if __name__ == "__main__":
         print(f"Max velocity: {np.max(np.sqrt(u_x**2 + u_y**2)):.4f}")
         
     else:
-        rho_final, (u_x, u_y), coords, node_densities = compute_coordinates(
+        rho_final, (u_x, u_y), coords, node_densities, initial_node_densities = compute_coordinates(
             metta_path=args.input,
             grid_size=args.grid,
             num_steps=args.steps,
@@ -616,14 +522,14 @@ if __name__ == "__main__":
             target_cfl=args.cfl,
             sti_values=raw_sti
         )
-        
+
         print(f"Final rho sum: {np.sum(rho_final):.6f}")
         print(f"Max velocity: {np.max(np.sqrt(u_x**2 + u_y**2)):.4f}")
         print(f"Rho max: {np.max(rho_final):.6f}")
         print(f"Rho min: {np.min(rho_final):.6f}")
-        
+
         if args.debug:
-            print_atom_mapping(coords, raw_sti, node_densities, args.grid)
+            print_atom_mapping(coords, raw_sti, node_densities, args.grid, initial_node_densities)
         else:
             print(f"\nTop {args.top} atoms by density:")
             sorted_atoms = sorted(node_densities.items(), key=lambda x: x[1], reverse=True)[:args.top]
