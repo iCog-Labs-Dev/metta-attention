@@ -7,6 +7,11 @@
     (py-call (logger.write_metrics_row $counter $afResource $stiConcentration $linkDensity $coherance $connectionRatio $normalizedStiEntropy $retention $pCorrelation $modulation $globalCoordination))
 )
 
+
+(= (write_cip_wrapper $index $time $af_atoms $metrice)
+    (py-call (logger.write_cip_row $index $time $af_atoms $metrice))
+)
+
 (= (AFsnapshot $afAtoms)
     (if (== $afAtoms ())
         ()
