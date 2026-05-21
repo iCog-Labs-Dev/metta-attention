@@ -58,7 +58,7 @@
         ;   ( $_ ( record-cip-series ) ) record-cip series spece can be initialized here
           ($af (getAfAtoms))
           ($metrics (measure-all-metrics))
-          ($time (py-call (time.time)))
+          ($time (current-time))
           ($cip0 (CIPSnapshot 0 $time $af $metrics))
         )
         (add-atom &cipspace $cip0)
