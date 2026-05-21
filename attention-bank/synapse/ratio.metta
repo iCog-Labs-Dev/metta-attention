@@ -409,12 +409,3 @@
 
 ; persistent homology will be implemented here
 
-; what to do next
-
-; review the difference and point out problems
-  ; i dont think we need to filter links for coherance calcualtion (updated on the second document)
-  ; the update history of sti can be added inside getters and setter so it works for all kind of atoms(not only af atoms)(solved)
-  ; the sti series atoms implementation will be based on the amount of cip-series index value for all atoms
-
-; re implement cognitiveMaintenance with the new cip
-
