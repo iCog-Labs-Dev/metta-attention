@@ -177,3 +177,36 @@ def write_metrics_row(counter, af_resource, sti_concentration, link_density, coh
         writer.writerow(row)
 
     return ['wrote']
+
+
+
+def write_cip_row(index, time, af_atoms, metrices):
+    
+    # Append one metrics row per iteration to metrics.csv.
+
+    global START_LOGGER_FLAG, METRICS_PATH
+
+    if not START_LOGGER_FLAG or METRICS_PATH is None:
+        return ['not written']
+
+    header = [
+        "cip_index",
+        "timestamp",
+        "af_atoms",
+        "metrics",
+    ]
+
+    row = [
+        str(index),
+        str(time),
+        str(af_atoms),
+        str(metrices),
+    ]
+
+    with open(METRICS_PATH, 'a', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        if os.path.getsize(METRICS_PATH) == 0:
+            writer.writerow(header)
+        writer.writerow(row)
+
+    return ['wrote']
