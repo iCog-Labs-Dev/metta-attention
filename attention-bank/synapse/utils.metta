@@ -154,8 +154,6 @@
     (let* (
         ($stiI (getStiSeries $atomI))
         ($stiJ (getStiSeries $atomJ))
-        ($dum1 (println! $stiI))
-        ($dumJ (println! $stiJ))
         ($multiplied (zipMultiply $stiI $stiJ))
     )
     (if (== $multiplied ())
@@ -297,5 +295,44 @@
             ($sumTerms (foldl-atom $entropyTerms 0 $acc $x (+ $acc $x)))
         )
         (* -1.0 $sumTerms)
+    )
+)
+
+(= (getMetricValue ($name $val))
+    $val
+)
+
+(= (sumMetrics $list)
+     (if (== $list ())
+         0.0
+         (let*
+               (
+                    ($head (car-atom $list))
+                    ($tail (cdr-atom $list))
+               )
+               (+ (getMetricValue $head) (sumMetrics $tail))
+         )
+     )
+)
+
+(= (countMetrics $list)
+     (if (== $list ())
+         0
+         (let $tail (cdr-atom $list)
+              (+ 1 (countMetrics $tail))
+         )
+     )
+)
+
+(= (averageMetricScore $metric-list)
+    (let*
+        (
+            ($total (sumMetrics $metric-list))
+            ($count (countMetrics $metric-list))
+        )
+        (if (> $count 0)
+            (/ $total $count)
+            0.0
+        )
     )
 )

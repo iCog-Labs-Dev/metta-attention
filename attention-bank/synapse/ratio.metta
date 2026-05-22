@@ -189,6 +189,22 @@
     )
 )
 
+(= (getMetricsFromSnapshot (CIPSnapshot $index $time $af $metrics))
+     $metrics
+)
+
+(= (aggregateMetricDelta $baseline $current)
+    (let* (
+            ($baseMetrics (getMetricsFromSnapshot $baseline))
+            ($currMetrics (getMetricsFromSnapshot $current))
+            
+            ($baseScore (averageMetricScore $baseMetrics))
+            ($currScore (averageMetricScore $currMetrics))
+        )
+        (- $currScore $baseScore)
+    )
+)
+
 ; the implementation of Effectiveness and Redundance function will be here
 ; 
 
