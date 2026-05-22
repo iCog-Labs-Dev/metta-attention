@@ -86,20 +86,25 @@
             
                         (collapse (test-superpose &incident))
 
-                        (map-atom (getAfAtoms) $atom 
-                            (let $res (collapse (getSti $atom))
-                                (let $sti (if (== $res ()) 0.0 (car-atom $res))
-                                    (updateAtomHistory $atom $sti)
+                        (let $currentSnapShot (+ (get-lattest-cip-index) 1)
+                            (map-atom (getAfAtoms) $atom 
+                                (let $res (collapse (getSti $atom))
+                                    (let $sti (if (== $res ()) 0.0 (car-atom $res))
+                                        (updateAtomHistory $atom $sti $currentSnapShot)
+                                    )
                                 )
                             )
                         )
                     )
+
+                    (logcurrCip) 
+                    
                     (
                         (println! (continued to stimulate batched atoms ...))
                     )
                 )
                 ; (py-call (time.sleep 5.0))
-                (logcurrCip) 
+                ;; (logcurrCip) 
                 (insectPoisonReadExp $rest (+ $counter 1)))
         )
     )

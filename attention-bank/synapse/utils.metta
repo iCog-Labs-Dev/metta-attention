@@ -3,16 +3,36 @@
 
 ; ## Time Series
 
-(= (updateAtomHistory $atom $newSti)
-    (let $oldHist (collapse (match &self (StiHistory $atom $hist) $hist))
-        (if (== $oldHist ())
-            (add-atom &self (StiHistory $atom ($newSti)))
+(= (generate-zeros $count)
+     (if (<= $count 0)
+          ()
+          (cons-atom 0.0 (generate-zeros (- $count 1)))
+     )
+)
 
-            (let $historyTuple (car-atom $oldHist)
-                (let $newHistory (cons-atom $newSti $historyTuple)
-                    (let $dummy (remove-atom &self (StiHistory $atom $historyTuple))
-                        (add-atom &self (StiHistory $atom $newHistory))
-                    )
+(= (padExistingHistory $list $count)
+    (if (<= $count 0)
+        $list
+        (cons-atom 0.0 (padExistingHistory $list (- $count 1)))
+    )
+)
+
+(= (updateAtomHistory $atom $newSti $currentSnapshot)
+    (let $oldHist (collapse (match &stiSeries ($atom $hist) $hist))
+        (if (== $oldHist ())
+            (let $paddedHistory (cons-atom $newSti (generate-zeros (- $currentSnapshot 1)))
+               (add-atom &stiSeries ($atom $paddedHistory))
+            )
+            (let* (
+                    ($historyTuple (car-atom $oldHist))
+                    ($oldSize (size-atom $historyTuple))
+                    ($missingZeros (- (- $currentSnapshot 1) $oldSize))
+                    ($paddedOldHistory (padExistingHistory $historyTuple $missingZeros))
+                    ($newHistory (cons-atom $newSti $paddedOldHistory))
+                )
+                
+                (let $rem_atom (remove-atom &stiSeries ($atom $historyTuple))
+                    (add-atom &stiSeries ($atom $newHistory))
                 )
             )
         )
@@ -20,7 +40,7 @@
 )
 
 (= (getStiSeries $atom)
-    (let $res (collapse (match &self (StiHistory $atom $hist) $hist))
+    (let $res (collapse (match &stiSeries ($atom $hist) $hist))
         (if (== $res ())
             (0.0)
             (car-atom $res)
@@ -134,6 +154,8 @@
     (let* (
         ($stiI (getStiSeries $atomI))
         ($stiJ (getStiSeries $atomJ))
+        ($dum1 (println! $stiI))
+        ($dumJ (println! $stiJ))
         ($multiplied (zipMultiply $stiI $stiJ))
     )
     (if (== $multiplied ())
