@@ -205,8 +205,19 @@
     )
 )
 
-; the implementation of Effectiveness and Redundance function will be here
-; 
+; Attention Effectiveness
+(= (calculateEffectiveness $baseline $current)
+    (let* (
+            ($perfDelta (aggregateMetricDelta $baseline $current))
+            ($resourceCost (totalResourceCost))
+        )
+        (if (> $resourceCost 0)
+            (/ $perfDelta $resourceCost)
+            0.0
+        )
+    )
+)
+
 
 
 ; ## Minimal Viable Evaluation
