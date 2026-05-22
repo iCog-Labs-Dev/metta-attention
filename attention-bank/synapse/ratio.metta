@@ -2,18 +2,6 @@
 (= (afSnap) &afsnap)
 
 !(bind! &cipspace (new-space))
-!(bind! &stiSeries (new-space))
-
-
-; this function should be alligned with abel implementation
-(= (get-sti-series $atom)
-    (let $res (collapse (match &stiSeries ($atom $hist) $hist))
-        (if (== $res ())
-            ()
-            (car-atom $res)
-        )
-    )
-)
 
 ; ## CIP Records
 

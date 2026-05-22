@@ -142,13 +142,13 @@ class MetricsPlotter:
         "af_resource",
         "sti_concentration",
         "link_density",
-        "coherance",
         "connection_ratio",
-        "normalized_sti_entropy",
-        "retention",
-        "p_correlation",
+        "preallocation",
+        "cognitive_synergy",
         "modulation",
-        "global_coordination",
+        "coordination",
+        "context_retention",
+        "cognitive_maintenance",
     ]
     RESAMPLE_RULE = "15s"
 

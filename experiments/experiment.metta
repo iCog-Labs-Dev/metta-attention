@@ -87,11 +87,9 @@
             
                         (collapse (test-superpose &incident))
 
-                        (map-atom (getAfAtoms) $atom 
-                            (let $res (collapse (getSti $atom))
-                                (let $sti (if (== $res ()) 0.0 (car-atom $res))
-                                    (updateAtomHistory $atom $sti)
-                                )
+                        (map-atom (getAllAtomsWithBins) $atom 
+                            (let $res (getSti $atom)
+                                (updateAtomHistory $atom $res)
                             )
                         )
                     )

@@ -1,26 +1,26 @@
 !(import! &self "../../experiments/utils/community_detector.py")
+!(bind! &stiSeries (new-space))
 
 
 ; ## Time Series
 
 (= (updateAtomHistory $atom $newSti)
-    (let $oldHist (collapse (match &self (StiHistory $atom $hist) $hist))
+    (let $oldHist (collapse (match &stiSeries (StiHistory $atom $hist) $hist))
         (if (== $oldHist ())
-            (add-atom &self (StiHistory $atom ($newSti)))
-
+            (add-atom &stiSeries ($atom ($newSti)))
             (let $historyTuple (car-atom $oldHist)
                 (let $newHistory (cons-atom $newSti $historyTuple)
-                    (let $dummy (remove-atom &self (StiHistory $atom $historyTuple))
-                        (add-atom &self (StiHistory $atom $newHistory))
+                    (let $dummy (remove-atom &stiSeries ($atom $historyTuple))
+                        (add-atom &stiSeries ($atom $newHistory))
                     )
                 )
             )
         )
     )
 )
-
-(= (getStiSeries $atom)
-    (let $res (collapse (match &self (StiHistory $atom $hist) $hist))
+; this function should be alligned with abel implementation
+(= (get-sti-series $atom)
+    (let $res (collapse (match &stiSeries ($atom $hist) $hist))
         (if (== $res ())
             (0.0)
             (car-atom $res)

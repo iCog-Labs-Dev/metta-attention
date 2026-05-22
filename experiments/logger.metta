@@ -4,8 +4,8 @@
 )
 
 (= (write_metrics_wrapper 
-    $counter $time $af_atoms $afResource $stiConcentration $linkDensity $coherance 
-    $connectionRatio $normalizedStiEntropy $retention $pCorrelation $modulation $globalCoordination)
+    $counter $time $af_atoms $afResource $stiConcentration $linkDensity $connectionRatio 
+    $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance)
     (py-call (logger.write_metrics_row 
                 $counter 
                 $time 
@@ -13,13 +13,13 @@
                 $afResource 
                 $stiConcentration 
                 $linkDensity 
-                $coherance 
                 $connectionRatio 
-                $normalizedStiEntropy 
-                $retention 
-                $pCorrelation 
+                $preallocation 
+                $cognitiveSynergy 
                 $modulation 
-                $globalCoordination)
+                $coordination 
+                $contextRetention 
+                $cognitiveMaintenance)
     )
 )
 

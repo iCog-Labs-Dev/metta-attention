@@ -146,13 +146,13 @@ def write_metrics_row(counter, time, af_atoms,af_resource, sti_concentration, li
         "af_resource",
         "sti_concentration",
         "link_density",
-        "coherance",
         "connection_ratio",
-        "normalized_sti_entropy",
-        "retention",
-        "p_correlation",
+        "preallocation",
+        "cognitive_synergy",
         "modulation",
-        "global_coordination",
+        "coordination",
+        "context_retention",
+        "cognitive_maintenance",
         "af_atoms",
     ]
 
