@@ -218,8 +218,23 @@
     )
 )
 
-
-
+(: redundancyDegradation (-> CIPSnapshot CIPSnapshot (List Atom) PerformanceReport))
+(= (redundancyDegradation $cipPrev $cipCurr $redundantCopies)
+    (let* (
+            ($baselinePerf (aggregateMetricDelta $cipPrev $cipCurr))
+            ($baselineCost (totalResourceCost))
+            
+            ($_ (addAtomsToSpace $redundantCopies))
+            ($degradedCip (transition-to-next-cip))
+            ($degradedPerf (aggregateMetricDelta $cipPrev $degradedCip))
+            ($overhead (- (totalResourceCost) $baselineCost))
+            ($degradationRate (if (> $overhead 0.0) 
+                                   (/ (- $baselinePerf $degradedPerf) $overhead) 
+                                   0.0))
+        )
+        (PerformanceReport redundancyImpact $degradationRate)
+    )
+)
 ; ## Minimal Viable Evaluation
 
 ; AF coherence : me asure- cohere nce restricted to current AF members
