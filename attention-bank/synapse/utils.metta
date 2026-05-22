@@ -132,8 +132,8 @@
 
 (= (temporalConjunction $atomI $atomJ)
     (let* (
-        ($stiI (getStiSeries $atomI))
-        ($stiJ (getStiSeries $atomJ))
+        ($stiI (get-sti-series $atomI))
+        ($stiJ (get-sti-series $atomJ))
         ($multiplied (zipMultiply $stiI $stiJ))
     )
     (if (== $multiplied ())
@@ -227,32 +227,35 @@
 
 
 (= (pearsonCorrelationLists $listX $listY)
-    (let* (
-        ($sizeX (size-atom $listX))
-        ($sizeY (size-atom $listY))
+    (let* 
+        (
+            ($sizeX (size-atom $listX))
+            ($sizeY (size-atom $listY))
+        )
+        (if (or (== $sizeX 0) (== $sizeY 0))
+            0.0
+            (let* 
+                (
+                    ($meanX (averageList $listX))
+                    ($meanY (averageList $listY))
+
+                    ($diffX (map-atom $listX $x (- $x $meanX)))
+                    ($diffY (map-atom $listY $y (- $y $meanY)))
+
+                    ($covarTerms (zipMultiply $diffX $diffY))
+                    ($covar (foldl-atom $covarTerms 0.0 $a $b (+ $a $b)))
+
+                    ($varXTerms (map-atom $diffX $dx (* $dx $dx)))
+                    ($varYTerms (map-atom $diffY $dy (* $dy $dy)))
+                    ($varX (foldl-atom $varXTerms 0.0 $a $b (+ $a $b)))
+                    ($varY (foldl-atom $varYTerms 0.0 $a $b (+ $a $b)))
+                    ($varProd (* $varX $varY))
+                    ($denominator (if (> $varProd 0) (sqrt-math $varProd) 0.0))
+                )
+                (if (> $denominator 0) (/ $covar $denominator) 0.0)
+            )
+        )
     )
-    (if (or (== $sizeX 0) (== $sizeY 0))
-        0.0
-        (let* (
-            ($meanX (averageList $listX))
-            ($meanY (averageList $listY))
-
-            ($diffX (map-atom $listX $x (- $x $meanX)))
-            ($diffY (map-atom $listY $y (- $y $meanY)))
-
-            ($covarTerms (zipMultiply $diffX $diffY))
-            ($covar (foldl-atom $covarTerms 0.0 $a $b (+ $a $b)))
-
-            ($varXTerms (map-atom $diffX $dx (* $dx $dx)))
-            ($varYTerms (map-atom $diffY $dy (* $dy $dy)))
-            ($varX (foldl-atom $varXTerms 0.0 $a $b (+ $a $b)))
-            ($varY (foldl-atom $varYTerms 0.0 $a $b (+ $a $b)))
-            ($varProd (* $varX $varY))
-            ($denominator (if (> $varProd 0) (sqrt-math $varProd) 0.0))
-        )
-        (if (> $denominator 0) (/ $covar $denominator) 0.0)
-        )
-    ))
 )
 
 (= (stiProbablity $atomSti $allSti)
