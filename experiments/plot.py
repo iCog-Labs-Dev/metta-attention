@@ -68,8 +68,8 @@ class Plotter:
         csv = self.output_path / 'output' / 'output.csv'
         df = pd.read_csv(csv, parse_dates=['timestamp'])
         words = df['pattern'].astype(str).str.extract(r'^\(?([^\s()]+)', expand=False)
-        df['category'] = words.map(self.word_to_category).fillna('Entered through spreading')
-        df['time_windows'] = df['timestamp'].dt.floor('0.0001s')
+        df.loc[:, 'category'] = words.map(self.word_to_category).fillna('Entered through spreading')
+        df.loc[:, 'time_windows'] = df['timestamp'].dt.floor('0.0001s')
         category_counts = df.groupby(['time_windows', 'category']).size().unstack(fill_value=0)
         af_size = int(float(self.params['MAX_AF_SIZE']))
         return category_counts / af_size
@@ -173,10 +173,11 @@ class MetricsPlotter:
             return json.load(f)
 
     def read_metrics_csv(self) -> pd.DataFrame:
-        df = pd.read_csv(self.metrics_path, parse_dates=["timestamp"])
+        df = pd.read_csv(self.metrics_path)
+        df.insert(0, "timestamp", pd.to_datetime(df.pop("timestamp"), unit="s"))
         for column in self.METRIC_COLUMNS + ["counter"]:
             if column in df.columns:
-                df[column] = pd.to_numeric(df[column], errors="coerce")
+                df.loc[:, column] = pd.to_numeric(df[column], errors="coerce")
 
         available = [column for column in self.METRIC_COLUMNS if column in df.columns]
         if not available:
@@ -242,7 +243,7 @@ class MetricsPlotter:
                 axs[idx].grid(True, linestyle="--", alpha=0.35)
                 continue
 
-            series[metric] = series[metric].rolling(window=3, min_periods=1).mean()
+            series.loc[:, metric] = series[metric].rolling(window=3, min_periods=1).mean()
             axs[idx].plot(
                 series[x_axis],
                 series[metric],
@@ -277,7 +278,7 @@ class MetricsPlotter:
                 series = grouped[[x_axis, metric]].dropna(subset=[metric]).copy()
                 if series.empty:
                     continue
-                series[metric] = series[metric].rolling(window=3, min_periods=1).mean()
+                series.loc[:, metric] = series[metric].rolling(window=3, min_periods=1).mean()
                 series = series.rename(columns={metric: "Value"})
                 series["Metric"] = metric
                 long_frames.append(series[[x_axis, "Metric", "Value"]])

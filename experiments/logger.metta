@@ -3,8 +3,24 @@
         (py-call (logger.write_to_csv $afAtoms))
 )
 
-(= (write_metrics_wrapper $counter $afResource $stiConcentration $linkDensity $coherance $connectionRatio $normalizedStiEntropy $retention $pCorrelation $modulation $globalCoordination)
-    (py-call (logger.write_metrics_row $counter $afResource $stiConcentration $linkDensity $coherance $connectionRatio $normalizedStiEntropy $retention $pCorrelation $modulation $globalCoordination))
+(= (write_metrics_wrapper 
+    $counter $time $af_atoms $afResource $stiConcentration $linkDensity $coherance 
+    $connectionRatio $normalizedStiEntropy $retention $pCorrelation $modulation $globalCoordination)
+    (py-call (logger.write_metrics_row 
+                $counter 
+                $time 
+                $af_atoms 
+                $afResource 
+                $stiConcentration 
+                $linkDensity 
+                $coherance 
+                $connectionRatio 
+                $normalizedStiEntropy 
+                $retention 
+                $pCorrelation 
+                $modulation 
+                $globalCoordination)
+    )
 )
 
 
