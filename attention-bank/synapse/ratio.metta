@@ -170,6 +170,25 @@
 
 ; ## Effectiveness Calculation
 
+(= (weight-afRatio) 0.4)  
+(= (weight-stiRatio) 0.3)  
+(= (weight-densityRatio) 0.3)
+
+(= (totalResourceCost)
+    (let* ( 
+            ($afRatio (afResourceUsage))
+            ($stiRatio (stiConcentration))
+            ($densityRatio (linkDensity))
+
+            ($costAf (* $afRatio (weight-afRatio)))
+            ($costSti (* $stiRatio (weight-stiRatio)))
+            ($costLink (* $densityRatio (weight-densityRatio)))
+        ) 
+        
+        (+ (+ $costAf $costSti) $costLink)
+    )
+)
+
 ; the implementation of Effectiveness and Redundance function will be here
 ; 
 
