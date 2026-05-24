@@ -41,7 +41,7 @@
 
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 70.0)
+!(updateAttentionParam MAX_AF_SIZE 10.0)
 !(updateAttentionParam TARGET_STI 90000.0)
 !(updateAttentionParam TARGET_LTI 90000.0) 
 !(updateAttentionParam STI_FUNDS_BUFFER 90000.0) 
@@ -65,6 +65,20 @@
                 ((CIPSnapshot $index $time $af_atoms $metrice) $cip)
         )
         (write_cip_wrapper $index $time $af_atoms $metrice)
+    )
+)
+
+(= (logBatchEffectiveness)
+    (let* (
+            ($currIndex (get-lattest-cip-index))
+            ($prevIndex (- $currIndex 1))
+            ($safePrev (if (< $prevIndex 0) 0 $prevIndex))
+            ($currSnap (get-cip-snapshots $currIndex))
+            ($prevSnap (get-cip-snapshots $safePrev))
+            
+            ($batchEff (calculateEffectiveness $prevSnap $currSnap))
+        )
+        (println! (=== Batch Effectiveness: $batchEff ===))
     )
 )
 
@@ -98,6 +112,7 @@
                     )
 
                     (logcurrCip) 
+                    (logBatchEffectiveness)
                     
                     (
                         (println! (continued to stimulate batched atoms ...))
@@ -110,5 +125,35 @@
     )
 )
 
+!(bind! &baselinePrevSnap (new-state ()))
+!(let $snap (get-cip-snapshots (get-lattest-cip-index)) (change-state! &baselinePrevSnap $snap))
+
 !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
+
+!(bind! &baselineCurrSnap (new-state ()))
+!(let $snap (get-cip-snapshots (get-lattest-cip-index)) (change-state! &baselineCurrSnap $snap))
+
+!(let $eff (calculateEffectiveness (get-state &baselinePrevSnap) (get-state &baselineCurrSnap))
+    (println! (=== Baseline Effectiveness: $eff ===))
+)
+
+!(updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.8)
+
+!(bind! &optPrevSnap (new-state ()))
+!(let $snap (get-cip-snapshots (get-lattest-cip-index)) (change-state! &optPrevSnap $snap))
+
+!(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
+
+!(bind! &optCurrSnap (new-state ()))
+!(let $snap (get-cip-snapshots (get-lattest-cip-index)) (change-state! &optCurrSnap $snap))
+
+!(let $efficiency (gainedEfficiency (get-state &baselinePrevSnap) (get-state &baselineCurrSnap) (get-state &optPrevSnap) (get-state &optCurrSnap))
+    (println! (Gained Efficiency: $efficiency))
+)
+
+!(bind! &junkAtoms ((Concept "Junk1") (Concept "Junk2") (Concept "Junk3")))
+!(let $report (redundancyDegradation (get-state &optPrevSnap) (get-state &optCurrSnap) ((Concept "Junk1") (Concept "Junk2") (Concept "Junk3")))
+    (println! (Redundancy Degradation Report: $report))
+)
+
 

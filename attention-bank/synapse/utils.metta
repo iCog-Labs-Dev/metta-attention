@@ -336,3 +336,16 @@
         )
     )
 )
+
+(= (addAtomsToSpace $list)
+    (if (== $list ())
+        ()
+        (let* (
+                ($head (car-atom $list))
+                ($tail (cdr-atom $list))
+                ($_ (add-atom &incident $head))
+            )
+            (addAtomsToSpace $tail)
+        )
+    )
+)

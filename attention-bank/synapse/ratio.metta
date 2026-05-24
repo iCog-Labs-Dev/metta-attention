@@ -218,7 +218,7 @@
     )
 )
 
-(: redundancyDegradation (-> CIPSnapshot CIPSnapshot (List Atom) PerformanceReport))
+; (: redundancyDegradation (-> CIPSnapshot CIPSnapshot (List Atom) PerformanceReport))
 (= (redundancyDegradation $cipPrev $cipCurr $redundantCopies)
     (let* (
             ($baselinePerf (aggregateMetricDelta $cipPrev $cipCurr))
@@ -460,7 +460,7 @@
 
 ; ## PHASE IV: Benchmarking
 
-(: gainedEfficiency (-> CIPSnapshot CIPSnapshot CIPSnapshot CIPSnapshot Number))
+; (: gainedEfficiency (-> CIPSnapshot CIPSnapshot CIPSnapshot CIPSnapshot Number))
 (= (gainedEfficiency $basePrev $baseCurr $optPrev $optCurr)
     (let* (
             ($baselineEff (calculateEffectiveness $basePrev $baseCurr))
