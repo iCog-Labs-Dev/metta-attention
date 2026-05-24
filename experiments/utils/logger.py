@@ -180,8 +180,8 @@ def write_metrics_row(counter, af_resource, sti_concentration, link_density, coh
 
 
 
-def write_cip_row(index, time, af_atoms, metrices):
-    
+def write_cip_row(index, time, af_atoms, metrices, batch_effectiveness=0.0):
+
     # Append one metrics row per iteration to metrics.csv.
 
     global START_LOGGER_FLAG, METRICS_PATH
@@ -194,6 +194,7 @@ def write_cip_row(index, time, af_atoms, metrices):
         "timestamp",
         "af_atoms",
         "metrics",
+        "batch_effectiveness",
     ]
 
     row = [
@@ -201,6 +202,7 @@ def write_cip_row(index, time, af_atoms, metrices):
         str(time),
         str(af_atoms),
         str(metrices),
+        f"effectiveness: {batch_effectiveness}",
     ]
 
     with open(METRICS_PATH, 'a', newline='', encoding='utf-8') as file:

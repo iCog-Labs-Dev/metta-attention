@@ -324,11 +324,21 @@
      )
 )
 
-(= (averageMetricScore $metric-list)
-    (let*
-        (
-            ($total (sumMetrics $metric-list))
-            ($count (countMetrics $metric-list))
+(= (dropCosts $list)
+    (let* (
+            ($tail1 (cdr-atom $list))
+            ($tail2 (cdr-atom $tail1))
+            ($performanceMetrics (cdr-atom $tail2))
+        )
+        $performanceMetrics
+    )
+)
+
+(= (averageMetricScore $full-metric-list)
+    (let* (
+            ($perf-list (dropCosts $full-metric-list))
+            ($total (sumMetrics $perf-list))
+            ($count (countMetrics $perf-list))
         )
         (if (> $count 0)
             (/ $total $count)

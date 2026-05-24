@@ -4,7 +4,8 @@
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
 !(import! &self lib/lib_he)
-!(static-import! &incident ./data/kg)
+;!(static-import! &incident ./data/kg)
+!(import! &incident ./data/kg-mini)
 ; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 !(import! &self ../attention/AttentionParam)
@@ -48,10 +49,10 @@
 !(updateAttentionParam LTI_FUNDS_BUFFER 90000.0) 
 !(updateAttentionParam FUNDS_STI 100000.0) 
 !(updateAttentionParam FUNDS_LTI 100000.0) 
-!(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.8)
-!(updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.5)
-!(updateAttentionParam TOPK 0.8)
-!(updateAttentionParam AFRentFrequency 2.0)
+!(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.25)
+!(updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.75)
+!(updateAttentionParam TOPK 0.4)
+!(updateAttentionParam AFRentFrequency 0.5)
 
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
@@ -59,28 +60,32 @@
 
 !(initialize-baseline-cip)
 
-(= (logcurrCip) 
+(= (logcurrCip)
         (let* (
+                ($currIndex (get-lattest-cip-index))
+                ($prevIndex (if (< (- $currIndex 1) 0) 0 (- $currIndex 1)))
+                ($cipPrev (get-cip-snapshots $prevIndex))
                 ($cip (transition-to-next-cip))
+                ($eff (calculateEffectiveness $cipPrev $cip))
                 ((CIPSnapshot $index $time $af_atoms $metrice) $cip)
         )
-        (write_cip_wrapper $index $time $af_atoms $metrice)
+        (write_cip_wrapper $index $time $af_atoms $metrice $eff)
     )
 )
 
-(= (logBatchEffectiveness)
-    (let* (
-            ($currIndex (get-lattest-cip-index))
-            ($prevIndex (- $currIndex 1))
-            ($safePrev (if (< $prevIndex 0) 0 $prevIndex))
-            ($currSnap (get-cip-snapshots $currIndex))
-            ($prevSnap (get-cip-snapshots $safePrev))
-            
-            ($batchEff (calculateEffectiveness $prevSnap $currSnap))
-        )
-        (println! (=== Batch Effectiveness: $batchEff ===))
-    )
-)
+;(= (logBatchEffectiveness)
+;    (let* (
+;            ($currIndex (get-lattest-cip-index))
+;            ($prevIndex (- $currIndex 1))
+;            ($safePrev (if (< $prevIndex 0) 0 $prevIndex))
+;            ($currSnap (get-cip-snapshots $currIndex))
+;            ($prevSnap (get-cip-snapshots $safePrev))
+;            
+;            ($batchEff (calculateEffectiveness $prevSnap $currSnap))
+;        )
+;        (println! (=== Batch Effectiveness: $batchEff ===))
+;    )
+;)
 
 (= (batch) 10)
 (= (insectPoisonReadExp $expr $counter)
@@ -112,7 +117,7 @@
                     )
 
                     (logcurrCip) 
-                    (logBatchEffectiveness)
+                    ;(logBatchEffectiveness)
                     
                     (
                         (println! (continued to stimulate batched atoms ...))
