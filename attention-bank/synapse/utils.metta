@@ -354,8 +354,23 @@
                 ($head (car-atom $list))
                 ($tail (cdr-atom $list))
                 ($_ (add-atom &incident $head))
+                ($_ (setAv $head (0.0 0.0 0.0)))
             )
             (addAtomsToSpace $tail)
         )
+    )
+)
+
+(= (wipeEngineMemory)
+    (let* (
+            ($_ (collapse (match &incident $x (remove-atom &incident $x))))
+            ($_ (collapse (match &stiSeries $x (remove-atom &stiSeries $x))))
+            
+            ($_ (collapse (match &self ($atom (AV $s $l $v)) (remove-atom &self ($atom (AV $s $l $v))))))
+            
+            ($_ (collapse (match &self ((ASYMMETRIC_HEBBIAN_LINK $a $b) $val) (remove-atom &self ((ASYMMETRIC_HEBBIAN_LINK $a $b) $val)))))
+            ($_ (collapse (match &self (ASYMMETRIC_HEBBIAN_LINK $a $b) (remove-atom &self (ASYMMETRIC_HEBBIAN_LINK $a $b)))))
+        )
+        (empty)
     )
 )

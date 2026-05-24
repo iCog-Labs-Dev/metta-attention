@@ -87,7 +87,7 @@
 ;    )
 ;)
 
-(= (batch) 10)
+(= (batch) 30)
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (empty)
@@ -138,11 +138,14 @@
 !(bind! &baselineCurrSnap (new-state ()))
 !(let $snap (get-cip-snapshots (get-lattest-cip-index)) (change-state! &baselineCurrSnap $snap))
 
-!(let $eff (calculateEffectiveness (get-state &baselinePrevSnap) (get-state &baselineCurrSnap))
-    (println! (=== Baseline Effectiveness: $eff ===))
-)
 
 !(updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.8)
+;!(updateAttentionParam MAX_AF_SIZE 30.0)
+
+!(wipeEngineMemory)
+
+!(import! &incident ./data/kg-mini)
+!(import! &incident ./data/insect-sent.metta)
 
 !(bind! &optPrevSnap (new-state ()))
 !(let $snap (get-cip-snapshots (get-lattest-cip-index)) (change-state! &optPrevSnap $snap))
@@ -151,6 +154,14 @@
 
 !(bind! &optCurrSnap (new-state ()))
 !(let $snap (get-cip-snapshots (get-lattest-cip-index)) (change-state! &optCurrSnap $snap))
+
+!(let $eff (calculateEffectiveness (get-state &baselinePrevSnap) (get-state &baselineCurrSnap))
+    (println! (=== Baseline Effectiveness: $eff ===))
+)
+
+!(let $eff (calculateEffectiveness (get-state &optPrevSnap) (get-state &optCurrSnap))
+    (println! (=== Optimized Effectiveness: $eff ===))
+)
 
 !(let $efficiency (gainedEfficiency (get-state &baselinePrevSnap) (get-state &baselineCurrSnap) (get-state &optPrevSnap) (get-state &optCurrSnap))
     (println! (Gained Efficiency: $efficiency))
