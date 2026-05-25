@@ -83,19 +83,8 @@
                 (stimulate $now 30)
                 (println! (stimulating atom --> $now))
                 (if (or (== (% $counter (batch)) 0) (== $rest ()))
-                    (
-            
-                        (collapse (test-superpose &incident))
-
-                        (map-atom (getAllAtomsWithBins) $atom 
-                            (let $res (getSti $atom)
-                                (updateAtomHistory $atom $res)
-                            )
-                        )
-                    )
-                    (
-                        (println! (continued to stimulate batched atoms ...))
-                    )
+                    (collapse (test-superpose &incident))
+                    (println! (continued to stimulate batched atoms ...))
                 )
                 ; (py-call (time.sleep 5.0))
                 (logcurrCip) 

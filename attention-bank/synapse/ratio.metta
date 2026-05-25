@@ -61,7 +61,7 @@
 (= (initialize-baseline-cip)
    (let*
       (
-        ;   ( $_ ( record-cip-series ) ) record-cip series spece can be initialized here
+          ($stiSeries (recordCipSeries)) ;; record-cip series spece can be initialized here
           ($af (getAfAtoms))
           ($metrics (measure-all-metrics))
           ($time (current-time))
@@ -113,7 +113,7 @@
 (= (transition-to-next-cip)
     (let*
       (
-        ;  ( $_ (record-cip-series) ) the final function that help us to track atoms sti history will be called here.
+         ($stiSeries (recordCipSeries))
          ($update (updateMaxIndex))
          ($index (get-lattest-cip-index))
          ($newIndex (+ $index 1))

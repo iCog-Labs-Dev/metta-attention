@@ -18,6 +18,7 @@
         )
     )
 )
+
 ; this function should be alligned with abel implementation
 (= (get-sti-series $atom)
     (let $res (collapse (match &stiSeries ($atom $hist) $hist))
@@ -25,6 +26,14 @@
             (0.0)
             (car-atom $res)
         )
+    )
+)
+
+(= (recordCipSeries)
+    (map-atom
+        (getAllAtomsWithBins)
+        $atom
+        (updateAtomHistory $atom (getSti $atom))
     )
 )
 
