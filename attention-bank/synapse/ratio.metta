@@ -52,6 +52,7 @@
 )))
 
 
+; CIP: Cognitive Integration Periods
 (= (initialize-baseline-cip)
    (let*
       (
