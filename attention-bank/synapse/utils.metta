@@ -4,15 +4,36 @@
 
 ; ## Time Series
 
-(= (updateAtomHistory $atom $newSti)
-    (let $oldHist (collapse (match &stiSeries (StiHistory $atom $hist) $hist))
+(= (generate-zeros $count)
+     (if (<= $count 0)
+          ()
+          (cons-atom 0.0 (generate-zeros (- $count 1)))
+     )
+)
+
+(= (padExistingHistory $list $count)
+    (if (<= $count 0)
+        $list
+        (cons-atom 0.0 (padExistingHistory $list (- $count 1)))
+    )
+)
+
+(= (updateAtomHistory $atom $newSti $currentSnapshot)
+    (let $oldHist (collapse (match &stiSeries ($atom $hist) $hist))
         (if (== $oldHist ())
-            (add-atom &stiSeries ($atom ($newSti)))
-            (let $historyTuple (car-atom $oldHist)
-                (let $newHistory (cons-atom $newSti $historyTuple)
-                    (let $dummy (remove-atom &stiSeries ($atom $historyTuple))
-                        (add-atom &stiSeries ($atom $newHistory))
-                    )
+            (let $paddedHistory (cons-atom $newSti (generate-zeros (- $currentSnapshot 1)))
+               (add-atom &stiSeries ($atom $paddedHistory))
+            )
+            (let* (
+                    ($historyTuple (car-atom $oldHist))
+                    ($oldSize (size-atom $historyTuple))
+                    ($missingZeros (- (- $currentSnapshot 1) $oldSize))
+                    ($paddedOldHistory (padExistingHistory $historyTuple $missingZeros))
+                    ($newHistory (cons-atom $newSti $paddedOldHistory))
+                )
+                
+                (let $rem_atom (remove-atom &stiSeries ($atom $historyTuple))
+                    (add-atom &stiSeries ($atom $newHistory))
                 )
             )
         )
@@ -30,10 +51,18 @@
 )
 
 (= (recordCipSeries)
-    (map-atom
-        (getAllAtomsWithBins)
-        $atom
-        (updateAtomHistory $atom (getSti $atom))
+    (let* (
+        ($indexMatch (collapse (match &cipspace (maxIndex $i) $i))) ;; not using get-lattest-cip-index to prevent circular dependency with ratio
+        ($safeIndex (if (== $indexMatch ()) 0 (car-atom $indexMatch)))
+        ($currentSnapShot (+ $safeIndex 1))
+    )
+        (map-atom (getAllAtomsWithBins) $atom 
+            (let $res (collapse (getSti $atom))
+                (let $sti (if (== $res ()) 0.0 (car-atom $res))
+                    (updateAtomHistory $atom $sti $currentSnapShot)
+                )
+            )
+        )
     )
 )
 
