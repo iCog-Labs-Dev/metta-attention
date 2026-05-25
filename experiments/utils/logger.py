@@ -156,7 +156,6 @@ def write_metrics_row(counter, time, af_atoms,af_resource, sti_concentration, li
         "af_atoms",
     ]
 
-    print(f"af_resource {af_resource[1]} {type(counter)}")
     row = [
         str(counter),
         str(time),
