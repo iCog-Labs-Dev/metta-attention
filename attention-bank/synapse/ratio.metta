@@ -61,12 +61,12 @@
 (= (initialize-baseline-cip)
    (let*
       (
-          ($stiSeries (recordCipSeries)) ;; record-cip series spece can be initialized here
           ($af (getAfAtoms))
           ($metrics (measure-all-metrics))
           ($time (current-time))
           ($cip0 (CIPSnapshot 0 $time $af $metrics))
           ($_ (add-atom &cipspace $cip0))
+          ($stiSeries (recordCipSeries))
         )
         $cip0 
    )
@@ -113,7 +113,6 @@
 (= (transition-to-next-cip)
     (let*
       (
-         ($stiSeries (recordCipSeries))
          ($update (updateMaxIndex))
          ($index (get-lattest-cip-index))
          ($newIndex (+ $index 1))
@@ -121,6 +120,7 @@
          ($metrics (measure-all-metrics))
          ($time (current-time))
          ($_ (add-atom &cipspace (CIPSnapshot $newIndex $time $af $metrics)))
+         ($stiSeries (recordCipSeries))
       )
       (CIPSnapshot
           $newIndex

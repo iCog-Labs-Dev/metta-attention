@@ -31,7 +31,6 @@
                     ($paddedOldHistory (padExistingHistory $historyTuple $missingZeros))
                     ($newHistory (cons-atom $newSti $paddedOldHistory))
                 )
-                
                 (let $rem_atom (remove-atom &stiSeries ($atom $historyTuple))
                     (add-atom &stiSeries ($atom $newHistory))
                 )
@@ -51,17 +50,16 @@
 )
 
 (= (recordCipSeries)
-    (let* (
-        ($indexMatch (collapse (match &cipspace (maxIndex $i) $i))) ;; not using get-lattest-cip-index to prevent circular dependency with ratio
-        ($safeIndex (if (== $indexMatch ()) 0 (car-atom $indexMatch)))
-        ($currentSnapShot (+ $safeIndex 1))
-    )
-        (map-atom (getAllAtomsWithBins) $atom 
-            (let $res (collapse (getSti $atom))
-                (let $sti (if (== $res ()) 0.0 (car-atom $res))
-                    (updateAtomHistory $atom $sti $currentSnapShot)
-                )
-            )
+    (let* 
+        (
+            ($indexMatch (collapse (match &cipspace (maxIndex $i) $i))) ;; not using get-lattest-cip-index to prevent circular dependency with ratio
+            ($safeIndex (if (== $indexMatch ()) 0 (car-atom $indexMatch)))
+            ($currentSnapShot (+ $safeIndex 1))
+        )
+        (map-atom 
+            (getAllAtomsWithBins) 
+            $atom 
+            (updateAtomHistory $atom (getSti $atom) $currentSnapShot)
         )
     )
 )
