@@ -216,6 +216,15 @@
     )
 )
 
+(: calculate-effectiveness (-> CIPSnapshot CIPSnapshot Number))
+(= (calculate-effectiveness $baseline $current)
+    (let* (
+            ($perf-delta (aggregateMetricDelta $baseline $current))
+            ($resource-cost (totalResourceCost))
+        )
+        (/ $perfDelta $resourceCost)
+    )
+)
 
 ; ## Minimal Viable Evaluation
 
