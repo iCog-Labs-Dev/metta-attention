@@ -63,8 +63,9 @@
         (let* (
                 ($cip (transition-to-next-cip))
                 ((CIPSnapshot $index $time $af_atoms $metrice) $cip)
+                (($afResource $stiConcentration $linkDensity $connectionRatio $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance) $metrice)
         )
-        (write_cip_wrapper $index $time $af_atoms $metrice)
+        (write_metrics_wrapper $index $time $af_atoms $afResource $stiConcentration $linkDensity $connectionRatio $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance)
     )
 )
 
@@ -82,21 +83,8 @@
                 (stimulate $now 30)
                 (println! (stimulating atom --> $now))
                 (if (or (== (% $counter (batch)) 0) (== $rest ()))
-                    (
-            
-                        (collapse (test-superpose &incident))
-
-                        (map-atom (getAfAtoms) $atom 
-                            (let $res (collapse (getSti $atom))
-                                (let $sti (if (== $res ()) 0.0 (car-atom $res))
-                                    (updateAtomHistory $atom $sti)
-                                )
-                            )
-                        )
-                    )
-                    (
-                        (println! (continued to stimulate batched atoms ...))
-                    )
+                    (collapse (test-superpose &incident))
+                    (println! (continued to stimulate batched atoms ...))
                 )
                 ; (py-call (time.sleep 5.0))
                 (logcurrCip) 

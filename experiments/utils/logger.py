@@ -129,7 +129,7 @@ def write_to_csv(afatoms):
     return ['wrote']
 
 
-def write_metrics_row(counter, af_resource, sti_concentration, link_density, coherance,
+def write_metrics_row(counter, time, af_atoms,af_resource, sti_concentration, link_density, coherance,
                       connection_ratio, normalized_sti_entropy, retention, p_correlation, modulation,
                       global_coordination):
     
@@ -141,33 +141,35 @@ def write_metrics_row(counter, af_resource, sti_concentration, link_density, coh
         return ['not written']
 
     header = [
-        "timestamp",
         "counter",
+        "timestamp",
         "af_resource",
         "sti_concentration",
         "link_density",
-        "coherance",
         "connection_ratio",
-        "normalized_sti_entropy",
-        "retention",
-        "p_correlation",
+        "preallocation",
+        "cognitive_synergy",
         "modulation",
-        "global_coordination",
+        "coordination",
+        "context_retention",
+        "cognitive_maintenance",
+        "af_atoms",
     ]
 
     row = [
-        str(datetime.now()),
         str(counter),
-        str(af_resource),
-        str(sti_concentration),
-        str(link_density),
-        str(coherance),
-        str(connection_ratio),
-        str(normalized_sti_entropy),
-        str(retention),
-        str(p_correlation),
-        str(modulation),
-        str(global_coordination),
+        str(time),
+        str(af_resource[1]),
+        str(sti_concentration[1]),
+        str(link_density[1]),
+        str(coherance[1]),
+        str(connection_ratio[1]),
+        str(normalized_sti_entropy[1]),
+        str(retention[1]),
+        str(p_correlation[1]),
+        str(modulation[1]),
+        str(global_coordination[1]),
+        str(af_atoms),
     ]
 
     with open(METRICS_PATH, 'a', newline='', encoding='utf-8') as file:

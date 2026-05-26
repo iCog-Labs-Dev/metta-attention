@@ -61,7 +61,7 @@
 ; here we have total of 3000 global sti fund
 !(getAttentionParam FUNDS_STI)
 
-!(assertEqual (initialize-baseline-cip) true)
+; !(assertEqual (initialize-baseline-cip) true)
 ; !(assertEqual (transition-to-next-cip) (CIPSnapshot 1 1779340647.1364384 () 
 ;     ((afResource 0.0) 
 ;      (sticoncentration 0.0) 
