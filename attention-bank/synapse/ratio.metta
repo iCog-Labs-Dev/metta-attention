@@ -181,15 +181,11 @@
 ; ## Effectiveness Calculation
 
 
-(= (weight-afRatio) 0.4)  
-(= (weight-stiRatio) 0.3)  
-(= (weight-densityRatio) 0.3)
-
-(= (totalResourceCost)
+(= (totalResourceCost $metrics)
     (let* ( 
-            ($afRatio (afResourceUsage))
-            ($stiRatio (stiConcentration))
-            ($densityRatio (linkDensity))
+            ($afRatio (getMetrics afResource $metrics))
+            ($stiRatio (getMetrics sticoncentration $metrics))
+            ($densityRatio (getMetrics linkdensity $metrics))
 
             ($costAf (* $afRatio (weight-afRatio)))
             ($costSti (* $stiRatio (weight-stiRatio)))
@@ -219,8 +215,9 @@
 (: calculate-effectiveness (-> CIPSnapshot CIPSnapshot Number))
 (= (calculate-effectiveness $baseline $current)
     (let* (
-            ($perf-delta (aggregateMetricDelta $baseline $current))
-            ($resource-cost (totalResourceCost))
+            ($currMetrics (getMetricsFromSnapshot $current))
+            ($perfDelta (aggregateMetricDelta $baseline $current))
+            ($resourceCost (totalResourceCost $currMetrics))
         )
         (/ $perfDelta $resourceCost)
     )

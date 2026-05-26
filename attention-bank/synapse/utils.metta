@@ -1,6 +1,9 @@
 !(import! &self "../../experiments/utils/community_detector.py")
 !(bind! &stiSeries (new-space))
 
+(= (weight-afRatio) 0.4)  
+(= (weight-stiRatio) 0.3)  
+(= (weight-densityRatio) 0.3)
 
 ; ## Time Series
 
@@ -319,6 +322,22 @@
 
 (= (getMetricValue ($name $val))
     $val
+)
+
+(= (getMetrics $name $list)
+    (if (== $list ())
+        0.0
+        (let* (
+                ($head (car-atom $list))
+                ($tail (cdr-atom $list))
+                (($mName $mVal) $head)
+            )
+            (if (== $mName $name)
+                $mVal
+                (getMetrics $name $tail)
+            )
+        )
+    )
 )
 
 (= (sumMetrics $list)
