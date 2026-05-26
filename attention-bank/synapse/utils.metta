@@ -316,3 +316,52 @@
         (* -1.0 $sumTerms)
     )
 )
+
+(= (getMetricValue ($name $val))
+    $val
+)
+
+(= (sumMetrics $list)
+     (if (== $list ())
+         0.0
+         (let*
+               (
+                    ($head (car-atom $list))
+                    ($tail (cdr-atom $list))
+               )
+               (+ (getMetricValue $head) (sumMetrics $tail))
+         )
+     )
+)
+
+(= (countMetrics $list)
+     (if (== $list ())
+         0
+         (let $tail (cdr-atom $list)
+              (+ 1 (countMetrics $tail))
+         )
+     )
+)
+
+(= (dropCosts $list)
+    (let* (
+            ($tail1 (cdr-atom $list))
+            ($tail2 (cdr-atom $tail1))
+            ($performanceMetrics (cdr-atom $tail2))
+        )
+        $performanceMetrics
+    )
+)
+
+(= (averageMetricScore $full-metric-list)
+    (let* (
+            ($perf-list (dropCosts $full-metric-list))
+            ($total (sumMetrics $perf-list))
+            ($count (countMetrics $perf-list))
+        )
+        (if (> $count 0)
+            (/ $total $count)
+            0.0
+        )
+    )
+)
