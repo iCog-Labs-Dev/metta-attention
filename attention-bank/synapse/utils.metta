@@ -324,13 +324,18 @@
     $val
 )
 
+(= (getMetricName ($name $val))
+    $name
+)
+
 (= (getMetrics $name $list)
     (if (== $list ())
         0.0
         (let* (
                 ($head (car-atom $list))
                 ($tail (cdr-atom $list))
-                (($mName $mVal) $head)
+                ($mName (getMetricName $head))
+                ($mVal (getMetricValue $head))
             )
             (if (== $mName $name)
                 $mVal

@@ -204,7 +204,6 @@
     (let* (
             ($baseMetrics (getMetricsFromSnapshot $baseline))
             ($currMetrics (getMetricsFromSnapshot $current))
-            
             ($baseScore (averageMetricScore $baseMetrics))
             ($currScore (averageMetricScore $currMetrics))
         )
@@ -212,14 +211,16 @@
     )
 )
 
-(: calculate-effectiveness (-> CIPSnapshot CIPSnapshot Number))
-(= (calculate-effectiveness $baseline $current)
+(= (calculateEffectiveness $baseline $current)
     (let* (
             ($currMetrics (getMetricsFromSnapshot $current))
             ($perfDelta (aggregateMetricDelta $baseline $current))
             ($resourceCost (totalResourceCost $currMetrics))
         )
-        (/ $perfDelta $resourceCost)
+        (if (> $resourceCost 0)
+            (/ $perfDelta $resourceCost)
+            0.0
+        )
     )
 )
 
