@@ -177,10 +177,44 @@
 )
 
 
+
 ; ## Effectiveness Calculation
 
-; the implementation of Effectiveness and Redundance function will be here
-; 
+
+(= (weight-afRatio) 0.4)  
+(= (weight-stiRatio) 0.3)  
+(= (weight-densityRatio) 0.3)
+
+(= (totalResourceCost)
+    (let* ( 
+            ($afRatio (afResourceUsage))
+            ($stiRatio (stiConcentration))
+            ($densityRatio (linkDensity))
+
+            ($costAf (* $afRatio (weight-afRatio)))
+            ($costSti (* $stiRatio (weight-stiRatio)))
+            ($costLink (* $densityRatio (weight-densityRatio)))
+        ) 
+        
+        (+ (+ $costAf $costSti) $costLink)
+    )
+)
+
+(= (getMetricsFromSnapshot (CIPSnapshot $index $time $af $metrics))
+     $metrics
+)
+
+(= (aggregateMetricDelta $baseline $current)
+    (let* (
+            ($baseMetrics (getMetricsFromSnapshot $baseline))
+            ($currMetrics (getMetricsFromSnapshot $current))
+            
+            ($baseScore (averageMetricScore $baseMetrics))
+            ($currScore (averageMetricScore $currMetrics))
+        )
+        (- $currScore $baseScore)
+    )
+)
 
 
 ; ## Minimal Viable Evaluation
@@ -409,11 +443,7 @@
 
 ; ## PHASE IV: Benchmarking
 
-; effectiveness benchmark will be implemented here
-
 (: gainedEfficience (-> CipSnapshot CipSnapshot CipSnapshot CipSnapshot Number))
-
-
 
 ; ## Topological Analysis
 
