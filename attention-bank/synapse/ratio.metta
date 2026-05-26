@@ -26,6 +26,7 @@
       ($contextRetention (contextRetention))
       ($cognitiveMaintenance (cognitiveMaintenance))
 
+      ;; calculate effectiveness
       ($currMetrics (
           (afResource $afResource)
           (sticoncentration $stiConcentration)
