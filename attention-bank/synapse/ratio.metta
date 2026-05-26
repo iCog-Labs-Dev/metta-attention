@@ -25,26 +25,7 @@
       ($coordination (globalCoordination $af))
       ($contextRetention (contextRetention))
       ($cognitiveMaintenance (cognitiveMaintenance))
-
-      ;; calculate effectiveness
-      ($currMetrics (
-          (afResource $afResource)
-          (sticoncentration $stiConcentration)
-          (linkdensity $linkDensity)
-          (connectionratio $connectionRatio)
-          (preallocation $preallocation)
-          (cognitivesynergy $cognitiveSynergy)
-          (modulation $modulation)
-          (coordination $coordination)
-          (contextretention $contextRetention)
-          (cognitivemaintenance $cognitiveMaintenance)
-      ))
-
-      ($prevIndex (get-lattest-cip-index))
-      ($prevCip (if (== $prevIndex ()) () (get-cip-snapshots $prevIndex)))
-      ($baseMetrics (if (== $prevCip ()) () (getMetricsFromSnapshot $prevCip)))
-
-      ($effectiveness (if (== $baseMetrics ()) 0.0 (calculateEffectiveness $baseMetrics $currMetrics)))
+      ($effectiveness (getEffectiveness))
    )
    (
     (afResource $afResource)
@@ -97,7 +78,7 @@
     (let $res 
         (collapse (match &cipspace (maxIndex $index) $index))
         (if (== $res ())
-            ()
+            -1
             (car-atom $res)
         )
     )
@@ -217,12 +198,18 @@
     )
 )
 
+(= (getMetricsFromSnapshot ()) 
+    ()
+)
+
 (= (getMetricsFromSnapshot (CIPSnapshot $index $time $af $metrics))
      $metrics
 )
 
-(= (aggregateMetricDelta $baseMetrics $currMetrics)
+(= (aggregateMetricDelta $baseline $current)
     (let* (
+            ($baseMetrics (getMetricsFromSnapshot $baseline))
+            ($currMetrics (getMetricsFromSnapshot $current))
             ($baseScore (averageMetricScore $baseMetrics))
             ($currScore (averageMetricScore $currMetrics))
         )
@@ -230,9 +217,10 @@
     )
 )
 
-(= (calculateEffectiveness $baseMetrics $currMetrics)
+(= (calculateEffectiveness $baseline $current)
     (let* (
-            ($perfDelta (aggregateMetricDelta $baseMetrics $currMetrics))
+            ($currMetrics (getMetricsFromSnapshot $current))
+            ($perfDelta (aggregateMetricDelta $baseline $current))
             ($resourceCost (totalResourceCost $currMetrics))
         )
         (if (> $resourceCost 0)
@@ -240,6 +228,31 @@
             0.0
         )
     )
+)
+
+(= (baselineCip)
+   (get-cip-snapshots 0)
+)
+
+(= (localEffectiveness)
+   (calculateEffectiveness
+      (get-cip-snapshots
+          (- (get-lattest-cip-index) 1))
+      (get-cip-snapshots
+          (get-lattest-cip-index))
+   )
+)
+
+(= (globalEffectiveness)
+   (calculateEffectiveness
+      (baselineCip)
+      (get-cip-snapshots
+         (get-lattest-cip-index))
+   )
+)
+
+(= (getEffectiveness)
+   (globalEffectiveness)
 )
 
 ; ## Minimal Viable Evaluation
