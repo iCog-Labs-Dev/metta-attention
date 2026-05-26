@@ -25,6 +25,25 @@
       ($coordination (globalCoordination $af))
       ($contextRetention (contextRetention))
       ($cognitiveMaintenance (cognitiveMaintenance))
+
+      ($currMetrics (
+          (afResource $afResource)
+          (sticoncentration $stiConcentration)
+          (linkdensity $linkDensity)
+          (connectionratio $connectionRatio)
+          (preallocation $preallocation)
+          (cognitivesynergy $cognitiveSynergy)
+          (modulation $modulation)
+          (coordination $coordination)
+          (contextretention $contextRetention)
+          (cognitivemaintenance $cognitiveMaintenance)
+      ))
+
+      ($prevIndex (get-lattest-cip-index))
+      ($prevCip (if (== $prevIndex ()) () (get-cip-snapshots $prevIndex)))
+      ($baseMetrics (if (== $prevCip ()) () (getMetricsFromSnapshot $prevCip)))
+
+      ($effectiveness (if (== $baseMetrics ()) 0.0 (calculateEffectiveness $baseMetrics $currMetrics)))
    )
    (
     (afResource $afResource)
@@ -37,6 +56,7 @@
     (coordination $coordination)
     (contextretention $contextRetention)
     (cognitivemaintenance $cognitiveMaintenance)
+    (effectiveness $effectiveness)
 )))
 
 (= (updateMaxIndex)
@@ -200,10 +220,8 @@
      $metrics
 )
 
-(= (aggregateMetricDelta $baseline $current)
+(= (aggregateMetricDelta $baseMetrics $currMetrics)
     (let* (
-            ($baseMetrics (getMetricsFromSnapshot $baseline))
-            ($currMetrics (getMetricsFromSnapshot $current))
             ($baseScore (averageMetricScore $baseMetrics))
             ($currScore (averageMetricScore $currMetrics))
         )
@@ -211,10 +229,9 @@
     )
 )
 
-(= (calculateEffectiveness $baseline $current)
+(= (calculateEffectiveness $baseMetrics $currMetrics)
     (let* (
-            ($currMetrics (getMetricsFromSnapshot $current))
-            ($perfDelta (aggregateMetricDelta $baseline $current))
+            ($perfDelta (aggregateMetricDelta $baseMetrics $currMetrics))
             ($resourceCost (totalResourceCost $currMetrics))
         )
         (if (> $resourceCost 0)

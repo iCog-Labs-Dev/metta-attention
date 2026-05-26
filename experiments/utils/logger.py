@@ -131,7 +131,7 @@ def write_to_csv(afatoms):
 
 def write_metrics_row(counter, time, af_atoms,af_resource, sti_concentration, link_density, coherance,
                       connection_ratio, normalized_sti_entropy, retention, p_correlation, modulation,
-                      global_coordination):
+                      global_coordination, effectiveness):
     
     # Append one metrics row per iteration to metrics.csv.
 
@@ -153,6 +153,7 @@ def write_metrics_row(counter, time, af_atoms,af_resource, sti_concentration, li
         "coordination",
         "context_retention",
         "cognitive_maintenance",
+        "effectiveness",
         "af_atoms",
     ]
 
@@ -169,6 +170,7 @@ def write_metrics_row(counter, time, af_atoms,af_resource, sti_concentration, li
         str(p_correlation[1]),
         str(modulation[1]),
         str(global_coordination[1]),
+        str(effectiveness[1]),
         str(af_atoms),
     ]
 
