@@ -78,7 +78,7 @@
     (let $res 
         (collapse (match &cipspace (maxIndex $index) $index))
         (if (== $res ())
-            -1
+            0
             (car-atom $res)
         )
     )
