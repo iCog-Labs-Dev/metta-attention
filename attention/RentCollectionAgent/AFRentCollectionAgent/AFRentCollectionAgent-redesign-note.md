@@ -31,6 +31,18 @@ capacity_i = max(0, STI_i - floorSti)
 
 The result is a cycle-based rent rule that is easier to reason about: `AFRentCoverageRatio` controls how much of the fund gap should be repaired, and `AFRentMaxCollectionRate` controls how aggressively rent can be collected from available AF surplus.
 
+## Outline
+
+1. **Current AF Rent Collection Agent**: explains the existing timer gate, base rent formula, and per-atom rent calculation.
+2. **Correlation Analysis**: summarizes how `FUNDS_STI`, elapsed time, and `AFRentFrequency` affect collected rent, with Figures 1 and 2.
+3. **Shortcomings**: lists the main issues with runtime-dependent rent collection.
+4. **Proposed Formula**: introduces the cycle-based fund-gap equation and dynamic STI floor.
+5. **Worked Example**: walks through one concrete rent collection cycle.
+6. **Improvements**: explains how the proposed formula addresses the current shortcomings.
+7. **Remaining Notes**: clarifies that full ECAN runs can still be nondeterministic because of other agents.
+8. **Figure 3**: shows the final dynamic-floor formula behavior.
+9. **Summary**: compares the current and proposed formulas side by side.
+
 ## Purpose
 
 This note summarizes the current AF rent collection behavior, the observed relation between `FUNDS_STI`, elapsed time, and `AFRentFrequency`, and the proposed replacement formula implemented in `AFRentCollectionAgent2.metta`.
