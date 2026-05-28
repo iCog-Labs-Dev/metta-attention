@@ -6,6 +6,8 @@
     "MAX_STI": "0",
     "AFB_DECAY": "0.05",
     "AFB_BOTTOM": "50.0",
+    "AFRentCoverageRatio": "1.2",
+    "AFRentMaxCollectionRate": "1.0",
     "FORGET_THRESHOLD": "0.05",
     "MAX_SIZE": "2",
     "ACC_DIV_SIZE": "1",

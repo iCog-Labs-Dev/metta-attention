@@ -25,6 +25,7 @@
 !(import! &self ../attention/RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent)
 !(import! &self ../attention/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent)
 !(import! &self ../attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent)
+!(import! &self ../attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent2)
 !(import! &self ../attention/ImportanceDiffusionAgent/ImportanceDiffusionBase/ImportanceDiffusionBase)
 !(import! &self ../attention/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent)
 !(import! &self ../attention/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent)
@@ -50,7 +51,7 @@
 !(updateAttentionParam FUNDS_LTI 100000.0) 
 !(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.8)
 !(updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.5)
-!(updateAttentionParam TOPK 0.8)
+; !(updateAttentionParam TOPK 0.8)
 !(updateAttentionParam AFRentFrequency 2.0)
 
 ; write the params to a file
