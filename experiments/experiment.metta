@@ -31,6 +31,7 @@
 !(import! &self ../attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
 !(import! &self ../attention/HebbianCreationAgent/HebbianCreationAgent)
 !(import! &self ../attention/runner-Def)
+!(import! &self ../attention-bank/synapse/utils)
 !(import! &self ../attention-bank/synapse/ratio)
 
 
@@ -55,25 +56,16 @@
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-(= (logCurrStateMetrics $counter)
-    (
-        (let*
-            (
-                ($prevState (car-atom (collapse (match (afSnap) (prevState $x) $x))))
-                ($currState (car-atom (collapse (match (afSnap) (currState $x) $x))))
-                ($retentionValue (contextRetention $prevState $currState))
-                ($afResource (afResourceUsage))
-                ($stiConc (stiConcentration))
-                ($linkDen (linkDensity))
-                ($connRatio (connectionRatio))
-                ($stiEntropy (preallocationSpace))
-                ($pcorr (correlation))
-                ($modulation (selectionModulation))
-                ($gCoord (globalCoordination $currState))
-                ($coherance (moduleInternalCoherence $currState))
-            )
-            (write_metrics_wrapper $counter $afResource $stiConc $linkDen $coherance $connRatio $stiEntropy $retentionValue $pcorr $modulation $gCoord)
+
+!(initialize-baseline-cip)
+
+(= (logcurrCip) 
+        (let* (
+                ($cip (transition-to-next-cip))
+                ((CIPSnapshot $index $time $af_atoms $metrice) $cip)
+                (($afResource $stiConcentration $linkDensity $connectionRatio $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness) $metrice)
         )
+        (write_metrics_wrapper $index $time $af_atoms $afResource $stiConcentration $linkDensity $connectionRatio $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness)
     )
 )
 
@@ -91,33 +83,11 @@
                 (stimulate $now 30)
                 (println! (stimulating atom --> $now))
                 (if (or (== (% $counter (batch)) 0) (== $rest ()))
-                    (
-                        (collapse (match (afSnap) (prevState $val) (remove-atom &afsnap (prevState $val))))
-                        (add-atom &afsnap (prevState $af))
-                        (collapse (test-superpose &incident))
-                        ; (unify $incident ($now $links) (found $now) (notfound $now))
-                        (collapse (match (afSnap) (currState $val) (remove-atom &afsnap (currState $val))))
-                        (let $nextaf
-                            (getAfAtoms)
-                            (add-atom &afsnap (currState $nextaf))
-                        )
-                        
-                        (map-atom (getAfAtoms) $atom 
-                            (let $res (collapse (getSti $atom))
-                                (let $sti (if (== $res ()) 0.0 (car-atom $res))
-                                    (updateAtomHistory $atom $sti)
-                                )
-                            )
-                        )
-
-                        (logCurrStateMetrics $counter)
-                    )
-                    (
-                        (println! (agent not called))
-                        ; (write_metrics_wrapper $counter (afResourceUsage) (stiConcentration) (linkDensity) (moduleInternalCoherence (getAfAtoms)) (connectionRatio) (preallocationSpace) "NaN" (correlation) (selectionModulation) (globalCoordination (getAfAtoms)))
-                    )
+                    (collapse (test-superpose &incident))
+                    (println! (continued to stimulate batched atoms ...))
                 )
                 ; (py-call (time.sleep 5.0))
+                (logcurrCip) 
                 (insectPoisonReadExp $rest (+ $counter 1)))
         )
     )

@@ -1,218 +1,141 @@
-!(import! &self "../../../experiments/utils/community_detector.py")
-
 !(bind! &afsnap (new-space))
 (= (afSnap) &afsnap)
 
-(= (getTotalSti () $out) $out)
-(= (getTotalSti (cons $head $tail) $out)
-    (getTotalSti $tail (+ $out (getSti $head)))
-)
+!(bind! &cipspace (new-space))
 
-(= (getHebLinks () $out) $out)
-(= (getHebLinks (cons $head $tail) $out)
-    (getHebLinks $tail 
-        (union-atom 
-            (collapse (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $head $any) $val) (ASYMMETRIC_HEBBIAN_LINK $head $any)))
-            $out
-        )
-    )
-)
+; ## CIP Records
 
-(= (square $value)
-    (* $value $value)
-)
+; this is cognitive integration point, it help us to Capture what cognition looked like at a specific boundary
+; cip snapshoot could be
+    ; every batch boundary
+    ; every agent cycle
+    ; every diffusion/update round
+    ; every moment where AF changes meaningfully
 
-(= (meanDiff $atom $meanSti $meanLti)
-    (* (- (getSti $atom) $meanSti) (- (getLti $atom) $meanLti))
-)
+(= (measure-all-metrics)
+   (let* (
+      ($af (getAfAtoms))
+      ($afResource (afResourceUsage))
+      ($stiConcentration (stiConcentration))
+      ($linkDensity (linkDensity))
+      ($connectionRatio (connectionRatio))
+      ($preallocation (preallocationSpace))
+      ($cognitiveSynergy (cognitiveSynergy))
+      ($modulation (selectionModulation))
+      ($coordination (globalCoordination $af))
+      ($contextRetention (contextRetention))
+      ($cognitiveMaintenance (cognitiveMaintenance))
+      ($effectiveness (getEffectiveness))
+   )
+   (
+    (afResource $afResource)
+    (sticoncentration $stiConcentration)
+    (linkdensity $linkDensity)
+    (connectionratio $connectionRatio)
+    (preallocation $preallocation)
+    (cognitivesynergy $cognitiveSynergy)
+    (modulation $modulation)
+    (coordination $coordination)
+    (contextretention $contextRetention)
+    (cognitivemaintenance $cognitiveMaintenance)
+    (effectiveness $effectiveness)
+)))
 
-(= (pearsonCorrelation $afAtoms $meanSti $meanLti)
-    (let*
-        (
-            ($numenator (foldl-atom (map-atom $afAtoms $x (meanDiff $x $meanSti $meanLti)) 0 $acc $x (+ $acc $x)))
-            ($stiDistance (foldl-atom (map-atom $afAtoms $x (pow-math (- (getSti $x) $meanSti) 2)) 0 $acc $x (+ $acc $x)))
-            ($ltiDistance (foldl-atom (map-atom $afAtoms $x (pow-math (- (getLti $x) $meanLti) 2)) 0 $acc $x (+ $acc $x)))
-            ($denomenator (sqrt-math (* $stiDistance $ltiDistance)))
-        ) 
-        (if (> $denomenator 0)
-            (/ $numenator $denomenator)
-            0.0
-        )
-    )
-)
-
-(= (variance $stiValue) 
-    (let*
-        (
-            ($size (size-atom $stiValue))
-            ($sum (foldl-atom $stiValue 0 $acc $x (+ $acc $x)))
-            ($mean (if (> $size 0) (/ $sum $size) 0.0))
-            ($meanDiff (map-atom $stiValue $x (pow-math (- $x $mean) 2)))
-            ($numenator (foldl-atom $meanDiff 0 $acc $x (+ $acc $x)))
-        )
-        (if (> $size 0)
-            (/ $numenator $size)
-            0.0
-        )
-    )
-)
-
-(= (variance-uniform $size)
-    (let*
-        (
-            ($max (max-atom $size))
-            ($min (min-atom $size))
-        )
-        (/ (pow-math (- $max $min) 2) 12)
-    )
-)
-
-(= (log2-math $x)
-    (if (> $x 0.0)
-        (log-math 2.0 $x)
-        0.0
-    )
-)
-
-(= (entropyTerm $p)
-     (if (> $p 0)
-       (* $p (log2-math $p))
-       0.0
-     )
-)
-
-(= (averageList $list)
-    (let* 
-        (
-            ($sum (foldl-atom $list 0.0 $acc $x (+ $acc $x)))
-            ($count (size-atom $list))
-        )
-        (if (> $count 0) (/ $sum $count) 0.0)
-    )
-)
-
-(= (identifyModules $state $afLinks)
-    (py-call (community_detector.get_dynamic_modules $state $afLinks))
-)
-
-(= (getStiSeries $atom)
-    (let $res (collapse (match &self (StiHistory $atom $hist) $hist))
-        (if (== $res ())
-            (0.0)
-            (car-atom $res)
-        )
-    )
-)
-
-(= (updateAtomHistory $atom $newSti)
-    (let $oldHist (collapse (match &self (StiHistory $atom $hist) $hist))
-        (if (== $oldHist ())
-            (add-atom &self (StiHistory $atom ($newSti)))
-
-            (let $historyTuple (car-atom $oldHist)
-                (let $newHistory (cons-atom $newSti $historyTuple)
-                    (let $dummy (remove-atom &self (StiHistory $atom $historyTuple))
-                        (add-atom &self (StiHistory $atom $newHistory))
-                    )
+(= (updateMaxIndex)
+    (let $index 
+        (collapse (match &cipspace (maxIndex $cindex) $cindex))
+        (if (== $index ())
+            (add-atom &cipspace (maxIndex 0))
+            (let*
+                (
+                    ($num (car-atom $index))
+                    ($newIndex (+ 1 $num))
+                )
+                (
+                    (remove-atom &cipspace (maxIndex $num))
+                    (add-atom &cipspace (maxIndex $newIndex))
                 )
             )
         )
     )
 )
 
-(= (filterLinksByFlag () ()) ())
-(= (filterLinksByFlag (cons $link $ltail) (cons $flag $ftail))
-    (if (== $flag 1)
-        (cons $link (filterLinksByFlag $ltail $ftail))
-        (filterLinksByFlag $ltail $ftail)
-    )
-)
-
-(= (isSameModule $src $tgt $module)
-    (let* (
-        ($hasSrc (size-atom (intersection-atom $module ($src))))
-        ($hasTgt (size-atom (intersection-atom $module ($tgt))))
-    )
-    (if (and (> $hasSrc 0) (> $hasTgt 0)) 1 0)
-    )
-)
-
-(= (getLinkSource (ASYMMETRIC_HEBBIAN_LINK $src $tgt)) $src)
-
-(= (isExternalLink $link $modules)
-    (let* (
-        ($src (getLinkSource $link))
-        ($tgt (getLinkTarget $link))
-        ($internalCount (foldl-atom (map-atom $modules $mod (isSameModule $src $tgt $mod)) 0 $acc $x (+ $acc $x))) ; TODO a function that takes an atom and retun its module can simplify this
-    )
-    (if (== $internalCount 0) 1 0) 
-    )
-)
-
-(= (zipMultiply $list1 $list2)
-    (if (or (== $list1 ()) (== $list2 ()))
-        ()
-        (let* (
-            ($h1 (car-atom $list1))
-            ($t1 (cdr-atom $list1))
-            ($h2 (car-atom $list2))
-            ($t2 (cdr-atom $list2))
+(= (initialize-baseline-cip)
+   (let*
+      (
+          ($af (getAfAtoms))
+          ($metrics (measure-all-metrics))
+          ($time (current-time))
+          ($cip0 (CIPSnapshot 0 $time $af $metrics))
+          ($_ (add-atom &cipspace $cip0))
+          ($stiSeries (recordCipSeries))
         )
-        (cons-atom (* $h1 $h2) (zipMultiply $t1 $t2))
+        $cip0 
+   )
+)
+
+(= (get-lattest-cip-index)
+    (let $res 
+        (collapse (match &cipspace (maxIndex $index) $index))
+        (if (== $res ())
+            0
+            (car-atom $res)
         )
     )
 )
 
-(= (getProbability $link)
-    (getMean $link)
+(= (get-cip-af $targetIndex)
+   (let $res (collapse (match &cipspace (CIPSnapshot $targetIndex $time $af $matrice) $af))
+       (if (== $res ())
+           ()
+           (car-atom $res)
+       )
+   )
 )
 
-(= (pearsonCorrelationLists $listX $listY)
-    (let* (
-        ($sizeX (size-atom $listX))
-        ($sizeY (size-atom $listY))
-    )
-    (if (or (== $sizeX 0) (== $sizeY 0)) 
-        0.0
-        (let* (
-            ($meanX (averageList $listX))
-            ($meanY (averageList $listY))
-            
-            ($diffX (map-atom $listX $x (- $x $meanX)))
-            ($diffY (map-atom $listY $y (- $y $meanY)))
-            
-            ($covarTerms (zipMultiply $diffX $diffY))
-            ($covar (foldl-atom $covarTerms 0.0 $a $b (+ $a $b)))
-
-            ($varXTerms (map-atom $diffX $dx (* $dx $dx)))
-            ($varYTerms (map-atom $diffY $dy (* $dy $dy)))
-            ($varX (foldl-atom $varXTerms 0.0 $a $b (+ $a $b)))
-            ($varY (foldl-atom $varYTerms 0.0 $a $b (+ $a $b)))
-            ($varProd (* $varX $varY))
-            ($denominator (if (> $varProd 0) (sqrt-math $varProd) 0.0))
-        )
-        (if (> $denominator 0) (/ $covar $denominator) 0.0)
-        )
-    ))
+(= (get-cip-af-or-empty $targetIndex)
+   (let $af (get-cip-af $targetIndex)
+       (if (== $af ())
+           ()
+           $af
+       )
+   )
 )
 
-(= (temporalConjunction $atomI $atomJ)
-    (let* (
-        ($stiI (getStiSeries $atomI))
-        ($stiJ (getStiSeries $atomJ))
-        ($multiplied (zipMultiply $stiI $stiJ))
-    )
-    (if (== $multiplied ()) 
-        0.0 
-        (averageList $multiplied)
-    )
-    )
+(= (get-cip-snapshots $index)
+   (let $cip (collapse (match &cipspace (CIPSnapshot $index $time $af $matrice) (CIPSnapshot $index $time $af $matrice)))
+       (if (== $cip ())
+           ()
+           (car-atom $cip)
+       )
+   )
 )
 
-(= (temporalConjunctionLink $link) 
-    (temporalConjunction (getLinkSource $link) (getLinkTarget $link))
+; (: transitiontonextcip (-> CIPSnapshot CIPSnapshot))
+(= (transition-to-next-cip)
+    (let*
+      (
+         ($update (updateMaxIndex))
+         ($index (get-lattest-cip-index))
+         ($newIndex (+ $index 1))
+         ($af (getAfAtoms))
+         ($metrics (measure-all-metrics))
+         ($time (current-time))
+         ($_ (add-atom &cipspace (CIPSnapshot $newIndex $time $af $metrics)))
+         ($stiSeries (recordCipSeries))
+      )
+      (CIPSnapshot
+          $newIndex
+          $time
+          $af
+          $metrics
+      )
+   )
 )
 
+; ## Resource Cost Functions
+
+; this is the ratio of the number of atoms inside af atom over the total number of atoms in typespace
 (= (afResourceUsage)
     (let $allSize
         (size-atom (getAllAtomsWithBins))
@@ -223,6 +146,8 @@
     )
 )
 
+
+; the ratio between af sti and typespace sti
 (= (stiConcentration)
     (let*
         (
@@ -236,6 +161,8 @@
     )
 )
 
+
+; the ratio between the total hebbian link and hebbian link inside af atoms
 (= (linkDensity)
     (let*
         (
@@ -251,31 +178,97 @@
     )
 )
 
-(= (correlation)
-    (let*
-        (
-            ($afAtoms (getAllAtomsWithBins))
-            ($stival (map-atom $afAtoms getSti))
-            ($ltival (map-atom $afAtoms getLti))
-            ($totalSti (foldl-atom $stival 0 $acc $x (+ $acc $x)))
-            ($totalLti (foldl-atom $ltival 0 $acc $x (+ $acc $x)))
-            ($sizeSti (size-atom $stival))
-            ($sizeLti (size-atom $ltival))
-            ($meanSti (if (> $sizeSti 0) (/ $totalSti $sizeSti) 0.0))
-            ($meanLti (if (> $sizeLti 0) (/ $totalLti $sizeLti) 0.0))
+
+
+; ## Effectiveness Calculation
+
+
+(= (totalResourceCost $metrics)
+    (let* ( 
+            ($afRatio (getMetrics afResource $metrics))
+            ($stiRatio (getMetrics sticoncentration $metrics))
+            ($densityRatio (getMetrics linkdensity $metrics))
+
+            ($costAf (* $afRatio (weight-afRatio)))
+            ($costSti (* $stiRatio (weight-stiRatio)))
+            ($costLink (* $densityRatio (weight-densityRatio)))
+        ) 
+        
+        (+ (+ $costAf $costSti) $costLink)
+    )
+)
+
+(= (getMetricsFromSnapshot ()) 
+    ()
+)
+
+(= (getMetricsFromSnapshot (CIPSnapshot $index $time $af $metrics))
+     $metrics
+)
+
+(= (aggregateMetricDelta $baseline $current)
+    (let* (
+            ($baseMetrics (getMetricsFromSnapshot $baseline))
+            ($currMetrics (getMetricsFromSnapshot $current))
+            ($baseScore (averageMetricScore $baseMetrics))
+            ($currScore (averageMetricScore $currMetrics))
         )
-        (if (and (> $sizeSti 0) (> $sizeLti 0))
-            (pearsonCorrelation $afAtoms $meanSti $meanLti)
+        (- $currScore $baseScore)
+    )
+)
+
+(= (calculateEffectiveness $baseline $current)
+    (let* (
+            ($currMetrics (getMetricsFromSnapshot $current))
+            ($perfDelta (aggregateMetricDelta $baseline $current))
+            ($resourceCost (totalResourceCost $currMetrics))
+        )
+        (if (> $resourceCost 0)
+            (/ $perfDelta $resourceCost)
             0.0
         )
     )
 )
 
-(= (contextRetention $prevState $state)
+(= (baselineCip)
+   (get-cip-snapshots 0)
+)
+
+(= (localEffectiveness)
+   (calculateEffectiveness
+      (get-cip-snapshots
+          (- (get-lattest-cip-index) 1))
+      (get-cip-snapshots
+          (get-lattest-cip-index))
+   )
+)
+
+(= (globalEffectiveness)
+   (calculateEffectiveness
+      (baselineCip)
+      (get-cip-snapshots
+         (get-lattest-cip-index))
+   )
+)
+
+(= (getEffectiveness)
+   (globalEffectiveness)
+)
+
+; ## Minimal Viable Evaluation
+
+; AF coherence : me asure- cohere nce restricted to current AF members
+(= (afCoherence)
+   (measureCoherence (getAfAtoms))
+)
+
+; this tell us the ratio of the intersection atoms between prevcip and currcip over thire unique total atom
+
+(= (contextRetention $prevCip $currCip)
     (let*
         (
-            ($overlap (size-atom (intersection-atom $state $prevState)))
-            ($unionSize (+ (size-atom $prevState) (- (size-atom $state) $overlap)))
+            ($overlap (size-atom (intersection-atom $currCip $prevCip)))
+            ($unionSize (+ (size-atom $prevCip) (- (size-atom $currCip) $overlap)))
         )
         (if (> $unionSize 0)
             (/ $overlap $unionSize)
@@ -284,13 +277,59 @@
     )
 )
 
-(= (selectionModulation)
-    (let* 
+(= (contextRetention)
+    (let*
         (
-            ($afAtoms (getAllAtomsWithBins))
-            ($stiValue (map-atom $afAtoms getSti))
+            ($prevCip (get-cip-af (get-lattest-cip-index)))
+            ($currCip (getAfAtoms))
+        )
+        (contextRetention $prevCip $currCip)
+    )
+)
+
+; ## PHASE I: Assessment
+ 
+; determine the Pearson correlation between sti series and lti
+; Cognitive Synergy : Pearson correlation between each atoms
+; time-averaged STI and its current LTI
+
+(= (cognitiveSynergy) ;; previously called correlation
+    (let*
+        (
+            ($atoms (getAllAtomsWithBins))
+            ($sizeAtoms (size-atom $atoms))
+        )
+        (if (> $sizeAtoms 0)
+            (let*
+                (
+                    ($stiSeries (map-atom $atoms get-sti-series))
+                    ($stival (map-atom $stiSeries averageList))
+                    ($ltival (map-atom $atoms getLti))
+                    ($sizeSti (size-atom $stival))
+                    ($sizeLti (size-atom $ltival))
+                )
+                (if (and (> $sizeSti 0) (> $sizeLti 0))
+                    (pearsonCorrelationLists $stival $ltival)
+                    0.0
+                )
+            )
+            0.0
+        )
+    )
+)
+
+
+; we get all the atoms and thire sti
+; we find the variance and thire uniform variance
+; then we calculate variance over uniform variance
+
+(= (selectionModulation)
+    (let*
+        (
+            ($atoms (getAllAtomsWithBins))
+            ($stiValue (map-atom $atoms getSti))
             ($variance (variance $stiValue))
-            ($maxVariance (variance-uniform $stiValue))
+            ($maxVariance (variance-uniform $stiValue)) ; the doc pass count(stiValue) for uniform variance??
         )
         (if (> $maxVariance 0)
             (/ $variance $maxVariance)
@@ -299,25 +338,16 @@
     )
 )
 
-(= (getLinkTarget (ASYMMETRIC_HEBBIAN_LINK $src $tgt)) $tgt)
-
-(= (isInternalLink $link $afAtoms)
-    (let*
-        (
-            ($tgt (getLinkTarget $link))
-            ;; wrap target in tuple to use intersection-atom against the afAtoms
-            ($overlap (size-atom (intersection-atom $afAtoms (cons $tgt ()))))
-        )
-        (if (> $overlap 0) 1 0)
-    )
-)
-
+; we get the af atoms and thire hebbian links
+; we take all the links and we find if there is any target atom inside the links that is already inside af atoms
+; then we sum and see how many of them are already inside af atom
+; then we return the total already existing atoms over the number of total af links
 (= (connectionRatio)
     (let*
         (
             ($afAtoms (getAfAtoms))
             ($allAfLinks (getHebLinks $afAtoms ()))
-            ($totalLinks (size-atom $allAfLinks))
+            ($totalLinks (size-atom $allAfLinks)) ; seems to me the sum of source and target link atoms
 
             ;; map over links to get the internal ones
             ($internalFlags (map-atom $allAfLinks $link (isInternalLink $link $afAtoms)))
@@ -330,84 +360,108 @@
     )
 )
 
-(= (stiProbablity $atomSti $allSti)
-    (let*
-        (
-            ($stiCount (car-atom (intersection-atom $allSti $atomSti)))
-            ($ratio (/ $stiCount (size-atom $allSti)))
-        )
-        $ratio
-    )
-)
+ 
+; ## PHASE II: Audits
 
-(= (shanon-entropy $stiDistribution)
-    (let*
-        (
-            ($probabilities
-                (map-atom $stiDistribution $atom (stiProbablity ($atom) $stiDistribution))
-            )
-            ($entropyTerms (map-atom $probabilities $p (entropyTerm $p)))
-            ($sumTerms (foldl-atom $entropyTerms 0 $acc $x (+ $acc $x)))
-        )
-        (* -1.0 $sumTerms)
-    )
-)
-
+; this is the ratio of the entropy of sti distribution over the maximum entropy of uniform distribution
 (= (preallocationSpace)
-    (let* 
+    (let*
         (
             ($allAtoms (getAllAtomsWithBins))
             ($totalAtoms (size-atom $allAtoms))
-            ($stiValues (map-atom $allAtoms $atom (getSti $atom)))
-            ($minSti (min-atom $stiValues))
-            ($shifted (map-atom $stiValues $val (- $val $minSti)))
-            ($tt (foldl-atom $shifted 0 $acc $x (+ $acc $x)))
-            ($total (if (== $tt 0.0) 1.0 $tt))
-            ($stiDistribution (map-atom $shifted $s (/ $s $total)))
-            ($entropy (shanon-entropy $stiDistribution))
-            ($maxEntropy (log2-math $totalAtoms))
         )
-        (if (> $maxEntropy 0)
-            (/ $entropy $maxEntropy)
+        (if (> $totalAtoms 0)
+            (let*
+                (
+                    ($stiValues (map-atom $allAtoms $atom (getSti $atom)))
+                    ($minSti (min-atom $stiValues))
+                    ($shifted (map-atom $stiValues $val (- $val $minSti)))
+                    ($tt (foldl-atom $shifted 0 $acc $x (+ $acc $x)))
+                    ($total (if (== $tt 0.0) 1.0 $tt))
+                    ($stiDistribution (map-atom $shifted $s (/ $s $total)))
+                    ($entropy (shanon-entropy $stiDistribution))
+                    ($maxEntropy (log2-math $totalAtoms))
+                )
+                (if (> $maxEntropy 0)
+                    (/ $entropy $maxEntropy)
+                    0.0
+                )
+            )
             0.0
         )
     )
 )
 
-(= (cognitiveMaintenance $oldState $newState $oldMean $oldCount)
+
+; ## PHASE III: Test Probing
+
+; Average pairwise AF Jaccard similarity across consecutive CIP snapshots
+; this implementation should be changed based on the new CIP implementation,
+; we can calculate the retention for pair of transition and then average the overlap
+
+(= (has-cip-snapshots)
+    (let $indexes (collapse (match &cipspace (CIPSnapshot $index $time $af $matrice) $index))
+        (if (== $indexes ()) False True)
+    )
+)
+
+(= (cip-af-series $startIndex $endIndex)
+    (if (> $startIndex $endIndex)
+        ()
+        (cons-atom
+            (get-cip-af $startIndex)
+            (cip-af-series (+ $startIndex 1) $endIndex)
+        )
+    )
+)
+
+(= (retention-average $sum $count)
+    (if (> $count 0.0)
+        (/ $sum $count)
+        0.0
+    )
+)
+
+(= (average-context-retention-pairs $series)
+    (average-context-retention-pairs-acc $series 0.0 0.0)
+)
+
+(= (average-context-retention-pairs-acc () $sum $count)
+    (retention-average $sum $count)
+)
+
+(= (average-context-retention-pairs-acc (cons $last ()) $sum $count)
+    (retention-average $sum $count)
+)
+
+(= (average-context-retention-pairs-acc (cons $prev (cons $curr $tail)) $sum $count)
+    (let $retention (contextRetention $prev $curr)
+        (average-context-retention-pairs-acc
+            (cons $curr $tail)
+            (+ $sum $retention)
+            (+ $count 1.0)
+        )
+    )
+)
+
+(= (cognitiveMaintenance)
     (let*
         (
-            ($retention (contextRetention $oldState $newState))
-            ($newCount (+ $oldCount 1.0))
-            ($weightOld (* $oldMean (/ $oldCount $newCount)))
-            ($weightNew (/ $retention $newCount))
-            ($newMean (+ $weightOld $weightNew))
+            ($storedSeries (if (has-cip-snapshots) (cip-af-series 0 (get-lattest-cip-index)) ()))
         )
-        $newMean
+        (average-context-retention-pairs $storedSeries)
     )
 )
 
-(= (moduleInternalCoherence $moduleAtoms)
-    (let*
-      (
-        ($allLinks (getHebLinks $moduleAtoms ()))
-        ($internalFlags (map-atom $allLinks $link (isInternalLink $link $moduleAtoms)))
-        ($internalLinks (filterLinksByFlag $allLinks $internalFlags))
 
-        ($linksProbs (map-atom $internalLinks getProbability))
-        ($conjunctions (map-atom $internalLinks temporalConjunctionLink))
-      )
-      (pearsonCorrelationLists $linksProbs $conjunctions)
-    )
 
-)
-
+; this measure the global coordination for a given state, it is the geometric mean of local coherence and global coherence
 (= (globalCoordination $state)
     (let*
         (
             ($afLinks (getAllHebLinks))
             ($modules (identifyModules $state $afLinks))
-            ($localCoherences (map-atom $modules $mod (moduleInternalCoherence $mod)))
+            ($localCoherences (map-atom $modules $mod (measureCoherence $mod)))
             ($localCoherence (averageList $localCoherences))
 
             ($interFlags (map-atom $afLinks $link (isExternalLink $link $modules)))
@@ -423,3 +477,13 @@
         $coordination
     )
 )
+
+
+; ## PHASE IV: Benchmarking
+
+(: gainedEfficience (-> CipSnapshot CipSnapshot CipSnapshot CipSnapshot Number))
+
+; ## Topological Analysis
+
+; persistent homology will be implemented here
+
