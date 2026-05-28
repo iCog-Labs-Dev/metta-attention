@@ -1,6 +1,9 @@
 !(import! &self "../../experiments/utils/community_detector.py")
 !(bind! &stiSeries (new-space))
 
+(= (weight-afRatio) 0.4)  
+(= (weight-stiRatio) 0.3)  
+(= (weight-densityRatio) 0.3)
 
 ; ## Time Series
 
@@ -314,5 +317,64 @@
             ($sumTerms (foldl-atom $entropyTerms 0 $acc $x (+ $acc $x)))
         )
         (* -1.0 $sumTerms)
+    )
+)
+
+(= (getMetricValue ($name $val))
+    $val
+)
+
+(= (getMetricName ($name $val))
+    $name
+)
+
+(= (getMetrics $name $list)
+    (if (== $list ())
+        0.0
+        (let* (
+                ($head (car-atom $list))
+                ($tail (cdr-atom $list))
+                ($mName (getMetricName $head))
+                ($mVal (getMetricValue $head))
+            )
+            (if (== $mName $name)
+                $mVal
+                (getMetrics $name $tail)
+            )
+        )
+    )
+)
+
+(= (sumMetrics $list)
+     (if (== $list ())
+         0.0
+         (let*
+               (
+                    ($head (car-atom $list))
+                    ($tail (cdr-atom $list))
+               )
+               (+ (getMetricValue $head) (sumMetrics $tail))
+         )
+     )
+)
+
+(= (countMetrics $list)
+     (if (== $list ())
+         0
+         (let $tail (cdr-atom $list)
+              (+ 1 (countMetrics $tail))
+         )
+     )
+)
+
+(= (averageMetricScore $full-metric-list)
+    (let* (
+            ($total (sumMetrics $full-metric-list))
+            ($count (countMetrics $full-metric-list))
+        )
+        (if (> $count 0)
+            (/ $total $count)
+            0.0
+        )
     )
 )

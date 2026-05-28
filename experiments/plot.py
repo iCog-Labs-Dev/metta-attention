@@ -149,6 +149,7 @@ class MetricsPlotter:
         "coordination",
         "context_retention",
         "cognitive_maintenance",
+        "effectiveness",
     ]
     RESAMPLE_RULE = "15s"
 

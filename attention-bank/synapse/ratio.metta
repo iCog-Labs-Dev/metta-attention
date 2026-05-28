@@ -25,6 +25,7 @@
       ($coordination (globalCoordination $af))
       ($contextRetention (contextRetention))
       ($cognitiveMaintenance (cognitiveMaintenance))
+      ($effectiveness (getEffectiveness))
    )
    (
     (afResource $afResource)
@@ -37,6 +38,7 @@
     (coordination $coordination)
     (contextretention $contextRetention)
     (cognitivemaintenance $cognitiveMaintenance)
+    (effectiveness $effectiveness)
 )))
 
 (= (updateMaxIndex)
@@ -76,7 +78,7 @@
     (let $res 
         (collapse (match &cipspace (maxIndex $index) $index))
         (if (== $res ())
-            ()
+            0
             (car-atom $res)
         )
     )
@@ -177,11 +179,81 @@
 )
 
 
+
 ; ## Effectiveness Calculation
 
-; the implementation of Effectiveness and Redundance function will be here
-; 
 
+(= (totalResourceCost $metrics)
+    (let* ( 
+            ($afRatio (getMetrics afResource $metrics))
+            ($stiRatio (getMetrics sticoncentration $metrics))
+            ($densityRatio (getMetrics linkdensity $metrics))
+
+            ($costAf (* $afRatio (weight-afRatio)))
+            ($costSti (* $stiRatio (weight-stiRatio)))
+            ($costLink (* $densityRatio (weight-densityRatio)))
+        ) 
+        
+        (+ (+ $costAf $costSti) $costLink)
+    )
+)
+
+(= (getMetricsFromSnapshot ()) 
+    ()
+)
+
+(= (getMetricsFromSnapshot (CIPSnapshot $index $time $af $metrics))
+     $metrics
+)
+
+(= (aggregateMetricDelta $baseline $current)
+    (let* (
+            ($baseMetrics (getMetricsFromSnapshot $baseline))
+            ($currMetrics (getMetricsFromSnapshot $current))
+            ($baseScore (averageMetricScore $baseMetrics))
+            ($currScore (averageMetricScore $currMetrics))
+        )
+        (- $currScore $baseScore)
+    )
+)
+
+(= (calculateEffectiveness $baseline $current)
+    (let* (
+            ($currMetrics (getMetricsFromSnapshot $current))
+            ($perfDelta (aggregateMetricDelta $baseline $current))
+            ($resourceCost (totalResourceCost $currMetrics))
+        )
+        (if (> $resourceCost 0)
+            (/ $perfDelta $resourceCost)
+            0.0
+        )
+    )
+)
+
+(= (baselineCip)
+   (get-cip-snapshots 0)
+)
+
+(= (localEffectiveness)
+   (calculateEffectiveness
+      (get-cip-snapshots
+          (- (get-lattest-cip-index) 1))
+      (get-cip-snapshots
+          (get-lattest-cip-index))
+   )
+)
+
+(= (globalEffectiveness)
+   (calculateEffectiveness
+      (baselineCip)
+      (get-cip-snapshots
+         (get-lattest-cip-index))
+   )
+)
+
+(= (getEffectiveness)
+   (globalEffectiveness)
+)
 
 ; ## Minimal Viable Evaluation
 
@@ -409,11 +481,7 @@
 
 ; ## PHASE IV: Benchmarking
 
-; effectiveness benchmark will be implemented here
-
 (: gainedEfficience (-> CipSnapshot CipSnapshot CipSnapshot CipSnapshot Number))
-
-
 
 ; ## Topological Analysis
 
