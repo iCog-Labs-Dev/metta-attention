@@ -481,7 +481,19 @@
 
 ; ## PHASE IV: Benchmarking
 
-(: gainedEfficience (-> CipSnapshot CipSnapshot CipSnapshot CipSnapshot Number))
+; (: gainedEfficiency (-> CIPSnapshot CIPSnapshot CIPSnapshot CIPSnapshot Number))
+(= (gainedEfficiency $basePrev $baseCurr $optPrev $optCurr)
+    (let* (
+            ($baselineEff (calculateEffectiveness $basePrev $baseCurr))
+            ($optimizedEff (calculateEffectiveness $optPrev $optCurr))
+            ($delta (- $optimizedEff $baselineEff))
+        )
+        (if (> (abs-math $baselineEff) 0.0)
+            (/ $delta (abs-math $baselineEff))
+            $optimizedEff
+        )
+    )
+)
 
 ; ## Topological Analysis
 
