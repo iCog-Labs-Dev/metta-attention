@@ -8,6 +8,8 @@
 !(add-atom &attentionParam  (AFB_BOTTOM 50.0))
 !(add-atom &attentionParam  (MAX_AF_SIZE 1000.0))
 !(add-atom &attentionParam  (AFRentFrequency 5.0))
+!(add-atom &attentionParam  (AFRentCoverageRatio 1.2))
+!(add-atom &attentionParam  (AFRentMaxCollectionRate 1.0))
 !(add-atom &attentionParam  (FORGET_THRESHOLD 0.05))
 !(add-atom &attentionParam  (MAX_SIZE 2))
 !(add-atom &attentionParam  (ACC_DIV_SIZE 1))
@@ -60,7 +62,6 @@
 (= (attentionParam) 
     &attentionParam
 )
-
 
 
 

@@ -20,7 +20,9 @@
                     )
             )
             ($x (collapse (match &af $any $any)))
-        ) ((write_csv_wrapper $x) (updateMinAf)))
+            ($_log (write_csv_wrapper $x))
+            ($_min (updateMinAf))
+        ) ())
 )
 
 

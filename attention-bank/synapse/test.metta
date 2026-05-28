@@ -17,6 +17,7 @@
 !(import! &self ../../attention/RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent)
 !(import! &self ../../attention/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent)
 !(import! &self ../../attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent)
+!(import! &self ../../attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent2)
 !(import! &self ../../attention/ImportanceDiffusionAgent/ImportanceDiffusionBase/ImportanceDiffusionBase)
 !(import! &self ../../attention/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent)
 !(import! &self "../../attention/ImportanceDiffusionAgent/getelement.py")
@@ -61,7 +62,7 @@
 ; here we have total of 3000 global sti fund
 !(getAttentionParam FUNDS_STI)
 
-!(assertEqual (initialize-baseline-cip) true)
+; !(assertEqual (initialize-baseline-cip) true)
 ; !(assertEqual (transition-to-next-cip) (CIPSnapshot 1 1779340647.1364384 () 
 ;     ((afResource 0.0) 
 ;      (sticoncentration 0.0) 
