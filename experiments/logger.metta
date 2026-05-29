@@ -5,7 +5,7 @@
 
 (= (write_metrics_wrapper 
     $counter $time $af_atoms $afResource $stiConcentration $linkDensity $connectionRatio 
-    $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness)
+    $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness $gainedEfficiency)
     (py-call (logger.write_metrics_row 
                 $counter 
                 $time 
@@ -20,8 +20,13 @@
                 $coordination 
                 $contextRetention 
                 $cognitiveMaintenance
-                $effectiveness)
+                $effectiveness
+                $gainedEfficiency)
     )
+)
+
+(= (save_baseline_wrapper)
+    (py-call (logger.save_baseline))
 )
 
 

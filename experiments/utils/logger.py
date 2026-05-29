@@ -129,9 +129,9 @@ def write_to_csv(afatoms):
     return ['wrote']
 
 
-def write_metrics_row(counter, time, af_atoms,af_resource, sti_concentration, link_density, coherance,
+def write_metrics_row(counter, time, af_atoms, af_resource, sti_concentration, link_density, coherance,
                       connection_ratio, normalized_sti_entropy, retention, p_correlation, modulation,
-                      global_coordination, effectiveness):
+                      global_coordination, effectiveness, gained_efficiency=0.0):
     
     # Append one metrics row per iteration to metrics.csv.
 
@@ -154,6 +154,7 @@ def write_metrics_row(counter, time, af_atoms,af_resource, sti_concentration, li
         "context_retention",
         "cognitive_maintenance",
         "effectiveness",
+        "gained_efficiency",
         "af_atoms",
     ]
 
@@ -171,6 +172,7 @@ def write_metrics_row(counter, time, af_atoms,af_resource, sti_concentration, li
         str(modulation[1]),
         str(global_coordination[1]),
         str(effectiveness[1]),
+        str(gained_efficiency),
         str(af_atoms),
     ]
 
@@ -214,3 +216,20 @@ def write_cip_row(index, time, af_atoms, metrices):
         writer.writerow(row)
 
     return ['wrote']
+
+
+def save_baseline():
+    """Copy the current metrics.csv to baseline_metrics.csv to serve as the baseline."""
+    global METRICS_PATH
+    if METRICS_PATH is None or not METRICS_PATH.exists():
+        return ["no metrics.csv to save"]
+    baseline_path = METRICS_PATH.parent / "baseline_metrics.csv"
+    import shutil
+    try:
+        shutil.copy(str(METRICS_PATH), str(baseline_path))
+        return [f"saved baseline to {baseline_path.name}"]
+    except Exception as e:
+        return [f"error copying baseline: {e}"]
+
+
+
