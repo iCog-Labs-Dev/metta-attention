@@ -495,6 +495,29 @@
     )
 )
 
+(= (baseline-count) 0)
+
+(= (getGainedEfficiency $cip)
+    (let* (
+        ($baselineCount (baseline-count))
+        ((CIPSnapshot $index $time $af_atoms $metrice) $cip)
+    )
+    (if (== $baselineCount 0)
+        0.0
+        (let* (
+            ($baseIndex (- $index $baselineCount))
+            ($baseCurr (get-cip-snapshots $baseIndex))
+            ($safeBasePrev (if (> $baseIndex 0) (- $baseIndex 1) 0))
+            ($basePrev (get-cip-snapshots $safeBasePrev))
+            ($optCurr $cip)
+            ($safeOptPrev (if (> $index 0) (- $index 1) 0))
+            ($optPrev (get-cip-snapshots $safeOptPrev))
+        )
+        (gainedEfficiency $basePrev $baseCurr $optPrev $optCurr))
+    ))
+)
+
+
 ; ## Topological Analysis
 
 ; persistent homology will be implemented here
