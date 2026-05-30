@@ -43,10 +43,10 @@
 
 ; write the params to a file
 !(updateAttentionParam MAX_AF_SIZE 70.0)
-!(updateAttentionParam TARGET_STI 90000.0)
-!(updateAttentionParam TARGET_LTI 90000.0) 
-!(updateAttentionParam STI_FUNDS_BUFFER 90000.0) 
-!(updateAttentionParam LTI_FUNDS_BUFFER 90000.0) 
+!(updateAttentionParam TARGET_STI 30000.0)
+!(updateAttentionParam TARGET_LTI 30000.0) 
+!(updateAttentionParam STI_FUNDS_BUFFER 30000.0) 
+!(updateAttentionParam LTI_FUNDS_BUFFER 30000.0) 
 !(updateAttentionParam FUNDS_STI 100000.0) 
 !(updateAttentionParam FUNDS_LTI 100000.0) 
 !(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.8)
@@ -69,42 +69,51 @@
     )
 )
 
-(= (batch) 10)
-(= (insectPoisonReadExp $expr $counter)
-    (if (== $expr ())
-        (empty)
-        (let* 
-            (
-                ($now (car-atom $expr))
-                ($rest (cdr-atom $expr))
-                ($af (getAfAtoms))
-            )
-            ( 
-                (stimulate $now 30)
-                (println! (stimulating atom --> $now))
-                (if (or (== (% $counter (batch)) 0) (== $rest ()))
-                    (
-            
-                        (collapse (test-superpose &incident))
-
-                        (map-atom (getAfAtoms) $atom 
-                            (let $res (collapse (getSti $atom))
-                                (let $sti (if (== $res ()) 0.0 (car-atom $res))
-                                    (updateAtomHistory $atom $sti)
-                                )
+(= (batch) 25)
+(= (runAttentionBatch)
+    (let*
+        (
+            ($_agents (collapse (test-superpose &incident)))
+            ($_history
+                (collapse
+                    (map-atom (getAfAtoms) $atom
+                        (let $res (collapse (getSti $atom))
+                            (let $sti (if (== $res ()) 0.0 (car-atom $res))
+                                (updateAtomHistory $atom $sti)
                             )
                         )
                     )
-                    (
+                )
+            )
+        )
+        True
+    )
+)
+
+(= (insectPoisonReadExp $expr $counter)
+    (if (== $expr ())
+        (let $_done (println! (finished-read count $counter)) True)
+        (let*
+            (
+                ($now (car-atom $expr))
+                ($rest (cdr-atom $expr))
+                ($_stim (collapse (stimulate $now 30)))
+                ($_stimlog (println! (stimulating atom --> $now)))
+                ($_readlog (println! (read-step $counter word $now remaining (size-atom $rest))))
+                ($_batch
+                    (if (or (== (% $counter (batch)) 0) (== $rest ()))
+                        (runAttentionBatch)
                         (println! (continued to stimulate batched atoms ...))
                     )
                 )
                 ; (py-call (time.sleep 5.0))
-                (logcurrCip) 
-                (insectPoisonReadExp $rest (+ $counter 1)))
+                ($_cip (logcurrCip))
+                ($_next (insectPoisonReadExp $rest (+ $counter 1)))
+            )
+            True
         )
     )
 )
 
-!(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
-
+; !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
+!(insectPoisonReadExp (car-atom (collapse (match &insect (insectSent $x) $x))) 0)
