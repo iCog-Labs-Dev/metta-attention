@@ -37,10 +37,12 @@
       ($coordination (globalCoordination $af))
       ($contextRetention (contextRetention))
       ($cognitiveMaintenance (cognitiveMaintenance))
+      ($fundSti (getAttentionParam FUNDS_STI))
    )
    (
     (afResource $afResource)
     (sticoncentration $stiConcentration)
+    (fundsti $fundSti)
     (linkdensity $linkDensity)
     (connectionratio $connectionRatio)
     (preallocation $preallocation)
@@ -409,4 +411,3 @@
 ; ## Topological Analysis
 
 ; persistent homology will be implemented here
-
