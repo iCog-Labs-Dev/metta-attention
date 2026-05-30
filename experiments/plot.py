@@ -1,11 +1,22 @@
 from pathlib import Path
 from typing import Union
+import ast
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
 import json
 import sys
+
+
+def parse_timestamp_column(series: pd.Series) -> pd.Series:
+    if pd.api.types.is_numeric_dtype(series):
+        return pd.to_datetime(series, unit="s", errors="coerce")
+
+    try:
+        return pd.to_datetime(series, errors="coerce", format="mixed")
+    except TypeError:
+        return pd.to_datetime(series, errors="coerce")
 
 
 def resolve_output_root(path_like: Union[str, Path]) -> Path:
@@ -66,7 +77,9 @@ class Plotter:
 
     def read_csv(self) -> pd.DataFrame:
         csv = self.output_path / 'output' / 'output.csv'
-        df = pd.read_csv(csv, parse_dates=['timestamp'])
+        df = pd.read_csv(csv)
+        df["timestamp"] = parse_timestamp_column(df["timestamp"])
+        df = df.dropna(subset=["timestamp"])
         words = df['pattern'].astype(str).str.extract(r'^\(?([^\s()]+)', expand=False)
         df['category'] = words.map(self.word_to_category).fillna('Entered through spreading')
         df['time_windows'] = df['timestamp'].dt.floor('0.0001s')
@@ -141,15 +154,36 @@ class MetricsPlotter:
     METRIC_COLUMNS = [
         "af_resource",
         "sti_concentration",
+        "fund_sti",
         "link_density",
-        "coherance",
         "connection_ratio",
-        "normalized_sti_entropy",
-        "retention",
-        "p_correlation",
+        "preallocation",
+        "cognitive_synergy",
         "modulation",
-        "global_coordination",
+        "coordination",
+        "context_retention",
+        "cognitive_maintenance",
     ]
+    METRIC_NAME_MAP = {
+        "afResource": "af_resource",
+        "sticoncentration": "sti_concentration",
+        "fundsti": "fund_sti",
+        "fundsSTI": "fund_sti",
+        "FUNDS_STI": "fund_sti",
+        "linkdensity": "link_density",
+        "connectionratio": "connection_ratio",
+        "preallocation": "preallocation",
+        "cognitivesynergy": "cognitive_synergy",
+        "modulation": "modulation",
+        "coordination": "coordination",
+        "contextretention": "context_retention",
+        "cognitivemaintenance": "cognitive_maintenance",
+        "coherance": "coherance",
+        "normalized_sti_entropy": "normalized_sti_entropy",
+        "retention": "retention",
+        "p_correlation": "p_correlation",
+        "global_coordination": "global_coordination",
+    }
     RESAMPLE_RULE = "15s"
 
     def __init__(self, output_path: Union[str, Path]):
@@ -173,17 +207,49 @@ class MetricsPlotter:
             return json.load(f)
 
     def read_metrics_csv(self) -> pd.DataFrame:
-        df = pd.read_csv(self.metrics_path, parse_dates=["timestamp"])
-        for column in self.METRIC_COLUMNS + ["counter"]:
+        df = pd.read_csv(self.metrics_path)
+        if "timestamp" in df.columns:
+            df["timestamp"] = parse_timestamp_column(df["timestamp"])
+
+        if "metrics" in df.columns:
+            metrics_df = pd.DataFrame(
+                [self.parse_metrics_blob(value) for value in df["metrics"]]
+            )
+            df = pd.concat([df.drop(columns=["metrics"]), metrics_df], axis=1)
+
+        if "counter" not in df.columns and "cip_index" in df.columns:
+            df["counter"] = df["cip_index"]
+
+        for column in list(self.METRIC_NAME_MAP.values()) + ["counter"]:
             if column in df.columns:
                 df[column] = pd.to_numeric(df[column], errors="coerce")
 
-        available = [column for column in self.METRIC_COLUMNS if column in df.columns]
+        available = [
+            column for column in self.METRIC_COLUMNS if column in df.columns
+        ]
         if not available:
             raise ValueError("No expected metric columns found in metrics.csv")
 
-        df = df[["timestamp", "counter", *available]].copy()
+        base_columns = [column for column in ["timestamp", "counter"] if column in df.columns]
+        df = df[[*base_columns, *available]].copy()
         return df
+
+    def parse_metrics_blob(self, value) -> dict:
+        if pd.isna(value):
+            return {}
+
+        try:
+            pairs = ast.literal_eval(str(value))
+        except (SyntaxError, ValueError):
+            return {}
+
+        parsed = {}
+        for item in pairs:
+            if not isinstance(item, (list, tuple)) or len(item) < 2:
+                continue
+            name = self.METRIC_NAME_MAP.get(str(item[0]), str(item[0]))
+            parsed[name] = item[1]
+        return parsed
 
     def plot(self) -> None:
         df = self.data_frame
@@ -191,9 +257,9 @@ class MetricsPlotter:
             column for column in self.METRIC_COLUMNS if column in df.columns
         ]
 
-        if "timestamp" in df.columns:
+        if "timestamp" in df.columns and not df["timestamp"].isna().all():
             grouped = (
-                df.set_index("timestamp")[metric_columns]
+                df.dropna(subset=["timestamp"]).set_index("timestamp")[metric_columns]
                 .resample(self.RESAMPLE_RULE)
                 .mean()
                 .dropna(how="all")
