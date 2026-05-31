@@ -497,7 +497,7 @@
 
 (= (baseline-count) 0)
 
-(= (getGainedEfficiency $cip)
+(= (localGainedEfficiency $cip)
     (let* (
         ($baselineCount (baseline-count))
         ((CIPSnapshot $index $time $af_atoms $metrice) $cip)
@@ -517,6 +517,27 @@
     ))
 )
 
+(= (globalGainedEfficiency $cip)
+    (let* (
+        ($baselineCount (baseline-count))
+        ((CIPSnapshot $index $time $af_atoms $metrice) $cip)
+    )
+    (if (== $baselineCount 0)
+        0.0
+        (let* (
+            ($baseIndex (- $index $baselineCount))
+            ($baseCurr (get-cip-snapshots $baseIndex))
+            ($basePrev (baselineCip))
+            ($optCurr $cip)
+            ($optPrev (get-cip-snapshots $baselineCount))
+        )
+        (gainedEfficiency $basePrev $baseCurr $optPrev $optCurr))
+    ))
+)
+
+(= (getGainedEfficiency $cip)
+    (localGainedEfficiency $cip)
+)
 
 ; ## Topological Analysis
 
