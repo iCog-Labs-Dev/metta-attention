@@ -25,9 +25,8 @@
     )
 )
 
-(= (save_baseline_wrapper)
-    (py-call (logger.save_baseline))
-)
+
+
 
 
 (= (write_cip_wrapper $index $time $af_atoms $metrice)

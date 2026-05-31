@@ -218,18 +218,4 @@ def write_cip_row(index, time, af_atoms, metrices):
     return ['wrote']
 
 
-def save_baseline():
-    """Copy the current metrics.csv to baseline_metrics.csv to serve as the baseline."""
-    global METRICS_PATH
-    if METRICS_PATH is None or not METRICS_PATH.exists():
-        return ["no metrics.csv to save"]
-    baseline_path = METRICS_PATH.parent / "baseline_metrics.csv"
-    import shutil
-    try:
-        shutil.copy(str(METRICS_PATH), str(baseline_path))
-        return [f"saved baseline to {baseline_path.name}"]
-    except Exception as e:
-        return [f"error copying baseline: {e}"]
-
-
 
