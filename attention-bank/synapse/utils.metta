@@ -3,10 +3,10 @@
 
 ; ## Time Series
 
-(= (generate-zeros $count)
+(= (generateZeros $count)
      (if (<= $count 0)
           ()
-          (cons-atom 0.0 (generate-zeros (- $count 1)))
+          (cons-atom 0.0 (generateZeros (- $count 1)))
      )
 )
 
@@ -20,7 +20,7 @@
 (= (updateAtomHistory $atom $newSti $currentSnapshot)
     (let $oldHist (collapse (match &stiSeries ($atom $hist) $hist))
         (if (== $oldHist ())
-            (let $paddedHistory (cons-atom $newSti (generate-zeros (- $currentSnapshot 1)))
+            (let $paddedHistory (cons-atom $newSti (generateZeros (- $currentSnapshot 1)))
                (add-atom &stiSeries ($atom $paddedHistory))
             )
             (let* (
@@ -30,7 +30,7 @@
                     ($paddedOldHistory (padExistingHistory $historyTuple $missingZeros))
                     ($newHistory (cons-atom $newSti $paddedOldHistory))
                 )
-                (let $rem_atom (remove-atom &stiSeries ($atom $historyTuple))
+                (let $remAtom (remove-atom &stiSeries ($atom $historyTuple))
                     (add-atom &stiSeries ($atom $newHistory))
                 )
             )
@@ -39,7 +39,7 @@
 )
 
 ; this function should be alligned with abel implementation
-(= (get-sti-series $atom)
+(= (getStiSeries $atom)
     (let $res (collapse (match &stiSeries ($atom $hist) $hist))
         (if (== $res ())
             (0.0)
@@ -167,8 +167,8 @@
 
 (= (temporalConjunction $atomI $atomJ)
     (let* (
-        ($stiI (get-sti-series $atomI))
-        ($stiJ (get-sti-series $atomJ))
+        ($stiI (getStiSeries $atomI))
+        ($stiJ (getStiSeries $atomJ))
         ($multiplied (zipMultiply $stiI $stiJ))
     )
     (if (== $multiplied ())

@@ -298,7 +298,7 @@
         (if (> $sizeAtoms 0)
             (let*
                 (
-                    ($stiSeries (map-atom $atoms get-sti-series))
+                    ($stiSeries (map-atom $atoms getStiSeries))
                     ($stival (map-atom $stiSeries averageList))
                     ($ltival (map-atom $atoms getLti))
                     ($sizeSti (size-atom $stival))
