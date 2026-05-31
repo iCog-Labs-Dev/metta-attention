@@ -1,10 +1,6 @@
 !(import! &self "../../experiments/utils/community_detector.py")
 !(bind! &stiSeries (new-space))
 
-(= (weight-afRatio) 0.4)  
-(= (weight-stiRatio) 0.3)  
-(= (weight-densityRatio) 0.3)
-
 ; ## Time Series
 
 (= (generate-zeros $count)

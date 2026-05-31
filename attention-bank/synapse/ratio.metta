@@ -188,13 +188,9 @@
             ($afRatio (getMetrics afResource $metrics))
             ($stiRatio (getMetrics sticoncentration $metrics))
             ($densityRatio (getMetrics linkdensity $metrics))
-
-            ($costAf (* $afRatio (weight-afRatio)))
-            ($costSti (* $stiRatio (weight-stiRatio)))
-            ($costLink (* $densityRatio (weight-densityRatio)))
         ) 
         
-        (+ (+ $costAf $costSti) $costLink)
+        (+ (+ $afRatio $stiRatio) $densityRatio)
     )
 )
 
@@ -248,7 +244,7 @@
       (baselineCip)
       (get-cip-snapshots
          (get-lattest-cip-index))
-   )
+   ) 
 )
 
 (= (getEffectiveness)
