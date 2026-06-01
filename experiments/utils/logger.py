@@ -231,8 +231,6 @@ def get_baseline_effectiveness(index):
                 BASELINE_EFFECTIVENESS_CACHE = [float(row['effectiveness']) for row in reader]
         else:
             BASELINE_EFFECTIVENESS_CACHE = []
-    
-    print(f"Baseline effectiveness cache: {BASELINE_EFFECTIVENESS_CACHE}")
 
     idx = int(index)
     if 0 <= idx < len(BASELINE_EFFECTIVENESS_CACHE):
