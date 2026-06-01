@@ -1,3 +1,5 @@
+!(import! &self topology)
+
 !(bind! &afsnap (new-space))
 (= (afSnap) &afsnap)
 
@@ -15,18 +17,21 @@
 (= (measure-all-metrics)
    (let* (
       ($af (getAfAtoms))
-      ($afResource (afResourceUsage))
-      ($stiConcentration (stiConcentration))
-      ($linkDensity (linkDensity))
-      ($connectionRatio (connectionRatio))
-      ($preallocation (preallocationSpace))
-      ($cognitiveSynergy (cognitiveSynergy))
-      ($modulation (selectionModulation))
-      ($coordination (globalCoordination $af))
-      ($contextRetention (contextRetention))
-      ($cognitiveMaintenance (cognitiveMaintenance))
+      ($afResource (getAfResourceUsage))
+      ($stiConcentration (getStiConcentration))
+      ($linkDensity (getLinkDensity))
+      ($connectionRatio (getConnectionRatio))
+      ($preallocation (getPreallocationSpace))
+      ($cognitiveSynergy (getCognitiveSynergy))
+      ($modulation (getSelectionModulation))
+      ($coordination (getGlobalCoordination $af))
+      ($contextRetention (getContextRetention))
+      ($cognitiveMaintenance (getCognitiveMaintenance))
       ($fundSti (getAttentionParam FUNDS_STI))
-      ($effectiveness (getEffectiveness))
+      ($triangleCount (topology-triangle-count))
+      ($betti0 (topology-betti0))
+      ($betti1 (topology-betti1))
+    ;   ($effectiveness (getEffectiveness))
    )
    (
     (afResource $afResource)
@@ -40,7 +45,10 @@
     (coordination $coordination)
     (contextretention $contextRetention)
     (cognitivemaintenance $cognitiveMaintenance)
-    (effectiveness $effectiveness)
+    (trianglecount $triangleCount)
+    (betti0 $betti0)
+    (betti1 $betti1)
+    ; (effectiveness $effectiveness)
 )))
 
 (= (updateMaxIndex)
@@ -71,6 +79,7 @@
           ($time (current-time))
           ($cip0 (CIPSnapshot 0 $time $af $metrics))
           ($_ (add-atom &cipspace $cip0))
+          ($topology (record-topology-report 0 $time))
           ($stiSeries (recordCipSeries))
         )
         $cip0 
@@ -125,6 +134,7 @@
          ($metrics (measure-all-metrics))
          ($time (current-time))
          ($_ (add-atom &cipspace (CIPSnapshot $newIndex $time $af $metrics)))
+         ($topology (record-topology-report $newIndex $time))
          ($stiSeries (recordCipSeries))
       )
       (CIPSnapshot
@@ -139,7 +149,7 @@
 ; ## Resource Cost Functions
 
 ; this is the ratio of the number of atoms inside af atom over the total number of atoms in typespace
-(= (afResourceUsage)
+(= (getAfResourceUsage)
     (let $allSize
         (size-atom (getAllAtomsWithBins))
         (if (> $allSize 0)
@@ -151,7 +161,7 @@
 
 
 ; the ratio between af sti and typespace sti
-(= (stiConcentration)
+(= (getStiConcentration)
     (let*
         (
             ($afSti (getTotalSti (getAfAtoms) 0))
@@ -166,7 +176,7 @@
 
 
 ; the ratio between the total hebbian link and hebbian link inside af atoms
-(= (linkDensity)
+(= (getLinkDensity)
     (let*
         (
             ($afAtoms (getAfAtoms))
@@ -186,18 +196,14 @@
 ; ## Effectiveness Calculation
 
 
-(= (totalResourceCost $metrics)
+(= (getTotalResourceCost $metrics)
     (let* ( 
             ($afRatio (getMetrics afResource $metrics))
             ($stiRatio (getMetrics sticoncentration $metrics))
             ($densityRatio (getMetrics linkdensity $metrics))
-
-            ($costAf (* $afRatio (weight-afRatio)))
-            ($costSti (* $stiRatio (weight-stiRatio)))
-            ($costLink (* $densityRatio (weight-densityRatio)))
         ) 
         
-        (+ (+ $costAf $costSti) $costLink)
+        (+ (+ $afRatio $stiRatio) $densityRatio)
     )
 )
 
@@ -209,7 +215,7 @@
      $metrics
 )
 
-(= (aggregateMetricDelta $baseline $current)
+(= (getAggregateMetricDelta $baseline $current)
     (let* (
             ($baseMetrics (getMetricsFromSnapshot $baseline))
             ($currMetrics (getMetricsFromSnapshot $current))
@@ -223,8 +229,8 @@
 (= (calculateEffectiveness $baseline $current)
     (let* (
             ($currMetrics (getMetricsFromSnapshot $current))
-            ($perfDelta (aggregateMetricDelta $baseline $current))
-            ($resourceCost (totalResourceCost $currMetrics))
+            ($perfDelta (getAggregateMetricDelta $baseline $current))
+            ($resourceCost (getTotalResourceCost $currMetrics))
         )
         (if (> $resourceCost 0)
             (/ $perfDelta $resourceCost)
@@ -237,7 +243,7 @@
    (get-cip-snapshots 0)
 )
 
-(= (localEffectiveness)
+(= (getLocalEffectiveness)
    (calculateEffectiveness
       (get-cip-snapshots
           (- (get-lattest-cip-index) 1))
@@ -246,7 +252,7 @@
    )
 )
 
-(= (globalEffectiveness)
+(= (getGlobalEffectiveness)
    (calculateEffectiveness
       (baselineCip)
       (get-cip-snapshots
@@ -255,19 +261,19 @@
 )
 
 (= (getEffectiveness)
-   (globalEffectiveness)
+   (getLocalEffectiveness)
 )
 
 ; ## Minimal Viable Evaluation
 
 ; AF coherence : me asure- cohere nce restricted to current AF members
-(= (afCoherence)
+(= (getAfCoherence)
    (measureCoherence (getAfAtoms))
 )
 
 ; this tell us the ratio of the intersection atoms between prevcip and currcip over thire unique total atom
 
-(= (contextRetention $prevCip $currCip)
+(= (getContextRetention $prevCip $currCip)
     (let*
         (
             ($overlap (size-atom (intersection-atom $currCip $prevCip)))
@@ -280,13 +286,13 @@
     )
 )
 
-(= (contextRetention)
+(= (getContextRetention)
     (let*
         (
             ($prevCip (get-cip-af (get-lattest-cip-index)))
             ($currCip (getAfAtoms))
         )
-        (contextRetention $prevCip $currCip)
+        (getContextRetention $prevCip $currCip)
     )
 )
 
@@ -296,7 +302,7 @@
 ; Cognitive Synergy : Pearson correlation between each atoms
 ; time-averaged STI and its current LTI
 
-(= (cognitiveSynergy) ;; previously called correlation
+(= (getCognitiveSynergy) ;; previously called correlation
     (let*
         (
             ($atoms (getAllAtomsWithBins))
@@ -326,7 +332,7 @@
 ; we find the variance and thire uniform variance
 ; then we calculate variance over uniform variance
 
-(= (selectionModulation)
+(= (getSelectionModulation)
     (let*
         (
             ($atoms (getAllAtomsWithBins))
@@ -345,7 +351,7 @@
 ; we take all the links and we find if there is any target atom inside the links that is already inside af atoms
 ; then we sum and see how many of them are already inside af atom
 ; then we return the total already existing atoms over the number of total af links
-(= (connectionRatio)
+(= (getConnectionRatio)
     (let*
         (
             ($afAtoms (getAfAtoms))
@@ -367,7 +373,7 @@
 ; ## PHASE II: Audits
 
 ; this is the ratio of the entropy of sti distribution over the maximum entropy of uniform distribution
-(= (preallocationSpace)
+(= (getPreallocationSpace)
     (let*
         (
             ($allAtoms (getAllAtomsWithBins))
@@ -438,7 +444,7 @@
 )
 
 (= (average-context-retention-pairs-acc (cons $prev (cons $curr $tail)) $sum $count)
-    (let $retention (contextRetention $prev $curr)
+    (let $retention (getContextRetention $prev $curr)
         (average-context-retention-pairs-acc
             (cons $curr $tail)
             (+ $sum $retention)
@@ -447,7 +453,7 @@
     )
 )
 
-(= (cognitiveMaintenance)
+(= (getCognitiveMaintenance)
     (let*
         (
             ($storedSeries (if (has-cip-snapshots) (cip-af-series 0 (get-lattest-cip-index)) ()))
@@ -459,7 +465,7 @@
 
 
 ; this measure the global coordination for a given state, it is the geometric mean of local coherence and global coherence
-(= (globalCoordination $state)
+(= (getGlobalCoordination $state)
     (let*
         (
             ($afLinks (getAllHebLinks))

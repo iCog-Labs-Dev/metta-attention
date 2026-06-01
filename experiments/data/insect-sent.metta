@@ -14,13 +14,13 @@ ants are eusocial insects of the family formicidae 'and' along with the  wasps '
 the most common bees in the northern hemisphere are the halictidae 'or' sweat bees
 members of the tribe proconiini of the subfamily cicadellinae are commonly known as sharpshooters
 damage to foliage flowers 'and' various crops is commonly blamed on earwigs especially the common earwig forficula auricularia.
-over 250 species of bumblebee are known
+over '250' species of bumblebee are known
 
 caffeine is a central nervous system stimulant of the methylxanthine class
 nicotine is carnogenic 'and' addictive substance
 water plays an important role in the world economy
 aflatoxins are poisonous carcinogens that are produced by certain molds which grow in soil decaying vegetation hay 'and' grains
-arsenic is a chemical element with symbolas 'and' atomic number 33
+arsenic is a chemical element with symbolas 'and' atomic number '33'
 botulinum toxin types a 'and' b are used in medicine to treat various muscle spasms 'and' diseases characterized by overactive muscle
 spasms of the larynx may rarely occur
 caffeine is a central nervous system stimulant of the methylxanthine class

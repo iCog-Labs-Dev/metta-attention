@@ -3,6 +3,7 @@ from datetime import datetime
 import os
 import csv
 import json
+import sys
 from pathlib import Path
 def format_pattern(pat):
     if isinstance(pat, (list, tuple)):
@@ -183,8 +184,68 @@ def write_metrics_row(counter, time, af_atoms,af_resource, sti_concentration, li
     return ['wrote']
 
 
+def metric_value(metrics, name, default=""):
+    try:
+        metric_items = iter(metrics)
+    except TypeError:
+        return default
 
-def write_cip_row(index, time, af_atoms, metrices):
+    for metric in metric_items:
+        if isinstance(metric, (list, tuple)) and len(metric) >= 2 and str(metric[0]) == name:
+            return metric[1]
+
+        try:
+            key, value = metric.get_children()
+        except Exception:
+            continue
+
+        if str(key) == name:
+            return value
+
+    return default
+
+
+def topology_metric_values(hebbian_links):
+    if hebbian_links is None:
+        return None
+
+    topology_dir = Path(__file__).resolve().parent.parent.parent / "attention-bank" / "synapse"
+    topology_dir_str = str(topology_dir)
+    if topology_dir_str not in sys.path:
+        sys.path.insert(0, topology_dir_str)
+
+    from topology_metrics import topology_metrics
+
+    metrics = topology_metrics(hebbian_links)
+    return metrics["triangles"], metrics["betti0"], metrics["betti1"]
+
+
+def metrics_with_topology_values(metrics, triangle_count, betti0, betti1):
+    replacements = {
+        "trianglecount": triangle_count,
+        "betti0": betti0,
+        "betti1": betti1,
+    }
+
+    try:
+        metric_items = list(metrics)
+    except TypeError:
+        return metrics
+
+    normalized = []
+    for metric in metric_items:
+        if isinstance(metric, (list, tuple)) and len(metric) >= 2:
+            name = str(metric[0])
+            if name in replacements:
+                normalized.append([metric[0], replacements[name]])
+                continue
+
+        normalized.append(metric)
+
+    return normalized
+
+
+def write_cip_row(index, time, af_atoms, metrices, hebbian_links=None):
     
     # Append one metrics row per iteration to metrics.csv.
 
@@ -193,10 +254,28 @@ def write_cip_row(index, time, af_atoms, metrices):
     if not START_LOGGER_FLAG or METRICS_PATH is None:
         return ['not written']
 
+    topology_values = topology_metric_values(hebbian_links)
+    if topology_values is None:
+        triangle_count = metric_value(metrices, "trianglecount")
+        betti0 = metric_value(metrices, "betti0")
+        betti1 = metric_value(metrices, "betti1")
+    else:
+        triangle_count, betti0, betti1 = topology_values
+
+    normalized_metrics = metrics_with_topology_values(
+        metrices,
+        triangle_count,
+        betti0,
+        betti1,
+    )
+
     header = [
         "cip_index",
         "timestamp",
         "af_atoms",
+        "triangle_count",
+        "betti_0",
+        "betti_1",
         "metrics",
     ]
 
@@ -204,7 +283,10 @@ def write_cip_row(index, time, af_atoms, metrices):
         str(index),
         str(time),
         str(af_atoms),
-        str(metrices),
+        str(triangle_count),
+        str(betti0),
+        str(betti1),
+        str(normalized_metrics),
     ]
 
     with open(METRICS_PATH, 'a', newline='', encoding='utf-8') as file:

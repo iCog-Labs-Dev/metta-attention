@@ -130,17 +130,19 @@
 
 ; write your synapse metrice tests here
 
+!(initialize-baseline-cip)
+!(getAfResourceUsage)
+!(getStiConcentration)
+!(getLinkDensity)
+!(getConnectionRatio)
+!(getPreallocationSpace)
+!(getCognitiveSynergy)
+!(getSelectionModulation)
+!(getGlobalCoordination (getAfAtoms))
+!(getContextRetention)
+!(getCognitiveMaintenance)
+!(getEffectiveness)
 
-!(afResourceUsage)
-!(stiConcentration)
-!(linkDensity)
-!(cognitiveSynergy)
-!(contextRetention)
-!(selectionModulation)
-!(connectionRatio)
-!(preallocationSpace)
-!(globalCoordination (getAfAtoms))
-!(cognitiveMaintenance)
 
 
 !(add-atom &cipspace (CIPSnapshot 1 1 (a b c) ()))
@@ -172,7 +174,7 @@
 ; lettest cip index 4, its retenion with 3 should be 
 ; 1 common atom (d) and 5 unique atoms (a,b,c,e,f,h,i) so retention should be 1/5 = 0.2
 
-!(assertEqual (contextRetention (get-cip-af 3) (get-cip-af 4)) 0.2)
+!(assertEqual (getContextRetention (get-cip-af 3) (get-cip-af 4)) 0.2)
 
 ; !(collapse (averageList (get-sti-series (superpose (k a b c))))) ; should be (3 4 5)
 ; !(collapse (averageList (get-sti-series ())))

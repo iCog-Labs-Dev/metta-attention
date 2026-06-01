@@ -64,9 +64,8 @@
         (let* (
                 ($cip (transition-to-next-cip))
                 ((CIPSnapshot $index $time $af_atoms $metrice) $cip)
-                (($afResource $stiConcentration $linkDensity $connectionRatio $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness) $metrice)
         )
-        (write_metrics_wrapper $index $time $af_atoms $afResource $stiConcentration $linkDensity $connectionRatio $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness)
+        (write_cip_wrapper $index $time $af_atoms $metrice)
     )
 )
 
@@ -118,3 +117,8 @@
 
 ; !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
 !(insectPoisonReadExp (car-atom (collapse (match &insect (insectSent $x) $x))) 0)
+
+
+; stimulat is taking long time, idk why??
+; its performance accross funds and number of atoms should be studied??
+
