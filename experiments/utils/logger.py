@@ -30,6 +30,7 @@ LOGGING_DIRECTORY = None
 SETTING_PATH = None
 CSV_PATH = None
 METRICS_PATH = None
+BASELINE_EFFECTIVENESS_CACHE = None
 
 
 def start_logger(directory):
@@ -217,5 +218,24 @@ def write_cip_row(index, time, af_atoms, metrices):
 
     return ['wrote']
 
+def get_baseline_effectiveness(index):
+    """Load baseline_metrics.csv and return the effectiveness at the given step index."""
+    global BASELINE_EFFECTIVENESS_CACHE
 
+    if BASELINE_EFFECTIVENESS_CACHE is None:
+        csv_path = Path(__file__).parent.parent / "output" / "baseline_metrics.csv"
+
+        if csv_path.exists():
+            with open(csv_path, 'r') as f:
+                reader = csv.DictReader(f)
+                BASELINE_EFFECTIVENESS_CACHE = [float(row['effectiveness']) for row in reader]
+        else:
+            BASELINE_EFFECTIVENESS_CACHE = []
+    
+    print(f"Baseline effectiveness cache: {BASELINE_EFFECTIVENESS_CACHE}")
+
+    idx = int(index)
+    if 0 <= idx < len(BASELINE_EFFECTIVENESS_CACHE):
+        return float(BASELINE_EFFECTIVENESS_CACHE[idx])
+    return 0.0
 

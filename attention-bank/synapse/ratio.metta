@@ -477,59 +477,18 @@
 
 ; ## PHASE IV: Benchmarking
 
-; (: gainedEfficiency (-> CIPSnapshot CIPSnapshot CIPSnapshot CIPSnapshot Number))
-(= (gainedEfficiency $basePrev $baseCurr $optPrev $optCurr)
+(= (getGainedEfficiency $index)
     (let* (
-            ($baselineEff (calculateEffectiveness $basePrev $baseCurr))
-            ($optimizedEff (calculateEffectiveness $optPrev $optCurr))
-            ($delta (- $optimizedEff $baselineEff))
-        )
-        (if (> (abs-math $baselineEff) 0.0)
-            (/ $delta (abs-math $baselineEff))
-            $optimizedEff
-        )
+        ($snapshot (get-cip-snapshots $index))
+        ($metrics (getMetricsFromSnapshot $snapshot))
+        ($optimizedEff (getMetrics effectiveness $metrics))
+        ($baselineEff (get_baseline_effectiveness $index))
     )
-)
-
-(= (baseline-count) 0)
-
-(= (localGainedEfficiency)
-    (let* (
-        ($baselineCount (baseline-count))
-        ($index (get-lattest-cip-index))
+    (if (> (abs-math $baselineEff) 0.0)
+        (/ (- $optimizedEff $baselineEff) (abs-math $baselineEff))
+        $optimizedEff
     )
-    (if (== $baselineCount 0)
-        0.0
-        (let* (
-            ($baseIndex (- $index $baselineCount))
-            ($baseCurr (get-cip-snapshots $baseIndex))
-            ($basePrev (get-cip-snapshots (- $baseIndex 1)))
-            ($optCurr (get-cip-snapshots $index))
-            ($optPrev (get-cip-snapshots (- $index 1)))
-        )
-        (gainedEfficiency $basePrev $baseCurr $optPrev $optCurr))
-    ))
-)
-
-(= (globalGainedEfficiency)
-    (let* (
-        ($baselineCount (baseline-count))
-        ($index (get-lattest-cip-index))
     )
-    (if (== $baselineCount 0)
-        0.0
-        (let* (
-            ($baseCurr (get-cip-snapshots (- $index $baselineCount)))
-            ($basePrev (baselineCip))
-            ($optCurr (get-cip-snapshots $index))
-            ($optPrev (get-cip-snapshots (+ $baselineCount 1)))
-        )
-        (gainedEfficiency $basePrev $baseCurr $optPrev $optCurr))
-    ))
-)
-
-(= (getGainedEfficiency)
-    (globalGainedEfficiency)
 )
 
 ; ## Topological Analysis

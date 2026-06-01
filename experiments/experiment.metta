@@ -64,11 +64,13 @@
                 ($cip (transition-to-next-cip))
                 ((CIPSnapshot $index $time $afAtoms $metrice) $cip)
                 (($afResource $stiConcentration $linkDensity $connectionRatio $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness) $metrice)
-                ($gainedEfficiency (getGainedEfficiency))
+                ($gainedEfficiency (getGainedEfficiency $index))
         )
         (write_metrics_wrapper $index $time $afAtoms $afResource $stiConcentration $linkDensity $connectionRatio $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness $gainedEfficiency)
     )
 )
+
+
 
 (= (batch) 10)
 (= (insectPoisonReadExp $expr $counter)
@@ -94,11 +96,6 @@
     )
 )
 
-!(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
-!(remove-atom &self (= (baseline-count) 0))
-!(let $bc (+ (get-lattest-cip-index) 1) (add-atom &self (= (baseline-count) $bc)))
-
-!(updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.8)
 !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
 
 

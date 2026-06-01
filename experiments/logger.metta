@@ -33,6 +33,11 @@
     (py-call (logger.write_cip_row $index $time $af_atoms $metrice))
 )
 
+(= (get_baseline_effectiveness $index)
+    (py-call (logger.get_baseline_effectiveness $index))
+)
+
+
 (= (AFsnapshot $afAtoms)
     (if (== $afAtoms ())
         ()
