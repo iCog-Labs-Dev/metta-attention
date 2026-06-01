@@ -1,29 +1,68 @@
 !(import! &self "../../experiments/utils/community_detector.py")
+!(bind! &stiSeries (new-space))
 
+(= (weight-afRatio) 0.4)  
+(= (weight-stiRatio) 0.3)  
+(= (weight-densityRatio) 0.3)
 
 ; ## Time Series
 
-(= (updateAtomHistory $atom $newSti)
-    (let $oldHist (collapse (match &self (StiHistory $atom $hist) $hist))
-        (if (== $oldHist ())
-            (add-atom &self (StiHistory $atom ($newSti)))
+(= (generate-zeros $count)
+     (if (<= $count 0)
+          ()
+          (cons-atom 0.0 (generate-zeros (- $count 1)))
+     )
+)
 
-            (let $historyTuple (car-atom $oldHist)
-                (let $newHistory (cons-atom $newSti $historyTuple)
-                    (let $dummy (remove-atom &self (StiHistory $atom $historyTuple))
-                        (add-atom &self (StiHistory $atom $newHistory))
-                    )
+(= (padExistingHistory $list $count)
+    (if (<= $count 0)
+        $list
+        (cons-atom 0.0 (padExistingHistory $list (- $count 1)))
+    )
+)
+
+(= (updateAtomHistory $atom $newSti $currentSnapshot)
+    (let $oldHist (collapse (match &stiSeries ($atom $hist) $hist))
+        (if (== $oldHist ())
+            (let $paddedHistory (cons-atom $newSti (generate-zeros (- $currentSnapshot 1)))
+               (add-atom &stiSeries ($atom $paddedHistory))
+            )
+            (let* (
+                    ($historyTuple (car-atom $oldHist))
+                    ($oldSize (size-atom $historyTuple))
+                    ($missingZeros (- (- $currentSnapshot 1) $oldSize))
+                    ($paddedOldHistory (padExistingHistory $historyTuple $missingZeros))
+                    ($newHistory (cons-atom $newSti $paddedOldHistory))
+                )
+                (let $rem_atom (remove-atom &stiSeries ($atom $historyTuple))
+                    (add-atom &stiSeries ($atom $newHistory))
                 )
             )
         )
     )
 )
 
-(= (getStiSeries $atom)
-    (let $res (collapse (match &self (StiHistory $atom $hist) $hist))
+; this function should be alligned with abel implementation
+(= (get-sti-series $atom)
+    (let $res (collapse (match &stiSeries ($atom $hist) $hist))
         (if (== $res ())
             (0.0)
             (car-atom $res)
+        )
+    )
+)
+
+(= (recordCipSeries)
+    (let* 
+        (
+            ($indexMatch (collapse (match &cipspace (maxIndex $i) $i))) ;; not using get-lattest-cip-index to prevent circular dependency with ratio
+            ($safeIndex (if (== $indexMatch ()) 0 (car-atom $indexMatch)))
+            ($currentSnapShot (+ $safeIndex 1))
+        )
+        (map-atom 
+            (getAllAtomsWithBins) 
+            $atom 
+            (updateAtomHistory $atom (getSti $atom) $currentSnapShot)
         )
     )
 )
@@ -132,8 +171,8 @@
 
 (= (temporalConjunction $atomI $atomJ)
     (let* (
-        ($stiI (getStiSeries $atomI))
-        ($stiJ (getStiSeries $atomJ))
+        ($stiI (get-sti-series $atomI))
+        ($stiJ (get-sti-series $atomJ))
         ($multiplied (zipMultiply $stiI $stiJ))
     )
     (if (== $multiplied ())
@@ -227,32 +266,35 @@
 
 
 (= (pearsonCorrelationLists $listX $listY)
-    (let* (
-        ($sizeX (size-atom $listX))
-        ($sizeY (size-atom $listY))
+    (let* 
+        (
+            ($sizeX (size-atom $listX))
+            ($sizeY (size-atom $listY))
+        )
+        (if (or (== $sizeX 0) (== $sizeY 0))
+            0.0
+            (let* 
+                (
+                    ($meanX (averageList $listX))
+                    ($meanY (averageList $listY))
+
+                    ($diffX (map-atom $listX $x (- $x $meanX)))
+                    ($diffY (map-atom $listY $y (- $y $meanY)))
+
+                    ($covarTerms (zipMultiply $diffX $diffY))
+                    ($covar (foldl-atom $covarTerms 0.0 $a $b (+ $a $b)))
+
+                    ($varXTerms (map-atom $diffX $dx (* $dx $dx)))
+                    ($varYTerms (map-atom $diffY $dy (* $dy $dy)))
+                    ($varX (foldl-atom $varXTerms 0.0 $a $b (+ $a $b)))
+                    ($varY (foldl-atom $varYTerms 0.0 $a $b (+ $a $b)))
+                    ($varProd (* $varX $varY))
+                    ($denominator (if (> $varProd 0) (sqrt-math $varProd) 0.0))
+                )
+                (if (> $denominator 0) (/ $covar $denominator) 0.0)
+            )
+        )
     )
-    (if (or (== $sizeX 0) (== $sizeY 0))
-        0.0
-        (let* (
-            ($meanX (averageList $listX))
-            ($meanY (averageList $listY))
-
-            ($diffX (map-atom $listX $x (- $x $meanX)))
-            ($diffY (map-atom $listY $y (- $y $meanY)))
-
-            ($covarTerms (zipMultiply $diffX $diffY))
-            ($covar (foldl-atom $covarTerms 0.0 $a $b (+ $a $b)))
-
-            ($varXTerms (map-atom $diffX $dx (* $dx $dx)))
-            ($varYTerms (map-atom $diffY $dy (* $dy $dy)))
-            ($varX (foldl-atom $varXTerms 0.0 $a $b (+ $a $b)))
-            ($varY (foldl-atom $varYTerms 0.0 $a $b (+ $a $b)))
-            ($varProd (* $varX $varY))
-            ($denominator (if (> $varProd 0) (sqrt-math $varProd) 0.0))
-        )
-        (if (> $denominator 0) (/ $covar $denominator) 0.0)
-        )
-    ))
 )
 
 (= (stiProbablity $atomSti $allSti)
@@ -275,5 +317,64 @@
             ($sumTerms (foldl-atom $entropyTerms 0 $acc $x (+ $acc $x)))
         )
         (* -1.0 $sumTerms)
+    )
+)
+
+(= (getMetricValue ($name $val))
+    $val
+)
+
+(= (getMetricName ($name $val))
+    $name
+)
+
+(= (getMetrics $name $list)
+    (if (== $list ())
+        0.0
+        (let* (
+                ($head (car-atom $list))
+                ($tail (cdr-atom $list))
+                ($mName (getMetricName $head))
+                ($mVal (getMetricValue $head))
+            )
+            (if (== $mName $name)
+                $mVal
+                (getMetrics $name $tail)
+            )
+        )
+    )
+)
+
+(= (sumMetrics $list)
+     (if (== $list ())
+         0.0
+         (let*
+               (
+                    ($head (car-atom $list))
+                    ($tail (cdr-atom $list))
+               )
+               (+ (getMetricValue $head) (sumMetrics $tail))
+         )
+     )
+)
+
+(= (countMetrics $list)
+     (if (== $list ())
+         0
+         (let $tail (cdr-atom $list)
+              (+ 1 (countMetrics $tail))
+         )
+     )
+)
+
+(= (averageMetricScore $full-metric-list)
+    (let* (
+            ($total (sumMetrics $full-metric-list))
+            ($count (countMetrics $full-metric-list))
+        )
+        (if (> $count 0)
+            (/ $total $count)
+            0.0
+        )
     )
 )

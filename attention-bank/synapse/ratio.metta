@@ -2,18 +2,6 @@
 (= (afSnap) &afsnap)
 
 !(bind! &cipspace (new-space))
-!(bind! &stiSeries (new-space))
-
-
-; this function should be alligned with abel implementation
-(= (get-sti-series $atom)
-    (let $res (collapse (match &stiSeries ($atom $hist) $hist))
-        (if (== $res ())
-            ()
-            (car-atom $res)
-        )
-    )
-)
 
 ; ## CIP Records
 
@@ -38,6 +26,7 @@
       ($contextRetention (contextRetention))
       ($cognitiveMaintenance (cognitiveMaintenance))
       ($fundSti (getAttentionParam FUNDS_STI))
+      ($effectiveness (getEffectiveness))
    )
    (
     (afResource $afResource)
@@ -51,31 +40,52 @@
     (coordination $coordination)
     (contextretention $contextRetention)
     (cognitivemaintenance $cognitiveMaintenance)
+    (effectiveness $effectiveness)
 )))
 
+(= (updateMaxIndex)
+    (let $index 
+        (collapse (match &cipspace (maxIndex $cindex) $cindex))
+        (if (== $index ())
+            (add-atom &cipspace (maxIndex 0))
+            (let*
+                (
+                    ($num (car-atom $index))
+                    ($newIndex (+ 1 $num))
+                )
+                (
+                    (remove-atom &cipspace (maxIndex $num))
+                    (add-atom &cipspace (maxIndex $newIndex))
+                )
+            )
+        )
+    )
+)
 
 ; CIP: Cognitive Integration Periods
 (= (initialize-baseline-cip)
    (let*
       (
-        ;   ( $_ ( record-cip-series ) ) record-cip series spece can be initialized here
           ($af (getAfAtoms))
           ($metrics (measure-all-metrics))
           ($time (current-time))
           ($cip0 (CIPSnapshot 0 $time $af $metrics))
+          ($_ (add-atom &cipspace $cip0))
+          ($stiSeries (recordCipSeries))
         )
-        (add-atom &cipspace $cip0)
+        $cip0 
    )
 )
 
 (= (get-lattest-cip-index)
-
-   (let* (
-    ($indexes (collapse (let (CIPSnapshot $index $time $af $matrice) (superpose (collapse (match &cipspace $x $x))) $index)))
-    ($lettest (if (== $indexes ()) 0 (max-atom $indexes)))
-   )
-   $lettest
-))
+    (let $res 
+        (collapse (match &cipspace (maxIndex $index) $index))
+        (if (== $res ())
+            0
+            (car-atom $res)
+        )
+    )
+)
 
 (= (get-cip-af $targetIndex)
    (let $res (collapse (match &cipspace (CIPSnapshot $targetIndex $time $af $matrice) $af))
@@ -108,13 +118,14 @@
 (= (transition-to-next-cip)
     (let*
       (
-        ;  ( $_ (record-cip-series) ) the final function that help us to track atoms sti history will be called here.
+         ($update (updateMaxIndex))
          ($index (get-lattest-cip-index))
          ($newIndex (+ $index 1))
          ($af (getAfAtoms))
          ($metrics (measure-all-metrics))
-         ($time (py-call (time.time)))
+         ($time (current-time))
          ($_ (add-atom &cipspace (CIPSnapshot $newIndex $time $af $metrics)))
+         ($stiSeries (recordCipSeries))
       )
       (CIPSnapshot
           $newIndex
@@ -171,11 +182,81 @@
 )
 
 
+
 ; ## Effectiveness Calculation
 
-; the implementation of Effectiveness and Redundance function will be here
-; 
 
+(= (totalResourceCost $metrics)
+    (let* ( 
+            ($afRatio (getMetrics afResource $metrics))
+            ($stiRatio (getMetrics sticoncentration $metrics))
+            ($densityRatio (getMetrics linkdensity $metrics))
+
+            ($costAf (* $afRatio (weight-afRatio)))
+            ($costSti (* $stiRatio (weight-stiRatio)))
+            ($costLink (* $densityRatio (weight-densityRatio)))
+        ) 
+        
+        (+ (+ $costAf $costSti) $costLink)
+    )
+)
+
+(= (getMetricsFromSnapshot ()) 
+    ()
+)
+
+(= (getMetricsFromSnapshot (CIPSnapshot $index $time $af $metrics))
+     $metrics
+)
+
+(= (aggregateMetricDelta $baseline $current)
+    (let* (
+            ($baseMetrics (getMetricsFromSnapshot $baseline))
+            ($currMetrics (getMetricsFromSnapshot $current))
+            ($baseScore (averageMetricScore $baseMetrics))
+            ($currScore (averageMetricScore $currMetrics))
+        )
+        (- $currScore $baseScore)
+    )
+)
+
+(= (calculateEffectiveness $baseline $current)
+    (let* (
+            ($currMetrics (getMetricsFromSnapshot $current))
+            ($perfDelta (aggregateMetricDelta $baseline $current))
+            ($resourceCost (totalResourceCost $currMetrics))
+        )
+        (if (> $resourceCost 0)
+            (/ $perfDelta $resourceCost)
+            0.0
+        )
+    )
+)
+
+(= (baselineCip)
+   (get-cip-snapshots 0)
+)
+
+(= (localEffectiveness)
+   (calculateEffectiveness
+      (get-cip-snapshots
+          (- (get-lattest-cip-index) 1))
+      (get-cip-snapshots
+          (get-lattest-cip-index))
+   )
+)
+
+(= (globalEffectiveness)
+   (calculateEffectiveness
+      (baselineCip)
+      (get-cip-snapshots
+         (get-lattest-cip-index))
+   )
+)
+
+(= (getEffectiveness)
+   (globalEffectiveness)
+)
 
 ; ## Minimal Viable Evaluation
 
@@ -224,7 +305,8 @@
         (if (> $sizeAtoms 0)
             (let*
                 (
-                    ($stival  (collapse (averageList (get-sti-series (superpose $atoms)))))
+                    ($stiSeries (map-atom $atoms get-sti-series))
+                    ($stival (map-atom $stiSeries averageList))
                     ($ltival (map-atom $atoms getLti))
                     ($sizeSti (size-atom $stival))
                     ($sizeLti (size-atom $ltival))
@@ -402,11 +484,7 @@
 
 ; ## PHASE IV: Benchmarking
 
-; effectiveness benchmark will be implemented here
-
 (: gainedEfficience (-> CipSnapshot CipSnapshot CipSnapshot CipSnapshot Number))
-
-
 
 ; ## Topological Analysis
 
