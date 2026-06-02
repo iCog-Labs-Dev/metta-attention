@@ -180,6 +180,8 @@ class MetricsPlotter:
         "coordination": "coordination",
         "contextretention": "context_retention",
         "cognitivemaintenance": "cognitive_maintenance",
+        "gainedefficiency": "gained_efficiency",
+        "gainedEfficiency": "gained_efficiency",
         "coherance": "coherance",
         "normalized_sti_entropy": "normalized_sti_entropy",
         "retention": "retention",

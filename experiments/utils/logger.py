@@ -26,6 +26,8 @@ METRIC_NAME_MAP = {
     "cognitivemaintenance": "cognitive_maintenance",
     "cognitiveMaintenance": "cognitive_maintenance",
     "effectiveness": "effectiveness",
+    "gainedefficiency": "gained_efficiency",
+    "gainedEfficiency": "gained_efficiency",
 }
 
 METRIC_COLUMNS = [
@@ -41,6 +43,7 @@ METRIC_COLUMNS = [
     "context_retention",
     "cognitive_maintenance",
     "effectiveness",
+    "gained_efficiency",
 ]
 
 TOPOLOGY_METRIC_NAMES = {
@@ -164,7 +167,7 @@ def start_logger(directory):
     `directory` may be a string path or an object exposing `get_name()`.
     Returns a Hyperon-style empty result.
     """
-    global START_LOGGER_FLAG, LOGGING_DIRECTORY, SETTING_PATH, CSV_PATH, METRICS_PATH
+    global START_LOGGER_FLAG, LOGGING_DIRECTORY, SETTING_PATH, CSV_PATH, METRICS_PATH, BASELINE_EFFECTIVENESS_CACHE
 
     # Accept either string path or an object with get_name()
     if isinstance(directory, str):
@@ -197,6 +200,7 @@ def start_logger(directory):
     CSV_PATH.write_text("")
     METRICS_PATH.write_text("")
 
+    BASELINE_EFFECTIVENESS_CACHE = None
     START_LOGGER_FLAG = True
     return ['started']
 
@@ -257,7 +261,7 @@ def write_to_csv(afatoms):
 
 def write_metrics_row(counter, time, af_atoms, af_resource, sti_concentration, link_density, connection_ratio,
                       preallocation, cognitive_synergy, modulation, coordination, context_retention,
-                      cognitive_maintenance, effectiveness):
+                      cognitive_maintenance, effectiveness, gained_efficiency=0.0):
     
     # Append one metrics row per iteration to metrics.csv.
 
@@ -279,17 +283,18 @@ def write_metrics_row(counter, time, af_atoms, af_resource, sti_concentration, l
         metric_arg("context_retention", context_retention),
         metric_arg("cognitive_maintenance", cognitive_maintenance),
         metric_arg("effectiveness", effectiveness),
+        metric_arg("gained_efficiency", gained_efficiency),
     ]:
         metrics[name] = value
 
     metric_columns = ordered_metric_columns(metrics)
-    header = ["counter", "timestamp", *metric_columns, "af_atoms"]
+    header = ["counter", "timestamp", "af_atoms", *metric_columns]
 
     row = [
         str(counter),
         str(time),
-        *[str(metrics.get(column, "")) for column in metric_columns],
         str(af_atoms),
+        *[str(metrics.get(column, "")) for column in metric_columns],
     ]
 
     append_csv_row(METRICS_PATH, header, row)
