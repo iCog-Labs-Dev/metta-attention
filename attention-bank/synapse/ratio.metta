@@ -28,10 +28,10 @@
       ($contextRetention (getContextRetention))
       ($cognitiveMaintenance (getCognitiveMaintenance))
       ($fundSti (getAttentionParam FUNDS_STI))
-      ($triangleCount (topology-triangle-count))
-      ($betti0 (topology-betti0))
-      ($betti1 (topology-betti1))
-    ;   ($effectiveness (getEffectiveness))
+      ($effectiveness (getEffectiveness))
+    ;   ($triangleCount (topology-triangle-count))
+    ;   ($betti0 (topology-betti0))
+    ;   ($betti1 (topology-betti1))
    )
    (
     (afResource $afResource)
@@ -45,10 +45,10 @@
     (coordination $coordination)
     (contextretention $contextRetention)
     (cognitivemaintenance $cognitiveMaintenance)
-    (trianglecount $triangleCount)
-    (betti0 $betti0)
-    (betti1 $betti1)
-    ; (effectiveness $effectiveness)
+    (effectiveness $effectiveness)
+    ; (trianglecount $triangleCount)
+    ; (betti0 $betti0)
+    ; (betti1 $betti1)
 )))
 
 (= (updateMaxIndex)
@@ -79,8 +79,8 @@
           ($time (current-time))
           ($cip0 (CIPSnapshot 0 $time $af $metrics))
           ($_ (add-atom &cipspace $cip0))
-          ($topology (record-topology-report 0 $time))
           ($stiSeries (recordCipSeries))
+        ;   ($topology (record-topology-report 0 $time))
         )
         $cip0 
    )
@@ -134,7 +134,7 @@
          ($metrics (measure-all-metrics))
          ($time (current-time))
          ($_ (add-atom &cipspace (CIPSnapshot $newIndex $time $af $metrics)))
-         ($topology (record-topology-report $newIndex $time))
+        ;  ($topology (record-topology-report $newIndex $time))
          ($stiSeries (recordCipSeries))
       )
       (CIPSnapshot
@@ -261,7 +261,7 @@
 )
 
 (= (getEffectiveness)
-   (getLocalEffectiveness)
+   (getGlobalEffectiveness)
 )
 
 ; ## Minimal Viable Evaluation

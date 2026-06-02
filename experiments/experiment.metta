@@ -74,17 +74,6 @@
     (let*
         (
             ($_agents (collapse (test-superpose &incident)))
-            ($_history
-                (collapse
-                    (map-atom (getAfAtoms) $atom
-                        (let $res (collapse (getSti $atom))
-                            (let $sti (if (== $res ()) 0.0 (car-atom $res))
-                                (updateAtomHistory $atom $sti)
-                            )
-                        )
-                    )
-                )
-            )
         )
         True
     )
@@ -102,7 +91,12 @@
                 ($_readlog (println! (read-step $counter word $now remaining (size-atom $rest))))
                 ($_batch
                     (if (or (== (% $counter (batch)) 0) (== $rest ()))
-                        (runAttentionBatch)
+                        (let*
+                            (
+                                ($_agents (runAttentionBatch))
+                            )
+                            True
+                        )
                         (println! (continued to stimulate batched atoms ...))
                     )
                 )
@@ -121,4 +115,3 @@
 
 ; stimulat is taking long time, idk why??
 ; its performance accross funds and number of atoms should be studied??
-
