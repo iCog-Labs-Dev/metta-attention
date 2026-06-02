@@ -164,6 +164,7 @@ class MetricsPlotter:
         "context_retention",
         "cognitive_maintenance",
         "effectiveness",
+        "gained_efficiency",
     ]
     METRIC_NAME_MAP = {
         "afResource": "af_resource",

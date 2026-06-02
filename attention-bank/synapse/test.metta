@@ -164,9 +164,9 @@
 !(add-atom &stiSeries (b (2 3 4 5 6)))
 !(add-atom &stiSeries (c (3 4 5 6 7)))
 
-!(assertEqual (get-sti-series a) (1 2 3 4 5))
-!(assertEqual (get-sti-series b) (2 3 4 5 6))
-!(assertEqual (get-sti-series c) (3 4 5 6 7))
+!(assertEqual (getStiSeries a) (1 2 3 4 5))
+!(assertEqual (getStiSeries b) (2 3 4 5 6))
+!(assertEqual (getStiSeries c) (3 4 5 6 7))
 
 !(cip-af-series 0 4)
 !(average-context-retention-pairs (cip-af-series 0 4))
@@ -176,10 +176,10 @@
 
 !(assertEqual (getContextRetention (get-cip-af 3) (get-cip-af 4)) 0.2)
 
-; !(collapse (averageList (get-sti-series (superpose (k a b c))))) ; should be (3 4 5)
-; !(collapse (averageList (get-sti-series ())))
+; !(collapse (averageList (getStiSeries (superpose (k a b c))))) ; should be (3 4 5)
+; !(collapse (averageList (getStiSeries ())))
 
-!(assertEqual (collapse (averageList (get-sti-series (superpose (a b c))))) (3.0 4.0 5.0))
+!(assertEqual (collapse (averageList (getStiSeries (superpose (a b c))))) (3.0 4.0 5.0))
 
 !(collapse (test-superpose &incident))
 
