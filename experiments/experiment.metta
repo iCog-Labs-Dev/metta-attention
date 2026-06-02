@@ -62,12 +62,15 @@
 (= (logcurrCip) 
         (let* (
                 ($cip (transition-to-next-cip))
-                ((CIPSnapshot $index $time $af_atoms $metrice) $cip)
+                ((CIPSnapshot $index $time $afAtoms $metrice) $cip)
                 (($afResource $stiConcentration $linkDensity $connectionRatio $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness) $metrice)
+                ($gainedEfficiency (getGainedEfficiency $index))
         )
-        (write_metrics_wrapper $index $time $af_atoms $afResource $stiConcentration $linkDensity $connectionRatio $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness)
+        (write_metrics_wrapper $index $time $afAtoms $afResource $stiConcentration $linkDensity $connectionRatio $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness $gainedEfficiency)
     )
 )
+
+
 
 (= (batch) 10)
 (= (insectPoisonReadExp $expr $counter)
@@ -94,4 +97,5 @@
 )
 
 !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
+
 

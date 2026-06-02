@@ -188,13 +188,9 @@
             ($afRatio (getMetrics afResource $metrics))
             ($stiRatio (getMetrics sticoncentration $metrics))
             ($densityRatio (getMetrics linkdensity $metrics))
-
-            ($costAf (* $afRatio (weight-afRatio)))
-            ($costSti (* $stiRatio (weight-stiRatio)))
-            ($costLink (* $densityRatio (weight-densityRatio)))
         ) 
         
-        (+ (+ $costAf $costSti) $costLink)
+        (+ (+ $afRatio $stiRatio) $densityRatio)
     )
 )
 
@@ -248,7 +244,7 @@
       (baselineCip)
       (get-cip-snapshots
          (get-lattest-cip-index))
-   )
+   ) 
 )
 
 (= (getEffectiveness)
@@ -302,7 +298,7 @@
         (if (> $sizeAtoms 0)
             (let*
                 (
-                    ($stiSeries (map-atom $atoms get-sti-series))
+                    ($stiSeries (map-atom $atoms getStiSeries))
                     ($stival (map-atom $stiSeries averageList))
                     ($ltival (map-atom $atoms getLti))
                     ($sizeSti (size-atom $stival))
@@ -481,7 +477,19 @@
 
 ; ## PHASE IV: Benchmarking
 
-(: gainedEfficience (-> CipSnapshot CipSnapshot CipSnapshot CipSnapshot Number))
+(= (getGainedEfficiency $index)
+    (let* (
+        ($snapshot (get-cip-snapshots $index))
+        ($metrics (getMetricsFromSnapshot $snapshot))
+        ($optimizedEff (getMetrics effectiveness $metrics))
+        ($baselineEff (get_baseline_effectiveness $index))
+    )
+    (if (> (abs-math $baselineEff) 0.0)
+        (/ (- $optimizedEff $baselineEff) (abs-math $baselineEff))
+        $optimizedEff
+    )
+    )
+)
 
 ; ## Topological Analysis
 
