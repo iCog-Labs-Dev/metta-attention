@@ -116,11 +116,12 @@
 ;		 $count: the amount of atoms that have been removed
 ; return: None
 (: checkThenRemoveAtom (-> List Number Number empty))
-(= (checkThenRemoveAtom $sortedatoms $removalAmount $count $forgetThreshold)
+(= (checkThenRemoveAtom $sortedatoms $removalAmount $count)
 	(if (== $sortedatoms ())
 		()
 		(let*
 			(
+				($forgetThreshold (getAttentionParam FORGET_THRESHOLD))
 				($head (car-atom $sortedatoms))
 				($tail (cdr-atom $sortedatoms))
 				($iset (globalIncomingSetByType $head ASYMMETRIC_HEBBIAN_LINK))
