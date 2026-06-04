@@ -125,16 +125,17 @@
 				($tail (cdr-atom $sortedatoms))
 				($iset (globalIncomingSetByType $head ASYMMETRIC_HEBBIAN_LINK))
 				($niset (globalIncomingSetwithoutType $head))
+				($filteredNiset (filterByLti $niset $forgetThreshold)) ; added line to solve the issue
 			)
 			(if (< $count $removalAmount) 
 				(if (== (size-atom $iset) (size-atom $niset))
 					(let*
 						(
-							($size (size-atom $niset))
-							($newCount (+ (+ 1 $count ) $size))
+							($size (size-atom $filteredNiset))
+							($newCount (+ 1 $count))  ; ust count the atom itself($newCount (+ (+ 1 $count ) $size))
 						)
                         ( 
-                            (globalRemoveAtom $head $niset)
+                            (globalRemoveAtom $head $filteredNiset)
 						    (checkThenRemoveAtom $tail $removalAmount $newCount)
                         )
 					)
@@ -182,7 +183,27 @@
 	)
 )
 
+; Description: a function to recusivly remove atoms and links ther incoming sets
+;			   it takes a list of incoming set of an atoms and moves it to a new space
+; params:
+;		$atoms: List of incoming atoms of an atom
+; return: None
+(: extractAtomRecursive (-> List empty))
+(= (extractAtomRecursive $atoms)
+	(if (== $atoms ())
+		()
+		(let*
+			(
+				($head (car-atom $atoms))
+				($tail (cdr-atom $atoms))
+                (() (refundAV $head))
+			    (removeTypeSpace $head)
+		    )
+		    (extractAtomRecursive $tail)
+	    )
+	)	
 
+)
 
 ; Description: a function that sets atoms STI and Lti to zero prior to removal to insure its funds are returned
 ; params:
