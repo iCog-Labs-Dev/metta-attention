@@ -28,6 +28,11 @@ METRIC_NAME_MAP = {
     "effectiveness": "effectiveness",
     "gainedefficiency": "gained_efficiency",
     "gainedEfficiency": "gained_efficiency",
+    "trianglecount": "triangle_count",
+    "triangleCount": "triangle_count",
+    "triangles": "triangle_count",
+    "betti_0": "betti0",
+    "betti_1": "betti1",
 }
 
 METRIC_COLUMNS = [
@@ -44,16 +49,10 @@ METRIC_COLUMNS = [
     "cognitive_maintenance",
     "effectiveness",
     "gained_efficiency",
-]
-
-TOPOLOGY_METRIC_NAMES = {
-    "trianglecount",
     "triangle_count",
     "betti0",
-    "betti_0",
     "betti1",
-    "betti_1",
-}
+]
 
 
 def format_pattern(pat):
@@ -106,8 +105,6 @@ def flatten_metrics(metrics):
             continue
         name, value = pair
         column = normalize_metric_name(name)
-        if column in TOPOLOGY_METRIC_NAMES:
-            continue
         values[column] = value
 
     return values
@@ -350,4 +347,3 @@ def get_baseline_effectiveness(index):
     if 0 <= idx < len(BASELINE_EFFECTIVENESS_CACHE):
         return float(BASELINE_EFFECTIVENESS_CACHE[idx])
     return 0.0
-

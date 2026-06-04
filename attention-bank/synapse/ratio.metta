@@ -33,10 +33,11 @@
       ($contextRetention (getContextRetention))
       ($cognitiveMaintenance (getCognitiveMaintenance))
       ($fundSti (getAttentionParam FUNDS_STI))
+      ($topology (topologyMetrics))
+      ($triangleCount (getTopologyTriangleCount $topology))
+      ($betti0 (getTopologyBetti0 $topology))
+      ($betti1 (getTopologyBetti1 $topology))
       ($effectiveness (getEffectiveness))
-    ;   ($triangleCount (topology-triangle-count))
-    ;   ($betti0 (topology-betti0))
-    ;   ($betti1 (topology-betti1))
    )
    (
     (afResource $afResource)
@@ -51,9 +52,9 @@
     (contextretention $contextRetention)
     (cognitivemaintenance $cognitiveMaintenance)
     (effectiveness $effectiveness)
-    ; (trianglecount $triangleCount)
-    ; (betti0 $betti0)
-    ; (betti1 $betti1)
+    (triangle_count $triangleCount)
+    (betti0 $betti0)
+    (betti1 $betti1)
 )))
 
 (= (updateMaxIndex)
@@ -593,4 +594,3 @@
               (CIPTopologyReport $cipIndex $time $report)
               (CIPTopologyReport $cipIndex $time $report)))
 )
-

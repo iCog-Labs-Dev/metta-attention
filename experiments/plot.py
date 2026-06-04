@@ -165,6 +165,9 @@ class MetricsPlotter:
         "cognitive_maintenance",
         "effectiveness",
         "gained_efficiency",
+        "triangle_count",
+        "betti0",
+        "betti1",
     ]
     METRIC_NAME_MAP = {
         "afResource": "af_resource",
@@ -187,6 +190,14 @@ class MetricsPlotter:
         "retention": "retention",
         "p_correlation": "p_correlation",
         "global_coordination": "global_coordination",
+        "trianglecount": "triangle_count",
+        "triangleCount": "triangle_count",
+        "triangles": "triangle_count",
+        "triangle_count": "triangle_count",
+        "betti0": "betti0",
+        "betti_0": "betti0",
+        "betti1": "betti1",
+        "betti_1": "betti1",
     }
     RESAMPLE_RULE = "15s"
 
