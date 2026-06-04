@@ -24,6 +24,7 @@
     "STARTING_FUNDS_LTI": "100000",
     "STI_ATOM_WAGE": "10",
     "LTI_ATOM_WAGE": "10",
+    "TOPK": "1",
     "MAX_AF_SIZE": "70.0",
     "TARGET_STI": "90000.0",
     "TARGET_LTI": "90000.0",
@@ -33,6 +34,5 @@
     "FUNDS_LTI": "100000.0",
     "MAX_SPREAD_PERCENTAGE": "0.8",
     "HEBBIAN_MAX_ALLOCATION_PERCENTAGE": "0.5",
-    "TOPK": "0.8",
     "AFRentFrequency": "2.0"
 }

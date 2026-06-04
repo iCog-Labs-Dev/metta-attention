@@ -25,6 +25,7 @@
 !(import! &self ../attention/RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent)
 !(import! &self ../attention/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent)
 !(import! &self ../attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent)
+!(import! &self ../attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent2)
 !(import! &self ../attention/ImportanceDiffusionAgent/ImportanceDiffusionBase/ImportanceDiffusionBase)
 !(import! &self ../attention/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent)
 !(import! &self ../attention/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent)
@@ -50,7 +51,7 @@
 !(updateAttentionParam FUNDS_LTI 100000.0) 
 !(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.8)
 !(updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.5)
-!(updateAttentionParam TOPK 0.8)
+; !(updateAttentionParam TOPK 0.8)
 !(updateAttentionParam AFRentFrequency 2.0)
 
 ; write the params to a file
@@ -62,40 +63,55 @@
 (= (logcurrCip) 
         (let* (
                 ($cip (transition-to-next-cip))
-                ((CIPSnapshot $index $time $afAtoms $metrice) $cip)
-                (($afResource $stiConcentration $linkDensity $connectionRatio $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness) $metrice)
-                ($gainedEfficiency (getGainedEfficiency $index))
+                ((CIPSnapshot $index $time $af_atoms $metrice) $cip)
         )
-        (write_metrics_wrapper $index $time $afAtoms $afResource $stiConcentration $linkDensity $connectionRatio $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness $gainedEfficiency)
+        (write_cip_wrapper $index $time $af_atoms $metrice)
     )
 )
 
+(= (batch) 25)
+(= (runAttentionBatch)
+    (let*
+        (
+            ($_agents (collapse (test-superpose &incident)))
+        )
+        True
+    )
+)
 
-
-(= (batch) 10)
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
-        (empty)
-        (let* 
+        (let $_done (println! (finished-read count $counter)) True)
+        (let*
             (
                 ($now (car-atom $expr))
                 ($rest (cdr-atom $expr))
-                ($af (getAfAtoms))
-            )
-            ( 
-                (stimulate $now 30)
-                (println! (stimulating atom --> $now))
-                (if (or (== (% $counter (batch)) 0) (== $rest ()))
-                    (collapse (test-superpose &incident))
-                    (println! (continued to stimulate batched atoms ...))
+                ($_stim (collapse (stimulate $now 30)))
+                ($_stimlog (println! (stimulating atom --> $now)))
+                ($_readlog (println! (read-step $counter word $now remaining (size-atom $rest))))
+                ($_batch
+                    (if (or (== (% $counter (batch)) 0) (== $rest ()))
+                        (let*
+                            (
+                                ($_agents (runAttentionBatch))
+                            )
+                            True
+                        )
+                        (println! (continued to stimulate batched atoms ...))
+                    )
                 )
                 ; (py-call (time.sleep 5.0))
-                (logcurrCip) 
-                (insectPoisonReadExp $rest (+ $counter 1)))
+                ($_cip (logcurrCip))
+                ($_next (insectPoisonReadExp $rest (+ $counter 1)))
+            )
+            True
         )
     )
 )
 
-!(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
+; !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
+!(insectPoisonReadExp (car-atom (collapse (match &insect (insectSent $x) $x))) 0)
 
 
+; stimulat is taking long time, idk why??
+; its performance accross funds and number of atoms should be studied??

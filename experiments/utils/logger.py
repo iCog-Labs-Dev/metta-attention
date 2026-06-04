@@ -1,13 +1,141 @@
-
 from datetime import datetime
 import os
 import csv
 import json
 from pathlib import Path
+
+METRIC_NAME_MAP = {
+    "afResource": "af_resource",
+    "afresource": "af_resource",
+    "sticoncentration": "sti_concentration",
+    "stiConcentration": "sti_concentration",
+    "fundsti": "fund_sti",
+    "fundsSTI": "fund_sti",
+    "FUNDS_STI": "fund_sti",
+    "linkdensity": "link_density",
+    "linkDensity": "link_density",
+    "connectionratio": "connection_ratio",
+    "connectionRatio": "connection_ratio",
+    "preallocation": "preallocation",
+    "cognitivesynergy": "cognitive_synergy",
+    "cognitiveSynergy": "cognitive_synergy",
+    "modulation": "modulation",
+    "coordination": "coordination",
+    "contextretention": "context_retention",
+    "contextRetention": "context_retention",
+    "cognitivemaintenance": "cognitive_maintenance",
+    "cognitiveMaintenance": "cognitive_maintenance",
+    "effectiveness": "effectiveness",
+    "gainedefficiency": "gained_efficiency",
+    "gainedEfficiency": "gained_efficiency",
+}
+
+METRIC_COLUMNS = [
+    "af_resource",
+    "sti_concentration",
+    "fund_sti",
+    "link_density",
+    "connection_ratio",
+    "preallocation",
+    "cognitive_synergy",
+    "modulation",
+    "coordination",
+    "context_retention",
+    "cognitive_maintenance",
+    "effectiveness",
+    "gained_efficiency",
+]
+
+TOPOLOGY_METRIC_NAMES = {
+    "trianglecount",
+    "triangle_count",
+    "betti0",
+    "betti_0",
+    "betti1",
+    "betti_1",
+}
+
+
 def format_pattern(pat):
     if isinstance(pat, (list, tuple)):
         return f"({' '.join(format_pattern(p) for p in pat)})"
     return str(pat)
+
+
+def normalize_metric_name(name):
+    text = str(name)
+    if text in METRIC_NAME_MAP:
+        return METRIC_NAME_MAP[text]
+
+    normalized = []
+    for index, char in enumerate(text):
+        if char.isupper() and index > 0:
+            normalized.append("_")
+        elif char in {"-", " "}:
+            normalized.append("_")
+            continue
+        normalized.append(char.lower())
+    return "".join(normalized)
+
+
+def metric_pair(metric):
+    if isinstance(metric, (list, tuple)) and len(metric) >= 2:
+        return metric[0], metric[1]
+
+    try:
+        children = metric.get_children()
+    except Exception:
+        return None
+
+    if len(children) < 2:
+        return None
+
+    return children[0], children[1]
+
+
+def flatten_metrics(metrics):
+    values = {}
+    try:
+        metric_items = iter(metrics)
+    except TypeError:
+        return values
+
+    for metric in metric_items:
+        pair = metric_pair(metric)
+        if pair is None:
+            continue
+        name, value = pair
+        column = normalize_metric_name(name)
+        if column in TOPOLOGY_METRIC_NAMES:
+            continue
+        values[column] = value
+
+    return values
+
+
+def metric_arg(default_name, value):
+    pair = metric_pair(value)
+    if pair is None:
+        return normalize_metric_name(default_name), value
+    name, metric_value = pair
+    return normalize_metric_name(name), metric_value
+
+
+def append_csv_row(path, header, row):
+    with open(path, 'a', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        if os.path.getsize(path) == 0:
+            writer.writerow(header)
+        writer.writerow(row)
+
+
+def ordered_metric_columns(values):
+    extras = [column for column in values if column not in METRIC_COLUMNS]
+    return [
+        *[column for column in METRIC_COLUMNS if column in values],
+        *extras,
+    ]
+
 
 def write_string_to_csv(filename, data, header=["timestamp", "pattern", "sti"], mode='a'):
     """Append rows to a CSV. `data` is an iterable of (pattern, av) pairs."""
@@ -39,7 +167,7 @@ def start_logger(directory):
     `directory` may be a string path or an object exposing `get_name()`.
     Returns a Hyperon-style empty result.
     """
-    global START_LOGGER_FLAG, LOGGING_DIRECTORY, SETTING_PATH, CSV_PATH, METRICS_PATH
+    global START_LOGGER_FLAG, LOGGING_DIRECTORY, SETTING_PATH, CSV_PATH, METRICS_PATH, BASELINE_EFFECTIVENESS_CACHE
 
     # Accept either string path or an object with get_name()
     if isinstance(directory, str):
@@ -72,6 +200,7 @@ def start_logger(directory):
     CSV_PATH.write_text("")
     METRICS_PATH.write_text("")
 
+    BASELINE_EFFECTIVENESS_CACHE = None
     START_LOGGER_FLAG = True
     return ['started']
 
@@ -130,9 +259,9 @@ def write_to_csv(afatoms):
     return ['wrote']
 
 
-def write_metrics_row(counter, time, af_atoms, af_resource, sti_concentration, link_density, coherance,
-                      connection_ratio, normalized_sti_entropy, retention, p_correlation, modulation,
-                      global_coordination, effectiveness, gained_efficiency=0.0):
+def write_metrics_row(counter, time, af_atoms, af_resource, sti_concentration, link_density, connection_ratio,
+                      preallocation, cognitive_synergy, modulation, coordination, context_retention,
+                      cognitive_maintenance, effectiveness, gained_efficiency=0.0):
     
     # Append one metrics row per iteration to metrics.csv.
 
@@ -141,50 +270,36 @@ def write_metrics_row(counter, time, af_atoms, af_resource, sti_concentration, l
     if not START_LOGGER_FLAG or METRICS_PATH is None:
         return ['not written']
 
-    header = [
-        "counter",
-        "timestamp",
-        "af_resource",
-        "sti_concentration",
-        "link_density",
-        "connection_ratio",
-        "preallocation",
-        "cognitive_synergy",
-        "modulation",
-        "coordination",
-        "context_retention",
-        "cognitive_maintenance",
-        "effectiveness",
-        "gained_efficiency",
-        "af_atoms",
-    ]
+    metrics = {}
+    for name, value in [
+        metric_arg("af_resource", af_resource),
+        metric_arg("sti_concentration", sti_concentration),
+        metric_arg("link_density", link_density),
+        metric_arg("connection_ratio", connection_ratio),
+        metric_arg("preallocation", preallocation),
+        metric_arg("cognitive_synergy", cognitive_synergy),
+        metric_arg("modulation", modulation),
+        metric_arg("coordination", coordination),
+        metric_arg("context_retention", context_retention),
+        metric_arg("cognitive_maintenance", cognitive_maintenance),
+        metric_arg("effectiveness", effectiveness),
+        metric_arg("gained_efficiency", gained_efficiency),
+    ]:
+        metrics[name] = value
+
+    metric_columns = ordered_metric_columns(metrics)
+    header = ["counter", "timestamp", "af_atoms", *metric_columns]
 
     row = [
         str(counter),
         str(time),
-        str(af_resource[1]),
-        str(sti_concentration[1]),
-        str(link_density[1]),
-        str(coherance[1]),
-        str(connection_ratio[1]),
-        str(normalized_sti_entropy[1]),
-        str(retention[1]),
-        str(p_correlation[1]),
-        str(modulation[1]),
-        str(global_coordination[1]),
-        str(effectiveness[1]),
-        str(gained_efficiency),
         str(af_atoms),
+        *[str(metrics.get(column, "")) for column in metric_columns],
     ]
 
-    with open(METRICS_PATH, 'a', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        if os.path.getsize(METRICS_PATH) == 0:
-            writer.writerow(header)
-        writer.writerow(row)
+    append_csv_row(METRICS_PATH, header, row)
 
     return ['wrote']
-
 
 
 def write_cip_row(index, time, af_atoms, metrices):
@@ -196,25 +311,24 @@ def write_cip_row(index, time, af_atoms, metrices):
     if not START_LOGGER_FLAG or METRICS_PATH is None:
         return ['not written']
 
+    metrics = flatten_metrics(metrices)
+    metric_columns = ordered_metric_columns(metrics)
+
     header = [
         "cip_index",
         "timestamp",
         "af_atoms",
-        "metrics",
+        *metric_columns,
     ]
 
     row = [
         str(index),
         str(time),
         str(af_atoms),
-        str(metrices),
+        *[str(metrics.get(column, "")) for column in metric_columns],
     ]
 
-    with open(METRICS_PATH, 'a', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        if os.path.getsize(METRICS_PATH) == 0:
-            writer.writerow(header)
-        writer.writerow(row)
+    append_csv_row(METRICS_PATH, header, row)
 
     return ['wrote']
 
