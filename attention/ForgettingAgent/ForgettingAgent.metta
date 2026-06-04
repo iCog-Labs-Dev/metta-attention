@@ -198,11 +198,11 @@
 				($head (car-atom $atoms))
 				($tail (cdr-atom $atoms))
                 (() (refundAV $head))
-			    (removeTypeSpace $head)
-		    )
-		    (extractAtomRecursive $tail)
-	    )
-	)	
+                (() (removeTypeSpace $head))
+			)
+		(extractAtomRecursive $tail)
+		)
+	)
 
 )
 
