@@ -1,9 +1,14 @@
-!(import! &self topology)
+!(import! &self "topology_metrics.py")
+; !(import! &self topology)
 
 !(bind! &afsnap (new-space))
 (= (afSnap) &afsnap)
 
 !(bind! &cipspace (new-space))
+
+!(bind! &topologySeries (new-space))
+
+(= (TopologySeries) &topologySeries)
 
 ; ## CIP Records
 
@@ -509,3 +514,83 @@
 ; ## Topological Analysis
 
 ; persistent homology will be implemented here
+
+; Topological invariants of the undirected Hebbian link graph.
+; TopologyReport fields:
+;   triangle_count: unique 3-cycles
+;   betti_0: connected components
+;   betti_1: independent graph cycles
+
+(= (topologyMetrics)
+    (py-call (topology_metrics.topology_metric_values (getAllHebLinks)))
+)
+
+(= (getTopologyTriangleCount ($triangles $betti0 $betti1)) $triangles)
+(= (getTopologyBetti0 ($triangles $betti0 $betti1)) $betti0)
+(= (getTopologyBetti1 ($triangles $betti0 $betti1)) $betti1)
+
+(= (getTriangleCount (TopologyReport $triangles $betti0 $betti1)) $triangles)
+(= (getBetti0 (TopologyReport $triangles $betti0 $betti1)) $betti0)
+(= (getBetti1 (TopologyReport $triangles $betti0 $betti1)) $betti1)
+
+(= (persistentHomologyInvariants)
+    (let* (
+            ($metrics (topologyMetrics))
+            ($triangles (getTopologyTriangleCount $metrics))
+            ($betti0 (getTopologyBetti0 $metrics))
+            ($betti1 (getTopologyBetti1 $metrics))
+        )
+        (TopologyReport $triangles $betti0 $betti1)
+    )
+)
+
+(= (topologyTriangleCount)
+    (let* (
+            ($report (persistentHomologyInvariants))
+            ((TopologyReport $triangles $betti0 $betti1) $report)
+        )
+        $triangles
+    )
+)
+
+(= (topologyBetti0)
+    (let* (
+            ($report (persistentHomologyInvariants))
+            ((TopologyReport $triangles $betti0 $betti1) $report)
+        )
+        $betti0
+    )
+)
+
+(= (topologyBetti1)
+    (let* (
+            ($report (persistentHomologyInvariants))
+            ((TopologyReport $triangles $betti0 $betti1) $report)
+        )
+        $betti1
+    )
+)
+
+(= (recordTopologyReport $cipIndex $time)
+    (let $report (persistentHomologyInvariants)
+        (add-atom &topologySeries (CIPTopologyReport $cipIndex $time $report))
+    )
+)
+
+(= (getCipTopologyReport $cipIndex)
+    (let $report (collapse (match &topologySeries
+                            (CIPTopologyReport $cipIndex $time $report)
+                            $report))
+        (if (== $report ())
+            ()
+            (car-atom $report)
+        )
+    )
+)
+
+(= (getTopologySeries)
+    (collapse (match &topologySeries
+              (CIPTopologyReport $cipIndex $time $report)
+              (CIPTopologyReport $cipIndex $time $report)))
+)
+

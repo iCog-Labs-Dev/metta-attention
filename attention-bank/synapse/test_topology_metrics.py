@@ -119,6 +119,7 @@ class TopologyMetricsTest(unittest.TestCase):
             topology_metric_values(
                 [
                     ["ASYMMETRIC_HEBBIAN_LINK", "A", "B"],
+                    ["ASYMMETRIC_HEBBIAN_LINK", "B", "A"],
                     ["ASYMMETRIC_HEBBIAN_LINK", "B", "C"],
                     ["ASYMMETRIC_HEBBIAN_LINK", "C", "A"],
                 ]
