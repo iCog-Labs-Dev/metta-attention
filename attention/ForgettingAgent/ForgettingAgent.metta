@@ -116,7 +116,7 @@
 ;		 $count: the amount of atoms that have been removed
 ; return: None
 (: checkThenRemoveAtom (-> List Number Number empty))
-(= (checkThenRemoveAtom $sortedatoms $removalAmount $count)
+(= (checkThenRemoveAtom $sortedatoms $removalAmount $count $forgetThreshold)
 	(if (== $sortedatoms ())
 		()
 		(let*
