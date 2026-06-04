@@ -182,25 +182,7 @@
 	)
 )
 
-; Description: a function to recusivly remove atoms and links ther incoming sets
-;			   it takes a list of incoming set of an atoms and moves it to a new space
-; params:
-;		$atoms: List of incoming atoms of an atom
-; return: None
-(: extractAtomRecursive (-> List empty))
-(= (extractAtomRecursive $atoms)
-	(if (== $atoms ())
-		()
-		(let*
-			(
-				($head (car-atom $atoms))
-				($tail (cdr-atom $atoms))
-                (() (refundAV $head))
-			)
-            (removeTypeSpace $head)
-		)
-	)
-)
+
 
 ; Description: a function that sets atoms STI and Lti to zero prior to removal to insure its funds are returned
 ; params:
