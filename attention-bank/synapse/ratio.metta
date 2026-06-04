@@ -1,7 +1,14 @@
+!(import! &self "topology_metrics.py")
+; !(import! &self topology)
+
 !(bind! &afsnap (new-space))
 (= (afSnap) &afsnap)
 
 !(bind! &cipspace (new-space))
+
+!(bind! &topologySeries (new-space))
+
+(= (TopologySeries) &topologySeries)
 
 ; ## CIP Records
 
@@ -15,21 +22,26 @@
 (= (measure-all-metrics)
    (let* (
       ($af (getAfAtoms))
-      ($afResource (afResourceUsage))
-      ($stiConcentration (stiConcentration))
-      ($linkDensity (linkDensity))
-      ($connectionRatio (connectionRatio))
-      ($preallocation (preallocationSpace))
-      ($cognitiveSynergy (cognitiveSynergy))
-      ($modulation (selectionModulation))
-      ($coordination (globalCoordination $af))
-      ($contextRetention (contextRetention))
-      ($cognitiveMaintenance (cognitiveMaintenance))
+      ($afResource (getAfResourceUsage))
+      ($stiConcentration (getStiConcentration))
+      ($linkDensity (getLinkDensity))
+      ($connectionRatio (getConnectionRatio))
+      ($preallocation (getPreallocationSpace))
+      ($cognitiveSynergy (getCognitiveSynergy))
+      ($modulation (getSelectionModulation))
+      ($coordination (getGlobalCoordination $af))
+      ($contextRetention (getContextRetention))
+      ($cognitiveMaintenance (getCognitiveMaintenance))
+      ($fundSti (getAttentionParam FUNDS_STI))
       ($effectiveness (getEffectiveness))
+    ;   ($triangleCount (topology-triangle-count))
+    ;   ($betti0 (topology-betti0))
+    ;   ($betti1 (topology-betti1))
    )
    (
     (afResource $afResource)
     (sticoncentration $stiConcentration)
+    (fundsti $fundSti)
     (linkdensity $linkDensity)
     (connectionratio $connectionRatio)
     (preallocation $preallocation)
@@ -39,6 +51,9 @@
     (contextretention $contextRetention)
     (cognitivemaintenance $cognitiveMaintenance)
     (effectiveness $effectiveness)
+    ; (trianglecount $triangleCount)
+    ; (betti0 $betti0)
+    ; (betti1 $betti1)
 )))
 
 (= (updateMaxIndex)
@@ -60,6 +75,7 @@
     )
 )
 
+; CIP: Cognitive Integration Periods
 (= (initialize-baseline-cip)
    (let*
       (
@@ -69,6 +85,7 @@
           ($cip0 (CIPSnapshot 0 $time $af $metrics))
           ($_ (add-atom &cipspace $cip0))
           ($stiSeries (recordCipSeries))
+        ;   ($topology (record-topology-report 0 $time))
         )
         $cip0 
    )
@@ -119,9 +136,12 @@
          ($index (get-lattest-cip-index))
          ($newIndex (+ $index 1))
          ($af (getAfAtoms))
-         ($metrics (measure-all-metrics))
+         ($baseMetrics (measure-all-metrics))
          ($time (current-time))
-         ($_ (add-atom &cipspace (CIPSnapshot $newIndex $time $af $metrics)))
+         ($_ (add-atom &cipspace (CIPSnapshot $newIndex $time $af $baseMetrics)))
+         ($gainedEfficiency (getGainedEfficiency $newIndex))
+         ($metrics (cons-atom (gainedefficiency $gainedEfficiency) $baseMetrics))
+        ;  ($topology (record-topology-report $newIndex $time))
          ($stiSeries (recordCipSeries))
       )
       (CIPSnapshot
@@ -136,7 +156,7 @@
 ; ## Resource Cost Functions
 
 ; this is the ratio of the number of atoms inside af atom over the total number of atoms in typespace
-(= (afResourceUsage)
+(= (getAfResourceUsage)
     (let $allSize
         (size-atom (getAllAtomsWithBins))
         (if (> $allSize 0)
@@ -148,7 +168,7 @@
 
 
 ; the ratio between af sti and typespace sti
-(= (stiConcentration)
+(= (getStiConcentration)
     (let*
         (
             ($afSti (getTotalSti (getAfAtoms) 0))
@@ -163,7 +183,7 @@
 
 
 ; the ratio between the total hebbian link and hebbian link inside af atoms
-(= (linkDensity)
+(= (getLinkDensity)
     (let*
         (
             ($afAtoms (getAfAtoms))
@@ -183,7 +203,7 @@
 ; ## Effectiveness Calculation
 
 
-(= (totalResourceCost $metrics)
+(= (getTotalResourceCost $metrics)
     (let* ( 
             ($afRatio (getMetrics afResource $metrics))
             ($stiRatio (getMetrics sticoncentration $metrics))
@@ -202,7 +222,7 @@
      $metrics
 )
 
-(= (aggregateMetricDelta $baseline $current)
+(= (getAggregateMetricDelta $baseline $current)
     (let* (
             ($baseMetrics (getMetricsFromSnapshot $baseline))
             ($currMetrics (getMetricsFromSnapshot $current))
@@ -216,8 +236,8 @@
 (= (calculateEffectiveness $baseline $current)
     (let* (
             ($currMetrics (getMetricsFromSnapshot $current))
-            ($perfDelta (aggregateMetricDelta $baseline $current))
-            ($resourceCost (totalResourceCost $currMetrics))
+            ($perfDelta (getAggregateMetricDelta $baseline $current))
+            ($resourceCost (getTotalResourceCost $currMetrics))
         )
         (if (> $resourceCost 0)
             (/ $perfDelta $resourceCost)
@@ -230,7 +250,7 @@
    (get-cip-snapshots 0)
 )
 
-(= (localEffectiveness)
+(= (getLocalEffectiveness)
    (calculateEffectiveness
       (get-cip-snapshots
           (- (get-lattest-cip-index) 1))
@@ -239,7 +259,7 @@
    )
 )
 
-(= (globalEffectiveness)
+(= (getGlobalEffectiveness)
    (calculateEffectiveness
       (baselineCip)
       (get-cip-snapshots
@@ -248,19 +268,19 @@
 )
 
 (= (getEffectiveness)
-   (globalEffectiveness)
+   (getGlobalEffectiveness)
 )
 
 ; ## Minimal Viable Evaluation
 
 ; AF coherence : me asure- cohere nce restricted to current AF members
-(= (afCoherence)
+(= (getAfCoherence)
    (measureCoherence (getAfAtoms))
 )
 
 ; this tell us the ratio of the intersection atoms between prevcip and currcip over thire unique total atom
 
-(= (contextRetention $prevCip $currCip)
+(= (getContextRetention $prevCip $currCip)
     (let*
         (
             ($overlap (size-atom (intersection-atom $currCip $prevCip)))
@@ -273,13 +293,13 @@
     )
 )
 
-(= (contextRetention)
+(= (getContextRetention)
     (let*
         (
             ($prevCip (get-cip-af (get-lattest-cip-index)))
             ($currCip (getAfAtoms))
         )
-        (contextRetention $prevCip $currCip)
+        (getContextRetention $prevCip $currCip)
     )
 )
 
@@ -289,7 +309,7 @@
 ; Cognitive Synergy : Pearson correlation between each atoms
 ; time-averaged STI and its current LTI
 
-(= (cognitiveSynergy) ;; previously called correlation
+(= (getCognitiveSynergy) ;; previously called correlation
     (let*
         (
             ($atoms (getAllAtomsWithBins))
@@ -319,7 +339,7 @@
 ; we find the variance and thire uniform variance
 ; then we calculate variance over uniform variance
 
-(= (selectionModulation)
+(= (getSelectionModulation)
     (let*
         (
             ($atoms (getAllAtomsWithBins))
@@ -338,7 +358,7 @@
 ; we take all the links and we find if there is any target atom inside the links that is already inside af atoms
 ; then we sum and see how many of them are already inside af atom
 ; then we return the total already existing atoms over the number of total af links
-(= (connectionRatio)
+(= (getConnectionRatio)
     (let*
         (
             ($afAtoms (getAfAtoms))
@@ -360,7 +380,7 @@
 ; ## PHASE II: Audits
 
 ; this is the ratio of the entropy of sti distribution over the maximum entropy of uniform distribution
-(= (preallocationSpace)
+(= (getPreallocationSpace)
     (let*
         (
             ($allAtoms (getAllAtomsWithBins))
@@ -431,7 +451,7 @@
 )
 
 (= (average-context-retention-pairs-acc (cons $prev (cons $curr $tail)) $sum $count)
-    (let $retention (contextRetention $prev $curr)
+    (let $retention (getContextRetention $prev $curr)
         (average-context-retention-pairs-acc
             (cons $curr $tail)
             (+ $sum $retention)
@@ -440,7 +460,7 @@
     )
 )
 
-(= (cognitiveMaintenance)
+(= (getCognitiveMaintenance)
     (let*
         (
             ($storedSeries (if (has-cip-snapshots) (cip-af-series 0 (get-lattest-cip-index)) ()))
@@ -452,7 +472,7 @@
 
 
 ; this measure the global coordination for a given state, it is the geometric mean of local coherence and global coherence
-(= (globalCoordination $state)
+(= (getGlobalCoordination $state)
     (let*
         (
             ($afLinks (getAllHebLinks))
@@ -494,4 +514,83 @@
 ; ## Topological Analysis
 
 ; persistent homology will be implemented here
+
+; Topological invariants of the undirected Hebbian link graph.
+; TopologyReport fields:
+;   triangle_count: unique 3-cycles
+;   betti_0: connected components
+;   betti_1: independent graph cycles
+
+(= (topologyMetrics)
+    (py-call (topology_metrics.topology_metric_values (getAllHebLinks)))
+)
+
+(= (getTopologyTriangleCount ($triangles $betti0 $betti1)) $triangles)
+(= (getTopologyBetti0 ($triangles $betti0 $betti1)) $betti0)
+(= (getTopologyBetti1 ($triangles $betti0 $betti1)) $betti1)
+
+(= (getTriangleCount (TopologyReport $triangles $betti0 $betti1)) $triangles)
+(= (getBetti0 (TopologyReport $triangles $betti0 $betti1)) $betti0)
+(= (getBetti1 (TopologyReport $triangles $betti0 $betti1)) $betti1)
+
+(= (persistentHomologyInvariants)
+    (let* (
+            ($metrics (topologyMetrics))
+            ($triangles (getTopologyTriangleCount $metrics))
+            ($betti0 (getTopologyBetti0 $metrics))
+            ($betti1 (getTopologyBetti1 $metrics))
+        )
+        (TopologyReport $triangles $betti0 $betti1)
+    )
+)
+
+(= (topologyTriangleCount)
+    (let* (
+            ($report (persistentHomologyInvariants))
+            ((TopologyReport $triangles $betti0 $betti1) $report)
+        )
+        $triangles
+    )
+)
+
+(= (topologyBetti0)
+    (let* (
+            ($report (persistentHomologyInvariants))
+            ((TopologyReport $triangles $betti0 $betti1) $report)
+        )
+        $betti0
+    )
+)
+
+(= (topologyBetti1)
+    (let* (
+            ($report (persistentHomologyInvariants))
+            ((TopologyReport $triangles $betti0 $betti1) $report)
+        )
+        $betti1
+    )
+)
+
+(= (recordTopologyReport $cipIndex $time)
+    (let $report (persistentHomologyInvariants)
+        (add-atom &topologySeries (CIPTopologyReport $cipIndex $time $report))
+    )
+)
+
+(= (getCipTopologyReport $cipIndex)
+    (let $report (collapse (match &topologySeries
+                            (CIPTopologyReport $cipIndex $time $report)
+                            $report))
+        (if (== $report ())
+            ()
+            (car-atom $report)
+        )
+    )
+)
+
+(= (getTopologySeries)
+    (collapse (match &topologySeries
+              (CIPTopologyReport $cipIndex $time $report)
+              (CIPTopologyReport $cipIndex $time $report)))
+)
 

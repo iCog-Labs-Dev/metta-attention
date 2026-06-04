@@ -1,31 +1,33 @@
 !(import! &self lib/lib_he)
 !(import! &self lib/lib_spaces)
-!(import! &self ../../attention/AttentionParam)
-!(import! &self ../../attention/baching)
-!(import! &self ../utilities/helper-functions)
-!(import! &self ../utilities/recentVal)
+!(import! &self ../../../attention/AttentionParam)
+!(import! &self ../../../attention/baching)
+!(import! &self ../../utilities/helper-functions)
+!(import! &self ../../utilities/recentVal)
 
-!(import! &self ../attention-value/getter-and-setter)
+!(import! &self ../../attention-value/getter-and-setter)
 
-!(import! &self ../bank/importance-index/importance-index)
-!(import! &self ../../attention/Neighbors)
-!(import! &self "../../experiments/utils/logger.py")
-!(import! &self ../../experiments/logger)
-!(import! &self ../bank/attention-bank)
-!(import! &self ../bank/attentional-focus/attentional-focus)
-!(import! &self ../bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
-!(import! &self ../../attention/RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent)
-!(import! &self ../../attention/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent)
-!(import! &self ../../attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent)
-!(import! &self ../../attention/ImportanceDiffusionAgent/ImportanceDiffusionBase/ImportanceDiffusionBase)
-!(import! &self ../../attention/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent)
-!(import! &self "../../attention/ImportanceDiffusionAgent/getelement.py")
-!(import! &self ../../attention/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent)
-!(import! &self ../../attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
-!(import! &self ../../attention/HebbianCreationAgent/HebbianCreationAgent)
-!(import! &self ../../attention/runner-Def)
-!(import! &self utils)
-!(import! &self ratio)
+!(import! &self ../../bank/importance-index/importance-index)
+!(import! &self ../../../attention/Neighbors)
+!(import! &self "../../../experiments/utils/logger.py")
+!(import! &self ../../../experiments/logger)
+!(import! &self ../../bank/attention-bank)
+!(import! &self ../../bank/attentional-focus/attentional-focus)
+!(import! &self ../../bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
+!(import! &self ../../../attention/RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent)
+!(import! &self ../../../attention/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent)
+!(import! &self ../../../attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent)
+!(import! &self ../../../attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent2)
+!(import! &self ../../../attention/ImportanceDiffusionAgent/ImportanceDiffusionBase/ImportanceDiffusionBase)
+!(import! &self ../../../attention/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent)
+!(import! &self "../../../attention/ImportanceDiffusionAgent/getelement.py")
+!(import! &self ../../../attention/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent)
+!(import! &self ../../../attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
+!(import! &self ../../../attention/HebbianCreationAgent/HebbianCreationAgent)
+!(import! &self ../../../attention/runner-Def)
+!(import! &self "../topology_metrics.py")
+!(import! &self ../utils)
+!(import! &self ../ratio)
 
 !(bind! &incident (new-space))
 
@@ -46,6 +48,25 @@
 !(updateAttentionParam FUNDS_STI 3000.0) 
 !(updateAttentionParam FUNDS_LTI 3000.0) 
 !(updateAttentionParam AFRentFrequency 9.0)
+
+!(assertEqual (persistentHomologyInvariants) (TopologyReport 0 0 0))
+
+!(setStv (ASYMMETRIC_HEBBIAN_LINK A B) (0.5 0.9))
+!(setStv (ASYMMETRIC_HEBBIAN_LINK B C) (0.5 0.9))
+!(setStv (ASYMMETRIC_HEBBIAN_LINK C A) (0.5 0.9))
+!(setStv (ASYMMETRIC_HEBBIAN_LINK B A) (0.5 0.9))
+!(setStv (ASYMMETRIC_HEBBIAN_LINK D E) (0.5 0.9))
+
+!(assertEqual (persistentHomologyInvariants) (TopologyReport 1 2 1))
+!(assertEqual (getTriangleCount (persistentHomologyInvariants)) 1)
+!(assertEqual (getBetti0 (persistentHomologyInvariants)) 2)
+!(assertEqual (getBetti1 (persistentHomologyInvariants)) 1)
+!(assertEqual (topologyTriangleCount) 1)
+!(assertEqual (topologyBetti0) 2)
+!(assertEqual (topologyBetti1) 1)
+
+!(recordTopologyReport 7 123.0)
+!(assertEqual (getCipTopologyReport 7) (TopologyReport 1 2 1))
 
 
 ; =================== Set links containing prior to testing ==============
@@ -129,17 +150,19 @@
 
 ; write your synapse metrice tests here
 
+!(initialize-baseline-cip)
+!(getAfResourceUsage)
+!(getStiConcentration)
+!(getLinkDensity)
+!(getConnectionRatio)
+!(getPreallocationSpace)
+!(getCognitiveSynergy)
+!(getSelectionModulation)
+!(getGlobalCoordination (getAfAtoms))
+!(getContextRetention)
+!(getCognitiveMaintenance)
+!(getEffectiveness)
 
-!(afResourceUsage)
-!(stiConcentration)
-!(linkDensity)
-!(cognitiveSynergy)
-!(contextRetention)
-!(selectionModulation)
-!(connectionRatio)
-!(preallocationSpace)
-!(globalCoordination (getAfAtoms))
-!(cognitiveMaintenance)
 
 
 !(add-atom &cipspace (CIPSnapshot 1 1 (a b c) ()))
@@ -171,7 +194,7 @@
 ; lettest cip index 4, its retenion with 3 should be 
 ; 1 common atom (d) and 5 unique atoms (a,b,c,e,f,h,i) so retention should be 1/5 = 0.2
 
-!(assertEqual (contextRetention (get-cip-af 3) (get-cip-af 4)) 0.2)
+!(assertEqual (getContextRetention (get-cip-af 3) (get-cip-af 4)) 0.2)
 
 ; !(collapse (averageList (getStiSeries (superpose (k a b c))))) ; should be (3 4 5)
 ; !(collapse (averageList (getStiSeries ())))
