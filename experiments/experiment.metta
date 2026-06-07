@@ -65,8 +65,9 @@
                 ((CIPSnapshot $index $time $afAtoms $metrice) $cip)
                 (($afResource $stiConcentration $linkDensity $connectionRatio $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness) $metrice)
                 ($gainedEfficiency (getGainedEfficiency $index))
+                ($redundancyDegradation (getRedundancyDegradation $index))
         )
-        (write_metrics_wrapper $index $time $afAtoms $afResource $stiConcentration $linkDensity $connectionRatio $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness $gainedEfficiency)
+        (write_metrics_wrapper $index $time $afAtoms $afResource $stiConcentration $linkDensity $connectionRatio $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness $gainedEfficiency $redundancyDegradation)
     )
 )
 

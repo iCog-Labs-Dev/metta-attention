@@ -491,6 +491,30 @@
     )
 )
 
+(= (getRedundancyDegradation $index)
+    (let* (
+        ($snapshot (get-cip-snapshots $index))
+        ($currMetrics (getMetricsFromSnapshot $snapshot))
+        ($baselineData (get_baseline_redundancy_data $index))
+        ($baselinePerf (car-atom $baselineData))
+        ($baselineCost (car-atom (cdr-atom $baselineData)))
+        
+        ($currCost (+ (getMetrics afResource $currMetrics) (+ (getMetrics sticoncentration $currMetrics) (getMetrics linkdensity $currMetrics))))
+        ($currEff (getMetrics effectiveness $currMetrics))
+        ($currPerf (* $currEff $currCost))
+        
+        ($overhead (- $currCost $baselineCost))
+    )
+    (if (<= $baselineCost 0.0)
+        0.0
+        (if (> (abs-math $overhead) 0.0001)
+            (/ (- $baselinePerf $currPerf) $overhead)
+            0.0
+        )
+    )
+    )
+)
+
 ; ## Topological Analysis
 
 ; persistent homology will be implemented here
