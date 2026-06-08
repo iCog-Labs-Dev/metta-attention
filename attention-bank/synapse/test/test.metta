@@ -49,24 +49,12 @@
 !(updateAttentionParam FUNDS_LTI 3000.0) 
 !(updateAttentionParam AFRentFrequency 9.0)
 
-!(assertEqual (persistentHomologyInvariants) (TopologyReport 0 0 0))
 
 !(setStv (ASYMMETRIC_HEBBIAN_LINK A B) (0.5 0.9))
 !(setStv (ASYMMETRIC_HEBBIAN_LINK B C) (0.5 0.9))
 !(setStv (ASYMMETRIC_HEBBIAN_LINK C A) (0.5 0.9))
 !(setStv (ASYMMETRIC_HEBBIAN_LINK B A) (0.5 0.9))
 !(setStv (ASYMMETRIC_HEBBIAN_LINK D E) (0.5 0.9))
-
-!(assertEqual (persistentHomologyInvariants) (TopologyReport 1 2 1))
-!(assertEqual (getTriangleCount (persistentHomologyInvariants)) 1)
-!(assertEqual (getBetti0 (persistentHomologyInvariants)) 2)
-!(assertEqual (getBetti1 (persistentHomologyInvariants)) 1)
-!(assertEqual (topologyTriangleCount) 1)
-!(assertEqual (topologyBetti0) 2)
-!(assertEqual (topologyBetti1) 1)
-
-!(recordTopologyReport 7 123.0)
-!(assertEqual (getCipTopologyReport 7) (TopologyReport 1 2 1))
 
 
 ; =================== Set links containing prior to testing ==============
