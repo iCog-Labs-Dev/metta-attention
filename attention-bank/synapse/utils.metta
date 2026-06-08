@@ -362,11 +362,23 @@
          )
      )
 )
+ 
+(= (shrinkList ())
+    ()
+)
 
-(= (averageMetricScore $full-metric-list)
+(= (shrinkList (cons ($name $value) $tail))
+    (if (== 1 (size-atom (intersection-atom ($name) (triangle_count betti0 betti1 fundsti))))
+        (shrinkList $tail)
+        (cons-atom ($name $value) (shrinkList $tail))
+    )
+)
+
+(= (averageMetricScore $fullMetricList)
     (let* (
-            ($total (sumMetrics $full-metric-list))
-            ($count (countMetrics $full-metric-list))
+            ($parsedList (shrinkList $fullMetricList))
+            ($total (sumMetrics $parsedList))
+            ($count (countMetrics $parsedList))
         )
         (if (> $count 0)
             (/ $total $count)
