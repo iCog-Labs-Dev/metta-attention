@@ -30,13 +30,6 @@ STATIC_STI = {
 DEFAULT_STI = 0
 
 
-def normalize_sti(sti_dict):
-    """Normalize STI values to sum to 1.0."""
-    total = sum(sti_dict.values())
-    if total == 0:
-        return sti_dict
-    return {k: v/total for k, v in sti_dict.items()}
-
 
 def parse_metta(filepath):
     pattern = r"\(\(\w+ (\w+) (\w+)\) \((\S+) (\S+)\)\)"
@@ -252,19 +245,53 @@ def get_center_seed(grid_size, n_seeds=4):
     return [(cy + dy, cx + dx) for dy, dx in offsets]
 
 
-def compute_torus_distance(grid_size):
-    """Precompute torus distance factor."""
-    freqs = np.fft.fftfreq(grid_size)
-    kx, ky = np.meshgrid(freqs, freqs)
-    laplacian_op = -4 * (np.sin(np.pi * kx)**2 + np.sin(np.pi * ky)**2)
-    laplacian_op[0, 0] = 1.0
-    return laplacian_op
-
-
-def run_fluid_simulation(rho_initial, af_seeds=None, num_steps=100, dt=0.1, viscosity=None, 
-                       grid_size=36, track_history=False, target_cfl=0.8):
-    """Run Navier-Stokes on torus T² grid."""
+def precompute_fourier_velocity_modes(grid_size, k_max=12):
+    """
+    Precomputes a divergence-free velocity basis using Fourier stream functions.
+    k_max controls how many frequencies we use. Higher = more detailed wind patterns.
+    """
+    modes = []
+    y_coords, x_coords = np.mgrid[0:grid_size, 0:grid_size]
     
+    # Iterate through wave frequencies (k_x, k_y)
+    for kx in range(-k_max, k_max + 1):
+        for ky in range(-k_max, k_max + 1):
+            if kx == 0 and ky == 0:
+                continue # Skip the zero-frequency (flat plane) mode
+            
+            # The base wave phase: 2 * pi * (kx * x + ky * y) / N
+            theta = 2 * np.pi * (kx * x_coords + ky * y_coords) / grid_size
+            
+            # --- Mode A: Derived from Stream Function psi = sin(theta) ---
+            # Velocity is perpendicular gradient: (d_psi/dy, -d_psi/dx)
+            u_x_A = ky * np.cos(theta)
+            u_y_A = -kx * np.cos(theta)
+            
+            # Normalize the mode's energy so our greedy scores stay balanced
+            norm_A = np.sum(u_x_A**2 + u_y_A**2) + 1e-8
+            u_x_A /= np.sqrt(norm_A)
+            u_y_A /= np.sqrt(norm_A)
+            
+            # --- Mode B: Derived from Stream Function psi = cos(theta) ---
+            u_x_B = -ky * np.sin(theta)
+            u_y_B = kx * np.sin(theta)
+            
+            norm_B = np.sum(u_x_B**2 + u_y_B**2) + 1e-8
+            u_x_B /= np.sqrt(norm_B)
+            u_y_B /= np.sqrt(norm_B)
+            
+            modes.append((u_x_A, u_y_A))
+            modes.append((u_x_B, u_y_B))
+            
+    return modes
+
+def run_fluid_simulation_greedy(rho_initial, velocity_modes, af_seeds=None, num_steps=100, 
+                                dt=0.1, grid_size=36, track_history=False, target_cfl=0.8, 
+                                lambda_penalty=0.01):
+    """
+    Runs incompressible advection using a greedy stream-function basis.
+    Guarantees div(u) = 0 without any pressure projection step.
+    """
     if af_seeds is None:
         af_seeds = get_center_seed(grid_size, n_seeds=4)
     elif isinstance(af_seeds, str):
@@ -277,65 +304,50 @@ def run_fluid_simulation(rho_initial, af_seeds=None, num_steps=100, dt=0.1, visc
     rho = rho_initial.copy()
     rho_history = [] if track_history else None
     
-    if viscosity is None:
-        viscosity = np.full((grid_size, grid_size), 0.01)
-    
-    laplacian_op = compute_torus_distance(grid_size)
-    
-    u_x = np.zeros((grid_size, grid_size))
-    u_y = np.zeros((grid_size, grid_size))
-    
     for t in range(num_steps):
-        if t % 1 == 0 and len(af_seeds) > 0:
-            D = np.full((grid_size, grid_size), np.inf)
-            y_coords, x_coords = np.mgrid[0:grid_size, 0:grid_size]
-            
-            for seed_y, seed_x in af_seeds:
-                dy = np.abs(seed_y - y_coords)
-                dy = np.minimum(dy, grid_size - dy)
-                dx = np.abs(seed_x - x_coords)
-                dx = np.minimum(dx, grid_size - dx)
-                D = np.minimum(D, np.sqrt(dy**2 + dx**2))
-            
-            grad_D_y = (np.roll(D, -1, axis=0) - np.roll(D, 1, axis=0)) / 2.0
-            grad_D_x = (np.roll(D, -1, axis=1) - np.roll(D, 1, axis=1)) / 2.0
-            
-            raw_v_y = -rho * grad_D_y
-            raw_v_x = -rho * grad_D_x
-            
-            div_raw = (raw_v_y - np.roll(raw_v_y, 1, axis=0)) + (raw_v_x - np.roll(raw_v_x, 1, axis=1))
-            div_raw_fft = np.fft.fft2(div_raw)
-            p_fft = div_raw_fft / laplacian_op
-            p = np.real(np.fft.ifft2(p_fft))
-            
-            f_v_y = raw_v_y - (np.roll(p, -1, axis=0) - p)
-            f_v_x = raw_v_x - (np.roll(p, -1, axis=1) - p)
-            
-            force_mag = np.max(np.sqrt(f_v_x**2 + f_v_y**2))
-            if force_mag > 0:
-                f_v_x /= force_mag
-                f_v_y /= force_mag
-        else:
-            f_v_x = np.zeros((grid_size, grid_size))
-            f_v_y = np.zeros((grid_size, grid_size))
+        # --- 1. Define the Goal / Target ---
+        D = np.full((grid_size, grid_size), np.inf)
+        y_coords, x_coords = np.mgrid[0:grid_size, 0:grid_size]
         
-        lap_u_x = np.roll(u_x, 1, axis=1) + np.roll(u_x, -1, axis=1) + \
-                  np.roll(u_x, 1, axis=0) + np.roll(u_x, -1, axis=0) - 4 * u_x
-        lap_u_y = np.roll(u_y, 1, axis=1) + np.roll(u_y, -1, axis=1) + \
-                  np.roll(u_y, 1, axis=0) + np.roll(u_y, -1, axis=0) - 4 * u_y
+        for seed_y, seed_x in af_seeds:
+            # Toroidal distance calculation
+            dy = np.abs(seed_y - y_coords)
+            dy = np.minimum(dy, grid_size - dy)
+            dx = np.abs(seed_x - x_coords)
+            dx = np.minimum(dx, grid_size - dx)
+            D = np.minimum(D, np.sqrt(dy**2 + dx**2))
         
-        u_x_star = u_x + dt * (f_v_x + viscosity * lap_u_x)
-        u_y_star = u_y + dt * (f_v_y + viscosity * lap_u_y)
+        # Calculate the downhill direction to the seed (g = -nabla D)
+        grad_D_y = (np.roll(D, -1, axis=0) - np.roll(D, 1, axis=0)) / 2.0
+        grad_D_x = (np.roll(D, -1, axis=1) - np.roll(D, 1, axis=1)) / 2.0
+        g_y = -grad_D_y
+        g_x = -grad_D_x
         
-        div_u = (u_y_star - np.roll(u_y_star, 1, axis=0)) + (u_x_star - np.roll(u_x_star, 1, axis=1))
-        div_u_fft = np.fft.fft2(div_u)
-        p_u_fft = div_u_fft / laplacian_op
-        p_u = np.real(np.fft.ifft2(p_u_fft))
-        u_y = u_y_star - (np.roll(p_u, -1, axis=0) - p_u)
-        u_x = u_x_star - (np.roll(p_u, -1, axis=1) - p_u)
+        # --- 2. The Greedy Score Update (Replaces FFT Projection) ---
+        u_x = np.zeros((grid_size, grid_size))
+        u_y = np.zeros((grid_size, grid_size))
         
+        # Score each precomputed wave mode
+        for mode_ux, mode_uy in velocity_modes:
+            # How well does this wave align with the downhill direction?
+            alignment = (mode_ux * g_x) + (mode_uy * g_y)
+            
+            # Weight alignment by where the fluid actually is right now
+            weighted_alignment = alignment * rho
+            
+            # Calculate alpha score (sum of helpfulness / (energy + lambda))
+            # Since we normalized modes in precomputation, energy is 1.0
+            score = np.sum(weighted_alignment) / (1.0 + lambda_penalty)
+            
+            # Add this wave to our total wind, scaled by its score
+            u_x += score * mode_ux
+            u_y += score * mode_uy
+            
+        # Because every mode was built from a stream function, 
+        # u_x and u_y are now mathematically guaranteed to be divergence-free!
+        
+        # --- 3. CFL Clamp (Stability) ---
         max_speed = np.max(np.sqrt(u_x**2 + u_y**2))
-        
         if max_speed > 1e-5:
             scaling_factor = target_cfl / max_speed
             u_x *= scaling_factor
@@ -343,19 +355,24 @@ def run_fluid_simulation(rho_initial, af_seeds=None, num_steps=100, dt=0.1, visc
         else:
             u_x.fill(0)
             u_y.fill(0)
-        
+            
         if track_history:
             rho_history.append(rho.copy())
-        
+            
+        # --- 4. Conservative Upwind Advection ---
         flux_x_right = np.where(u_x > 0, rho * u_x, np.roll(rho, -1, axis=1) * u_x)
         flux_x_left = np.roll(flux_x_right, 1, axis=1)
+        
         flux_y_down = np.where(u_y > 0, rho * u_y, np.roll(rho, -1, axis=0) * u_y)
         flux_y_up = np.roll(flux_y_down, 1, axis=0)
+        
+        # We can drop the explicit viscosity term (diffusion) from Navier-Stokes 
+        # because the upwind advection naturally provides a stable numerical diffusion.
         rho_new = rho - dt * ((flux_x_right - flux_x_left) + (flux_y_down - flux_y_up))
         
         rho = np.maximum(rho_new, 0)
-        rho = rho / np.sum(rho)
-    
+        rho = rho / np.sum(rho) # Strict mass conservation
+        
     if track_history:
         return rho, (u_x, u_y), rho_history
     return rho, (u_x, u_y)
@@ -374,9 +391,14 @@ def compute_coordinates(metta_path="experiments/data/adagram.metta", mode="fluid
         edges, nodes, grid_size=grid_size, spread_sigma=spread_sigma, sti_values=sti_values
     )
     
+    velocity_modes = precompute_fourier_velocity_modes(grid_size=grid_size, k_max=4)
+
+
     if track_history:
-        rho_final, velocity_field, rho_history = run_fluid_simulation(
+
+        rho_final, velocity_field, rho_history = run_fluid_simulation_greedy(
             rho, 
+            velocity_modes=velocity_modes,
             af_seeds=af_seeds,
             num_steps=num_steps,
             dt=dt,
@@ -384,18 +406,20 @@ def compute_coordinates(metta_path="experiments/data/adagram.metta", mode="fluid
             track_history=True,
             target_cfl=target_cfl
         )
+
         node_densities = map_density_to_atoms(rho_final, spectral_coords, grid_size)
         return rho_final, velocity_field, spectral_coords, rho_history, node_densities
-    
-    rho_final, velocity_field = run_fluid_simulation(
+
+    rho_final, velocity_field = run_fluid_simulation_greedy(
         rho, 
+        velocity_modes=velocity_modes,
         af_seeds=af_seeds,
         num_steps=num_steps,
         dt=dt,
         grid_size=grid_size,
         target_cfl=target_cfl
     )
-    
+
     node_densities = map_density_to_atoms(rho_final, spectral_coords, grid_size)
     return rho_final, velocity_field, spectral_coords, node_densities
 
