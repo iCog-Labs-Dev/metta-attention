@@ -78,7 +78,7 @@ class Plotter:
     def read_csv(self) -> pd.DataFrame:
         csv = self.output_path / 'output' / 'output.csv'
         df = pd.read_csv(csv)
-        df["timestamp"] = parse_timestamp_column(df["timestamp"])
+        df = df.assign(timestamp=parse_timestamp_column(df["timestamp"]))
         df = df.dropna(subset=["timestamp"])
         words = df['pattern'].astype(str).str.extract(r'^\(?([^\s()]+)', expand=False)
         df.loc[:, 'category'] = words.map(self.word_to_category).fillna('Entered through spreading')
@@ -224,7 +224,7 @@ class MetricsPlotter:
     def read_metrics_csv(self) -> pd.DataFrame:
         df = pd.read_csv(self.metrics_path)
         if "timestamp" in df.columns:
-            df["timestamp"] = parse_timestamp_column(df["timestamp"])
+            df = df.assign(timestamp=parse_timestamp_column(df["timestamp"]))
 
         if "metrics" in df.columns:
             metrics_df = pd.DataFrame(
@@ -233,7 +233,7 @@ class MetricsPlotter:
             df = pd.concat([df.drop(columns=["metrics"]), metrics_df], axis=1)
 
         if "counter" not in df.columns and "cip_index" in df.columns:
-            df["counter"] = df["cip_index"]
+            df = df.assign(counter=df["cip_index"])
 
         for column in list(self.METRIC_NAME_MAP.values()) + ["counter"]:
             if column in df.columns:
