@@ -168,6 +168,7 @@ class MetricsPlotter:
         "triangle_count",
         "betti0",
         "betti1",
+        "betti2",
     ]
     METRIC_NAME_MAP = {
         "afResource": "af_resource",
@@ -198,6 +199,8 @@ class MetricsPlotter:
         "betti_0": "betti0",
         "betti1": "betti1",
         "betti_1": "betti1",
+        "betti2": "betti2",
+        "betti_2": "betti2",
     }
     RESAMPLE_RULE = "15s"
 

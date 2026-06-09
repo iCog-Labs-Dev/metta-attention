@@ -1,4 +1,5 @@
-from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
+from itertools import combinations
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
 import igraph as ig
 
@@ -90,9 +91,35 @@ def _normalize_edges(edges: Any) -> Tuple[List[str], List[Tuple[str, str]]]:
     return sorted(vertices), sorted(undirected_edges)
 
 
+def _rank_mod2(columns: Iterable[int]) -> int:
+    basis: Dict[int, int] = {}
+
+    for column in columns:
+        vector = column
+        while vector:
+            pivot = vector.bit_length() - 1
+            if pivot not in basis:
+                basis[pivot] = vector
+                break
+            vector ^= basis[pivot]
+
+    return len(basis)
+
+
+def _boundary_columns(
+    simplices: Iterable[Sequence[int]],
+    face_to_index: Dict[Tuple[int, ...], int],
+) -> Iterable[int]:
+    for simplex in simplices:
+        column = 0
+        for face in combinations(simplex, len(simplex) - 1):
+            column ^= 1 << face_to_index[tuple(face)]
+        yield column
+
+
 def topology_metrics(edges: Any) -> Dict[str, int]:
     """
-    Compute topological invariants for the current Hebbian graph.
+    Compute topological invariants for the current Hebbian graph's clique complex.
 
     MeTTa passes links as `(ASYMMETRIC_HEBBIAN_LINK source target)` records, but
     plain Python `(source, target)` pairs are accepted as well. Direction and
@@ -100,7 +127,7 @@ def topology_metrics(edges: Any) -> Dict[str, int]:
     """
     vertices, undirected_edges = _normalize_edges(edges)
     if not vertices:
-        return {"triangles": 0, "betti0": 0, "betti1": 0}
+        return {"triangles": 0, "betti0": 0, "betti1": 0, "betti2": 0}
 
     vertex_to_index = {vertex: index for index, vertex in enumerate(vertices)}
     graph_edges = [
@@ -112,20 +139,38 @@ def topology_metrics(edges: Any) -> Dict[str, int]:
     graph.add_vertices(len(vertices))
     graph.add_edges(graph_edges)
 
-    components = len(graph.connected_components())
-    triangles = len(graph.list_triangles())
-    betti1 = graph.ecount() - graph.vcount() + components
+    vertex_simplices = [(index,) for index in range(graph.vcount())]
+    edge_simplices = [tuple(edge) for edge in graph.get_edgelist()]
+    triangle_simplices = [tuple(sorted(simplex)) for simplex in graph.cliques(min=3, max=3)]
+    tetrahedron_simplices = [tuple(sorted(simplex)) for simplex in graph.cliques(min=4, max=4)]
 
-    # 𝛽 ​= E − V + C
+    vertex_to_index = {simplex: index for index, simplex in enumerate(vertex_simplices)}
+    edge_to_index = {simplex: index for index, simplex in enumerate(edge_simplices)}
+    triangle_to_index = {
+        simplex: index for index, simplex in enumerate(triangle_simplices)
+    }
+
+    rank_d1 = _rank_mod2(_boundary_columns(edge_simplices, vertex_to_index))
+    rank_d2 = _rank_mod2(_boundary_columns(triangle_simplices, edge_to_index))
+    rank_d3 = _rank_mod2(_boundary_columns(tetrahedron_simplices, triangle_to_index))
+
+    betti0 = len(vertex_simplices) - rank_d1
+    betti1 = len(edge_simplices) - rank_d1 - rank_d2
+    betti2 = len(triangle_simplices) - rank_d2 - rank_d3
 
     return {
-        "triangles": int(triangles),
-        "betti0": int(components),
-        "betti1": int(betti1),
+        "triangles": len(triangle_simplices),
+        "betti0": max(0, int(betti0)),
+        "betti1": max(0, int(betti1)),
+        "betti2": max(0, int(betti2)),
     }
 
 
 def topology_metric_values(edges: Any) -> List[int]:
     metrics = topology_metrics(edges)
-    return [metrics["triangles"], metrics["betti0"], metrics["betti1"]]
-
+    return [
+        metrics["triangles"],
+        metrics["betti0"],
+        metrics["betti1"],
+        metrics["betti2"],
+    ]

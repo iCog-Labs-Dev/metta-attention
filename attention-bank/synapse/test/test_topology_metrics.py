@@ -73,7 +73,7 @@ class TopologyMetricsTest(unittest.TestCase):
     def test_empty_graph_has_no_components_or_cycles(self):
         self.assertEqual(
             topology_metrics([]),
-            {"triangles": 0, "betti0": 0, "betti1": 0},
+            {"triangles": 0, "betti0": 0, "betti1": 0, "betti2": 0},
         )
 
     def test_triangle_plus_disconnected_edge(self):
@@ -87,7 +87,7 @@ class TopologyMetricsTest(unittest.TestCase):
             ]
         )
 
-        self.assertEqual(metrics, {"triangles": 1, "betti0": 2, "betti1": 1})
+        self.assertEqual(metrics, {"triangles": 1, "betti0": 2, "betti1": 0, "betti2": 0})
 
     def test_square_cycle_has_betti_one_without_triangle(self):
         metrics = topology_metrics(
@@ -99,7 +99,7 @@ class TopologyMetricsTest(unittest.TestCase):
             ]
         )
 
-        self.assertEqual(metrics, {"triangles": 0, "betti0": 1, "betti1": 1})
+        self.assertEqual(metrics, {"triangles": 0, "betti0": 1, "betti1": 1, "betti2": 0})
 
     def test_hyperon_like_atoms_are_supported(self):
         link_type = FakeAtom(name="ASYMMETRIC_HEBBIAN_LINK")
@@ -111,8 +111,42 @@ class TopologyMetricsTest(unittest.TestCase):
 
         self.assertEqual(
             topology_metrics(links),
-            {"triangles": 1, "betti0": 1, "betti1": 1},
+            {"triangles": 1, "betti0": 1, "betti1": 0, "betti2": 0},
         )
+
+    def test_octahedron_surface_has_one_betti_two_void(self):
+        metrics = topology_metrics(
+            [
+                ("top", "front"),
+                ("top", "right"),
+                ("top", "back"),
+                ("top", "left"),
+                ("bottom", "front"),
+                ("bottom", "right"),
+                ("bottom", "back"),
+                ("bottom", "left"),
+                ("front", "right"),
+                ("right", "back"),
+                ("back", "left"),
+                ("left", "front"),
+            ]
+        )
+
+        self.assertEqual(metrics, {"triangles": 8, "betti0": 1, "betti1": 0, "betti2": 1})
+
+    def test_complete_four_clique_fills_the_betti_two_void(self):
+        metrics = topology_metrics(
+            [
+                ("A", "B"),
+                ("A", "C"),
+                ("A", "D"),
+                ("B", "C"),
+                ("B", "D"),
+                ("C", "D"),
+            ]
+        )
+
+        self.assertEqual(metrics, {"triangles": 4, "betti0": 1, "betti1": 0, "betti2": 0})
 
     def test_metric_values_returns_metta_friendly_order(self):
         self.assertEqual(
@@ -124,10 +158,9 @@ class TopologyMetricsTest(unittest.TestCase):
                     ["ASYMMETRIC_HEBBIAN_LINK", "C", "A"],
                 ]
             ),
-            [1, 1, 1],
+            [1, 1, 0, 0],
         )
 
 
 if __name__ == "__main__":
     unittest.main()
-

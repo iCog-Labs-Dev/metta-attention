@@ -114,5 +114,15 @@
 !(insectPoisonReadExp (car-atom (collapse (match &insect (insectSent $x) $x))) 0)
 
 
+; REMAINING TASKS
+; 1 implement betti 2
+; 2 review redundant copies
+; 3 run the experiment with different parameters and see the difference
+; 4 reading and planning implementation for fluid dynamics
+;   4.1 review the quarter plan
+;   4.2 revise the document and review birahanes implementation
+
+
+; 
 ; stimulat is taking long time, idk why??
 ; its performance accross funds and number of atoms should be studied??

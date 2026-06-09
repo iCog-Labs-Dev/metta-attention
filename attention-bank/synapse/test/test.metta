@@ -49,7 +49,7 @@
 !(updateAttentionParam FUNDS_LTI 3000.0) 
 !(updateAttentionParam AFRentFrequency 9.0)
 
-!(assertEqual (persistentHomologyInvariants) (TopologyReport 0 0 0))
+!(assertEqual (persistentHomologyInvariants) (TopologyReport 0 0 0 0))
 
 !(setStv (ASYMMETRIC_HEBBIAN_LINK A B) (0.5 0.9))
 !(setStv (ASYMMETRIC_HEBBIAN_LINK B C) (0.5 0.9))
@@ -57,16 +57,19 @@
 !(setStv (ASYMMETRIC_HEBBIAN_LINK B A) (0.5 0.9))
 !(setStv (ASYMMETRIC_HEBBIAN_LINK D E) (0.5 0.9))
 
-!(assertEqual (persistentHomologyInvariants) (TopologyReport 1 2 1))
+!(assertEqual (persistentHomologyInvariants) (TopologyReport 1 2 0 0))
 !(assertEqual (getTriangleCount (persistentHomologyInvariants)) 1)
 !(assertEqual (getBetti0 (persistentHomologyInvariants)) 2)
-!(assertEqual (getBetti1 (persistentHomologyInvariants)) 1)
+!(assertEqual (getBetti1 (persistentHomologyInvariants)) 0)
+!(assertEqual (getBetti2 (persistentHomologyInvariants)) 0)
 !(assertEqual (topologyTriangleCount) 1)
 !(assertEqual (topologyBetti0) 2)
-!(assertEqual (topologyBetti1) 1)
+!(assertEqual (topologyBetti1) 0)
+!(assertEqual (topologyBetti2) 0)
 
 !(recordTopologyReport 7 123.0)
-!(assertEqual (getCipTopologyReport 7) (TopologyReport 1 2 1))
+!(assertEqual (getCipTopologyReport 7) (TopologyReport 1 2 0 0))
+!(assertEqual (averageMetricScore ((afResource 1.0) (triangle_count 1000) (betti0 2) (betti1 3) (betti2 4) (sticoncentration 3.0))) 2.0)
 
 
 ; =================== Set links containing prior to testing ==============

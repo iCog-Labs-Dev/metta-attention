@@ -324,6 +324,17 @@
     $name
 )
 
+(= (isTopologyMetric $name)
+    (or (== $name triangle_count)
+        (or (== $name trianglecount)
+            (or (== $name betti0)
+                (or (== $name betti1)
+                    (or (== $name betti2)
+                        (or (== $name betti_0)
+                            (or (== $name betti_1)
+                                (== $name betti_2))))))))
+)
+
 (= (getMetrics $name $list)
     (if (== $list ())
         0.0
@@ -348,8 +359,12 @@
                (
                     ($head (car-atom $list))
                     ($tail (cdr-atom $list))
+                    ($name (getMetricName $head))
                )
-               (+ (getMetricValue $head) (sumMetrics $tail))
+               (if (isTopologyMetric $name)
+                   (sumMetrics $tail)
+                   (+ (getMetricValue $head) (sumMetrics $tail))
+               )
          )
      )
 )
@@ -357,8 +372,16 @@
 (= (countMetrics $list)
      (if (== $list ())
          0
-         (let $tail (cdr-atom $list)
-              (+ 1 (countMetrics $tail))
+         (let*
+              (
+                  ($head (car-atom $list))
+                  ($tail (cdr-atom $list))
+                  ($name (getMetricName $head))
+              )
+              (if (isTopologyMetric $name)
+                  (countMetrics $tail)
+                  (+ 1 (countMetrics $tail))
+              )
          )
      )
 )

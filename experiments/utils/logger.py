@@ -33,6 +33,7 @@ METRIC_NAME_MAP = {
     "triangles": "triangle_count",
     "betti_0": "betti0",
     "betti_1": "betti1",
+    "betti_2": "betti2",
 }
 
 METRIC_COLUMNS = [
@@ -52,6 +53,7 @@ METRIC_COLUMNS = [
     "triangle_count",
     "betti0",
     "betti1",
+    "betti2",
 ]
 
 
