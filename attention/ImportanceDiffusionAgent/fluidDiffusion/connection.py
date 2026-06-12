@@ -1,33 +1,13 @@
 import re
 import argparse
+import json
 import numpy as np
 import scipy.linalg
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 MATPLOTLIB_AVAILABLE = True
 
-
-STATIC_STI = {
-    'dichloropropene' : 300,
-    'beanleafroller': 360,
-    'dobsonfly': 292,
-    'grasshopper': 352,
-    'hemlock': 522,
-    'leafhopper': 135,
-    'moth': 421,
-    'diazinon': 747,
-    'alachlor': 131,
-    'bactericide': 187,
-    'beanleafrollers': 178,
-    'dicofol': 178,
-    'caterpillar': 107,
-    'dilan': 117,
-    'borer': 121,
-    'caterpillars': 121,
-    'zelatrix': 300
-}
-
-DEFAULT_STI = 0
+DEFAULT_STI = 0.0
 
 
 
@@ -371,7 +351,7 @@ def run_fluid_simulation_greedy(rho_initial, velocity_modes, af_seeds=None, num_
         rho_new = rho - dt * ((flux_x_right - flux_x_left) + (flux_y_down - flux_y_up))
         
         rho = np.maximum(rho_new, 0)
-        rho = rho / np.sum(rho) # Strict mass conservation
+        rho = rho / (np.sum(rho) + 1e-10) # Strict mass conservation
         
     if track_history:
         return rho, (u_x, u_y), rho_history
@@ -422,6 +402,37 @@ def compute_coordinates(metta_path="experiments/data/adagram.metta", mode="fluid
 
     node_densities = map_density_to_atoms(rho_final, spectral_coords, grid_size)
     return rho_final, velocity_field, spectral_coords, node_densities
+
+
+def fluid_from_af(metta_path, atom_sti_pairs, grid_size=36, num_steps=100, dt=0.1,
+                  af_seeds=None, spread_sigma=1.0, target_cfl=0.8):
+    """
+    Run fluid simulation using live STI values and return redistributed STI.
+    atom_sti_pairs: list of [atom_name, sti_value] pairs from MeTTa
+    Returns: list of [atom_name, new_sti_value] pairs after fluid redistribution
+    """
+    sti_values = {str(name): float(val) for name, val in atom_sti_pairs}
+    total_sti = sum(sti_values.values())
+
+    edges = parse_metta(metta_path)
+    nodes = sorted(set([e[0] for e in edges] + [e[1] for e in edges]))
+
+    rho, spectral_coords, _, _ = nodes_to_distributed_mass(
+        edges, nodes, grid_size=grid_size, spread_sigma=spread_sigma, sti_values=sti_values
+    )
+
+    velocity_modes = precompute_fourier_velocity_modes(grid_size=grid_size, k_max=4)
+
+    rho_final, _ = run_fluid_simulation_greedy(
+        rho, velocity_modes=velocity_modes, af_seeds=af_seeds,
+        num_steps=num_steps, dt=dt, grid_size=grid_size, target_cfl=target_cfl
+    )
+
+    node_densities = map_density_to_atoms(rho_final, spectral_coords, grid_size)
+    total_density = sum(node_densities.values()) or 1.0
+
+    return [[name, total_sti * (node_densities.get(str(name), 0.0) / total_density)]
+            for name, _ in atom_sti_pairs]
 
 
 def create_flow_animation(rho_history, node_grid_positions, grid_size, output_path="flow_evolution.gif"):
@@ -478,26 +489,23 @@ def _build_arg_parser():
                        help="AF seed positions as 'x1,y1 x2,y2' or 'center' for grid center")
     parser.add_argument("--top", type=int, default=10,
                        help="Number of top atoms to display (default: 10)")
-    parser.add_argument("--use-static", action="store_true", default=True,
-                       help="Use hardcoded STI values (default: ON)")
-    parser.add_argument("--no-static", action="store_true",
-                       help="Disable hardcoded STI, use matrix-based density")
+    parser.add_argument("--sti-json", type=str, default=None,
+                        help="JSON file with STI values (key: atom, value: sti)")
     parser.add_argument("--debug", action="store_true",
-                       help="Print detailed atom-to-region mapping")
+                        help="Print detailed atom-to-region mapping")
     return parser
 
 
 if __name__ == "__main__":
     args = _build_arg_parser().parse_args()
     
-    use_static_sti = args.use_static and not args.no_static
-    
-    if use_static_sti:
-        raw_sti = STATIC_STI
-        print(f"Using static STI values (raw, {len(STATIC_STI)} nodes)")
+    if args.sti_json:
+        with open(args.sti_json) as f:
+            raw_sti = json.load(f)
+        print(f"Loaded STI values from {args.sti_json} ({len(raw_sti)} nodes)")
     else:
         raw_sti = None
-        print("Using matrix-based density")
+        print("Using matrix-based density (no STI values provided)")
     
     print(f"Running fluid simulation on torus manifold...")
     print(f"Input: {args.input}")
