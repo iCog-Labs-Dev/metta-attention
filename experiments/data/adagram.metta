@@ -1,5 +1,4 @@
 ((SimilarityLink abamectin ants) (0.245 1.0))
-((SimilarityLink abamectin ants) (0.245 1.0))
 ((SimilarityLink abamectin ant) (0.049 1.0))
 ((SimilarityLink abamectin aphid) (0.608 1.0))
 ((SimilarityLink abamectin aphids) (0.477 1.0))
