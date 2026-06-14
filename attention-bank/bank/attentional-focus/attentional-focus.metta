@@ -3,9 +3,11 @@
 
 (= (updateAf $atom $sti)
     (let* (
-            ($minsti (getAttentionParam MIN_AF_STI))
-            ($maxSize (getAttentionParam MAX_AF_SIZE) )
-            ($size (match-count &af ($x $val)))
+            ($minsti (let $xminsti (getAttentionParam MIN_AF_STI) $xminsti))
+            ($maxSize (let $xmaxsize (getAttentionParam MAX_AF_SIZE) $xmaxsize))
+            ($size (let $xsize (size-atom (collapse (match &af ($xaf $val) $xaf))) $xsize))
+            ($dbgre (println! (before-isAtomInAf $atom $size $maxSize)))
+			($dbgaf (println! (af-content (collapse (match &af $xany $xany)))))
             ($re (if (isAtomInAf $atom)
                          (let $o (remove-atom &af ($atom $oldSti)) 
                                 (add-atom &af ($atom $sti)))
@@ -20,7 +22,7 @@
                     )
             )
             ($x (collapse (match &af $any $any)))
-        ) ((write_csv_wrapper $x) (updateMinAf)))
+        ) (updateMinAf))
 )
 
 
@@ -35,8 +37,9 @@
    (unique-atom (collapse (let $sti (superpose $stis) (match &af ($atom $sti) $atom))))
 )
 
-(= (isAtomInAf $pattern) 
-    (find &af ($pattern $av))
+(= (isAtomInAf $pattern)
+    (let $xres (collapse (match &af ($pattern $xavi) True))
+        (if (== $xres ()) False True))
 )
 (= (updateMinAf)
     (let $sti (collapse (match &af ($atom $sti) $sti))

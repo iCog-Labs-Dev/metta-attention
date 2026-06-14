@@ -75,8 +75,8 @@
 ; (: stimulate (-> Atom Number empty))
 (= (stimulate $pattern $stimulus)
    (let* (
-           ($sti (getSti $pattern))
-           ($lti (getLti $pattern))
+           ($sti (let $x (getSti $pattern) $x))
+           ($lti (let $x (getLti $pattern) $x))
            ($vlti (getVlti $pattern))
            ($sti-wage (* (calculateSTIWage) $stimulus))
            ($lti-wage (* (calculateLTIWage) $stimulus))

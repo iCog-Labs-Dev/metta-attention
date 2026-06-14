@@ -109,7 +109,7 @@
         (collapse 
           (let 
             $x (superpose $contents)
-            (if (and (>= (getSti $x) $lower) (<= (getSti $x) $higher))
+            (if (and (>= (let $x2 (getSti $x) $x2) $lower) (<= (let $x2 (getSti $x) $x2) $higher))
                  $x
                 () 
             )
