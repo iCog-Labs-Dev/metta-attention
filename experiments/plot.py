@@ -4,7 +4,7 @@ import ast
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import plotly.express as px
+# import plotly.express as px
 import json
 import sys
 
@@ -93,18 +93,23 @@ class Plotter:
         # === 1. Smoothing ===
         smoothed_counts = category_counts.rolling(window=3, min_periods=1).mean()
 
-        # === 2. Plot all categories (sorted by cumulative frequency) ===
+        # === 2. Sort categories by frequency ===
         all_categories = smoothed_counts.sum().sort_values(ascending=False).index
         smoothed_counts = smoothed_counts[all_categories]
 
-        # === 3. Distinct color palette ===
+        # === 3. Color palette ===
         colors = sns.color_palette("husl", n_colors=len(all_categories))
 
-        # === 4. Faceted Subplots ===
+        # === 4. Matplotlib faceted plot ===
         n_cols = 3
         n_rows = (len(all_categories) + n_cols - 1) // n_cols
-        fig_height = max(8, n_rows * 2.2)
-        fig, axs = plt.subplots(n_rows, n_cols, figsize=(18, fig_height), sharex=True)
+
+        fig, axs = plt.subplots(
+            n_rows,
+            n_cols,
+            figsize=(18, max(8, n_rows * 2.2)),
+            sharex=True
+        )
         axs = axs.flatten()
 
         for i, (category, color) in enumerate(zip(all_categories, colors)):
@@ -120,35 +125,26 @@ class Plotter:
             axs[i].grid(True, linestyle='--', alpha=0.4)
             axs[i].set_ylim(-0.02, 1.02)
 
+        # remove empty subplots
         for j in range(len(all_categories), len(axs)):
-            fig.delaxes(axs[j])  # Remove unused axes
+            fig.delaxes(axs[j])
 
         fig.suptitle('All Category Frequencies Over Time', fontsize=14)
         fig.supxlabel('Time Window', fontsize=12)
         fig.supylabel(f'Attentional focus size {self.params["MAX_AF_SIZE"]}', fontsize=12)
+
         plt.xticks(rotation=45)
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+
+        # save ONLY image (safe for git)
         plot_file = self.output_path / 'output' / 'plot_faceted.png'
         plt.savefig(plot_file)
+        plt.close()
+
         print("Faceted plot saved to", plot_file)
 
-        # === 5. Optional: Interactive Plotly Plot ===
-        try:
-            df_reset = smoothed_counts.reset_index().melt(
-                id_vars='time_windows', var_name='Category', value_name='Frequency')
-            fig = px.line(
-                df_reset,
-                x='time_windows',
-                y='Frequency',
-                color='Category',
-                title='Interactive All Category Frequency Over Time'
-            )
-            html_file = self.output_path / 'output' / 'plot_interactive.html'
-            fig.write_html(str(html_file))
-            print("Interactive plot saved to", html_file)
-        except Exception as e:
-            print("Plotly interactive plot failed:", e)
-
+        # REMOVED: Plotly HTML generation completely
+        # This was causing 181MB GitHub rejection issues
 
 class MetricsPlotter:
     METRIC_COLUMNS = [
