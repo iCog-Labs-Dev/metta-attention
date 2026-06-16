@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Union
+import ast
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -7,10 +8,29 @@ import plotly.express as px
 import json
 import sys
 
+
+def parse_timestamp_column(series: pd.Series) -> pd.Series:
+    if pd.api.types.is_numeric_dtype(series):
+        return pd.to_datetime(series, unit="s", errors="coerce")
+
+    try:
+        return pd.to_datetime(series, errors="coerce", format="mixed")
+    except TypeError:
+        return pd.to_datetime(series, errors="coerce")
+
+
+def resolve_output_root(path_like: Union[str, Path]) -> Path:
+    path = Path(path_like).resolve()
+    if path.is_file():
+        if path.name in {"output.csv", "metrics.csv"} and path.parent.name == "output":
+            return path.parent.parent
+        return path.parent
+    return path
+
 class Plotter:
 
     def __init__(self, output_path: Union[str, Path]):
-        self.output_path = Path(output_path).resolve()
+        self.output_path = resolve_output_root(output_path)
         self.data_path = self.get_data_path()
         self.params = self.read_params()
         self.categories = self.create_category()
@@ -57,10 +77,12 @@ class Plotter:
 
     def read_csv(self) -> pd.DataFrame:
         csv = self.output_path / 'output' / 'output.csv'
-        df = pd.read_csv(csv, parse_dates=['timestamp'])
+        df = pd.read_csv(csv)
+        df["timestamp"] = parse_timestamp_column(df["timestamp"])
+        df = df.dropna(subset=["timestamp"])
         words = df['pattern'].astype(str).str.extract(r'^\(?([^\s()]+)', expand=False)
-        df['category'] = words.map(self.word_to_category).fillna('Entered through spreading')
-        df['time_windows'] = df['timestamp'].dt.floor('0.0001s')
+        df.loc[:, 'category'] = words.map(self.word_to_category).fillna('Entered through spreading')
+        df.loc[:, 'time_windows'] = df['timestamp'].dt.floor('0.0001s')
         category_counts = df.groupby(['time_windows', 'category']).size().unstack(fill_value=0)
         af_size = int(float(self.params['MAX_AF_SIZE']))
         return category_counts / af_size
@@ -127,16 +149,258 @@ class Plotter:
         except Exception as e:
             print("Plotly interactive plot failed:", e)
 
-if __name__ == "__main__":
-    base_dir = Path(__file__).parent.resolve() 
-    if len(sys.argv) >= 2:
-        output_csv = sys.argv[1:]
-    else:
-        output_csv = list(base_dir.glob("**/output.csv"))
 
-    for output in output_csv:
+class MetricsPlotter:
+    METRIC_COLUMNS = [
+        "af_resource",
+        "sti_concentration",
+        "fund_sti",
+        "link_density",
+        "connection_ratio",
+        "preallocation",
+        "cognitive_synergy",
+        "modulation",
+        "coordination",
+        "context_retention",
+        "cognitive_maintenance",
+        "effectiveness",
+        "gained_efficiency",
+        "triangle_count",
+        "betti0",
+        "betti1",
+        "betti2",
+    ]
+    METRIC_NAME_MAP = {
+        "afResource": "af_resource",
+        "sticoncentration": "sti_concentration",
+        "fundsti": "fund_sti",
+        "fundsSTI": "fund_sti",
+        "FUNDS_STI": "fund_sti",
+        "linkdensity": "link_density",
+        "connectionratio": "connection_ratio",
+        "preallocation": "preallocation",
+        "cognitivesynergy": "cognitive_synergy",
+        "modulation": "modulation",
+        "coordination": "coordination",
+        "contextretention": "context_retention",
+        "cognitivemaintenance": "cognitive_maintenance",
+        "gainedefficiency": "gained_efficiency",
+        "gainedEfficiency": "gained_efficiency",
+        "coherance": "coherance",
+        "normalized_sti_entropy": "normalized_sti_entropy",
+        "retention": "retention",
+        "p_correlation": "p_correlation",
+        "global_coordination": "global_coordination",
+        "trianglecount": "triangle_count",
+        "triangleCount": "triangle_count",
+        "triangles": "triangle_count",
+        "triangle_count": "triangle_count",
+        "betti0": "betti0",
+        "betti_0": "betti0",
+        "betti1": "betti1",
+        "betti_1": "betti1",
+        "betti2": "betti2",
+        "betti_2": "betti2",
+    }
+    RESAMPLE_RULE = "15s"
+
+    def __init__(self, output_path: Union[str, Path]):
+        self.output_path = resolve_output_root(output_path)
+        self.metrics_path = self.get_metrics_path()
+        self.params = self.read_params()
+        self.data_frame = self.read_metrics_csv()
+        self.plot()
+
+    def get_metrics_path(self) -> Path:
+        metrics_path = self.output_path / "output" / "metrics.csv"
+        if not metrics_path.exists():
+            raise FileNotFoundError(f"No {metrics_path} found")
+        return metrics_path
+
+    def read_params(self) -> dict:
+        settings_path = self.output_path / "output" / "settings.json"
+        if not settings_path.exists():
+            raise FileNotFoundError(f"No {settings_path} found in output directory")
+        with open(settings_path, "r") as f:
+            return json.load(f)
+
+    def read_metrics_csv(self) -> pd.DataFrame:
+        df = pd.read_csv(self.metrics_path)
+        if "timestamp" in df.columns:
+            df["timestamp"] = parse_timestamp_column(df["timestamp"])
+
+        if "metrics" in df.columns:
+            metrics_df = pd.DataFrame(
+                [self.parse_metrics_blob(value) for value in df["metrics"]]
+            )
+            df = pd.concat([df.drop(columns=["metrics"]), metrics_df], axis=1)
+
+        if "counter" not in df.columns and "cip_index" in df.columns:
+            df["counter"] = df["cip_index"]
+
+        for column in list(self.METRIC_NAME_MAP.values()) + ["counter"]:
+            if column in df.columns:
+                df.loc[:, column] = pd.to_numeric(df[column], errors="coerce")
+
+        available = [
+            column for column in self.METRIC_COLUMNS if column in df.columns
+        ]
+        if not available:
+            raise ValueError("No expected metric columns found in metrics.csv")
+
+        base_columns = [column for column in ["timestamp", "counter"] if column in df.columns]
+        df = df[[*base_columns, *available]].copy()
+        return df
+
+    def parse_metrics_blob(self, value) -> dict:
+        if pd.isna(value):
+            return {}
+
         try:
-            Plotter(output)
-        except Exception as e:
-            print(f"caught error: {e} while processing {output}")
-            continue
+            pairs = ast.literal_eval(str(value))
+        except (SyntaxError, ValueError):
+            return {}
+
+        parsed = {}
+        for item in pairs:
+            if not isinstance(item, (list, tuple)) or len(item) < 2:
+                continue
+            name = self.METRIC_NAME_MAP.get(str(item[0]), str(item[0]))
+            parsed[name] = item[1]
+        return parsed
+
+    def plot(self) -> None:
+        df = self.data_frame
+        metric_columns = [
+            column for column in self.METRIC_COLUMNS if column in df.columns
+        ]
+
+        if "timestamp" in df.columns and not df["timestamp"].isna().all():
+            grouped = (
+                df.dropna(subset=["timestamp"]).set_index("timestamp")[metric_columns]
+                .resample(self.RESAMPLE_RULE)
+                .mean()
+                .dropna(how="all")
+                .reset_index()
+            )
+            x_axis = "timestamp"
+        else:
+            grouped = df[["counter", *metric_columns]].copy()
+            x_axis = "counter"
+
+        n_cols = 2
+        n_rows = (len(metric_columns) + n_cols - 1) // n_cols
+        fig, axs = plt.subplots(
+            n_rows, n_cols, figsize=(39, max(6, n_rows * 2.8) + 11.5), sharex=True
+        )
+        axs = axs.flatten()
+
+        params_text = "\n".join(
+            [
+                f"MAX_AF_SIZE: {self.params['MAX_AF_SIZE']}",
+                f"MAX_SPREAD_PERCENTAGE: {self.params['MAX_SPREAD_PERCENTAGE']}",
+                f"HEBBIAN_MAX_ALLOCATION_PERCENTAGE : {self.params['HEBBIAN_MAX_ALLOCATION_PERCENTAGE']}",
+                f"FUNDS_STI: {self.params['FUNDS_STI']}",
+                f"FUNDS_LTI: {self.params['FUNDS_LTI']}",
+                f"TARGET_STI: {self.params['TARGET_STI']}",
+                f"TARGET_LTI: {self.params['TARGET_LTI']}",
+                f"AFRentFrequency: {self.params['AFRentFrequency']}",
+            ]
+        )
+        fig.text(
+            0.98,
+            0.01,
+            params_text,
+            transform=fig.transFigure,
+            fontsize=23,
+            horizontalalignment="right",
+            bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.8),
+        )
+
+        colors = sns.color_palette("tab10", n_colors=len(metric_columns))
+
+        for idx, (metric, color) in enumerate(zip(metric_columns, colors)):
+            series = grouped[[x_axis, metric]].dropna(subset=[metric]).copy()
+            if series.empty:
+                axs[idx].set_title(metric, fontsize=28)
+                axs[idx].grid(True, linestyle="--", alpha=0.35)
+                continue
+
+            series.loc[:, metric] = series[metric].rolling(window=3, min_periods=1).mean()
+            axs[idx].plot(
+                series[x_axis],
+                series[metric],
+                color=color,
+                linewidth=1.2,
+                alpha=0.95,
+            )
+            axs[idx].set_title(metric, fontsize=28)
+            axs[idx].grid(True, linestyle="--", alpha=0.35)
+            axs[idx].tick_params(axis='both', labelsize=25)
+
+        for idx in range(len(metric_columns), len(axs)):
+            fig.delaxes(axs[idx])
+
+        fig.suptitle("Evaluation Metrics Over Iterations", fontsize=24)
+        fig.supxlabel(
+            "Iteration Counter"
+            if x_axis == "counter"
+            else f"Timestamp ({self.RESAMPLE_RULE} bins)",
+            fontsize=28,
+        )
+        # fig.supylabel("Metric Value", fontsize=22)
+        plt.tight_layout(rect=[0.001, 0.12, 1, 0.95])
+
+        png_path = self.output_path / "output" / "metrics_plot_faceted.png"
+        plt.savefig(png_path)
+        print("Metrics faceted plot saved to", png_path)
+
+        try:
+            long_frames = []
+            for metric in metric_columns:
+                series = grouped[[x_axis, metric]].dropna(subset=[metric]).copy()
+                if series.empty:
+                    continue
+                series.loc[:, metric] = series[metric].rolling(window=3, min_periods=1).mean()
+                series = series.rename(columns={metric: "Value"})
+                series["Metric"] = metric
+                long_frames.append(series[[x_axis, "Metric", "Value"]])
+
+            if not long_frames:
+                raise ValueError("No metric data available for interactive plotting")
+
+            melted = pd.concat(long_frames, ignore_index=True)
+            fig = px.line(
+                melted,
+                x=x_axis,
+                y="Value",
+                color="Metric",
+                title="Interactive Evaluation Metrics Over Iterations",
+            )
+            html_path = self.output_path / "output" / "metrics_plot_interactive.html"
+            fig.write_html(str(html_path))
+            print("Metrics interactive plot saved to", html_path)
+        except Exception as error:
+            print("Plotly metrics plot failed:", error)
+
+
+if __name__ == "__main__":
+    base_dir = Path(__file__).parent.resolve()
+    if len(sys.argv) >= 2:
+        targets = sys.argv[1:]
+    else:
+        targets = sorted(
+            {str(path.parent.parent) for path in base_dir.glob("**/output/output.csv")}
+        )
+
+    for target in targets:
+        root = resolve_output_root(target)
+        try:
+            Plotter(root)
+        except Exception as error:
+            print(f"category plot skipped for {root}: {error}")
+
+        try:
+            MetricsPlotter(root)
+        except Exception as error:
+            print(f"metrics plot skipped for {root}: {error}")
