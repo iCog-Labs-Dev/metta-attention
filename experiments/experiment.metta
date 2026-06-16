@@ -1,12 +1,11 @@
 !(bind! &insect (new-space))
 ; !(bind! &poison (new-space))
-!(import! &insect data/insect-sent)
+!(import! &insect data/insect-poison-sent)
 
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
 !(import! &self lib/lib_he)
 !(static-import! &incident ./data/kg)
-; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 
 !(import! &self ../attention/AttentionParam)
@@ -49,37 +48,50 @@
 !(updateAttentionParam FUNDS_LTI 100000.0) 
 !(updateAttentionParam TOPK 0.5)
 
-; !(updateAttentionParam STI_FUNDS_BUFFER 99900)
-; !(updateAttentionParam LTI_FUNDS_BUFFER 99900)
-; !(updateAttentionParam TARGET_STI 99900)
-; !(updateAttentionParam TARGET_LTI 99900)
-; !(updateAttentionParam AFRentFrequency 2.0)
-; !(updateAttentionParam MAX_AF_SIZE 12)
+
 
 
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
 (= (batch) 25)
+(= (runAttentionBatch)
+    (let*
+        (
+            ($_agents (collapse (test-superpose &incident)))
+        )
+        True
+    )
+)
+
+
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
-        (empty)
-        (let* 
+        (let $_done (println! (finished-read count $counter)) True)
+        (let*
             (
                 ($now (car-atom $expr))
                 ($rest (cdr-atom $expr))
-            )
-            ( 
-                (stimulate $now 30)
-                (println! (stimulating atom --> $now))
-                (if (or (== (% $counter (batch)) 0) (== $rest ()))
-                   (collapse (test-superpose &incident)) 
-                   (println! (agent not called))
+                ($_stim (collapse (stimulate $now 10)))
+                ($_stimlog (println! (stimulating atom --> $now)))
+                ($_readlog (println! (read-step $counter word $now remaining (size-atom $rest))))
+                ($_batch
+                    (if (or (== (% $counter (batch)) 0) (== $rest ()))
+                        (let*
+                            (
+                                ($_agents (runAttentionBatch))
+                            )
+                            True
+                        )
+                        (println! (continued to stimulate batched atoms ...))
+                    )
                 )
                 ; (py-call (time.sleep 5.0))
-                (insectPoisonReadExp $rest (+ $counter 1)))
-         )
-    )    
+                ($_next (insectPoisonReadExp $rest (+ $counter 1)))
+            )
+            True
+        )
+    )
 )
 
 ; !(match &incident (much $x) (tropical $x))
