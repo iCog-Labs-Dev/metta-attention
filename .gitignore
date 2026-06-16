@@ -16,3 +16,4 @@ conceptnet_links_only.*
 .ECAN
 *.csv
 experiments/data/kg.metta
+experiments/output/*.html
