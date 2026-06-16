@@ -1,13 +1,27 @@
-!(register-module! ../../../../metta-attention)
-!(import! &self metta-attention:attention:ForgettingAgent:ForgettingAgent)
-!(import! &self metta-attention:attention-bank:utilities:helper-functions)
-!(import! &self metta-attention:attention:AttentionParam)
-!(import! &self metta-attention:attention-bank:attention-value:getter-and-setter)
-!(import! &self metta-attention:attention-bank:bank:attention-bank)
-!(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
-!(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
+!(import! &self lib/lib_import)
+!(import! &self lib/lib_spaces)
+!(import! &self lib/lib_he)
 
-!(updateAttentionParam FORGET_THRESHOLD 5)
+!(import! &self ../../../../metta-attention/attention/AttentionParam)
+!(import! &self ../../../../metta-attention/attention-bank/utilities/helper-functions)
+!(import! &self ../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
+!(import! &self ../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
+!(import! &self ../../../../metta-attention/attention-bank/bank/attentional-focus/attentional-focus)
+!(import! &self ../../../../metta-attention/attention-bank/bank/attention-bank)
+!(import! &self ../../../../metta-attention/attention/ForgettingAgent/ForgettingAgent)
+
+!(updateAttentionParam FORGET_THRESHOLD 5.0)
+!(println! (getAttentionParam MAX_SIZE))
+!(println! (getAttentionParam ACC_DIV_SIZE))
+!(println! (getAttentionParam MAX_SIZE))
+!(println! (getAttentionParam ACC_DIV_SIZE))
+; (test maxSize)
+!(test (getAttentionParam MAX_SIZE) 2.0) ; asserEqual doesn't change the output
+!(test (getAttentionParam ACC_DIV_SIZE 1.0)) ; I just added this line.
+
+; (updateAttentionParam MAX_SIZE 50)
+; (updateAttentionParam ACC_DIV_SIZE 5.0)
+
 ; stimualte 0.25 translated to lti 5
 
 !(stimulate a 1)
@@ -80,13 +94,20 @@
 ; stv &av, lit < 5, source < 5, target < 5, link lti above source & target lti
 !(stimulate (SYMMETRIC_HEBBIAN_LINK M N) 0.2)
 
-!(assertEqual (getAttentionParam FUNDS_STI) 99174.80000000002)
+!(test (getAttentionParam FUNDS_STI) 99174.80000000002)
 
+; !(println! (getAllAtomsWithBins))
+; !(println! (car-atom (getAllAtomsWithBins)))
+; !(println! (cdr-atom (getAllAtomsWithBins)))
+
+; !(println! (getLti a))
+; !(println! (getLti g))
+; !(println! (getLti h))
 
 !(forgettingAgent-Run (TypeSpace))
 
 
-!(let*
+(let*
     (
         ($rmvspace (getAtomsInRemoveSpace))	
         ($typspace (getAtomsInTypeSpace)) 
@@ -95,12 +116,14 @@
     ()
 ) 
 
-!(assertEqual (getAttentionParam FUNDS_STI) 99468.40000000002)
+!(test (getAttentionParam FUNDS_STI) 99468.40000000002)
 
-(getAtomsInTypeSpace)
+
+
+!(getAtomsInTypeSpace)
 !(let $atoms
     (getAtomsInTypeSpace) 
-    (assertEqual 
+    (assertEqual
         (subtraction-atom 
             $atoms
             (a b e f i j A B C D E F G H I J L M N o p (ASYMMETRIC_HEBBIAN_LINK a b) (ASYMMETRIC_HEBBIAN_LINK e f) (SYMMETRIC_HEBBIAN_LINK A B) (SYMMETRIC_HEBBIAN_LINK C D) (SYMMETRIC_HEBBIAN_LINK E F) (SYMMETRIC_HEBBIAN_LINK G H))
