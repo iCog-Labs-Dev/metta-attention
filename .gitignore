@@ -14,4 +14,5 @@ wordnet.metta
 wordnet/
 conceptnet_stv_clean
 conceptnet_links_only.*
+.ECAN
 kg.metta
