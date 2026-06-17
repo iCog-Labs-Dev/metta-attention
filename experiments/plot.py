@@ -3,7 +3,6 @@ from typing import Union
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import plotly.express as px
 import json
 import sys
 
@@ -110,22 +109,6 @@ class Plotter:
         plt.savefig(plot_file)
         print("Faceted plot saved to", plot_file)
 
-        # === 5. Optional: Interactive Plotly Plot ===
-        try:
-            df_reset = smoothed_counts.reset_index().melt(
-                id_vars='time_windows', var_name='Category', value_name='Frequency')
-            fig = px.line(
-                df_reset,
-                x='time_windows',
-                y='Frequency',
-                color='Category',
-                title='Interactive All Category Frequency Over Time'
-            )
-            html_file = self.output_path / 'output' / 'plot_interactive.html'
-            fig.write_html(str(html_file))
-            print("Interactive plot saved to", html_file)
-        except Exception as e:
-            print("Plotly interactive plot failed:", e)
 
 if __name__ == "__main__":
     base_dir = Path(__file__).parent.resolve() 
