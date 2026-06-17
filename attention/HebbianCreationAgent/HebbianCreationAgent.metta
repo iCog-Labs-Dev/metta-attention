@@ -69,20 +69,20 @@
 ;Returns: empty
 
 ; (: removeLinkRecursively (-> Number Expression))
-( = (removeLinkRecursively $num $sizeaf $afAtoms)
-    (if ( or (== $num 0) (== 0 $sizeaf))
-        ()
-        (let*
-            (
-                ($randomAtom (getRandomAtomInAF $afAtoms))
-                ($incomingSet (getIncomingSetByType $randomAtom HEBBIAN_LINK)) 
-                ; ($p (println! (incoming $incomingSet)))
-                ($x (remove-atom &typespace (car-atom $incomingSet)))
-            )
-            (removeLinkRecursively (- $num 1) (size-atom (getAfAtoms)) $afAtoms)
-        )
-    )
-)
+; ( = (removeLinkRecursively $num $sizeaf $afAtoms)
+;     (if ( or (== $num 0) (== 0 $sizeaf))
+;         ()
+;         (let*
+;             (
+;                 ($randomAtom (getRandomAtomInAF))
+;                 ($incomingSet (getIncomingSetByType $randomAtom HEBBIAN_LINK ())) 
+;                 ; ($p (println! (incoming $incomingSet)))
+;                 ($x (remove-atom &typespace (car-atom $incomingSet)))
+;             )
+;             (removeLinkRecursively (- $num 1) (size-atom (getAfAtoms)) $afAtoms)
+;         )
+;     )
+; )
 
 ; return the atoms that are in the attentional focus but not in the list 
 ;Function: setDifference
@@ -121,7 +121,7 @@
 (= (generateRandom $farLinks $afAtoms)
     (if (<= $farLinks 0)
         ()
-        (superpose ((getRandomAtomNotInAF $afAtoms) (generateRandom (- $farLinks 1) $afAtoms)))
+        (superpose ((getRandomAtomNotInAF) (generateRandom (- $farLinks 1) $afAtoms)))
     )
 )
 
