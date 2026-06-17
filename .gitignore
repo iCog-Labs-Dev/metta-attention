@@ -5,6 +5,7 @@ __pycache__
 .vscode
 *.pl
 *.qlf
+*.csv
 wordnet_stv_clean.metta
 conceptnet_stv_clean.metta
 conceptnet-assertions-5.7.0.csv
@@ -13,4 +14,4 @@ wordnet.metta
 wordnet/
 conceptnet_stv_clean
 conceptnet_links_only.*
-.ECAN
+kg.metta
