@@ -325,14 +325,10 @@
 )
 
 (= (isTopologyMetric $name)
-    (or (== $name triangle_count)
-        (or (== $name trianglecount)
-            (or (== $name betti0)
-                (or (== $name betti1)
-                    (or (== $name betti2)
-                        (or (== $name betti_0)
-                            (or (== $name betti_1)
-                                (== $name betti_2))))))))
+    (or (== $name triangleCount)
+        (or (== $name betti0)
+            (or (== $name betti1)
+                (== $name betti2))))
 )
 
 (= (getMetrics $name $list)

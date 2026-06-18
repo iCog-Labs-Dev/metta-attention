@@ -69,7 +69,7 @@
 
 !(recordTopologyReport 7 123.0)
 !(assertEqual (getCipTopologyReport 7) (TopologyReport 1 2 0 0))
-!(assertEqual (averageMetricScore ((afResource 1.0) (triangle_count 1000) (betti0 2) (betti1 3) (betti2 4) (sticoncentration 3.0))) 2.0)
+!(assertEqual (averageMetricScore ((afResource 1.0) (triangleCount 1000) (betti0 2) (betti1 3) (betti2 4) (stiConcentration 3.0))) 2.0)
 
 
 ; =================== Set links containing prior to testing ==============
@@ -88,14 +88,14 @@
 ; !(assertEqual (initialize-baseline-cip) true)
 ; !(assertEqual (transition-to-next-cip) (CIPSnapshot 1 1779340647.1364384 () 
 ;     ((afResource 0.0) 
-;      (sticoncentration 0.0) 
-;      (linkdensity 0.0) 
-;      (connectionratio 0.0) 
+;      (stiConcentration 0.0)
+;      (linkDensity 0.0)
+;      (connectionRatio 0.0)
 ;      (preallocation 0.0) 
-;      (cognitivesynergy 0.0) 
+;      (cognitiveSynergy 0.0)
 ;      (modulation 0.0) 
 ;      (coordination 0.0) 
-;      (contextretention 0.0)))
+;      (contextRetention 0.0)))
 ; ) ; --- IGNORE --- time can not be asserted
 
 !(get-cip-snapshots 0)
@@ -216,9 +216,3 @@
 
 !(getAttentionParam FUNDS_STI) ; the fund is consistent accross all agent call?? it should be due to rent collection
 
-; why is rent collection agent works though? 
-; i mean it should return sth to the bank right?
-
-
-; so the thing is everytime as long as the minimum time threshold is not satisfied rent wont be collected
-; the insight is, this depends on the machine and the amount of atoms we are processing and we should find out that??

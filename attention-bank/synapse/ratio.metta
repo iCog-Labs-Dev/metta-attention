@@ -42,18 +42,18 @@
    )
    (
     (afResource $afResource)
-    (sticoncentration $stiConcentration)
-    (fundsti $fundSti)
-    (linkdensity $linkDensity)
-    (connectionratio $connectionRatio)
+    (stiConcentration $stiConcentration)
+    (fundSti $fundSti)
+    (linkDensity $linkDensity)
+    (connectionRatio $connectionRatio)
     (preallocation $preallocation)
-    (cognitivesynergy $cognitiveSynergy)
+    (cognitiveSynergy $cognitiveSynergy)
     (modulation $modulation)
     (coordination $coordination)
-    (contextretention $contextRetention)
-    (cognitivemaintenance $cognitiveMaintenance)
+    (contextRetention $contextRetention)
+    (cognitiveMaintenance $cognitiveMaintenance)
     (effectiveness $effectiveness)
-    (triangle_count $triangleCount)
+    (triangleCount $triangleCount)
     (betti0 $betti0)
     (betti1 $betti1)
     (betti2 $betti2)
@@ -143,7 +143,7 @@
          ($time (current-time))
          ($_ (add-atom &cipspace (CIPSnapshot $newIndex $time $af $baseMetrics)))
          ($gainedEfficiency (getGainedEfficiency $newIndex))
-         ($metrics (cons-atom (gainedefficiency $gainedEfficiency) $baseMetrics))
+         ($metrics (cons-atom (gainedEfficiency $gainedEfficiency) $baseMetrics))
         ;  ($topology (record-topology-report $newIndex $time))
          ($stiSeries (recordCipSeries))
       )
@@ -209,8 +209,8 @@
 (= (getTotalResourceCost $metrics)
     (let* ( 
             ($afRatio (getMetrics afResource $metrics))
-            ($stiRatio (getMetrics sticoncentration $metrics))
-            ($densityRatio (getMetrics linkdensity $metrics))
+            ($stiRatio (getMetrics stiConcentration $metrics))
+            ($densityRatio (getMetrics linkDensity $metrics))
         ) 
         
         (+ (+ $afRatio $stiRatio) $densityRatio)
@@ -522,7 +522,7 @@
         ($baselinePerf (car-atom $baselineData))
         ($baselineCost (car-atom (cdr-atom $baselineData)))
         
-        ($currCost (+ (getMetrics afResource $currMetrics) (+ (getMetrics sticoncentration $currMetrics) (getMetrics linkdensity $currMetrics))))
+        ($currCost (+ (getMetrics afResource $currMetrics) (+ (getMetrics stiConcentration $currMetrics) (getMetrics linkDensity $currMetrics))))
         ($currEff (getMetrics effectiveness $currMetrics))
         ($currPerf (* $currEff $currCost))
         
@@ -544,10 +544,10 @@
 
 ; Topological invariants of the undirected Hebbian link graph.
 ; TopologyReport fields:
-;   triangle_count: unique 3-cycles
-;   betti_0: connected components
-;   betti_1: unfilled 1-dimensional cycles in the clique complex
-;   betti_2: enclosed 2-dimensional voids in the clique complex
+;   triangleCount: unique 3-cycles
+;   betti0: connected components
+;   betti1: unfilled 1-dimensional cycles in the clique complex
+;   betti2: enclosed 2-dimensional voids in the clique complex
 
 (= (topologyMetrics)
     (py-call (topology_metrics.topology_metric_values (getAllHebLinks)))
