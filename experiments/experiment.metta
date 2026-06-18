@@ -69,7 +69,7 @@
                 ($redundancyDegradation (getRedundancyDegradation $index))
                 ($metricsWithRedundancy
                     (cons-atom
-                        (redundancy_degradation $redundancyDegradation)
+                        (redundancyDegradation $redundancyDegradation)
                         $metrice
                     )
                 )
