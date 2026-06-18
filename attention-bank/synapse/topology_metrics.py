@@ -126,8 +126,8 @@ def topology_metrics(edges: Any) -> Dict[str, int]:
     duplicate links are ignored before metrics are computed.
     """
     vertices, undirected_edges = _normalize_edges(edges)
-    print("vertices ", vertices)
-    print("\n edges ", undirected_edges)
+    # print("vertices ", vertices)
+    # print("\n edges ", undirected_edges)
 
     if not vertices:
         return {"triangles": 0, "betti0": 0, "betti1": 0, "betti2": 0}
@@ -143,17 +143,17 @@ def topology_metrics(edges: Any) -> Dict[str, int]:
     graph.add_edges(graph_edges)
 
     vertex_simplices = [(index,) for index in range(graph.vcount())]
-    print("vertex simplices ", vertex_simplices)
+    # print("vertex simplices ", vertex_simplices)
     edge_simplices = [tuple(edge) for edge in graph.get_edgelist()]
-    print("edge simplices ", edge_simplices)
+    # print("edge simplices ", edge_simplices)
     triangle_simplices = [tuple(sorted(simplex)) for simplex in graph.cliques(min=3, max=3)]
-    print("triangle simplices ", triangle_simplices)
+    # print("triangle simplices ", triangle_simplices)
     tetrahedron_simplices = [tuple(sorted(simplex)) for simplex in graph.cliques(min=4, max=4)]
-    print("tetrahedron simplices ", tetrahedron_simplices)
+    # print("tetrahedron simplices ", tetrahedron_simplices)
 
 
     vertex_to_index = {simplex: index for index, simplex in enumerate(vertex_simplices)}
-    print("verted to index ", vertex_to_index)
+    # print("verted to index ", vertex_to_index)
     edge_to_index = {simplex: index for index, simplex in enumerate(edge_simplices)}
     triangle_to_index = {
         simplex: index for index, simplex in enumerate(triangle_simplices)
