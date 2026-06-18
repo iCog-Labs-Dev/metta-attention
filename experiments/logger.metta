@@ -5,7 +5,7 @@
 
 (= (write_metrics_wrapper 
     $counter $time $af_atoms $afResource $stiConcentration $linkDensity $connectionRatio 
-    $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness $gainedEfficiency)
+    $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness $gainedEfficiency $redundancyDegradation)
     (py-call (logger.write_metrics_row 
                 $counter 
                 $time 
@@ -21,7 +21,8 @@
                 $contextRetention 
                 $cognitiveMaintenance
                 $effectiveness
-                $gainedEfficiency)
+                $gainedEfficiency
+                $redundancyDegradation)
     )
 )
 
@@ -35,6 +36,10 @@
 
 (= (get_baseline_effectiveness $index)
     (py-call (logger.get_baseline_effectiveness $index))
+)
+
+(= (get_baseline_redundancy_data $index)
+    (py-call (logger.get_baseline_redundancy_data $index))
 )
 
 

@@ -169,6 +169,7 @@ class MetricsPlotter:
         "betti0",
         "betti1",
         "betti2",
+        "redundancy_degradation",
     ]
     METRIC_NAME_MAP = {
         "afResource": "af_resource",

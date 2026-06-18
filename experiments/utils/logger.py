@@ -157,7 +157,7 @@ LOGGING_DIRECTORY = None
 SETTING_PATH = None
 CSV_PATH = None
 METRICS_PATH = None
-BASELINE_EFFECTIVENESS_CACHE = None
+BASELINE_METRICS_CACHE = None
 
 
 def start_logger(directory):
@@ -258,9 +258,9 @@ def write_to_csv(afatoms):
     return ['wrote']
 
 
-def write_metrics_row(counter, time, af_atoms, af_resource, sti_concentration, link_density, connection_ratio,
-                      preallocation, cognitive_synergy, modulation, coordination, context_retention,
-                      cognitive_maintenance, effectiveness, gained_efficiency=0.0):
+def write_metrics_row(counter, time, af_atoms, af_resource, sti_concentration, link_density, coherance,
+                      connection_ratio, normalized_sti_entropy, retention, p_correlation, modulation,
+                      global_coordination, effectiveness, gained_efficiency=0.0, redundancy_degradation=0.0):
     
     # Append one metrics row per iteration to metrics.csv.
 
@@ -269,29 +269,41 @@ def write_metrics_row(counter, time, af_atoms, af_resource, sti_concentration, l
     if not START_LOGGER_FLAG or METRICS_PATH is None:
         return ['not written']
 
-    metrics = {}
-    for name, value in [
-        metric_arg("af_resource", af_resource),
-        metric_arg("sti_concentration", sti_concentration),
-        metric_arg("link_density", link_density),
-        metric_arg("connection_ratio", connection_ratio),
-        metric_arg("preallocation", preallocation),
-        metric_arg("cognitive_synergy", cognitive_synergy),
-        metric_arg("modulation", modulation),
-        metric_arg("coordination", coordination),
-        metric_arg("context_retention", context_retention),
-        metric_arg("cognitive_maintenance", cognitive_maintenance),
-        metric_arg("effectiveness", effectiveness),
-        metric_arg("gained_efficiency", gained_efficiency),
-    ]:
-        metrics[name] = value
-
-    metric_columns = ordered_metric_columns(metrics)
-    header = ["counter", "timestamp", "af_atoms", *metric_columns]
+    header = [
+        "counter",
+        "timestamp",
+        "af_resource",
+        "sti_concentration",
+        "link_density",
+        "connection_ratio",
+        "preallocation",
+        "cognitive_synergy",
+        "modulation",
+        "coordination",
+        "context_retention",
+        "cognitive_maintenance",
+        "effectiveness",
+        "gained_efficiency",
+        "redundancy_degradation",
+        "af_atoms",
+    ]
 
     row = [
         str(counter),
         str(time),
+        str(af_resource[1]),
+        str(sti_concentration[1]),
+        str(link_density[1]),
+        str(coherance[1]),
+        str(connection_ratio[1]),
+        str(normalized_sti_entropy[1]),
+        str(retention[1]),
+        str(p_correlation[1]),
+        str(modulation[1]),
+        str(global_coordination[1]),
+        str(effectiveness[1]),
+        str(gained_efficiency),
+        str(redundancy_degradation),
         str(af_atoms),
         *[str(metrics.get(column, "")) for column in metric_columns],
     ]
@@ -331,21 +343,60 @@ def write_cip_row(index, time, af_atoms, metrices):
 
     return ['wrote']
 
-def get_baseline_effectiveness(index):
-    """Load baseline_metrics.csv and return the effectiveness at the given step index."""
-    global BASELINE_EFFECTIVENESS_CACHE
+BASELINE_METRICS_CACHE = None
+REDUNDANCY_BASELINE_CACHE = None
 
-    if BASELINE_EFFECTIVENESS_CACHE is None:
-        csv_path = Path(__file__).parent.parent / "output" / "baseline_metrics.csv"
+def _load_baseline_cache():
+    global BASELINE_METRICS_CACHE
+    if BASELINE_METRICS_CACHE is None:
+        csv_path = LOGGING_DIRECTORY / "output" / "baseline_metrics.csv"
+        # Fallback to old folder structure
+        old_path = LOGGING_DIRECTORY / "baseline" / "output" / "metrics.csv"
+        
+        target_path = csv_path if csv_path.exists() else old_path
+
+        if target_path.exists():
+            with open(target_path, 'r') as f:
+                reader = csv.DictReader(f)
+                BASELINE_METRICS_CACHE = list(reader)
+        else:
+            BASELINE_METRICS_CACHE = []
+
+def _load_redundancy_baseline_cache():
+    global REDUNDANCY_BASELINE_CACHE
+
+    if REDUNDANCY_BASELINE_CACHE is None:
+        csv_path = LOGGING_DIRECTORY / "output" / "redundancy_baseline_metrics.csv"
 
         if csv_path.exists():
-            with open(csv_path, 'r') as f:
+            with open(csv_path, "r") as f:
                 reader = csv.DictReader(f)
-                BASELINE_EFFECTIVENESS_CACHE = [float(row['effectiveness']) for row in reader]
+                REDUNDANCY_BASELINE_CACHE = list(reader)
         else:
-            BASELINE_EFFECTIVENESS_CACHE = []
+            REDUNDANCY_BASELINE_CACHE = []
 
+def get_baseline_effectiveness(index):
+    """Load baseline metrics.csv and return the effectiveness at the given step index."""
+    _load_baseline_cache()
     idx = int(index)
-    if 0 <= idx < len(BASELINE_EFFECTIVENESS_CACHE):
-        return float(BASELINE_EFFECTIVENESS_CACHE[idx])
+    if 0 <= idx < len(BASELINE_METRICS_CACHE):
+        return float(BASELINE_METRICS_CACHE[idx].get('effectiveness', 0.0))
     return 0.0
+
+def get_baseline_redundancy_data(index):
+    """Returns a tuple: (baseline_perf, baseline_cost)"""
+    _load_redundancy_baseline_cache()
+    idx = int(index)
+    if 0 <= idx < len(REDUNDANCY_BASELINE_CACHE):
+        row = REDUNDANCY_BASELINE_CACHE[idx]
+        af_res = float(row.get('af_resource', 0.0))
+        sti_conc = float(row.get('sti_concentration', 0.0))
+        link_den = float(row.get('link_density', 0.0))
+        effectiveness = float(row.get('effectiveness', 0.0))
+        
+        # Reverse engineer cost and performance
+        baseline_cost = af_res + sti_conc + link_den
+        baseline_perf = effectiveness * baseline_cost
+        
+        return [baseline_perf, baseline_cost]
+    return [0.0, 0.0]
