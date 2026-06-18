@@ -151,6 +151,7 @@ class MetricsPlotter:
         "cognitive_maintenance",
         "effectiveness",
         "gained_efficiency",
+        "redundancy_degradation",
     ]
     RESAMPLE_RULE = "15s"
 
