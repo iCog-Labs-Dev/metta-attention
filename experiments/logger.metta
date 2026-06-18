@@ -4,14 +4,16 @@
 )
 
 (= (write_metrics_wrapper 
-    $counter $time $af_atoms $afResource $stiConcentration $linkDensity $connectionRatio 
-    $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness $gainedEfficiency $redundancyDegradation)
+    $counter $time $af_atoms $afResource $stiConcentration $fundSti $linkDensity $connectionRatio
+    $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness
+    $gainedEfficiency $redundancyDegradation $triangleCount $betti0 $betti1 $betti2)
     (py-call (logger.write_metrics_row 
                 $counter 
                 $time 
                 $af_atoms 
                 $afResource 
                 $stiConcentration 
+                $fundSti
                 $linkDensity 
                 $connectionRatio 
                 $preallocation 
@@ -22,7 +24,11 @@
                 $cognitiveMaintenance
                 $effectiveness
                 $gainedEfficiency
-                $redundancyDegradation)
+                $redundancyDegradation
+                $triangleCount
+                $betti0
+                $betti1
+                $betti2)
     )
 )
 
@@ -66,6 +72,4 @@
         (py-call (logger.save_params $val))
     )
 )
-
-
 

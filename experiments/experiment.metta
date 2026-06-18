@@ -65,16 +65,35 @@
         (let* (
                 ($cip (transition-to-next-cip))
                 ((CIPSnapshot $index $time $afAtoms $metrice) $cip)
+                (($_gainedEfficiencyMetric $afResource $stiConcentration $fundSti $linkDensity $connectionRatio
+                    $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance
+                    $effectiveness $triangleCount $betti0 $betti1 $betti2) $metrice)
                 ($gainedEfficiency (getGainedEfficiency $index))
                 ($redundancyDegradation (getRedundancyDegradation $index))
-                ($metricsWithRedundancy
-                    (cons-atom
-                        (redundancyDegradation $redundancyDegradation)
-                        $metrice
-                    )
-                )
         )
-        (write_cip_wrapper $index $time $afAtoms $metricsWithRedundancy)
+        (write_metrics_wrapper
+            $index
+            $time
+            $afAtoms
+            $afResource
+            $stiConcentration
+            $fundSti
+            $linkDensity
+            $connectionRatio
+            $preallocation
+            $cognitiveSynergy
+            $modulation
+            $coordination
+            $contextRetention
+            $cognitiveMaintenance
+            $effectiveness
+            $gainedEfficiency
+            $redundancyDegradation
+            $triangleCount
+            $betti0
+            $betti1
+            $betti2
+        )
     )
 )
 
@@ -120,5 +139,3 @@
 
 ; !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
 !(insectPoisonReadExp (car-atom (collapse (match &insect (insectSent $x) $x))) 0)
-
-

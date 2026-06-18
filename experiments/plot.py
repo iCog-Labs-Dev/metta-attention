@@ -1,21 +1,10 @@
 from pathlib import Path
 from typing import Union
-import ast
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import json
 import sys
-
-
-def parse_timestamp_column(series: pd.Series) -> pd.Series:
-    if pd.api.types.is_numeric_dtype(series):
-        return pd.to_datetime(series, unit="s", errors="coerce")
-
-    try:
-        return pd.to_datetime(series, errors="coerce", format="mixed")
-    except TypeError:
-        return pd.to_datetime(series, errors="coerce")
 
 
 def resolve_output_root(path_like: Union[str, Path]) -> Path:
@@ -76,9 +65,7 @@ class Plotter:
 
     def read_csv(self) -> pd.DataFrame:
         csv = self.output_path / 'output' / 'output.csv'
-        df = pd.read_csv(csv)
-        df["timestamp"] = parse_timestamp_column(df["timestamp"])
-        df = df.dropna(subset=["timestamp"])
+        df = pd.read_csv(csv, parse_dates=['timestamp'])
         words = df['pattern'].astype(str).str.extract(r'^\(?([^\s()]+)', expand=False)
         df.loc[:, 'category'] = words.map(self.word_to_category).fillna('Entered through spreading')
         df.loc[:, 'time_windows'] = df['timestamp'].dt.floor('0.0001s')
@@ -154,19 +141,6 @@ class MetricsPlotter:
         "betti1",
         "betti2",
     ]
-    METRIC_NAME_MAP = {
-        "afResource": "af_resource",
-        "stiConcentration": "sti_concentration",
-        "fundSti": "fund_sti",
-        "linkDensity": "link_density",
-        "connectionRatio": "connection_ratio",
-        "cognitiveSynergy": "cognitive_synergy",
-        "contextRetention": "context_retention",
-        "cognitiveMaintenance": "cognitive_maintenance",
-        "gainedEfficiency": "gained_efficiency",
-        "redundancyDegradation": "redundancy_degradation",
-        "triangleCount": "triangle_count",
-    }
     RESAMPLE_RULE = "15s"
 
     def __init__(self, output_path: Union[str, Path]):
@@ -191,48 +165,17 @@ class MetricsPlotter:
 
     def read_metrics_csv(self) -> pd.DataFrame:
         df = pd.read_csv(self.metrics_path)
-        if "timestamp" in df.columns:
-            df["timestamp"] = parse_timestamp_column(df["timestamp"])
-
-        if "metrics" in df.columns:
-            metrics_df = pd.DataFrame(
-                [self.parse_metrics_blob(value) for value in df["metrics"]]
-            )
-            df = pd.concat([df.drop(columns=["metrics"]), metrics_df], axis=1)
-
-        if "counter" not in df.columns and "cip_index" in df.columns:
-            df["counter"] = df["cip_index"]
-
-        for column in list(self.METRIC_NAME_MAP.values()) + ["counter"]:
+        df.insert(0, "timestamp", pd.to_datetime(df.pop("timestamp"), unit="s"))
+        for column in self.METRIC_COLUMNS + ["counter"]:
             if column in df.columns:
                 df.loc[:, column] = pd.to_numeric(df[column], errors="coerce")
 
-        available = [
-            column for column in self.METRIC_COLUMNS if column in df.columns
-        ]
+        available = [column for column in self.METRIC_COLUMNS if column in df.columns]
         if not available:
             raise ValueError("No expected metric columns found in metrics.csv")
 
-        base_columns = [column for column in ["timestamp", "counter"] if column in df.columns]
-        df = df[[*base_columns, *available]].copy()
+        df = df[["timestamp", "counter", *available]].copy()
         return df
-
-    def parse_metrics_blob(self, value) -> dict:
-        if pd.isna(value):
-            return {}
-
-        try:
-            pairs = ast.literal_eval(str(value))
-        except (SyntaxError, ValueError):
-            return {}
-
-        parsed = {}
-        for item in pairs:
-            if not isinstance(item, (list, tuple)) or len(item) < 2:
-                continue
-            name = self.METRIC_NAME_MAP.get(str(item[0]), str(item[0]))
-            parsed[name] = item[1]
-        return parsed
 
     def plot(self) -> None:
         df = self.data_frame
@@ -240,9 +183,9 @@ class MetricsPlotter:
             column for column in self.METRIC_COLUMNS if column in df.columns
         ]
 
-        if "timestamp" in df.columns and not df["timestamp"].isna().all():
+        if "timestamp" in df.columns:
             grouped = (
-                df.dropna(subset=["timestamp"]).set_index("timestamp")[metric_columns]
+                df.set_index("timestamp")[metric_columns]
                 .resample(self.RESAMPLE_RULE)
                 .mean()
                 .dropna(how="all")
