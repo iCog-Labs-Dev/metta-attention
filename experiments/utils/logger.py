@@ -28,6 +28,8 @@ METRIC_NAME_MAP = {
     "effectiveness": "effectiveness",
     "gainedefficiency": "gained_efficiency",
     "gainedEfficiency": "gained_efficiency",
+    "redundancydegradation": "redundancy_degradation",
+    "redundancyDegradation": "redundancy_degradation",
     "trianglecount": "triangle_count",
     "triangleCount": "triangle_count",
     "triangles": "triangle_count",
@@ -50,6 +52,7 @@ METRIC_COLUMNS = [
     "cognitive_maintenance",
     "effectiveness",
     "gained_efficiency",
+    "redundancy_degradation",
     "triangle_count",
     "betti0",
     "betti1",
@@ -166,7 +169,8 @@ def start_logger(directory):
     `directory` may be a string path or an object exposing `get_name()`.
     Returns a Hyperon-style empty result.
     """
-    global START_LOGGER_FLAG, LOGGING_DIRECTORY, SETTING_PATH, CSV_PATH, METRICS_PATH, BASELINE_EFFECTIVENESS_CACHE
+    global START_LOGGER_FLAG, LOGGING_DIRECTORY, SETTING_PATH, CSV_PATH, METRICS_PATH
+    global BASELINE_METRICS_CACHE, REDUNDANCY_BASELINE_CACHE
 
     # Accept either string path or an object with get_name()
     if isinstance(directory, str):
@@ -199,7 +203,8 @@ def start_logger(directory):
     CSV_PATH.write_text("")
     METRICS_PATH.write_text("")
 
-    BASELINE_EFFECTIVENESS_CACHE = None
+    BASELINE_METRICS_CACHE = None
+    REDUNDANCY_BASELINE_CACHE = None
     START_LOGGER_FLAG = True
     return ['started']
 
@@ -269,41 +274,35 @@ def write_metrics_row(counter, time, af_atoms, af_resource, sti_concentration, l
     if not START_LOGGER_FLAG or METRICS_PATH is None:
         return ['not written']
 
+    metrics = {}
+    for name, value in [
+        metric_arg("af_resource", af_resource),
+        metric_arg("sti_concentration", sti_concentration),
+        metric_arg("link_density", link_density),
+        metric_arg("coherance", coherance),
+        metric_arg("connection_ratio", connection_ratio),
+        metric_arg("normalized_sti_entropy", normalized_sti_entropy),
+        metric_arg("retention", retention),
+        metric_arg("p_correlation", p_correlation),
+        metric_arg("modulation", modulation),
+        metric_arg("global_coordination", global_coordination),
+        metric_arg("effectiveness", effectiveness),
+        metric_arg("gained_efficiency", gained_efficiency),
+        metric_arg("redundancy_degradation", redundancy_degradation),
+    ]:
+        metrics[name] = value
+
+    metric_columns = ordered_metric_columns(metrics)
     header = [
         "counter",
         "timestamp",
-        "af_resource",
-        "sti_concentration",
-        "link_density",
-        "connection_ratio",
-        "preallocation",
-        "cognitive_synergy",
-        "modulation",
-        "coordination",
-        "context_retention",
-        "cognitive_maintenance",
-        "effectiveness",
-        "gained_efficiency",
-        "redundancy_degradation",
         "af_atoms",
+        *metric_columns,
     ]
 
     row = [
         str(counter),
         str(time),
-        str(af_resource[1]),
-        str(sti_concentration[1]),
-        str(link_density[1]),
-        str(coherance[1]),
-        str(connection_ratio[1]),
-        str(normalized_sti_entropy[1]),
-        str(retention[1]),
-        str(p_correlation[1]),
-        str(modulation[1]),
-        str(global_coordination[1]),
-        str(effectiveness[1]),
-        str(gained_efficiency),
-        str(redundancy_degradation),
         str(af_atoms),
         *[str(metrics.get(column, "")) for column in metric_columns],
     ]

@@ -65,11 +65,16 @@
         (let* (
                 ($cip (transition-to-next-cip))
                 ((CIPSnapshot $index $time $afAtoms $metrice) $cip)
-                (($afResource $stiConcentration $linkDensity $connectionRatio $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness) $metrice)
                 ($gainedEfficiency (getGainedEfficiency $index))
                 ($redundancyDegradation (getRedundancyDegradation $index))
+                ($metricsWithRedundancy
+                    (cons-atom
+                        (redundancy_degradation $redundancyDegradation)
+                        $metrice
+                    )
+                )
         )
-        (write_metrics_wrapper $index $time $afAtoms $afResource $stiConcentration $linkDensity $connectionRatio $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness $gainedEfficiency $redundancyDegradation)
+        (write_cip_wrapper $index $time $afAtoms $metricsWithRedundancy)
     )
 )
 
@@ -117,15 +122,3 @@
 !(insectPoisonReadExp (car-atom (collapse (match &insect (insectSent $x) $x))) 0)
 
 
-; REMAINING TASKS
-; 1 implement betti 2
-; 2 review redundant copies
-; 3 run the experiment with different parameters and see the difference
-; 4 reading and planning implementation for fluid dynamics
-;   4.1 review the quarter plan
-;   4.2 revise the document and review birahanes implementation
-
-
-; 
-; stimulat is taking long time, idk why??
-; its performance accross funds and number of atoms should be studied??
