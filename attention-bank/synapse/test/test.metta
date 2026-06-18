@@ -27,7 +27,7 @@
 !(import! &self ../../../attention/runner-Def)
 !(import! &self "../topology_metrics.py")
 !(import! &self ../utils)
-!(import! &self ../ratio)
+!(import! &self ../synapse)
 
 !(bind! &incident (new-space))
 

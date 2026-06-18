@@ -33,7 +33,7 @@
 !(import! &self ../attention/HebbianCreationAgent/HebbianCreationAgent)
 !(import! &self ../attention/runner-Def)
 !(import! &self ../attention-bank/synapse/utils)
-!(import! &self ../attention-bank/synapse/ratio)
+!(import! &self ../attention-bank/synapse/synapse)
 !(import! &self "../attention-bank/synapse/topology_metrics.py")
 
 
