@@ -558,78 +558,17 @@
 (= (getTopologyBetti1 ($triangles $betti0 $betti1 $betti2)) $betti1)
 (= (getTopologyBetti2 ($triangles $betti0 $betti1 $betti2)) $betti2)
 
-(= (getTriangleCount (TopologyReport $triangles $betti0 $betti1 $betti2)) $triangles)
 (= (getBetti0 (TopologyReport $triangles $betti0 $betti1 $betti2)) $betti0)
 (= (getBetti1 (TopologyReport $triangles $betti0 $betti1 $betti2)) $betti1)
 (= (getBetti2 (TopologyReport $triangles $betti0 $betti1 $betti2)) $betti2)
 
-(= (persistentHomologyInvariants)
-    (let* (
-            ($metrics (topologyMetrics))
-            ($triangles (getTopologyTriangleCount $metrics))
-            ($betti0 (getTopologyBetti0 $metrics))
-            ($betti1 (getTopologyBetti1 $metrics))
-            ($betti2 (getTopologyBetti2 $metrics))
-        )
-        (TopologyReport $triangles $betti0 $betti1 $betti2)
-    )
-)
 
-(= (topologyTriangleCount)
-    (let* (
-            ($report (persistentHomologyInvariants))
-            ((TopologyReport $triangles $betti0 $betti1 $betti2) $report)
-        )
-        $triangles
-    )
-)
 
-(= (topologyBetti0)
-    (let* (
-            ($report (persistentHomologyInvariants))
-            ((TopologyReport $triangles $betti0 $betti1 $betti2) $report)
-        )
-        $betti0
-    )
-)
 
-(= (topologyBetti1)
-    (let* (
-            ($report (persistentHomologyInvariants))
-            ((TopologyReport $triangles $betti0 $betti1 $betti2) $report)
-        )
-        $betti1
-    )
-)
 
-(= (topologyBetti2)
-    (let* (
-            ($report (persistentHomologyInvariants))
-            ((TopologyReport $triangles $betti0 $betti1 $betti2) $report)
-        )
-        $betti2
-    )
-)
 
-(= (recordTopologyReport $cipIndex $time)
-    (let $report (persistentHomologyInvariants)
-        (add-atom &topologySeries (CIPTopologyReport $cipIndex $time $report))
-    )
-)
 
-(= (getCipTopologyReport $cipIndex)
-    (let $report (collapse (match &topologySeries
-                            (CIPTopologyReport $cipIndex $time $report)
-                            $report))
-        (if (== $report ())
-            ()
-            (car-atom $report)
-        )
-    )
-)
 
-(= (getTopologySeries)
-    (collapse (match &topologySeries
-              (CIPTopologyReport $cipIndex $time $report)
-              (CIPTopologyReport $cipIndex $time $report)))
-)
+
+
+
