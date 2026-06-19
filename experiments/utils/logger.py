@@ -4,6 +4,7 @@ import os
 import csv
 import json
 from pathlib import Path
+
 def format_pattern(pat):
     if isinstance(pat, (list, tuple)):
         return f"({' '.join(format_pattern(p) for p in pat)})"
@@ -130,9 +131,10 @@ def write_to_csv(afatoms):
     return ['wrote']
 
 
-def write_metrics_row(counter, time, af_atoms, af_resource, sti_concentration, link_density, coherance,
-                      connection_ratio, normalized_sti_entropy, retention, p_correlation, modulation,
-                      global_coordination, effectiveness, gained_efficiency=0.0, redundancy_degradation=0.0):
+def write_metrics_row(counter, time, af_atoms, af_resource, sti_concentration, fund_sti, link_density,
+                      connection_ratio, preallocation, cognitive_synergy, modulation, coordination,
+                      context_retention, cognitive_maintenance, effectiveness, gained_efficiency=0.0,
+                      redundancy_degradation=0.0, triangle_count=0.0, betti0=0.0, betti1=0.0, betti2=0.0):
     
     # Append one metrics row per iteration to metrics.csv.
 
@@ -146,6 +148,7 @@ def write_metrics_row(counter, time, af_atoms, af_resource, sti_concentration, l
         "timestamp",
         "af_resource",
         "sti_concentration",
+        "fund_sti",
         "link_density",
         "connection_ratio",
         "preallocation",
@@ -157,6 +160,10 @@ def write_metrics_row(counter, time, af_atoms, af_resource, sti_concentration, l
         "effectiveness",
         "gained_efficiency",
         "redundancy_degradation",
+        "triangle_count",
+        "betti0",
+        "betti1",
+        "betti2",
         "af_atoms",
     ]
 
@@ -165,17 +172,22 @@ def write_metrics_row(counter, time, af_atoms, af_resource, sti_concentration, l
         str(time),
         str(af_resource[1]),
         str(sti_concentration[1]),
+        str(fund_sti[1]),
         str(link_density[1]),
-        str(coherance[1]),
         str(connection_ratio[1]),
-        str(normalized_sti_entropy[1]),
-        str(retention[1]),
-        str(p_correlation[1]),
+        str(preallocation[1]),
+        str(cognitive_synergy[1]),
         str(modulation[1]),
-        str(global_coordination[1]),
+        str(coordination[1]),
+        str(context_retention[1]),
+        str(cognitive_maintenance[1]),
         str(effectiveness[1]),
         str(gained_efficiency),
         str(redundancy_degradation),
+        str(triangle_count[1]),
+        str(betti0[1]),
+        str(betti1[1]),
+        str(betti2[1]),
         str(af_atoms),
     ]
 
@@ -186,7 +198,6 @@ def write_metrics_row(counter, time, af_atoms, af_resource, sti_concentration, l
         writer.writerow(row)
 
     return ['wrote']
-
 
 
 def write_cip_row(index, time, af_atoms, metrices):

@@ -3,7 +3,6 @@ from typing import Union
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import plotly.express as px
 import json
 import sys
 
@@ -117,30 +116,15 @@ class Plotter:
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
         plot_file = self.output_path / 'output' / 'plot_faceted.png'
         plt.savefig(plot_file)
+        plt.close(fig)
         print("Faceted plot saved to", plot_file)
-
-        # === 5. Optional: Interactive Plotly Plot ===
-        try:
-            df_reset = smoothed_counts.reset_index().melt(
-                id_vars='time_windows', var_name='Category', value_name='Frequency')
-            fig = px.line(
-                df_reset,
-                x='time_windows',
-                y='Frequency',
-                color='Category',
-                title='Interactive All Category Frequency Over Time'
-            )
-            html_file = self.output_path / 'output' / 'plot_interactive.html'
-            fig.write_html(str(html_file))
-            print("Interactive plot saved to", html_file)
-        except Exception as e:
-            print("Plotly interactive plot failed:", e)
 
 
 class MetricsPlotter:
     METRIC_COLUMNS = [
         "af_resource",
         "sti_concentration",
+        "fund_sti",
         "link_density",
         "connection_ratio",
         "preallocation",
@@ -152,6 +136,10 @@ class MetricsPlotter:
         "effectiveness",
         "gained_efficiency",
         "redundancy_degradation",
+        "triangle_count",
+        "betti0",
+        "betti1",
+        "betti2",
     ]
     RESAMPLE_RULE = "15s"
 
@@ -273,35 +261,8 @@ class MetricsPlotter:
 
         png_path = self.output_path / "output" / "metrics_plot_faceted.png"
         plt.savefig(png_path)
+        plt.close(fig)
         print("Metrics faceted plot saved to", png_path)
-
-        try:
-            long_frames = []
-            for metric in metric_columns:
-                series = grouped[[x_axis, metric]].dropna(subset=[metric]).copy()
-                if series.empty:
-                    continue
-                series.loc[:, metric] = series[metric].rolling(window=3, min_periods=1).mean()
-                series = series.rename(columns={metric: "Value"})
-                series["Metric"] = metric
-                long_frames.append(series[[x_axis, "Metric", "Value"]])
-
-            if not long_frames:
-                raise ValueError("No metric data available for interactive plotting")
-
-            melted = pd.concat(long_frames, ignore_index=True)
-            fig = px.line(
-                melted,
-                x=x_axis,
-                y="Value",
-                color="Metric",
-                title="Interactive Evaluation Metrics Over Iterations",
-            )
-            html_path = self.output_path / "output" / "metrics_plot_interactive.html"
-            fig.write_html(str(html_path))
-            print("Metrics interactive plot saved to", html_path)
-        except Exception as error:
-            print("Plotly metrics plot failed:", error)
 
 
 if __name__ == "__main__":
