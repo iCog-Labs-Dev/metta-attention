@@ -5,7 +5,7 @@
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
 !(import! &self lib/lib_he)
-!(static-import! &incident ./data/kgad)
+!(static-import! &incident ./data/kgadexp)
 ; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 
@@ -41,7 +41,7 @@
 
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 10.0)
+!(updateAttentionParam MAX_AF_SIZE 50.0)
 !(updateAttentionParam TARGET_STI 1000.0)
 !(updateAttentionParam TARGET_LTI 1000.0) 
 !(updateAttentionParam STI_FUNDS_BUFFER 1000.0) 
@@ -61,7 +61,7 @@
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-(= (batch) 1)
+(= (batch) 50)
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (empty)
@@ -76,7 +76,7 @@
                 (if (or (== (% $counter (batch)) 0) (== $rest ()))
                    (
                         (collapse (test-superpose &incident))
-                        (collapse (applyFluidSimulation "../metta-attention/experiments/data/adagram.metta"))
+                        (collapse (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta"))
                    ) 
                    (println! (agent not called))
                 )
@@ -88,3 +88,4 @@
 
 ; !(match &incident (much $x) (tropical $x))
 !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
+!(let $at (getAfAtoms) (map-atom $at $a ($a (getSti $a))))
