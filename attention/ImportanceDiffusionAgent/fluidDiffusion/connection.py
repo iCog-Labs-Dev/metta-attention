@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 import json
+import os
+import pickle
 import re
 from typing import Any
 
@@ -344,6 +346,117 @@ def precompute_fourier_velocity_modes(
     return modes
 
 
+# ---------------------------------------------------------------------------
+# Dual cache: in-memory (within-run speed) + pickle (cross-run persistence)
+# ---------------------------------------------------------------------------
+_GRAPH_CACHE: dict[str, Any] = {}
+
+
+def _pickle_path_for(metta_path: str) -> str:
+    """Derive a pickle cache filename sitting next to the source .metta file."""
+    base, _ = os.path.splitext(os.path.abspath(metta_path))
+    return base + ".fluid_cache.pkl"
+
+
+def _file_fingerprint(metta_path: str) -> float:
+    """Return the modification time of the source file as a cache key."""
+    try:
+        return os.path.getmtime(metta_path)
+    except OSError:
+        return 0.0
+
+
+def _load_or_compute_graph_data(
+    metta_path: str, params: FluidParams
+) -> tuple[
+    list[tuple[str, str, float, float]],
+    list[str],
+    dict[str, tuple[float, float]],
+    list[tuple[np.ndarray, np.ndarray]],
+]:
+    """
+    Load graph data (edges, nodes, spectral coords, Fourier modes) using a
+    dual-cache strategy:
+      1. In-memory cache  — instant, cleared on process exit
+      2. Pickle file      — fast disk read, persists across runs
+      3. Full recompute   — slow, only when graph file changes
+    """
+    global _GRAPH_CACHE
+
+    fingerprint = _file_fingerprint(metta_path)
+    abs_path = os.path.abspath(metta_path)
+
+    # --- Level 1: In-memory cache (instant) ---
+    if (
+        _GRAPH_CACHE.get("metta_path") == abs_path
+        and _GRAPH_CACHE.get("fingerprint") == fingerprint
+        and _GRAPH_CACHE.get("grid_size") == params.grid_size
+        and _GRAPH_CACHE.get("k_max") == params.k_max
+    ):
+        print("[fluid cache] using in-memory cache")
+        return (
+            _GRAPH_CACHE["edges"],
+            _GRAPH_CACHE["nodes"],
+            _GRAPH_CACHE["coords"],
+            _GRAPH_CACHE["modes"],
+        )
+
+    # --- Level 2: Pickle file on disk (fast) ---
+    pkl_path = _pickle_path_for(metta_path)
+    if os.path.exists(pkl_path):
+        try:
+            with open(pkl_path, "rb") as f:
+                cached = pickle.load(f)
+            if (
+                cached.get("fingerprint") == fingerprint
+                and cached.get("grid_size") == params.grid_size
+                and cached.get("k_max") == params.k_max
+            ):
+                print(f"[fluid cache] loaded from pickle: {pkl_path}")
+                _GRAPH_CACHE.update(cached)
+                _GRAPH_CACHE["metta_path"] = abs_path
+                return (
+                    cached["edges"],
+                    cached["nodes"],
+                    cached["coords"],
+                    cached["modes"],
+                )
+        except Exception as exc:
+            print(f"[fluid cache] pickle load failed ({exc}), recomputing")
+
+    # --- Level 3: Full recomputation (slow) ---
+    print(f"[fluid cache] computing graph data for {metta_path} ...")
+    edges = parse_metta_edges(metta_path)
+    nodes = extract_atoms(edges)
+    matrix, _ = build_adjacency_matrix(edges, nodes)
+    coords = get_spectral_coordinates_magnetic(matrix, nodes)
+    modes = precompute_fourier_velocity_modes(params.grid_size, params.k_max)
+    print(f"[fluid cache] computed: {len(nodes)} nodes, {len(edges)} edges, {len(modes)} modes")
+
+    # Save to pickle for next run
+    cache_data = {
+        "fingerprint": fingerprint,
+        "grid_size": params.grid_size,
+        "k_max": params.k_max,
+        "edges": edges,
+        "nodes": nodes,
+        "coords": coords,
+        "modes": modes,
+    }
+    try:
+        with open(pkl_path, "wb") as f:
+            pickle.dump(cache_data, f)
+        print(f"[fluid cache] saved pickle to {pkl_path}")
+    except Exception as exc:
+        print(f"[fluid cache] pickle save failed ({exc})")
+
+    # Store in memory for subsequent calls this run
+    _GRAPH_CACHE.update(cache_data)
+    _GRAPH_CACHE["metta_path"] = abs_path
+
+    return edges, nodes, coords, modes
+
+
 def compute_divergence(u_x: np.ndarray, u_y: np.ndarray) -> np.ndarray:
     div_x = (np.roll(u_x, -1, axis=1) - np.roll(u_x, 1, axis=1)) / 2.0
     div_y = (np.roll(u_y, -1, axis=0) - np.roll(u_y, 1, axis=0)) / 2.0
@@ -412,13 +525,15 @@ def transport_density(
     params: FluidParams,
     af_seeds: str | list[tuple[int, int]] | None = None,
     track_history: bool = False,
+    modes: list[tuple[np.ndarray, np.ndarray]] | None = None,
 ) -> tuple[
     np.ndarray, tuple[np.ndarray, np.ndarray], dict[str, Any], list[np.ndarray] | None
 ]:
     goal_cells = parse_goal_cells(af_seeds, params.grid_size)
     goal_mask = compute_goal_mask(params.grid_size, goal_cells)
     distance = compute_distance_to_goals(params.grid_size, goal_cells)
-    modes = precompute_fourier_velocity_modes(params.grid_size, params.k_max)
+    if modes is None:
+        modes = precompute_fourier_velocity_modes(params.grid_size, params.k_max)
 
     rho = rho_initial.copy()
     u_x = np.zeros_like(rho)
@@ -503,9 +618,20 @@ def fluid_from_af(
 ) -> list[list[Any]]:
     """Redistribute PeTTa-provided STI through fluid transport and return pairs."""
 
+    params = FluidParams(
+        grid_size=int(grid_size),
+        num_steps=int(num_steps),
+        dt=float(dt),
+        target_cfl=float(target_cfl),
+        spread_sigma=float(spread_sigma),
+        control_mode=control_mode,
+    )
+
+    # Dual-cache: avoids re-parsing the file and recomputing the heavy
+    # eigendecomposition + Fourier modes on every ECAN cycle.
+    edges, nodes, coords, modes = _load_or_compute_graph_data(metta_path, params)
+
     sti_values = read_sti_pairs(atom_sti_pairs)
-    edges = parse_metta_edges(metta_path)
-    nodes = extract_atoms(edges)
     node_set = set(nodes)
     transport_sti = {
         atom: value for atom, value in sti_values.items() if atom in node_set
@@ -518,17 +644,14 @@ def fluid_from_af(
     if transport_total <= 0:
         return [[atom, value] for atom, value in passthrough_sti.items() if value > 0]
 
-    params = FluidParams(
-        grid_size=int(grid_size),
-        num_steps=int(num_steps),
-        dt=float(dt),
-        target_cfl=float(target_cfl),
-        spread_sigma=float(spread_sigma),
-        control_mode=control_mode,
+    # Pass cached coords so push_sti_to_density skips the eigendecomposition,
+    # and cached modes so transport_density skips Fourier precomputation.
+    rho_initial, _ = push_sti_to_density(
+        edges, nodes, params, transport_sti, spectral_coords=coords
     )
-
-    rho_initial, coords = push_sti_to_density(edges, nodes, params, transport_sti)
-    rho_final, _, diagnostics, _ = transport_density(rho_initial, params, af_seeds)
+    rho_final, _, diagnostics, _ = transport_density(
+        rho_initial, params, af_seeds, modes=modes
+    )
     new_sti = pull_density_to_sti(rho_final, coords, params, transport_total)
     new_sti.update(passthrough_sti)
 
