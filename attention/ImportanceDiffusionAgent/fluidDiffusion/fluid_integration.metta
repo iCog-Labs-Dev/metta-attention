@@ -20,7 +20,7 @@
     (let*
         (
             ($pairs (extractStiPairs (getAfAtoms)))
-            ($newStis (py-call (connection.fluid_from_af $graphFile $pairs 100 10 0.9 "30,90")))
+            ($newStis (py-call (connection.fluid_from_af $graphFile $pairs 70 70 0.9 "69,12")))
         )
         (applyNewStis $newStis)
     )
