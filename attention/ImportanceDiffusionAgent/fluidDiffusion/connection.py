@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 import json
+import logging
 import os
 import pickle
 import re
@@ -348,6 +349,7 @@ def precompute_fourier_velocity_modes(
 
 
 # in-memory + pickle 
+_logger = logging.getLogger(__name__)
 _GRAPH_CACHE: dict[str, Any] = {}
 
 
@@ -403,8 +405,8 @@ def _load_or_compute_graph_data(
                 _GRAPH_CACHE.update(cached)
                 _GRAPH_CACHE["metta_path"] = abs_path
                 return extract(cached)
-        except Exception:
-            pass
+        except Exception as e:
+            _logger.warning("Disk cache read failed (%s), recomputing: %s", pkl_path, e)
 
     edges = parse_metta_edges(metta_path)
     nodes = extract_atoms(edges)
@@ -425,8 +427,8 @@ def _load_or_compute_graph_data(
     try:
         with open(pkl_path, "wb") as f:
             pickle.dump(cache_data, f)
-    except Exception:
-        pass
+    except Exception as e:
+        _logger.warning("Disk cache write failed (%s): %s", pkl_path, e)
 
     _GRAPH_CACHE.update(cache_data)
     _GRAPH_CACHE["metta_path"] = abs_path
