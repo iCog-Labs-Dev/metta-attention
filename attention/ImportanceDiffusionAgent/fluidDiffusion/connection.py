@@ -392,7 +392,6 @@ def _load_or_compute_graph_data(
 
     # In-memory cache 
     if _GRAPH_CACHE.get("metta_path") == abs_path and is_valid(_GRAPH_CACHE):
-        print("[fluid cache] using in-memory cache")
         return extract(_GRAPH_CACHE)
 
     # Pickle file on disk
@@ -401,20 +400,17 @@ def _load_or_compute_graph_data(
             with open(pkl_path, "rb") as f:
                 cached = pickle.load(f)
             if is_valid(cached):
-                print(f"[fluid cache] loaded from pickle: {pkl_path}")
                 _GRAPH_CACHE.update(cached)
                 _GRAPH_CACHE["metta_path"] = abs_path
                 return extract(cached)
-        except Exception as exc:
-            print(f"[fluid cache] pickle load failed ({exc}), recomputing")
+        except Exception:
+            pass
 
-    print(f"[fluid cache] computing graph data for {metta_path} ...")
     edges = parse_metta_edges(metta_path)
     nodes = extract_atoms(edges)
     matrix, _ = build_adjacency_matrix(edges, nodes)
     coords = get_spectral_coordinates_magnetic(matrix, nodes)
     modes = precompute_fourier_velocity_modes(params.grid_size, params.k_max)
-    print(f"[fluid cache] computed: {len(nodes)} nodes, {len(edges)} edges, {len(modes)} modes")
 
     cache_data = {
         "fingerprint": fingerprint,
@@ -429,9 +425,8 @@ def _load_or_compute_graph_data(
     try:
         with open(pkl_path, "wb") as f:
             pickle.dump(cache_data, f)
-        print(f"[fluid cache] saved pickle to {pkl_path}")
-    except Exception as exc:
-        print(f"[fluid cache] pickle save failed ({exc})")
+    except Exception:
+        pass
 
     _GRAPH_CACHE.update(cache_data)
     _GRAPH_CACHE["metta_path"] = abs_path
