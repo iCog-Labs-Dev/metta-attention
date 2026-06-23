@@ -346,9 +346,8 @@ def precompute_fourier_velocity_modes(
     return modes
 
 
-# ---------------------------------------------------------------------------
-# Dual cache: in-memory (within-run speed) + pickle (cross-run persistence)
-# ---------------------------------------------------------------------------
+
+# in-memory + pickle 
 _GRAPH_CACHE: dict[str, Any] = {}
 
 
@@ -391,12 +390,12 @@ def _load_or_compute_graph_data(
     def extract(c: dict[str, Any]) -> tuple:
         return c["edges"], c["nodes"], c["coords"], c["modes"]
 
-    # --- Level 1: In-memory cache (instant) ---
+    # In-memory cache 
     if _GRAPH_CACHE.get("metta_path") == abs_path and is_valid(_GRAPH_CACHE):
         print("[fluid cache] using in-memory cache")
         return extract(_GRAPH_CACHE)
 
-    # --- Level 2: Pickle file on disk (fast) ---
+    # Pickle file on disk
     if os.path.exists(pkl_path):
         try:
             with open(pkl_path, "rb") as f:
@@ -409,7 +408,6 @@ def _load_or_compute_graph_data(
         except Exception as exc:
             print(f"[fluid cache] pickle load failed ({exc}), recomputing")
 
-    # --- Level 3: Full recomputation (slow) ---
     print(f"[fluid cache] computing graph data for {metta_path} ...")
     edges = parse_metta_edges(metta_path)
     nodes = extract_atoms(edges)
