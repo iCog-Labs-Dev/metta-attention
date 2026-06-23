@@ -1,4 +1,4 @@
-!(import! &self "../../experiments/utils/community_detector.py")
+!(import! &self "community_detector.py")
 !(bind! &stiSeries (new-space))
 
 ; ## Time Series
@@ -80,6 +80,16 @@
     )
 )
 
+(= (getHebLinksWithValues () $out) $out)
+(= (getHebLinksWithValues (cons $head $tail) $out)
+    (getHebLinksWithValues $tail
+        (union-atom
+            (collapse (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $head $any) $val) ((ASYMMETRIC_HEBBIAN_LINK $head $any) $val)))
+            $out
+        )
+    )
+)
+
 (= (square $value)
     (* $value $value)
 )
@@ -145,6 +155,14 @@
 
 (= (identifyModules $state $afLinks)
     (py-call (community_detector.get_dynamic_modules $state $afLinks))
+)
+
+(= (identifyHebbianModules $hebbianLinks)
+    (py-call (community_detector.get_dynamic_hebbian_modules $hebbianLinks))
+)
+
+(= (identifyAllHebbianModules)
+    (identifyHebbianModules (getAllHebLinksWithValues))
 )
 
 ; helps to measure the linear relation between two continues value
@@ -216,8 +234,8 @@
     )
 )
 
-(= (getLinkSource (ASYMMETRIC_HEBBIAN_LINK $src $tgt)) $src)
-(= (getLinkTarget (ASYMMETRIC_HEBBIAN_LINK $src $tgt)) $tgt)
+(= (getLinkSource ((ASYMMETRIC_HEBBIAN_LINK $src $tgt) $val)) $src)
+(= (getLinkTarget ((ASYMMETRIC_HEBBIAN_LINK $src $tgt) $val)) $tgt)
 
 
 (= (isInternalLink $link $afAtoms)

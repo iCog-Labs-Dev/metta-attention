@@ -478,13 +478,14 @@
 (= (getGlobalCoordination $state)
     (let*
         (
-            ($afLinks (getAllHebLinks))
-            ($modules (identifyModules $state $afLinks))
+            ($afLinksWithValues (getHebLinksWithValues $state ()))
+            ($modules (identifyModules $state $afLinksWithValues))
+            
             ($localCoherences (map-atom $modules $mod (measureCoherence $mod)))
             ($localCoherence (averageList $localCoherences))
 
-            ($interFlags (map-atom $afLinks $link (isExternalLink $link $modules)))
-            ($interLinks (filterLinksByFlag $afLinks $interFlags))
+            ($interFlags (map-atom $afLinksWithValues $link (isExternalLink $link $modules)))
+            ($interLinks (filterLinksByFlag $afLinksWithValues $interFlags))
 
             ($linkProbs (map-atom $interLinks getProbability))
             ($conjunctions (map-atom $interLinks temporalConjunctionLink))
@@ -561,13 +562,6 @@
 (= (getBetti0 (TopologyReport $triangles $betti0 $betti1 $betti2)) $betti0)
 (= (getBetti1 (TopologyReport $triangles $betti0 $betti1 $betti2)) $betti1)
 (= (getBetti2 (TopologyReport $triangles $betti0 $betti1 $betti2)) $betti2)
-
-
-
-
-
-
-
 
 
 
