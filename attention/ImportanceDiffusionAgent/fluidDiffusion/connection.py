@@ -30,6 +30,7 @@ class FluidParams:
     value_iterations: int = 100
     gamma: float = 0.95
     lambda_penalty: float = 0.01
+    congestion_weight: float = 0.25
     density_radius: int = 1
     diagnostics: bool = True
 
@@ -275,12 +276,22 @@ def compute_goal_mask(
     return mask
 
 
-def compute_cost_field(distance: np.ndarray) -> np.ndarray:
-    """Minimal Bellman/HJB cost: normalized toroidal distance to goal."""
+def compute_cost_field(
+    distance: np.ndarray,
+    rho: np.ndarray | None = None,
+    congestion_weight: float = 0.0,
+) -> np.ndarray:
+    """Bellman/HJB cost from goal distance plus optional density congestion."""
 
-    # distance = compute_distance_to_goals(rho.shape[0], goal_cells)
     max_distance = float(np.max(distance)) or 1.0
-    return distance / max_distance
+    cost = distance / max_distance
+
+    if rho is not None and congestion_weight > 0:
+        max_density = float(np.max(rho))
+        if max_density > 0:
+            cost = cost + congestion_weight * (rho / max_density)
+
+    return cost
 
 
 def solve_value_field(
@@ -415,9 +426,19 @@ def transport_density(
 ) -> tuple[
     np.ndarray, tuple[np.ndarray, np.ndarray], dict[str, Any], list[np.ndarray] | None
 ]:
+    # where the target is
     goal_cells = parse_goal_cells(af_seeds, params.grid_size)
+
+    # what region counts as targets
     goal_mask = compute_goal_mask(params.grid_size, goal_cells)
+
+    # how fat every grid cell counts as a target
     distance = compute_distance_to_goals(params.grid_size, goal_cells)
+
+    # what the baseline cost landspace is
+    distance_cost = compute_cost_field(distance)
+
+    # what incompressible velocity pattrnes exist
     modes = precompute_fourier_velocity_modes(params.grid_size, params.k_max)
 
     rho = rho_initial.copy()
@@ -426,14 +447,24 @@ def transport_density(
     value = distance
     history = [] if track_history else None
 
+    static_value = None
+    if params.control_mode == "value_alignment" and params.congestion_weight <= 0:
+        static_value = solve_value_field(
+            distance_cost, params.gamma, params.value_iterations, goal_mask
+        )
+        value = static_value
+
     for _ in range(params.num_steps):
         if params.control_mode == "distance":
             value = distance
         elif params.control_mode == "value_alignment":
-            cost = compute_cost_field(distance)
-            value = solve_value_field(
-                cost, params.gamma, params.value_iterations, goal_mask
-            )
+            if static_value is None:
+                cost = compute_cost_field(distance, rho, params.congestion_weight)
+                value = solve_value_field(
+                    cost, params.gamma, params.value_iterations, goal_mask
+                )
+            else:
+                value = static_value
         else:
             raise ValueError(f"Unsupported control mode: {params.control_mode}")
 
@@ -486,7 +517,9 @@ def print_diagnostics(diagnostics: dict[str, Any]) -> None:
         "goal_mass",
         "expected_value_cost",
     ]
-    summary = ", ".join(f"{key}={diagnostics[key]:.6g}" for key in keys)
+    summary = ", ".join(
+        f"{key}={diagnostics[key]:.6g}" for key in keys if key in diagnostics
+    )
     print(f"fluid diagnostics: {summary}")
 
 

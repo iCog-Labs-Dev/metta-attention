@@ -4,10 +4,12 @@
 from __future__ import annotations
 
 import importlib.util
+import io
 import os
 from pathlib import Path
 import random
 import sys
+from contextlib import redirect_stdout
 
 import numpy as np
 
@@ -64,10 +66,30 @@ def test_advection_mass_and_nonnegative(connection) -> None:
         raise AssertionError("rho_next contains negative density")
 
 
-def test_value_field_goal_ordering(connection) -> None:
-    rho = np.zeros((24, 24))
+def test_cost_field_distance_only(connection) -> None:
     goals = [(12, 12)]
-    cost = connection.compute_cost_field(rho, goals)
+    distance = connection.compute_distance_to_goals(24, goals)
+    cost = connection.compute_cost_field(distance)
+    assert_close(abs(float(cost[12, 12])), 1e-12, "goal distance cost")
+    assert_close(abs(float(np.max(cost)) - 1.0), 1e-12, "max distance cost")
+
+
+def test_cost_field_congestion(connection) -> None:
+    distance = np.zeros((8, 8))
+    rho = np.zeros((8, 8))
+    rho[1, 1] = 2.0
+    rho[2, 2] = 1.0
+    cost = connection.compute_cost_field(distance, rho, congestion_weight=0.25)
+
+    assert_close(abs(float(cost[1, 1]) - 0.25), 1e-12, "peak congestion cost")
+    assert_close(abs(float(cost[2, 2]) - 0.125), 1e-12, "scaled congestion cost")
+    assert_close(abs(float(cost[0, 0])), 1e-12, "empty congestion cost")
+
+
+def test_value_field_goal_ordering(connection) -> None:
+    goals = [(12, 12)]
+    distance = connection.compute_distance_to_goals(24, goals)
+    cost = connection.compute_cost_field(distance)
     goal_mask = connection.compute_goal_mask(24, goals)
     value = connection.solve_value_field(cost, goal_mask=goal_mask, iterations=40)
     if not value[12, 12] < value[0, 0]:
@@ -90,7 +112,10 @@ def test_goal_routing_reduces_value_cost(connection) -> None:
 
     goals = connection.parse_goal_cells("12,12", params.grid_size)
     goal_mask = connection.compute_goal_mask(params.grid_size, goals)
-    initial_cost = connection.compute_cost_field(rho, goals)
+    distance = connection.compute_distance_to_goals(params.grid_size, goals)
+    initial_cost = connection.compute_cost_field(
+        distance, rho, params.congestion_weight
+    )
     initial_value = connection.solve_value_field(
         initial_cost,
         gamma=params.gamma,
@@ -137,14 +162,29 @@ def test_fluid_from_af_preserves_total_sti(connection) -> None:
         raise AssertionError("fluid_from_af did not preserve out-of-graph STI")
 
 
+def test_print_diagnostics_allows_missing_keys(connection) -> None:
+    output = io.StringIO()
+    with redirect_stdout(output):
+        connection.print_diagnostics({"mass_error": 0.0})
+
+    text = output.getvalue()
+    if "mass_error=0" not in text:
+        raise AssertionError("diagnostics output did not include present key")
+    if "cfl=" in text:
+        raise AssertionError("diagnostics output included missing key")
+
+
 def main() -> None:
     connection = load_connection()
     test_stream_function_divergence(connection)
     test_mode_sum_divergence(connection)
     test_advection_mass_and_nonnegative(connection)
+    test_cost_field_distance_only(connection)
+    test_cost_field_congestion(connection)
     test_value_field_goal_ordering(connection)
     test_goal_routing_reduces_value_cost(connection)
     test_fluid_from_af_preserves_total_sti(connection)
+    test_print_diagnostics_allows_missing_keys(connection)
     print("fluid connection checks passed")
 
 
