@@ -353,13 +353,13 @@ _GRAPH_CACHE: dict[str, Any] = {}
 
 
 def _pickle_path_for(metta_path: str) -> str:
-    """Derive a pickle cache filename sitting next to the source .metta file."""
+    """Return pickle cache path adjacent to the source .metta file."""
     base, _ = os.path.splitext(os.path.abspath(metta_path))
     return base + ".fluid_cache.pkl"
 
 
 def _file_fingerprint(metta_path: str) -> float:
-    """Return the modification time of the source file as a cache key."""
+    """Return file modification time, or 0.0 on error."""
     try:
         return os.path.getmtime(metta_path)
     except OSError:
@@ -374,53 +374,38 @@ def _load_or_compute_graph_data(
     dict[str, tuple[float, float]],
     list[tuple[np.ndarray, np.ndarray]],
 ]:
-    """
-    Load graph data (edges, nodes, spectral coords, Fourier modes) using a
-    dual-cache strategy:
-      1. In-memory cache  — instant, cleared on process exit
-      2. Pickle file      — fast disk read, persists across runs
-      3. Full recompute   — slow, only when graph file changes
-    """
+    """Load graph data with dual-cache fallback (RAM -> Disk -> Recompute)."""
     global _GRAPH_CACHE
 
     fingerprint = _file_fingerprint(metta_path)
     abs_path = os.path.abspath(metta_path)
+    pkl_path = _pickle_path_for(metta_path)
 
-    # --- Level 1: In-memory cache (instant) ---
-    if (
-        _GRAPH_CACHE.get("metta_path") == abs_path
-        and _GRAPH_CACHE.get("fingerprint") == fingerprint
-        and _GRAPH_CACHE.get("grid_size") == params.grid_size
-        and _GRAPH_CACHE.get("k_max") == params.k_max
-    ):
-        print("[fluid cache] using in-memory cache")
+    def is_valid(c: dict[str, Any]) -> bool:
         return (
-            _GRAPH_CACHE["edges"],
-            _GRAPH_CACHE["nodes"],
-            _GRAPH_CACHE["coords"],
-            _GRAPH_CACHE["modes"],
+            c.get("fingerprint") == fingerprint
+            and c.get("grid_size") == params.grid_size
+            and c.get("k_max") == params.k_max
         )
 
+    def extract(c: dict[str, Any]) -> tuple:
+        return c["edges"], c["nodes"], c["coords"], c["modes"]
+
+    # --- Level 1: In-memory cache (instant) ---
+    if _GRAPH_CACHE.get("metta_path") == abs_path and is_valid(_GRAPH_CACHE):
+        print("[fluid cache] using in-memory cache")
+        return extract(_GRAPH_CACHE)
+
     # --- Level 2: Pickle file on disk (fast) ---
-    pkl_path = _pickle_path_for(metta_path)
     if os.path.exists(pkl_path):
         try:
             with open(pkl_path, "rb") as f:
                 cached = pickle.load(f)
-            if (
-                cached.get("fingerprint") == fingerprint
-                and cached.get("grid_size") == params.grid_size
-                and cached.get("k_max") == params.k_max
-            ):
+            if is_valid(cached):
                 print(f"[fluid cache] loaded from pickle: {pkl_path}")
                 _GRAPH_CACHE.update(cached)
                 _GRAPH_CACHE["metta_path"] = abs_path
-                return (
-                    cached["edges"],
-                    cached["nodes"],
-                    cached["coords"],
-                    cached["modes"],
-                )
+                return extract(cached)
         except Exception as exc:
             print(f"[fluid cache] pickle load failed ({exc}), recomputing")
 
@@ -433,7 +418,6 @@ def _load_or_compute_graph_data(
     modes = precompute_fourier_velocity_modes(params.grid_size, params.k_max)
     print(f"[fluid cache] computed: {len(nodes)} nodes, {len(edges)} edges, {len(modes)} modes")
 
-    # Save to pickle for next run
     cache_data = {
         "fingerprint": fingerprint,
         "grid_size": params.grid_size,
@@ -443,6 +427,7 @@ def _load_or_compute_graph_data(
         "coords": coords,
         "modes": modes,
     }
+
     try:
         with open(pkl_path, "wb") as f:
             pickle.dump(cache_data, f)
@@ -450,11 +435,10 @@ def _load_or_compute_graph_data(
     except Exception as exc:
         print(f"[fluid cache] pickle save failed ({exc})")
 
-    # Store in memory for subsequent calls this run
     _GRAPH_CACHE.update(cache_data)
     _GRAPH_CACHE["metta_path"] = abs_path
 
-    return edges, nodes, coords, modes
+    return extract(cache_data)
 
 
 def compute_divergence(u_x: np.ndarray, u_y: np.ndarray) -> np.ndarray:
