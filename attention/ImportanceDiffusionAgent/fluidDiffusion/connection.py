@@ -238,9 +238,19 @@ def get_center_seed(grid_size: int, n_seeds: int = 4) -> list[tuple[int, int]]:
 
 
 def parse_goal_cells(
-    af_seeds: str | list[tuple[int, int]] | None,
+    af_seeds: str | list[str] | list[tuple[int, int]] | None,
     grid_size: int,
+    spectral_coords: dict[str, tuple[float, float]] | None = None,
 ) -> list[tuple[int, int]]:
+    """Resolve drain targets to grid pixel coordinates.
+
+    af_seeds may be:
+      - None                  -> center of grid (default fallback)
+      - "center"              -> single center pixel
+      - "y,x y,x ..."        -> explicit pixel coordinates (legacy)
+      - list of atom names    -> resolved via spectral_coords
+      - list of (int, int)    -> raw pixel coordinates
+    """
     if af_seeds is None:
         seeds = get_center_seed(grid_size, n_seeds=4)
     elif isinstance(af_seeds, str):
@@ -248,6 +258,17 @@ def parse_goal_cells(
             seeds = get_center_seed(grid_size, n_seeds=1)
         else:
             seeds = [tuple(map(int, seed.split(","))) for seed in af_seeds.split()]
+    elif af_seeds and isinstance(af_seeds[0], str):
+        # af_seeds is a list of atom names — resolve to grid coords
+        if spectral_coords is None:
+            seeds = get_center_seed(grid_size, n_seeds=4)
+        else:
+            positions = spectral_to_grid_coords(spectral_coords, grid_size)
+            seeds = [
+                positions[atom] for atom in af_seeds if atom in positions
+            ]
+            if not seeds:
+                seeds = get_center_seed(grid_size, n_seeds=4)
     else:
         seeds = af_seeds
     return [(seed_y % grid_size, seed_x % grid_size) for seed_y, seed_x in seeds]
@@ -502,13 +523,14 @@ def apply_cfl_scaling(
 def transport_density(
     rho_initial: np.ndarray,
     params: FluidParams,
-    af_seeds: str | list[tuple[int, int]] | None = None,
+    af_seeds: str | list[str] | list[tuple[int, int]] | None = None,
     track_history: bool = False,
     modes: list[tuple[np.ndarray, np.ndarray]] | None = None,
+    spectral_coords: dict[str, tuple[float, float]] | None = None,
 ) -> tuple[
     np.ndarray, tuple[np.ndarray, np.ndarray], dict[str, Any], list[np.ndarray] | None
 ]:
-    goal_cells = parse_goal_cells(af_seeds, params.grid_size)
+    goal_cells = parse_goal_cells(af_seeds, params.grid_size, spectral_coords)
     goal_mask = compute_goal_mask(params.grid_size, goal_cells)
     distance = compute_distance_to_goals(params.grid_size, goal_cells)
     if modes is None:
@@ -590,7 +612,7 @@ def fluid_from_af(
     grid_size: int = 36,
     num_steps: int = 100,
     dt: float = 0.1,
-    af_seeds: str | list[tuple[int, int]] | None = None,
+    af_seeds: str | list[str] | list[tuple[int, int]] | None = None,
     spread_sigma: float = 1.0,
     target_cfl: float = 0.8,
     control_mode: str = "value_alignment",
@@ -623,13 +645,17 @@ def fluid_from_af(
     if transport_total <= 0:
         return [[atom, value] for atom, value in passthrough_sti.items() if value > 0]
 
+    # Use AF atom names as drain targets so fluid flows toward them,
+    # not toward a hardcoded center pixel.
+    af_atom_names = list(transport_sti.keys()) if af_seeds is None else af_seeds
+
     # Pass cached coords so push_sti_to_density skips the eigendecomposition,
     # and cached modes so transport_density skips Fourier precomputation.
     rho_initial, _ = push_sti_to_density(
         edges, nodes, params, transport_sti, spectral_coords=coords
     )
     rho_final, _, diagnostics, _ = transport_density(
-        rho_initial, params, af_seeds, modes=modes
+        rho_initial, params, af_atom_names, modes=modes, spectral_coords=coords
     )
     new_sti = pull_density_to_sti(rho_final, coords, params, transport_total)
     new_sti.update(passthrough_sti)
