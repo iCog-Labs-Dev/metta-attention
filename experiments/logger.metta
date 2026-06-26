@@ -63,13 +63,32 @@
 )
 
 ; Start logging: call logger.start_logger to set up output files, then save params
-(= (start-log $attentionParam $file)
+(= (start-log $attentionParam $runName)
     (let* 
         (
-            ($param (py-call (logger.start_logger $file))) 
+            ($param (py-call (logger.start_logger $runName ()))) 
             ($val (collapse (get-atoms $attentionParam)))
         )
         (py-call (logger.save_params $val))
     )
 )
 
+(= (start-log $attentionParam $runName $baselineName)
+    (let* 
+        (
+            ($param (py-call (logger.start_logger $runName $baselineName))) 
+            ($val (collapse (get-atoms $attentionParam)))
+        )
+        (py-call (logger.save_params $val))
+    )
+)
+
+(= (start-log $attentionParam $runName $efficiencyBaseline $redundancyBaseline)
+    (let* 
+        (
+            ($param (py-call (logger.start_logger $runName $efficiencyBaseline $redundancyBaseline))) 
+            ($val (collapse (get-atoms $attentionParam)))
+        )
+        (py-call (logger.save_params $val))
+    )
+)
