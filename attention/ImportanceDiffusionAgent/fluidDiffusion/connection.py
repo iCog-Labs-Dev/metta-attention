@@ -11,6 +11,8 @@ from typing import Any
 
 import numpy as np
 import scipy.linalg
+import scipy.sparse
+import scipy.sparse.linalg
 
 DEFAULT_STI = 0.0
 EDGE_PATTERN = re.compile(
@@ -72,9 +74,11 @@ def build_adjacency_matrix(
     edges: list[tuple[str, str, float, float]],
     nodes: list[str],
     make_symmetric: bool = False,
-) -> tuple[np.ndarray, dict[str, int]]:
+) -> tuple[scipy.sparse.csr_matrix, dict[str, int]]:
+    """Build a sparse adjacency matrix from weighted MeTTa edges."""
+    n = len(nodes)
     node_to_idx = {node: i for i, node in enumerate(nodes)}
-    matrix = np.zeros((len(nodes), len(nodes)), dtype=np.float64)
+    matrix = scipy.sparse.lil_matrix((n, n), dtype=np.float64)
 
     for source, target, mean, confidence in edges:
         i, j = node_to_idx[source], node_to_idx[target]
@@ -82,17 +86,19 @@ def build_adjacency_matrix(
         if make_symmetric:
             matrix[j, i] = mean * confidence
 
-    return matrix, node_to_idx
+    return matrix.tocsr(), node_to_idx
 
 
 def get_spectral_coordinates_magnetic(
-    matrix: np.ndarray, nodes: list[str], q: float = 0.25
+    matrix: scipy.sparse.csr_matrix, nodes: list[str], q: float = 0.25
 ) -> dict[str, tuple[float, float]]:
     """
     Embed atoms using a magnetic Laplacian.
 
     This gives the fluid layer manifold coordinates; it does not mutate ECAN
     state or decide atom importance.
+    Uses eigsh (Lanczos) to extract only the 2 smallest eigenvectors,
+    avoiding the O(N^3) dense eigendecomposition.
     """
 
     if not nodes:
@@ -100,28 +106,55 @@ def get_spectral_coordinates_magnetic(
     if len(nodes) == 1:
         return {nodes[0]: (0.0, 0.0)}
 
-    matrix = np.array(matrix, dtype=np.float64)
-    weights = 0.5 * (matrix + matrix.T)
-    theta = 2 * np.pi * q * (matrix - matrix.T)
-    hermitian = weights * np.exp(1j * theta)
-    degree = np.diag(np.sum(weights, axis=1))
-    laplacian = degree - hermitian
+    n = len(nodes)
+
+    # For very small graphs, fall back to dense.
+    # SciPy's ARPACK backend for complex matrices strictly requires k < N - 1.
+    # Since we need k=2 eigenvectors, N must be at least 4.
+    if n <= 3:
+        dense = matrix.toarray()
+        weights = 0.5 * (dense + dense.T)
+        theta_mat = 2 * np.pi * q * (dense - dense.T)
+        hermitian = weights * np.exp(1j * theta_mat)
+        degree = np.diag(np.sum(weights, axis=1))
+        laplacian = degree - hermitian
+        try:
+            _, eigenvectors = scipy.linalg.eigh(laplacian)
+            vector = eigenvectors[:, 1]
+            return {
+                node: (float(np.real(vector[i])), float(np.imag(vector[i])))
+                for i, node in enumerate(nodes)
+            }
+        except Exception as exc:
+            print(f"Dense eigendecomposition failed: {exc}")
+            return {
+                node: (float(np.cos(2 * np.pi * i / n)), float(np.sin(2 * np.pi * i / n)))
+                for i, node in enumerate(nodes)
+            }
+
+    # Sparse path: build the magnetic Laplacian without dense arrays
+    weights = (matrix + matrix.T).multiply(0.5)
+    skew = matrix - matrix.T
+    theta_data = 2 * np.pi * q * skew.data
+    phase = skew.copy()
+    phase.data = np.exp(1j * theta_data)
+    hermitian = weights.multiply(phase).tocsr()
+
+    degree_vals = np.array(weights.sum(axis=1)).flatten()
+    degree_diag = scipy.sparse.diags(degree_vals, format="csr")
+    laplacian = degree_diag - hermitian
 
     try:
-        _, eigenvectors = scipy.linalg.eigh(laplacian)
+        _, eigenvectors = scipy.sparse.linalg.eigsh(laplacian, k=2, which="SM")
         vector = eigenvectors[:, 1]
         return {
             node: (float(np.real(vector[i])), float(np.imag(vector[i])))
             for i, node in enumerate(nodes)
         }
     except Exception as exc:
-        print(f"Eigendecomposition failed: {exc}")
-        n = len(nodes)
+        print(f"Sparse eigendecomposition failed: {exc}")
         return {
-            node: (
-                float(np.cos(2 * np.pi * i / n)),
-                float(np.sin(2 * np.pi * i / n)),
-            )
+            node: (float(np.cos(2 * np.pi * i / n)), float(np.sin(2 * np.pi * i / n)))
             for i, node in enumerate(nodes)
         }
 
@@ -155,9 +188,11 @@ def push_sti_to_density(
 ) -> tuple[np.ndarray, dict[str, tuple[float, float]]]:
     """Push current MeTTa STI values into a normalized density rho."""
 
-    matrix, node_to_idx = build_adjacency_matrix(edges, nodes)
     if spectral_coords is None:
+        matrix, node_to_idx = build_adjacency_matrix(edges, nodes)
         spectral_coords = get_spectral_coordinates_magnetic(matrix, nodes)
+    else:
+        node_to_idx = {node: i for i, node in enumerate(nodes)}
 
     if sti_values:
         node_sti = sti_values
