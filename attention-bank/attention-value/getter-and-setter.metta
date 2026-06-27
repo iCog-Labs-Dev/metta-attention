@@ -15,8 +15,8 @@
 ; (: setAv (-> Atom (Number Number Number) Atom))
 (= (setAv $pattern ($sti $lti $vlti))
     (let* (
-        ($oldSti (let $x (getSti $pattern) $x))
-        ($oldLti (let $x (getLti $pattern) $x))
+        ($oldSti (getSti $pattern))
+        ($oldLti (getLti $pattern))
         ($bin  (reduce (importanceBin $sti)))
         ($res (if (== (getValueType $pattern) %Undefined%)
                 (add-atom &typeSpace ($pattern ((AV $sti $lti $vlti) (Bin $bin)) ))   
@@ -36,25 +36,20 @@
            ($stiDiff (- $oldSti $sti))
            ($ltiDiff (- $oldLti $lti))
            ($_ (println! (sti $pattern $stiDiff)))
-           ; 
-           ; ($fundsSTI (getAttentionParam FUNDS_STI))
-           ; ($stiDiff (- $oldSti $sti))
-           ; ($ltiDiff (- $oldLti $lti))
-           ($fundsSTI (let $xfsti (getAttentionParam FUNDS_STI) $xfsti))
-           ($fundsLTI (let $xflti (getAttentionParam FUNDS_LTI) $xflti))
+           
+           ($fundsSTI (getAttentionParam FUNDS_STI))
+           ($fundsLTI (getAttentionParam FUNDS_LTI))
            ($newstifund (+ $fundsSTI $stiDiff))
            ($newltifund (+ $fundsLTI $ltiDiff))
-           ; ($fundsLTI (getAttentionParam FUNDS_LTI))
-           ; ($newstifund (+ $fundsSTI $stiDiff))
-           ; ($newltifund (+ $fundsLTI $ltiDiff))
+           
            ($hello (println! (new sti $newstifund)))
            ($hi (println! (inside setAv)))
            ($updater (attentionValueChanged $pattern $newstifund $newltifund $sti))  ; Update attentional focus and global paremeter
-           ($dbgafter (println! (after-attentionValueChanged)))
+           
     )
-   (let $xdbgaf (println! (before-updateAf))
-    (let $xaf (eval (updateAf $pattern $sti))
-        (println! (after-updateAf))))
+   (println! (before-updateAf))
+      (eval (updateAf $pattern $sti))
+        (println! (after-updateAf))
 ))
 
 
@@ -486,8 +481,8 @@
 (= (update $space $sti)
 
     (let* (
-       ($minSTI (let $xmin (getAttentionParam MIN_STI) $xmin)) 
-       ($maxSTI (let $xmax (getAttentionParam MAX_STI) $xmax)) 
+       ($minSTI (getAttentionParam MIN_STI)) 
+       ($maxSTI (getAttentionParam MAX_STI)) 
        ($min (if (< $minSTI $sti) 
                 () ; no update
                 (updateAttentionParam MIN_STI $sti)

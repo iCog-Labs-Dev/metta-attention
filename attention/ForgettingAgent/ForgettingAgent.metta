@@ -5,7 +5,7 @@
 ; return: List of atoms that are below threshold
 ; (: filterByLti (-> List Number List))
 (= (filterByLti $atoms $forgetThreshold)
-	(let $xdbgf (println! (entering-filterByLti))
+	(println! (entering-filterByLti))
 		(if (== $atoms ())
 			()
 			(let*
@@ -13,8 +13,8 @@
 					($head (car-atom $atoms))
 					($tail (cdr-atom $atoms))
 				)
-				(if (<= (let $xlti (getLti $head) $xlti) $forgetThreshold)
-					(if (== (let $xvlti (getVlti $head) $xvlti) 0.0)
+				(if (<= (getLti $head) $forgetThreshold)
+					(if (== (getVlti $head) 0.0)
 						(concatTuple ($head) (filterByLti $tail $forgetThreshold))
 						(filterByLti $tail $forgetThreshold)
 					)
@@ -29,9 +29,9 @@
 (= (lessThanLtiThenTV $elem $pivot)
 	(if (or (== $elem ()) (== $pivot ()))
 		False
-		(if (== (let $xless (getLti $elem) $xless) (let $xpiv (getLti $pivot) $xpiv))
-			(< (let $xmean (getMean $elem) $xmean) (let $xgpiv (getMean $pivot) $xgpiv))
-			(< (let $xel (getLti $elem) $xel) (let $xelp (getLti $pivot) $xelp))
+		(if (== (getLti $elem) (getLti $pivot))
+			(< (getMean $elem) (getMean $pivot))
+			(< (getLti $elem) (getLti $pivot))
 		)
 	)
 )
@@ -40,9 +40,9 @@
 (= (greaterThanLtiThenTV $elem $pivot)
 	(if (or (== $elem ()) (== $pivot ()))
 		False
-		(if (== (let $xgetltii (getLti $elem) $xgetltii) (let $xgetltipiv (getLti $pivot) $xgetltipiv))
-			(>= (let $xelem (getMean $elem) $xelem) (let $xgetmm (getMean $pivot) $xgetmm))
-			(> (let $xp (getLti $elem) $xp) (let $xb (getLti $pivot) $xb))
+		(if (== (getLti $elem)(getLti $pivot))
+			(>=(getMean $elem) (getMean $pivot))
+			(> (getLti $elem) (getLti $pivot))
 		)
 	)
 )
@@ -69,7 +69,7 @@
 
 ; (: atomBelowForgetThreshold (-> Atom Number Number Bool))
 (= (atomBelowForgetThreshold $head $removalAmount $count)
-	(if (and (<= (let $xgetlti (getLti $head) $xgetlti) (forgetThreshold)) (< $count $removalAmount))
+	(if (and (<= (getLti $head) (forgetThreshold)) (< $count $removalAmount))
 		(if (== (getVlti $head) 0.0)
 			True
 			False
@@ -79,7 +79,7 @@
 )
 
 (= (refundAV $atom)
-	(let $xav (getAv $atom)
+	let $xav((getAv $atom)
 		(if (== $xav %Undefined%)
 			()
 			(setAv $atom (0.0 0.0 0.0))
@@ -106,14 +106,14 @@
 ; (: globalRemoveAtom (-> Atom List empty))
 (= (globalRemoveAtom $head $niset)
 	(let $bin
-		(importanceBin (let $xgets (getSti $head) $xgets))
+		(importanceBin (getSti $head))
 		(let*
 			(
-				($dbg1 (println! (before-refundAV $head)))
+				
 				(() (refundAV $head))
-				($dbg2 (println! (after-refundAV)))
+				
 				(() (extractAtomRecursive $niset))
-				($dbg3 (println! (after-extractAtomRecursive)))
+				
 			)
 			(removeTypeSpace $head)
 		)
@@ -131,15 +131,12 @@
 				($head (car-atom $sortedatoms))
 				
 				($tail (cdr-atom $sortedatoms))
-				; ($1 (println! (checking $head $count $removalAmount (size-atom $iset) (size-atom $niset))))
-				; ($iset (globalIncomingSetByType $head ASYMMETRIC_HEBBIAN_LINK))
+				
 				($iset (let $xiset (globalIncomingSetByType $head ASYMMETRIC_HEBBIAN_LINK) $xiset))
-				; ($1 (println! (checking $head $count $removalAmount (size-atom $iset) (size-atom $niset))))
-				; ($niset (globalIncomingSetwithoutType $head))
+				
 				($niset (let $xniset (globalIncomingSetwithoutType $head) $xniset))
-				($1 (println! (checking $head $count $removalAmount (size-atom $iset) (size-atom $niset))))
-				($filteredNiset (filterByLti $niset $forgetThreshold))
-				; ($1 (println! (checking $head $count $removalAmount (size-atom $iset) (size-atom $niset))))
+				
+				
 				
 			)
 			(if (< $count $removalAmount)
@@ -152,7 +149,7 @@
 						(let*
 							(
 								(() (globalRemoveAtom $head $filteredNiset))
-								($dbg (println! (removed $head newCount $newCount)))
+								
 							)
 							(checkThenRemoveAtom $tail $removalAmount $newCount)
 						)
@@ -169,19 +166,18 @@
 	(let*
 		(
 			($count 0.0)
-			($maxSize (let $xmax (getAttentionParam MAX_SIZE) $xmax))
-			($accDivSize (let $xacc (getAttentionParam ACC_DIV_SIZE) $xacc))
-			; ($1 (println! (test $count $maxSize $accDivSize $size)))
-			($forgetThreshold (let $xthresh (getAttentionParam FORGET_THRESHOLD) $xthresh))
+			($maxSize (getAttentionParam MAX_SIZE))
+			($accDivSize (getAttentionParam ACC_DIV_SIZE) $xacc)
+			
+			($forgetThreshold (getAttentionParam FORGET_THRESHOLD))
 			($atoms (getAllAtomsWithBins))
-			($size (let $xsize (countAtomsInTypeSpace) (+ $xsize 0.0)))
-			; ($1 (println! (test $count $maxSize $accDivSize $size)))
+			($size (countAtomsInTypeSpace))
 			($removalAmount (- $size (- $maxSize $accDivSize)))
-			; ($1 (println! (test $count $maxSize $accDivSize $size)))
+		
 			($filteredatom (let $xfilte (filterByLti $atoms $forgetThreshold) $xfilte))
-			; ($1 (println! (test $count $maxSize $accDivSize $size)))
+			
 			($sortedatoms (ForgettingLtiThenTVAscendingSort $filteredatom))
-			; ($1 (println! (test $count $maxSize $accDivSize $size)))
+			
 		)
 		(if (< $size (+ $maxSize $accDivSize))
 			()

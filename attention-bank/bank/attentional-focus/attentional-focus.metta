@@ -3,11 +3,9 @@
 
 (= (updateAf $atom $sti)
     (let* (
-            ($minsti (let $xminsti (getAttentionParam MIN_AF_STI) $xminsti))
-            ($maxSize (let $xmaxsize (getAttentionParam MAX_AF_SIZE) $xmaxsize))
-            ($size (let $xsize (size-atom (collapse (match &af ($xaf $val) $xaf))) $xsize))
-            ($dbgre (println! (before-isAtomInAf $atom $size $maxSize)))
-			($dbgaf (println! (af-content (collapse (match &af $xany $xany)))))
+            ($minsti (getAttentionParam MIN_AF_STI))
+            ($maxSize (getAttentionParam MAX_AF_SIZE) )
+            ($size (match-count &af ($x $val)))
             ($re (if (isAtomInAf $atom)
                          (let $o (remove-atom &af ($atom $oldSti)) 
                                 (add-atom &af ($atom $sti)))
@@ -22,7 +20,7 @@
                     )
             )
             ($x (collapse (match &af $any $any)))
-        ) (updateMinAf))
+        ) ((write_csv_wrapper $x) (updateMinAf)))
 )
 
 
@@ -37,12 +35,11 @@
    (unique-atom (collapse (let $sti (superpose $stis) (match &af ($atom $sti) $atom))))
 )
 
-(= (isAtomInAf $pattern)
-    (let $xres (collapse (match &af ($pattern $xavi) True))
-        (if (== $xres ()) False True))
+(= (isAtomInAf $pattern) 
+    (find &af ($pattern $av))
 )
 (= (updateMinAf)
-    (let $sti (collapse (match &af ($atom $sti) $sti))
+    (collapse (match &af ($atom $sti))
             (if (= $sti ()) () (updateAttentionParam MIN_AF_STI (min-atom $sti))))
 )
 (= (getRandomAtomNotInAF)
