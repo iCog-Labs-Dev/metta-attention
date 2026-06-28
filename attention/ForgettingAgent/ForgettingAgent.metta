@@ -22,7 +22,7 @@
 				)
 			)
 		)
-	)
+	
 )
 
 ; (: lessThanLtiThenTV (-> Atom Atom Bool))
@@ -55,8 +55,6 @@
 			(
 				($pivot (car-atom $atoms))
 				($tail (cdr-atom $atoms))
-				; ($lesser (binaryFilter lessThanLtiThenTV $pivot $tail))
-				; ($greater (binaryFilter greaterThanLtiThenTV $pivot $tail))
 				($lesser (binaryFilter lessThanLtiThenTV $pivot $tail ()))
                 ($greater (binaryFilter greaterThanLtiThenTV $pivot $tail ()))
 				($sortedLesser (ForgettingLtiThenTVAscendingSort $lesser))
@@ -174,7 +172,7 @@
 			($size (countAtomsInTypeSpace))
 			($removalAmount (- $size (- $maxSize $accDivSize)))
 		
-			($filteredatom (let $xfilte (filterByLti $atoms $forgetThreshold) $xfilte))
+			($filteredatom (filterByLti $atoms $forgetThreshold))
 			
 			($sortedatoms (ForgettingLtiThenTVAscendingSort $filteredatom))
 			
