@@ -78,7 +78,7 @@
 )
 
 (= (refundAV $atom)
-	let $xav((getAv $atom)
+	(let $xav (getAv $atom)
 		(if (== $xav %Undefined%)
 			()
 			(setAv $atom (0.0 0.0 0.0))
@@ -104,18 +104,12 @@
 
 ; (: globalRemoveAtom (-> Atom List empty))
 (= (globalRemoveAtom $head $niset)
-	(let $bin
-		(importanceBin (getSti $head))
-		(let*
-			(
-				
-				($_refund (refundAV $head))
-				
-				($_extract (extractAtomRecursive $niset))
-				
-			)
-			(removeTypeSpace $head)
+	(let*
+		(
+			($_refund (refundAV $head))
+			($_extract (extractAtomRecursive $niset))
 		)
+		(removeTypeSpace $head)
 	)
 )
 
@@ -132,22 +126,18 @@
 				($tail (cdr-atom $sortedatoms))
 				
 				($iset (globalIncomingSetByType $head ASYMMETRIC_HEBBIAN_LINK))
-				
 				($niset (globalIncomingSetwithoutType $head))
-				
-				
-				
 			)
 			(if (< $count $removalAmount)
 				(if (== (size-atom $iset) (size-atom $niset))
 					(let*
 						(
-							($size (size-atom $filteredNiset))
-							($newCount (+ 1 $count))
+							($size (size-atom $niset))
+							($newCount(+ (+ 1 $count) $size))
 						)
 						(let*
 							(
-								(() (globalRemoveAtom $head $filteredNiset))
+								($global (globalRemoveAtom $head $niset))
 								
 							)
 							(checkThenRemoveAtom $tail $removalAmount $newCount)
@@ -156,6 +146,7 @@
 					(checkThenRemoveAtom $tail $removalAmount $count)
 				)
 				()
+			
 			)
 		)
 	)
@@ -167,18 +158,21 @@
 			($count 0.0)
 			($maxSize (getAttentionParam MAX_SIZE))
 			($accDivSize (getAttentionParam ACC_DIV_SIZE))
-			
 			($forgetThreshold (getAttentionParam FORGET_THRESHOLD))
 			($atoms (getAllAtomsWithBins))
-			($size (countAtomsInTypeSpace))
+			($size (+ (countAtomsInTypeSpace) 0.0))
+			
 			($removalAmount (- $size (- $maxSize $accDivSize)))
-		
+			
 			($filteredatom (filterByLti $atoms $forgetThreshold))
 			
 			($sortedatoms (ForgettingLtiThenTVAscendingSort $filteredatom))
 			
+			($threshold (+ $maxSize $accDivSize))
+			
+			
 		)
-		(if (< $size (+ $maxSize $accDivSize))
+		(if (< $size $threshold)
 			()
 			(checkThenRemoveAtom $sortedatoms $removalAmount $count)
 		)

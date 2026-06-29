@@ -15,7 +15,7 @@
 
 ; (test maxSize)
 !(test (getAttentionParam MAX_SIZE) 2.0) ; asserEqual doesn't change the output
-!(test (getAttentionParam ACC_DIV_SIZE 1.0)) ; I just added this line.
+!(test (getAttentionParam ACC_DIV_SIZE) 1.0) ; I just added this line.
 
 ; (updateAttentionParam MAX_SIZE 50)
 ; (updateAttentionParam ACC_DIV_SIZE 5.0)
@@ -102,7 +102,10 @@
 ; !(println! (getLti g))
 ; !(println! (getLti h))
 
+
 !(forgettingAgent-Run (TypeSpace))
+!(println! (funds-after-run (getAttentionParam FUNDS_STI)))
+!(println! (typespace-size (countAtomsInTypeSpace)))
 
 
 !(let*
