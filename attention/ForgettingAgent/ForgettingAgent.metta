@@ -27,7 +27,7 @@
 
 ; (: lessThanLtiThenTV (-> Atom Atom Bool))
 
-(= (lessThanLtiThenTV $elem $pivot)
+(= (lessThanLtiThenTV $elem $pivot $x)
 	(if (or (== $elem ()) (== $pivot ()))
 		False
 		(if (== (getLti $elem) (getLti $pivot))
@@ -38,7 +38,7 @@
 )
 
 ; (: greaterThanLtiThenTV (-> Atom Atom Bool))
-(= (greaterThanLtiThenTV $elem $pivot)
+(= (greaterThanLtiThenTV $elem $pivot $x)
 	(if (or (== $elem ()) (== $pivot ()))
 		False
 		(if (== (getLti $elem)(getLti $pivot))
