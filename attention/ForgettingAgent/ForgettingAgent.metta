@@ -166,7 +166,7 @@
 		(
 			($count 0.0)
 			($maxSize (getAttentionParam MAX_SIZE))
-			($accDivSize (getAttentionParam ACC_DIV_SIZE) $xacc)
+			($accDivSize (getAttentionParam ACC_DIV_SIZE))
 			
 			($forgetThreshold (getAttentionParam FORGET_THRESHOLD))
 			($atoms (getAllAtomsWithBins))
