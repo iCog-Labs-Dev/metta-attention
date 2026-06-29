@@ -1,3 +1,4 @@
+!(import! &self lib-spaces)
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
 !(import! &self lib/lib_he)

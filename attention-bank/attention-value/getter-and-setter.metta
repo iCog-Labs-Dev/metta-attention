@@ -73,13 +73,11 @@
 (= (attentionValueChanged $pattern $newSTIFund $newLTIFund $sti)
    (let*(
          ($stiUpdated (updateAttentionParam FUNDS_STI $newSTIFund))
-         ($_ (println! (getAttentionParam FUNDS_STI)))
+         
          ($ltiUpdated (updateAttentionParam FUNDS_LTI $newLTIFund))
 
          ($globalUpdate  (update &typeSpace $sti))
-         ; ($_ (println! $globalUpdate))
-
-         ; ($_ (println! (getAttentionParam MAX_STI)))
+         
         )
         ()
     )
@@ -494,6 +492,6 @@
             )
        )
         )
-         ()
+         (trace! () ("Updated"))
     )
 )

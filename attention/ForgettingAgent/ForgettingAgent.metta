@@ -94,8 +94,8 @@
 			(
 				($head (car-atom $atoms))
 				($tail (cdr-atom $atoms))
-				($_ (refundAV $head))
-				($_ (removeTypeSpace $head))
+				($_refund (refundAV $head))
+				($_remove (removeTypeSpace $head))
 			)
 			(extractAtomRecursive $tail)
 		)
@@ -109,9 +109,9 @@
 		(let*
 			(
 				
-				($_ (refundAV $head))
+				($_refund (refundAV $head))
 				
-				($_ (extractAtomRecursive $niset))
+				($_extract (extractAtomRecursive $niset))
 				
 			)
 			(removeTypeSpace $head)
