@@ -1,3 +1,4 @@
+!(import! &self lib-spaces)
 !(bind! &typeSpace (new-space))
 (= (TypeSpace)
     &typeSpace
@@ -35,21 +36,20 @@
 
            ($stiDiff (- $oldSti $sti))
            ($ltiDiff (- $oldLti $lti))
-           ($_ (println! (sti $pattern $stiDiff)))
            
            ($fundsSTI (getAttentionParam FUNDS_STI))
            ($fundsLTI (getAttentionParam FUNDS_LTI))
            ($newstifund (+ $fundsSTI $stiDiff))
            ($newltifund (+ $fundsLTI $ltiDiff))
            
-           ($hello (println! (new sti $newstifund)))
-           ($hi (println! (inside setAv)))
+           
+           
            ($updater (attentionValueChanged $pattern $newstifund $newltifund $sti))  ; Update attentional focus and global paremeter
            
     )
-   (println! (before-updateAf))
+   
       (eval (updateAf $pattern $sti))
-        (println! (after-updateAf))
+    
 ))
 
 
@@ -318,7 +318,7 @@
 
 ;; counts all atoms in the TypeSpace
 (= (countAtomsInTypeSpace)
-    (size-atom (collapse (match (TypeSpace) ($pattern $x) $pattern)))
+    (match-count (TypeSpace) ($pattern $x))
 )
 
 ; Function: getAtomsByBin

@@ -5,7 +5,7 @@
 ; return: List of atoms that are below threshold
 ; (: filterByLti (-> List Number List))
 (= (filterByLti $atoms $forgetThreshold)
-	(println! (entering-filterByLti))
+	
 		(if (== $atoms ())
 			()
 			(let*
@@ -26,6 +26,7 @@
 )
 
 ; (: lessThanLtiThenTV (-> Atom Atom Bool))
+
 (= (lessThanLtiThenTV $elem $pivot)
 	(if (or (== $elem ()) (== $pivot ()))
 		False
@@ -93,8 +94,8 @@
 			(
 				($head (car-atom $atoms))
 				($tail (cdr-atom $atoms))
-				(() (refundAV $head))
-				(() (removeTypeSpace $head))
+				($_ (refundAV $head))
+				($_ (removeTypeSpace $head))
 			)
 			(extractAtomRecursive $tail)
 		)
@@ -108,9 +109,9 @@
 		(let*
 			(
 				
-				(() (refundAV $head))
+				($_ (refundAV $head))
 				
-				(() (extractAtomRecursive $niset))
+				($_ (extractAtomRecursive $niset))
 				
 			)
 			(removeTypeSpace $head)
@@ -130,9 +131,9 @@
 				
 				($tail (cdr-atom $sortedatoms))
 				
-				($iset (let $xiset (globalIncomingSetByType $head ASYMMETRIC_HEBBIAN_LINK) $xiset))
+				($iset (globalIncomingSetByType $head ASYMMETRIC_HEBBIAN_LINK))
 				
-				($niset (let $xniset (globalIncomingSetwithoutType $head) $xniset))
+				($niset (globalIncomingSetwithoutType $head))
 				
 				
 				

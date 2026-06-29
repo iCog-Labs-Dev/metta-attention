@@ -1,5 +1,3 @@
-!(register-module! ../../../../metta-attention)
-
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
 !(import! &self lib/lib_he)
@@ -13,10 +11,7 @@
 !(import! &self ../../../../metta-attention/attention/ForgettingAgent/ForgettingAgent)
 
 !(updateAttentionParam FORGET_THRESHOLD 5.0)
-!(println! (getAttentionParam MAX_SIZE))
-!(println! (getAttentionParam ACC_DIV_SIZE))
-!(println! (getAttentionParam MAX_SIZE))
-!(println! (getAttentionParam ACC_DIV_SIZE))
+
 ; (test maxSize)
 !(test (getAttentionParam MAX_SIZE) 2.0) ; asserEqual doesn't change the output
 !(test (getAttentionParam ACC_DIV_SIZE 1.0)) ; I just added this line.
@@ -133,6 +128,3 @@
         ()
     )
 )
-
-!(println! "before run")
-!(println! "after run")
