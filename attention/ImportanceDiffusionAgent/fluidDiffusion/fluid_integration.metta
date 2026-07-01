@@ -20,7 +20,7 @@
     (let*
         (
             ($pairs (extractStiPairs (getAfAtoms)))
-            ($newStis (py-call (connection.fluid_from_af $graphFile $pairs 70 70 0.9)))
+            ($newStis (py-call (connection.fluid_from_af $graphFile $pairs 70 70 0.9 ("insecticide" "aflatoxin"))))
         )
         (applyNewStis $newStis)
     )
