@@ -260,17 +260,16 @@ def parse_goal_cells(
             seeds = [tuple(map(int, seed.split(","))) for seed in af_seeds.split()]
     elif af_seeds and isinstance(af_seeds[0], str):
         # af_seeds is a list of atom names — resolve to grid coords
-        if spectral_coords is None:
-            seeds = get_center_seed(grid_size, n_seeds=4)
-        else:
+        seeds = []
+        if spectral_coords is not None:
             positions = spectral_to_grid_coords(spectral_coords, grid_size)
-            seeds = [
-                positions[atom] for atom in af_seeds if atom in positions
-            ]
-            if not seeds:
-                seeds = get_center_seed(grid_size, n_seeds=4)
+            seeds = [positions[atom] for atom in af_seeds if atom in positions]
     else:
         seeds = af_seeds
+        
+    if not seeds:
+        seeds = get_center_seed(grid_size, n_seeds=4)
+        
     return [(seed_y % grid_size, seed_x % grid_size) for seed_y, seed_x in seeds]
 
 
