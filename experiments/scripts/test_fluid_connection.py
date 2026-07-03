@@ -74,18 +74,6 @@ def test_cost_field_distance_only(connection) -> None:
     assert_close(abs(float(np.max(cost)) - 1.0), 1e-12, "max distance cost")
 
 
-def test_cost_field_congestion(connection) -> None:
-    distance = np.zeros((8, 8))
-    rho = np.zeros((8, 8))
-    rho[1, 1] = 2.0
-    rho[2, 2] = 1.0
-    cost = connection.compute_cost_field(distance, rho, congestion_weight=0.25)
-
-    assert_close(abs(float(cost[1, 1]) - 0.25), 1e-12, "peak congestion cost")
-    assert_close(abs(float(cost[2, 2]) - 0.125), 1e-12, "scaled congestion cost")
-    assert_close(abs(float(cost[0, 0])), 1e-12, "empty congestion cost")
-
-
 def test_value_field_goal_ordering(connection) -> None:
     goals = [(12, 12)]
     distance = connection.compute_distance_to_goals(24, goals)
@@ -113,9 +101,7 @@ def test_goal_routing_reduces_value_cost(connection) -> None:
     goals = connection.parse_goal_cells("12,12", params.grid_size)
     goal_mask = connection.compute_goal_mask(params.grid_size, goals)
     distance = connection.compute_distance_to_goals(params.grid_size, goals)
-    initial_cost = connection.compute_cost_field(
-        distance, rho, params.congestion_weight
-    )
+    initial_cost = connection.compute_cost_field(distance)
     initial_value = connection.solve_value_field(
         initial_cost,
         gamma=params.gamma,
@@ -180,7 +166,6 @@ def main() -> None:
     test_mode_sum_divergence(connection)
     test_advection_mass_and_nonnegative(connection)
     test_cost_field_distance_only(connection)
-    test_cost_field_congestion(connection)
     test_value_field_goal_ordering(connection)
     test_goal_routing_reduces_value_cost(connection)
     test_fluid_from_af_preserves_total_sti(connection)

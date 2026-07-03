@@ -149,7 +149,6 @@ control_mode: str = "value_alignment"
 value_iterations: int = 100
 gamma: float = 0.95
 lambda_penalty: float = 0.01
-congestion_weight: float = 0.0
 density_radius: int = 1
 diagnostics: bool = True
 ```
@@ -167,8 +166,6 @@ Important parameters:
 - `value_iterations`: number of Bellman value-iteration passes.
 - `gamma`: discount factor in the value update.
 - `lambda_penalty`: dampens each mode's alignment score.
-- `congestion_weight`: adds a density penalty to the cost field when greater
-  than zero.
 - `density_radius`: local radius used when pulling grid density back to atoms.
 
 ## Input Parsing and Graph Setup
@@ -324,26 +321,16 @@ goal near the left edge.
 Builds a boolean mask around goal cells. Diagnostics use this mask to report
 how much final density is in the goal region.
 
-### `compute_cost_field(distance, rho=None, congestion_weight=0.0)`
+### `compute_cost_field(distance)`
 
-Builds the cost field used by value iteration.
-
-Base cost is normalized distance:
+Builds the cost field used by value iteration as normalized toroidal distance
+to the nearest goal cell:
 
 ```python
 cost = distance / max(distance)
 ```
 
-If `rho` is provided and `congestion_weight > 0`, the cost also includes a
-normalized density penalty:
-
-```python
-cost += congestion_weight * (rho / max(rho))
-```
-
-With `congestion_weight == 0.0`, the cost is static because it only depends on
-distance. With `congestion_weight > 0.0`, the cost depends on the current
-density and must be recomputed every timestep.
+The cost is static — it depends only on geometry, not on the evolving density.
 
 ### `solve_value_field(cost, gamma=0.95, iterations=100, goal_mask=None)`
 
@@ -465,15 +452,9 @@ Setup:
 
 Each timestep:
 
-1. Choose a value field:
-   - `distance`: use the raw distance field.
-   - `value_alignment`: use Bellman value iteration.
-2. For `value_alignment`:
-   - If `params.congestion_weight <= 0`, compute the static value field once
-     before the loop and reuse it.
-   - If `params.congestion_weight > 0`, recompute cost/value each timestep
-     because cost depends on current `rho`.
-3. Compute control direction from `-grad(value)`.
+1. The value field is computed once before the loop (static, since cost depends
+   only on distance, not on the evolving density).
+2. Compute control direction from `-grad(value)`.
 4. Combine divergence-free velocity modes according to control alignment.
 5. Apply CFL scaling.
 6. Optionally record `rho` in `history`.
@@ -643,13 +624,8 @@ goal-seeking behavior.
 ### `value_alignment`
 
 Uses `solve_value_field` to compute a Bellman-smoothed value field, then moves
-density along `-grad(value)`.
-
-If `congestion_weight == 0.0`, the value field depends only on static distance
-and is computed once before the timestep loop.
-
-If `congestion_weight > 0.0`, the cost includes current density. In that case,
-the value field is recomputed every timestep.
+density along `-grad(value)`. The cost is static (distance-based), so the value
+field is computed once before the timestep loop.
 
 ## Mass Preservation
 
@@ -683,8 +659,6 @@ Parameters that affect smoothing:
 - Fewer `num_steps` for less transport time.
 - Different graph data or randomized/sparser graph structure for more diverse
   embeddings.
-- Positive `congestion_weight` if density concentration should increase local
-  cost.
 
 ## Current Limitations
 
