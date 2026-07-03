@@ -334,9 +334,8 @@ def compute_goal_mask(
 
 
 def compute_cost_field(distance: np.ndarray) -> np.ndarray:
-    """Minimal Bellman/HJB cost: normalized toroidal distance to goal."""
+    """Bellman/HJB cost from normalized toroidal distance to goal."""
 
-    # distance = compute_distance_to_goals(rho.shape[0], goal_cells)
     max_distance = float(np.max(distance)) or 1.0
     return distance / max_distance
 
@@ -576,15 +575,11 @@ def transport_density(
     value = distance
     history = [] if track_history else None
 
+    if params.control_mode == "value_alignment":
+        value = solve_value_field(cost, params.gamma, params.value_iterations, goal_mask)
+
     for _ in range(params.num_steps):
-        if params.control_mode == "distance":
-            value = distance
-        elif params.control_mode == "value_alignment":
-            cost = compute_cost_field(distance)
-            value = solve_value_field(
-                cost, params.gamma, params.value_iterations, goal_mask
-            )
-        else:
+        if params.control_mode not in ("distance", "value_alignment"):
             raise ValueError(f"Unsupported control mode: {params.control_mode}")
 
         control_x, control_y = compute_control_from_value(value)
@@ -636,7 +631,9 @@ def print_diagnostics(diagnostics: dict[str, Any]) -> None:
         "goal_mass",
         "expected_value_cost",
     ]
-    summary = ", ".join(f"{key}={diagnostics[key]:.6g}" for key in keys)
+    summary = ", ".join(
+        f"{key}={diagnostics[key]:.6g}" for key in keys if key in diagnostics
+    )
     print(f"fluid diagnostics: {summary}")
 
 
