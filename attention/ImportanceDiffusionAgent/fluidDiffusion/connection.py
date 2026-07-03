@@ -3,11 +3,16 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 import json
+import logging
+import os
+import pickle
 import re
 from typing import Any
 
 import numpy as np
 import scipy.linalg
+import scipy.sparse
+import scipy.sparse.linalg
 
 DEFAULT_STI = 0.0
 EDGE_PATTERN = re.compile(
@@ -69,9 +74,11 @@ def build_adjacency_matrix(
     edges: list[tuple[str, str, float, float]],
     nodes: list[str],
     make_symmetric: bool = False,
-) -> tuple[np.ndarray, dict[str, int]]:
+) -> tuple[scipy.sparse.csr_matrix, dict[str, int]]:
+    """Build a sparse adjacency matrix from weighted MeTTa edges."""
+    n = len(nodes)
     node_to_idx = {node: i for i, node in enumerate(nodes)}
-    matrix = np.zeros((len(nodes), len(nodes)), dtype=np.float64)
+    matrix = scipy.sparse.lil_matrix((n, n), dtype=np.float64)
 
     for source, target, mean, confidence in edges:
         i, j = node_to_idx[source], node_to_idx[target]
@@ -79,17 +86,19 @@ def build_adjacency_matrix(
         if make_symmetric:
             matrix[j, i] = mean * confidence
 
-    return matrix, node_to_idx
+    return matrix.tocsr(), node_to_idx
 
 
 def get_spectral_coordinates_magnetic(
-    matrix: np.ndarray, nodes: list[str], q: float = 0.25
+    matrix: scipy.sparse.csr_matrix, nodes: list[str], q: float = 0.25
 ) -> dict[str, tuple[float, float]]:
     """
     Embed atoms using a magnetic Laplacian.
 
     This gives the fluid layer manifold coordinates; it does not mutate ECAN
     state or decide atom importance.
+    Uses eigsh (Lanczos) to extract only the 2 smallest eigenvectors,
+    avoiding the O(N^3) dense eigendecomposition.
     """
 
     if not nodes:
@@ -97,28 +106,55 @@ def get_spectral_coordinates_magnetic(
     if len(nodes) == 1:
         return {nodes[0]: (0.0, 0.0)}
 
-    matrix = np.array(matrix, dtype=np.float64)
-    weights = 0.5 * (matrix + matrix.T)
-    theta = 2 * np.pi * q * (matrix - matrix.T)
-    hermitian = weights * np.exp(1j * theta)
-    degree = np.diag(np.sum(weights, axis=1))
-    laplacian = degree - hermitian
+    n = len(nodes)
+
+    # For very small graphs, fall back to dense.
+    # SciPy's ARPACK backend for complex matrices strictly requires k < N - 1.
+    # Since we need k=2 eigenvectors, N must be at least 4.
+    if n <= 3:
+        dense = matrix.toarray()
+        weights = 0.5 * (dense + dense.T)
+        theta_mat = 2 * np.pi * q * (dense - dense.T)
+        hermitian = weights * np.exp(1j * theta_mat)
+        degree = np.diag(np.sum(weights, axis=1))
+        laplacian = degree - hermitian
+        try:
+            _, eigenvectors = scipy.linalg.eigh(laplacian)
+            vector = eigenvectors[:, 1]
+            return {
+                node: (float(np.real(vector[i])), float(np.imag(vector[i])))
+                for i, node in enumerate(nodes)
+            }
+        except Exception as exc:
+            print(f"Dense eigendecomposition failed: {exc}")
+            return {
+                node: (float(np.cos(2 * np.pi * i / n)), float(np.sin(2 * np.pi * i / n)))
+                for i, node in enumerate(nodes)
+            }
+
+    # Sparse path: build the magnetic Laplacian without dense arrays
+    weights = (matrix + matrix.T).multiply(0.5)
+    skew = matrix - matrix.T
+    theta_data = 2 * np.pi * q * skew.data
+    phase = skew.copy()
+    phase.data = np.exp(1j * theta_data)
+    hermitian = weights.multiply(phase).tocsr()
+
+    degree_vals = np.array(weights.sum(axis=1)).flatten()
+    degree_diag = scipy.sparse.diags(degree_vals, format="csr")
+    laplacian = degree_diag - hermitian
 
     try:
-        _, eigenvectors = scipy.linalg.eigh(laplacian)
+        _, eigenvectors = scipy.sparse.linalg.eigsh(laplacian, k=2, which="SM")
         vector = eigenvectors[:, 1]
         return {
             node: (float(np.real(vector[i])), float(np.imag(vector[i])))
             for i, node in enumerate(nodes)
         }
     except Exception as exc:
-        print(f"Eigendecomposition failed: {exc}")
-        n = len(nodes)
+        print(f"Sparse eigendecomposition failed: {exc}")
         return {
-            node: (
-                float(np.cos(2 * np.pi * i / n)),
-                float(np.sin(2 * np.pi * i / n)),
-            )
+            node: (float(np.cos(2 * np.pi * i / n)), float(np.sin(2 * np.pi * i / n)))
             for i, node in enumerate(nodes)
         }
 
@@ -152,9 +188,11 @@ def push_sti_to_density(
 ) -> tuple[np.ndarray, dict[str, tuple[float, float]]]:
     """Push current MeTTa STI values into a normalized density rho."""
 
-    matrix, node_to_idx = build_adjacency_matrix(edges, nodes)
     if spectral_coords is None:
+        matrix, node_to_idx = build_adjacency_matrix(edges, nodes)
         spectral_coords = get_spectral_coordinates_magnetic(matrix, nodes)
+    else:
+        node_to_idx = {node: i for i, node in enumerate(nodes)}
 
     if sti_values:
         node_sti = sti_values
@@ -235,9 +273,19 @@ def get_center_seed(grid_size: int, n_seeds: int = 4) -> list[tuple[int, int]]:
 
 
 def parse_goal_cells(
-    af_seeds: str | list[tuple[int, int]] | None,
+    af_seeds: str | list[str] | list[tuple[int, int]] | None,
     grid_size: int,
+    spectral_coords: dict[str, tuple[float, float]] | None = None,
 ) -> list[tuple[int, int]]:
+    """Resolve drain targets to grid pixel coordinates.
+
+    af_seeds may be:
+      - None                  -> center of grid (default fallback)
+      - "center"              -> single center pixel
+      - "y,x y,x ..."        -> explicit pixel coordinates (legacy)
+      - list of atom names    -> resolved via spectral_coords
+      - list of (int, int)    -> raw pixel coordinates
+    """
     if af_seeds is None:
         seeds = get_center_seed(grid_size, n_seeds=4)
     elif isinstance(af_seeds, str):
@@ -245,8 +293,18 @@ def parse_goal_cells(
             seeds = get_center_seed(grid_size, n_seeds=1)
         else:
             seeds = [tuple(map(int, seed.split(","))) for seed in af_seeds.split()]
+    elif af_seeds and isinstance(af_seeds[0], str):
+        # af_seeds is a list of atom names — resolve to grid coords
+        seeds = []
+        if spectral_coords is not None:
+            positions = spectral_to_grid_coords(spectral_coords, grid_size)
+            seeds = [positions[atom] for atom in af_seeds if atom in positions]
     else:
         seeds = af_seeds
+        
+    if not seeds:
+        seeds = get_center_seed(grid_size, n_seeds=4)
+        
     return [(seed_y % grid_size, seed_x % grid_size) for seed_y, seed_x in seeds]
 
 
@@ -343,6 +401,95 @@ def precompute_fourier_velocity_modes(
     return modes
 
 
+
+# in-memory + pickle 
+_logger = logging.getLogger(__name__)
+_GRAPH_CACHE: dict[str, Any] = {}
+
+
+def _pickle_path_for(metta_path: str) -> str:
+    """Return pickle cache path adjacent to the source .metta file."""
+    base, _ = os.path.splitext(os.path.abspath(metta_path))
+    return base + ".fluid_cache.pkl"
+
+
+def _file_fingerprint(metta_path: str) -> float:
+    """Return file modification time, or 0.0 on error."""
+    try:
+        return os.path.getmtime(metta_path)
+    except OSError:
+        return 0.0
+
+
+def _load_or_compute_graph_data(
+    metta_path: str, params: FluidParams
+) -> tuple[
+    list[tuple[str, str, float, float]],
+    list[str],
+    dict[str, tuple[float, float]],
+    list[tuple[np.ndarray, np.ndarray]],
+]:
+    """Load graph data with dual-cache fallback (RAM -> Disk -> Recompute)."""
+    global _GRAPH_CACHE
+
+    fingerprint = _file_fingerprint(metta_path)
+    abs_path = os.path.abspath(metta_path)
+    pkl_path = _pickle_path_for(metta_path)
+
+    def is_valid(c: dict[str, Any]) -> bool:
+        return (
+            c.get("fingerprint") == fingerprint
+            and c.get("grid_size") == params.grid_size
+            and c.get("k_max") == params.k_max
+        )
+
+    def extract(c: dict[str, Any]) -> tuple:
+        return c["edges"], c["nodes"], c["coords"], c["modes"]
+
+    # In-memory cache 
+    if _GRAPH_CACHE.get("metta_path") == abs_path and is_valid(_GRAPH_CACHE):
+        return extract(_GRAPH_CACHE)
+
+    # Pickle file on disk
+    if os.path.exists(pkl_path):
+        try:
+            with open(pkl_path, "rb") as f:
+                cached = pickle.load(f)
+            if is_valid(cached):
+                _GRAPH_CACHE.update(cached)
+                _GRAPH_CACHE["metta_path"] = abs_path
+                return extract(cached)
+        except Exception as e:
+            _logger.warning("Disk cache read failed (%s), recomputing: %s", pkl_path, e)
+
+    edges = parse_metta_edges(metta_path)
+    nodes = extract_atoms(edges)
+    matrix, _ = build_adjacency_matrix(edges, nodes)
+    coords = get_spectral_coordinates_magnetic(matrix, nodes)
+    modes = precompute_fourier_velocity_modes(params.grid_size, params.k_max)
+
+    cache_data = {
+        "fingerprint": fingerprint,
+        "grid_size": params.grid_size,
+        "k_max": params.k_max,
+        "edges": edges,
+        "nodes": nodes,
+        "coords": coords,
+        "modes": modes,
+    }
+
+    try:
+        with open(pkl_path, "wb") as f:
+            pickle.dump(cache_data, f)
+    except Exception as e:
+        _logger.warning("Disk cache write failed (%s): %s", pkl_path, e)
+
+    _GRAPH_CACHE.update(cache_data)
+    _GRAPH_CACHE["metta_path"] = abs_path
+
+    return extract(cache_data)
+
+
 def compute_divergence(u_x: np.ndarray, u_y: np.ndarray) -> np.ndarray:
     div_x = (np.roll(u_x, -1, axis=1) - np.roll(u_x, 1, axis=1)) / 2.0
     div_y = (np.roll(u_y, -1, axis=0) - np.roll(u_y, 1, axis=0)) / 2.0
@@ -409,16 +556,18 @@ def apply_cfl_scaling(
 def transport_density(
     rho_initial: np.ndarray,
     params: FluidParams,
-    af_seeds: str | list[tuple[int, int]] | None = None,
+    af_seeds: str | list[str] | list[tuple[int, int]] | None = None,
     track_history: bool = False,
+    modes: list[tuple[np.ndarray, np.ndarray]] | None = None,
+    spectral_coords: dict[str, tuple[float, float]] | None = None,
 ) -> tuple[
     np.ndarray, tuple[np.ndarray, np.ndarray], dict[str, Any], list[np.ndarray] | None
 ]:
-    goal_cells = parse_goal_cells(af_seeds, params.grid_size)
+    goal_cells = parse_goal_cells(af_seeds, params.grid_size, spectral_coords)
     goal_mask = compute_goal_mask(params.grid_size, goal_cells)
     distance = compute_distance_to_goals(params.grid_size, goal_cells)
-    cost = compute_cost_field(distance)
-    modes = precompute_fourier_velocity_modes(params.grid_size, params.k_max)
+    if modes is None:
+        modes = precompute_fourier_velocity_modes(params.grid_size, params.k_max)
 
     rho = rho_initial.copy()
     u_x = np.zeros_like(rho)
@@ -494,16 +643,27 @@ def fluid_from_af(
     grid_size: int = 36,
     num_steps: int = 100,
     dt: float = 0.1,
-    af_seeds: str | list[tuple[int, int]] | None = None,
+    af_seeds: str | list[str] | list[tuple[int, int]] | None = None,
     spread_sigma: float = 1.0,
     target_cfl: float = 0.8,
     control_mode: str = "value_alignment",
 ) -> list[list[Any]]:
     """Redistribute PeTTa-provided STI through fluid transport and return pairs."""
 
+    params = FluidParams(
+        grid_size=int(grid_size),
+        num_steps=int(num_steps),
+        dt=float(dt),
+        target_cfl=float(target_cfl),
+        spread_sigma=float(spread_sigma),
+        control_mode=control_mode,
+    )
+
+    # Dual-cache: avoids re-parsing the file and recomputing the heavy
+    # eigendecomposition + Fourier modes on every ECAN cycle.
+    edges, nodes, coords, modes = _load_or_compute_graph_data(metta_path, params)
+
     sti_values = read_sti_pairs(atom_sti_pairs)
-    edges = parse_metta_edges(metta_path)
-    nodes = extract_atoms(edges)
     node_set = set(nodes)
     transport_sti = {
         atom: value for atom, value in sti_values.items() if atom in node_set
@@ -516,17 +676,18 @@ def fluid_from_af(
     if transport_total <= 0:
         return [[atom, value] for atom, value in passthrough_sti.items() if value > 0]
 
-    params = FluidParams(
-        grid_size=int(grid_size),
-        num_steps=int(num_steps),
-        dt=float(dt),
-        target_cfl=float(target_cfl),
-        spread_sigma=float(spread_sigma),
-        control_mode=control_mode,
-    )
+    # Use AF atom names as drain targets so fluid flows toward them,
+    # not toward a hardcoded center pixel.
+    af_atom_names = list(transport_sti.keys()) if af_seeds is None else af_seeds
 
-    rho_initial, coords = push_sti_to_density(edges, nodes, params, transport_sti)
-    rho_final, _, diagnostics, _ = transport_density(rho_initial, params, af_seeds)
+    # Pass cached coords so push_sti_to_density skips the eigendecomposition,
+    # and cached modes so transport_density skips Fourier precomputation.
+    rho_initial, _ = push_sti_to_density(
+        edges, nodes, params, transport_sti, spectral_coords=coords
+    )
+    rho_final, _, diagnostics, _ = transport_density(
+        rho_initial, params, af_atom_names, modes=modes, spectral_coords=coords
+    )
     new_sti = pull_density_to_sti(rho_final, coords, params, transport_total)
     new_sti.update(passthrough_sti)
 
