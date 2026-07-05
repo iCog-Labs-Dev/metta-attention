@@ -1,4 +1,3 @@
-!(import! &self lib-spaces)
 !(bind! &typeSpace (new-space))
 (= (TypeSpace)
     &typeSpace
@@ -336,7 +335,7 @@
 ; Returns: Expression of atoms that have AV/bin number 
 ; (: getAllAtomsWithBins (-> Expression))
 (= (getAllAtomsWithBins)
-     (foldall cons-atom (match (TypeSpace) ($patt ($val (Bin $binNumber))) $patt) ())
+     (collector (TypeSpace) ($patt ($val (Bin $binNumber))) $patt)
 )
 
 ; Function: getSize
