@@ -39,7 +39,7 @@
     (find &af ($pattern $av))
 )
 (= (updateMinAf)
-    (collapse (match &af ($atom $sti))
+    (let $sti (collapse (match &af ($atom $sti) $sti))
             (if (= $sti ()) () (updateAttentionParam MIN_AF_STI (min-atom $sti))))
 )
 (= (getRandomAtomNotInAF)
