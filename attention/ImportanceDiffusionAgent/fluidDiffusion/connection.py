@@ -9,12 +9,22 @@ import pickle
 import re
 from typing import Any
 
+import io
+
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.patheffects
+import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
 import scipy.linalg
 import scipy.sparse
 import scipy.sparse.linalg
 
 DEFAULT_STI = 0.0
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+GIF_OUTPUT = os.path.join(SCRIPT_DIR, "fluid_animation.gif")
 EDGE_PATTERN = re.compile(
     r"\(\((?P<link>\w+)\s+(?P<source>\S+)\s+(?P<target>\S+)\)\s+"
     r"\((?P<mean>[-+0-9.eE]+)\s+(?P<confidence>[-+0-9.eE]+)\)\)"
@@ -60,14 +70,29 @@ def extract_atoms(edges: list[tuple[str, str, float, float]]) -> list[str]:
     return sorted(set([edge[0] for edge in edges] + [edge[1] for edge in edges]))
 
 
+AtomKey = str | tuple[str, ...]
+
+
+def _atom_key(name: Any) -> AtomKey:
+    if isinstance(name, list):
+        return tuple(name)
+    return str(name)
+
+
+def _atom_to_metta(key: AtomKey) -> Any:
+    if isinstance(key, tuple):
+        return list(key)
+    return key
+
+
 def read_sti_pairs(
     atom_sti_pairs: list[list[Any]] | tuple[Any, ...] | None,
-) -> dict[str, float]:
+) -> dict[AtomKey, float]:
     """Convert MeTTa py-call pairs into a plain STI mapping."""
 
     if not atom_sti_pairs:
         return {}
-    return {str(name): float(value) for name, value in atom_sti_pairs}
+    return {_atom_key(name): float(value) for name, value in atom_sti_pairs}
 
 
 def build_adjacency_matrix(
@@ -128,7 +153,10 @@ def get_spectral_coordinates_magnetic(
         except Exception as exc:
             print(f"Dense eigendecomposition failed: {exc}")
             return {
-                node: (float(np.cos(2 * np.pi * i / n)), float(np.sin(2 * np.pi * i / n)))
+                node: (
+                    float(np.cos(2 * np.pi * i / n)),
+                    float(np.sin(2 * np.pi * i / n)),
+                )
                 for i, node in enumerate(nodes)
             }
 
@@ -188,6 +216,7 @@ def push_sti_to_density(
 ) -> tuple[np.ndarray, dict[str, tuple[float, float]]]:
     """Push current MeTTa STI values into a normalized density rho."""
 
+    matrix: scipy.sparse.csr_matrix | None = None
     if spectral_coords is None:
         matrix, node_to_idx = build_adjacency_matrix(edges, nodes)
         spectral_coords = get_spectral_coordinates_magnetic(matrix, nodes)
@@ -197,6 +226,8 @@ def push_sti_to_density(
     if sti_values:
         node_sti = sti_values
     else:
+        if matrix is None:
+            matrix, _ = build_adjacency_matrix(edges, nodes)
         node_sti = {
             node: float(np.mean(matrix[node_to_idx[node], :])) for node in nodes
         }
@@ -301,10 +332,10 @@ def parse_goal_cells(
             seeds = [positions[atom] for atom in af_seeds if atom in positions]
     else:
         seeds = af_seeds
-        
+
     if not seeds:
         seeds = get_center_seed(grid_size, n_seeds=4)
-        
+
     return [(seed_y % grid_size, seed_x % grid_size) for seed_y, seed_x in seeds]
 
 
@@ -401,8 +432,7 @@ def precompute_fourier_velocity_modes(
     return modes
 
 
-
-# in-memory + pickle 
+# in-memory + pickle
 _logger = logging.getLogger(__name__)
 _GRAPH_CACHE: dict[str, Any] = {}
 
@@ -446,7 +476,7 @@ def _load_or_compute_graph_data(
     def extract(c: dict[str, Any]) -> tuple:
         return c["edges"], c["nodes"], c["coords"], c["modes"]
 
-    # In-memory cache 
+    # In-memory cache
     if _GRAPH_CACHE.get("metta_path") == abs_path and is_valid(_GRAPH_CACHE):
         return extract(_GRAPH_CACHE)
 
@@ -575,8 +605,11 @@ def transport_density(
     value = distance
     history = [] if track_history else None
 
+    cost = compute_cost_field(distance)
     if params.control_mode == "value_alignment":
-        value = solve_value_field(cost, params.gamma, params.value_iterations, goal_mask)
+        value = solve_value_field(
+            cost, params.gamma, params.value_iterations, goal_mask
+        )
 
     for _ in range(params.num_steps):
         if params.control_mode not in ("distance", "value_alignment"):
@@ -637,6 +670,91 @@ def print_diagnostics(diagnostics: dict[str, Any]) -> None:
     print(f"fluid diagnostics: {summary}")
 
 
+def _resolve_output_path(path: str, overwrite: bool) -> str:
+    if overwrite:
+        return path
+    base, ext = os.path.splitext(path)
+    i = 1
+    while os.path.exists(f"{base}_{i}{ext}"):
+        i += 1
+    return f"{base}_{i}{ext}"
+
+
+def render_animation(
+    history: list[np.ndarray],
+    grid_size: int,
+    spectral_coords: dict[str, tuple[float, float]],
+    output_path: str = GIF_OUTPUT,
+    frame_step: int = 1,
+    fps: int = 10,
+    sti_values: dict[str, float] | None = None,
+    overwrite: bool = True,
+    goal_cells: list[tuple[int, int]] | None = None,
+) -> None:
+    frames: list[Image.Image] = []
+    positions = spectral_to_grid_coords(spectral_coords, grid_size)
+    total_steps = len(history)
+    resolved = _resolve_output_path(output_path, overwrite)
+
+    for idx in range(0, total_steps, frame_step):
+        rho = history[idx]
+
+        fig, ax = plt.subplots(figsize=(8, 8))
+        im = ax.imshow(rho, cmap="turbo", origin="lower")
+        ax.set_title(f"Fluid Transport — step {idx} / {total_steps}")
+        ax.set_xlabel("grid x")
+        ax.set_ylabel("grid y")
+        plt.colorbar(im, ax=ax, shrink=0.8, label="density")
+
+        for atom, (gx, gy) in positions.items():
+            weight = sti_values.get(atom, 0) if sti_values else 1
+            size = max(6, min(14, weight * 0.5))
+            ax.plot(
+                gx,
+                gy,
+                "o",
+                color="white",
+                markersize=size * 0.6,
+                markerfacecolor="none",
+                markeredgewidth=0.5,
+            )
+            ax.text(
+                gx,
+                gy,
+                atom,
+                color="white",
+                fontsize=5,
+                ha="center",
+                va="center",
+                path_effects=[
+                    matplotlib.patheffects.withStroke(linewidth=0.8, foreground="black")
+                ],
+            )
+
+        if goal_cells:
+            for gy, gx in goal_cells:
+                ax.plot(gx, gy, "X", color="cyan", markersize=10, markeredgewidth=2)
+
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png", dpi=100, bbox_inches="tight")
+        plt.close(fig)
+        buf.seek(0)
+        frames.append(Image.open(buf))
+
+    if frames:
+        duration = int(1000 / fps)
+        frames[0].save(
+            resolved,
+            save_all=True,
+            append_images=frames[1:],
+            loop=0,
+            duration=duration,
+        )
+        print(f"Animation saved to {resolved}")
+    else:
+        print("No frames to animate.")
+
+
 def fluid_from_af(
     metta_path: str,
     atom_sti_pairs: list[list[Any]],
@@ -647,8 +765,15 @@ def fluid_from_af(
     spread_sigma: float = 1.0,
     target_cfl: float = 0.8,
     control_mode: str = "value_alignment",
+    visualize: bool = False,
+    overwrite: bool = True,
+    frame_step: int = 1,
+    fps: int = 10,
 ) -> list[list[Any]]:
     """Redistribute PeTTa-provided STI through fluid transport and return pairs."""
+
+    visualize = str(visualize).lower() in ("true", "1", "yes")
+    overwrite = str(overwrite).lower() in ("true", "1", "yes")
 
     params = FluidParams(
         grid_size=int(grid_size),
@@ -680,21 +805,41 @@ def fluid_from_af(
     # not toward a hardcoded center pixel.
     af_atom_names = list(transport_sti.keys()) if af_seeds is None else af_seeds
 
+    goal_cells = parse_goal_cells(af_seeds, params.grid_size, coords)
+
     # Pass cached coords so push_sti_to_density skips the eigendecomposition,
     # and cached modes so transport_density skips Fourier precomputation.
     rho_initial, _ = push_sti_to_density(
         edges, nodes, params, transport_sti, spectral_coords=coords
     )
-    rho_final, _, diagnostics, _ = transport_density(
-        rho_initial, params, af_atom_names, modes=modes, spectral_coords=coords
+    rho_final, _, diagnostics, history = transport_density(
+        rho_initial,
+        params,
+        af_atom_names,
+        modes=modes,
+        spectral_coords=coords,
+        track_history=visualize,
     )
+    if visualize and history:
+        render_animation(
+            history,
+            params.grid_size,
+            coords,
+            frame_step=frame_step,
+            fps=fps,
+            sti_values=transport_sti,
+            overwrite=overwrite,
+            goal_cells=goal_cells,
+        )
     new_sti = pull_density_to_sti(rho_final, coords, params, transport_total)
     new_sti.update(passthrough_sti)
 
     if params.diagnostics:
         print_diagnostics(diagnostics)
 
-    return [[atom, value] for atom, value in new_sti.items() if value > 0]
+    return [
+        [_atom_to_metta(atom), value] for atom, value in new_sti.items() if value > 0
+    ]
 
 
 def _build_arg_parser() -> argparse.ArgumentParser:
@@ -715,6 +860,18 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         choices=["distance", "value_alignment"],
         default="value_alignment",
     )
+    parser.add_argument(
+        "--animate", action="store_true", help="Render fluid animation GIF"
+    )
+    parser.add_argument(
+        "--frame-step", type=int, default=1, help="Record every Nth frame"
+    )
+    parser.add_argument("--fps", type=int, default=10, help="GIF playback speed")
+    parser.add_argument(
+        "--no-overwrite",
+        action="store_true",
+        help="Auto-increment filename instead of overwriting",
+    )
     return parser
 
 
@@ -728,6 +885,11 @@ def _load_sti_json(path: str | None) -> dict[str, float] | None:
 def main() -> None:
     args = _build_arg_parser().parse_args()
     sti_values = _load_sti_json(args.sti_json)
+    if not sti_values:
+        edges = parse_metta_edges(args.input)
+        nodes = extract_atoms(edges)
+        rng = np.random.default_rng()
+        sti_values = {node: float(rng.uniform(300, 700)) for node in nodes}
     params = FluidParams(
         grid_size=args.grid,
         num_steps=args.steps,
@@ -737,12 +899,38 @@ def main() -> None:
         control_mode=args.control_mode,
     )
 
-    edges = parse_metta_edges(args.input)
-    nodes = extract_atoms(edges)
-    rho_initial, coords = push_sti_to_density(edges, nodes, params, sti_values)
-    rho_final, (u_x, u_y), diagnostics, _ = transport_density(
-        rho_initial, params, args.seeds
-    )
+    if args.animate:
+        edges, nodes, coords, modes = _load_or_compute_graph_data(args.input, params)
+        rho_initial, _ = push_sti_to_density(
+            edges, nodes, params, sti_values, spectral_coords=coords
+        )
+        goal_cells = parse_goal_cells(args.seeds, params.grid_size, coords)
+        rho_final, (u_x, u_y), diagnostics, history = transport_density(
+            rho_initial,
+            params,
+            args.seeds,
+            track_history=True,
+            modes=modes,
+            spectral_coords=coords,
+        )
+        render_animation(
+            history,
+            params.grid_size,
+            coords,
+            frame_step=args.frame_step,
+            fps=args.fps,
+            sti_values=sti_values,
+            overwrite=not args.no_overwrite,
+            goal_cells=goal_cells,
+        )
+    else:
+        edges = parse_metta_edges(args.input)
+        nodes = extract_atoms(edges)
+        rho_initial, coords = push_sti_to_density(edges, nodes, params, sti_values)
+        rho_final, (u_x, u_y), diagnostics, _ = transport_density(
+            rho_initial, params, args.seeds
+        )
+
     print_diagnostics(diagnostics)
     print(f"Final rho sum: {np.sum(rho_final):.6f}")
     print(f"Max velocity: {np.max(np.sqrt(u_x**2 + u_y**2)):.4f}")
