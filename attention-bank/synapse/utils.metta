@@ -70,23 +70,14 @@
 )
 
 ; helps to get the hebbian link for a collection/list of atom
-(= (getHebLinks $atoms $out)
-    (if (== $atoms ())
-        $out
-        (let*
-            (
-                ($head (car-atom $atoms))
-                ($tail (cdr-atom $atoms))
-                ($headLinks (collapse (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $head $any) $val) (ASYMMETRIC_HEBBIAN_LINK $head $any))))
-                ($newOut (union-atom $headLinks $out))
-            )
-            (getHebLinks $tail $newOut)
+(= (getHebLinks () $out) $out)
+(= (getHebLinks (cons $head $tail) $out)
+    (getHebLinks $tail
+        (union-atom
+            (collapse (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $head $any) $val) (ASYMMETRIC_HEBBIAN_LINK $head $any)))
+            $out
         )
     )
-)
-
-(= (getAllHebLinks)
-    (collapse (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $a $b) $v) (ASYMMETRIC_HEBBIAN_LINK $a $b)))
 )
 
 (= (square $value)
@@ -208,21 +199,11 @@
 
 )
 
-(= (filterLinksByFlag $links $flags)
-    (if (== $links ())
-        ()
-        (let*
-            (
-                ($link (car-atom $links))
-                ($restLinks (cdr-atom $links))
-                ($flag (car-atom $flags))
-                ($restFlags (cdr-atom $flags))
-            )
-            (if (== $flag 1)
-                (cons $link (filterLinksByFlag $restLinks $restFlags))
-                (filterLinksByFlag $restLinks $restFlags)
-            )
-        )
+(= (filterLinksByFlag () ()) ())
+(= (filterLinksByFlag (cons $link $ltail) (cons $flag $ftail))
+    (if (== $flag 1)
+        (cons $link (filterLinksByFlag $ltail $ftail))
+        (filterLinksByFlag $ltail $ftail)
     )
 )
 

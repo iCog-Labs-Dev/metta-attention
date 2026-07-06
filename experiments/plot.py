@@ -3,14 +3,22 @@ from typing import Union
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import plotly.express as px
 import json
 import sys
+
+
+def resolve_output_root(path_like: Union[str, Path]) -> Path:
+    path = Path(path_like).resolve()
+    if path.is_file():
+        if path.name in {"output.csv", "metrics.csv"} and path.parent.name == "output":
+            return path.parent.parent
+        return path.parent
+    return path
 
 class Plotter:
 
     def __init__(self, output_path: Union[str, Path]):
-        self.output_path = Path(output_path).resolve()
+        self.output_path = resolve_output_root(output_path)
         self.data_path = self.get_data_path()
         self.params = self.read_params()
         self.categories = self.create_category()
@@ -59,8 +67,8 @@ class Plotter:
         csv = self.output_path / 'output' / 'output.csv'
         df = pd.read_csv(csv, parse_dates=['timestamp'])
         words = df['pattern'].astype(str).str.extract(r'^\(?([^\s()]+)', expand=False)
-        df['category'] = words.map(self.word_to_category).fillna('Entered through spreading')
-        df['time_windows'] = df['timestamp'].dt.floor('0.0001s')
+        df.loc[:, 'category'] = words.map(self.word_to_category).fillna('Entered through spreading')
+        df.loc[:, 'time_windows'] = df['timestamp'].dt.floor('0.0001s')
         category_counts = df.groupby(['time_windows', 'category']).size().unstack(fill_value=0)
         af_size = int(float(self.params['MAX_AF_SIZE']))
         return category_counts / af_size
@@ -108,35 +116,172 @@ class Plotter:
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
         plot_file = self.output_path / 'output' / 'plot_faceted.png'
         plt.savefig(plot_file)
+        plt.close(fig)
         print("Faceted plot saved to", plot_file)
 
-        # === 5. Optional: Interactive Plotly Plot ===
-        try:
-            df_reset = smoothed_counts.reset_index().melt(
-                id_vars='time_windows', var_name='Category', value_name='Frequency')
-            fig = px.line(
-                df_reset,
-                x='time_windows',
-                y='Frequency',
-                color='Category',
-                title='Interactive All Category Frequency Over Time'
+
+class MetricsPlotter:
+    METRIC_COLUMNS = [
+        "af_resource",
+        "sti_concentration",
+        "fund_sti",
+        "link_density",
+        "connection_ratio",
+        "preallocation",
+        "cognitive_synergy",
+        "modulation",
+        "coordination",
+        "context_retention",
+        "cognitive_maintenance",
+        "effectiveness",
+        "gained_efficiency",
+        "redundancy_degradation",
+        "triangle_count",
+        "betti0",
+        "betti1",
+        "betti2",
+    ]
+    RESAMPLE_RULE = "15s"
+
+    def __init__(self, output_path: Union[str, Path]):
+        self.output_path = resolve_output_root(output_path)
+        self.metrics_path = self.get_metrics_path()
+        self.params = self.read_params()
+        self.data_frame = self.read_metrics_csv()
+        self.plot()
+
+    def get_metrics_path(self) -> Path:
+        metrics_path = self.output_path / "output" / "metrics.csv"
+        if not metrics_path.exists():
+            raise FileNotFoundError(f"No {metrics_path} found")
+        return metrics_path
+
+    def read_params(self) -> dict:
+        settings_path = self.output_path / "output" / "settings.json"
+        if not settings_path.exists():
+            raise FileNotFoundError(f"No {settings_path} found in output directory")
+        with open(settings_path, "r") as f:
+            return json.load(f)
+
+    def read_metrics_csv(self) -> pd.DataFrame:
+        df = pd.read_csv(self.metrics_path)
+        df.insert(0, "timestamp", pd.to_datetime(df.pop("timestamp"), unit="s"))
+        for column in self.METRIC_COLUMNS + ["counter"]:
+            if column in df.columns:
+                df.loc[:, column] = pd.to_numeric(df[column], errors="coerce")
+
+        available = [column for column in self.METRIC_COLUMNS if column in df.columns]
+        if not available:
+            raise ValueError("No expected metric columns found in metrics.csv")
+
+        df = df[["timestamp", "counter", *available]].copy()
+        return df
+
+    def plot(self) -> None:
+        df = self.data_frame
+        metric_columns = [
+            column for column in self.METRIC_COLUMNS if column in df.columns
+        ]
+
+        if "timestamp" in df.columns:
+            grouped = (
+                df.set_index("timestamp")[metric_columns]
+                .resample(self.RESAMPLE_RULE)
+                .mean()
+                .dropna(how="all")
+                .reset_index()
             )
-            html_file = self.output_path / 'output' / 'plot_interactive.html'
-            fig.write_html(str(html_file))
-            print("Interactive plot saved to", html_file)
-        except Exception as e:
-            print("Plotly interactive plot failed:", e)
+            x_axis = "timestamp"
+        else:
+            grouped = df[["counter", *metric_columns]].copy()
+            x_axis = "counter"
+
+        n_cols = 2
+        n_rows = (len(metric_columns) + n_cols - 1) // n_cols
+        fig, axs = plt.subplots(
+            n_rows, n_cols, figsize=(39, max(6, n_rows * 2.8) + 11.5), sharex=True
+        )
+        axs = axs.flatten()
+
+        params_text = "\n".join(
+            [
+                f"MAX_AF_SIZE: {self.params['MAX_AF_SIZE']}",
+                f"MAX_SPREAD_PERCENTAGE: {self.params['MAX_SPREAD_PERCENTAGE']}",
+                f"HEBBIAN_MAX_ALLOCATION_PERCENTAGE : {self.params['HEBBIAN_MAX_ALLOCATION_PERCENTAGE']}",
+                f"FUNDS_STI: {self.params['FUNDS_STI']}",
+                f"FUNDS_LTI: {self.params['FUNDS_LTI']}",
+                f"TARGET_STI: {self.params['TARGET_STI']}",
+                f"TARGET_LTI: {self.params['TARGET_LTI']}",
+                f"AFRentFrequency: {self.params['AFRentFrequency']}",
+            ]
+        )
+        fig.text(
+            0.98,
+            0.01,
+            params_text,
+            transform=fig.transFigure,
+            fontsize=23,
+            horizontalalignment="right",
+            bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.8),
+        )
+
+        colors = sns.color_palette("tab10", n_colors=len(metric_columns))
+
+        for idx, (metric, color) in enumerate(zip(metric_columns, colors)):
+            series = grouped[[x_axis, metric]].dropna(subset=[metric]).copy()
+            if series.empty:
+                axs[idx].set_title(metric, fontsize=28)
+                axs[idx].grid(True, linestyle="--", alpha=0.35)
+                continue
+
+            series.loc[:, metric] = series[metric].rolling(window=3, min_periods=1).mean()
+            axs[idx].plot(
+                series[x_axis],
+                series[metric],
+                color=color,
+                linewidth=1.2,
+                alpha=0.95,
+            )
+            axs[idx].set_title(metric, fontsize=28)
+            axs[idx].grid(True, linestyle="--", alpha=0.35)
+            axs[idx].tick_params(axis='both', labelsize=25)
+
+        for idx in range(len(metric_columns), len(axs)):
+            fig.delaxes(axs[idx])
+
+        fig.suptitle("Evaluation Metrics Over Iterations", fontsize=24)
+        fig.supxlabel(
+            "Iteration Counter"
+            if x_axis == "counter"
+            else f"Timestamp ({self.RESAMPLE_RULE} bins)",
+            fontsize=28,
+        )
+        # fig.supylabel("Metric Value", fontsize=22)
+        plt.tight_layout(rect=[0.001, 0.12, 1, 0.95])
+
+        png_path = self.output_path / "output" / "metrics_plot_faceted.png"
+        plt.savefig(png_path)
+        plt.close(fig)
+        print("Metrics faceted plot saved to", png_path)
+
 
 if __name__ == "__main__":
-    base_dir = Path(__file__).parent.resolve() 
+    base_dir = Path(__file__).parent.resolve()
     if len(sys.argv) >= 2:
-        output_csv = sys.argv[1:]
+        targets = sys.argv[1:]
     else:
-        output_csv = list(base_dir.glob("**/output.csv"))
+        targets = sorted(
+            {str(path.parent.parent) for path in base_dir.glob("**/output/output.csv")}
+        )
 
-    for output in output_csv:
+    for target in targets:
+        root = resolve_output_root(target)
         try:
-            Plotter(output)
-        except Exception as e:
-            print(f"caught error: {e} while processing {output}")
-            continue
+            Plotter(root)
+        except Exception as error:
+            print(f"category plot skipped for {root}: {error}")
+
+        try:
+            MetricsPlotter(root)
+        except Exception as error:
+            print(f"metrics plot skipped for {root}: {error}")
