@@ -576,6 +576,7 @@ def transport_density(
     history = [] if track_history else None
 
     if params.control_mode == "value_alignment":
+        cost = compute_cost_field(distance)
         value = solve_value_field(cost, params.gamma, params.value_iterations, goal_mask)
 
     for _ in range(params.num_steps):

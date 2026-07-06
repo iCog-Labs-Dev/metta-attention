@@ -5,7 +5,7 @@
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
 !(import! &self lib/lib_he)
-!(static-import! &incident ./data/kgadexp)
+!(static-import! &incident ./data/kg)
 ; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 
@@ -76,7 +76,7 @@
                 (if (or (== (% $counter (batch)) 0) (== $rest ()))
                    (
                         (collapse (test-superpose &incident))
-                        (collapse (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta"))
+                        (collapse (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta" $now))
                    ) 
                    (println! (agent not called))
                 )

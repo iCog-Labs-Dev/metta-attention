@@ -16,11 +16,12 @@
     )
 )
 
-(= (applyFluidSimulation $graphFile)
+(= (applyFluidSimulation $graphFile $now)
     (let*
         (
             ($pairs (extractStiPairs (getAfAtoms)))
-            ($newStis (py-call (connection.fluid_from_af $graphFile $pairs 70 70 0.9 ("insecticide" "aflatoxin"))))
+            ($goals (py-call (getelement.get_fair_goals $pairs $now 5)))
+            ($newStis (py-call (connection.fluid_from_af $graphFile $pairs 36 100 0.1 $goals)))
         )
         (applyNewStis $newStis)
     )

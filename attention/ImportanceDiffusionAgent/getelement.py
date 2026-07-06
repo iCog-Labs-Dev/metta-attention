@@ -8,5 +8,7 @@ def getK(l, k):
         return []
      return l[:k]
 
-
-
+def get_fair_goals(pairs, source_atom, k=5):
+    sorted_pairs = sorted(pairs, key=lambda x: x[1], reverse=True)
+    goals = tuple(p[0] for p in sorted_pairs if p[0] != source_atom)[:k]
+    return goals
