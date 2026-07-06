@@ -104,8 +104,6 @@
 
 
 !(forgettingAgent-Run (TypeSpace))
-!(println! (funds-after-run (getAttentionParam FUNDS_STI)))
-!(println! (typespace-size (countAtomsInTypeSpace)))
 
 
 !(let*
