@@ -4,7 +4,7 @@
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
 !(import! &self lib/lib_he)
-!(static-import! &incident ./data/kg-mini)
+!(static-import! &incident ./data/kg)
 ; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 !(import! &self ../attention/AttentionParam)
@@ -43,7 +43,7 @@
 
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 10.0)
+!(updateAttentionParam MAX_AF_SIZE 70.0)
 !(updateAttentionParam TARGET_STI 10000.0)
 !(updateAttentionParam TARGET_LTI 10000.0) 
 !(updateAttentionParam STI_FUNDS_BUFFER 10000.0) 
