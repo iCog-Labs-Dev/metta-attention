@@ -22,6 +22,7 @@ CONNECTION_PATH = ROOT / "attention/ImportanceDiffusionAgent/fluidDiffusion/conn
 
 
 def load_connection():
+    sys.path.insert(0, str(CONNECTION_PATH.parent))
     spec = importlib.util.spec_from_file_location("connection", CONNECTION_PATH)
     connection = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
