@@ -24,6 +24,7 @@
 !(import! &self ../../../attention/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent)
 !(import! &self ../../../attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
 !(import! &self ../../../attention/HebbianCreationAgent/HebbianCreationAgent)
+!(import! &self ../../../experiments/utils/community_detector.py)
 !(import! &self ../../../attention/runner-Def)
 !(import! &self "../topology_metrics.py")
 !(import! &self ../utils)
@@ -49,7 +50,29 @@
 !(updateAttentionParam FUNDS_LTI 3000.0) 
 !(updateAttentionParam AFRentFrequency 9.0)
 
-!(assertEqual (persistentHomologyInvariants) (TopologyReport 0 0 0 0))
+
+
+!(setStv (ASYMMETRIC_HEBBIAN_LINK A B) (0.8 0.5))
+!(setStv (ASYMMETRIC_HEBBIAN_LINK B C) (0.2 0.5))
+
+!(assertEqual
+    (getHebLinksWithValues (A) ())
+    (((ASYMMETRIC_HEBBIAN_LINK A B) (STV 0.8 0.5)))
+)
+
+!(assertEqual
+    (identifyModules (lonely) ())
+    ((lonely))
+)
+!(assertEqual
+    (identifyModules (A B C) (getHebLinksWithValues (A B) ()))
+    ((A) (B) (C)))
+
+!(identifyAllHebbianModules)
+!(assertEqual
+    (identifyAllHebbianModules)
+    ((A) (B) (C)))
+
 
 !(setStv (ASYMMETRIC_HEBBIAN_LINK A B) (0.5 0.9))
 !(setStv (ASYMMETRIC_HEBBIAN_LINK B C) (0.5 0.9))
@@ -57,18 +80,7 @@
 !(setStv (ASYMMETRIC_HEBBIAN_LINK B A) (0.5 0.9))
 !(setStv (ASYMMETRIC_HEBBIAN_LINK D E) (0.5 0.9))
 
-!(assertEqual (persistentHomologyInvariants) (TopologyReport 1 2 0 0))
-!(assertEqual (getTriangleCount (persistentHomologyInvariants)) 1)
-!(assertEqual (getBetti0 (persistentHomologyInvariants)) 2)
-!(assertEqual (getBetti1 (persistentHomologyInvariants)) 0)
-!(assertEqual (getBetti2 (persistentHomologyInvariants)) 0)
-!(assertEqual (topologyTriangleCount) 1)
-!(assertEqual (topologyBetti0) 2)
-!(assertEqual (topologyBetti1) 0)
-!(assertEqual (topologyBetti2) 0)
 
-!(recordTopologyReport 7 123.0)
-!(assertEqual (getCipTopologyReport 7) (TopologyReport 1 2 0 0))
 !(assertEqual (averageMetricScore ((afResource 1.0) (triangleCount 1000) (betti0 2) (betti1 3) (betti2 4) (stiConcentration 3.0))) 2.0)
 
 

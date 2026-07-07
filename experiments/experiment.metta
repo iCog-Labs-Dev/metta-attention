@@ -97,7 +97,7 @@
     )
 )
 
-(= (batch) 25)
+(= (batch) 10)
 (= (runAttentionBatch)
     (let*
         (
@@ -122,6 +122,11 @@
                         (let*
                             (
                                 ($_agents (runAttentionBatch))
+                                ; Full growing Hebbian graph modules. Swap these two lines with the two above.
+                                ($moduleLinksWithValues (getAllHebLinksWithValues))
+                                ($modules (identifyHebbianModules $moduleLinksWithValues))
+                                ($moduleCount (size-atom $modules))
+                                ($mo (println! (module-count $moduleCount modules $modules)))
                             )
                             True
                         )
