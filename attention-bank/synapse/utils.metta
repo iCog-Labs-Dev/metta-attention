@@ -238,6 +238,9 @@
 (= (getLinkTarget ((ASYMMETRIC_HEBBIAN_LINK $src $tgt) $val)) $tgt)
 
 
+(= (getLinkSource (ASYMMETRIC_HEBBIAN_LINK $src $tgt)) $src)
+(= (getLinkTarget (ASYMMETRIC_HEBBIAN_LINK $src $tgt)) $tgt)
+
 (= (isInternalLink $link $afAtoms)
     (let*
         (
