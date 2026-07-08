@@ -34,44 +34,76 @@ METRICS_PATH = None
 BASELINE_METRICS_CACHE = None
 
 
-def start_logger(directory):
-    """Set up an `output` folder and clear `settings.json` and `output.csv`.
+EFFICIENCY_BASELINE_PATH = None
+REDUNDANCY_BASELINE_PATH = None
 
-    `directory` may be a string path or an object exposing `get_name()`.
+
+def start_logger(run_name, efficiency_baseline_name=None, redundancy_baseline_name=None):
+    """Set up an `output` folder for the experiment and load baseline metrics if provided.
+
+    `run_name` is the name of the current experiment run.
+    `efficiency_baseline_name` (optional) is the baseline run to compare efficiency against.
+    `redundancy_baseline_name` (optional) is the baseline run to compare redundancy against.
     Returns a Hyperon-style empty result.
     """
     global START_LOGGER_FLAG, LOGGING_DIRECTORY, SETTING_PATH, CSV_PATH, METRICS_PATH
+    global EFFICIENCY_BASELINE_PATH, REDUNDANCY_BASELINE_PATH, BASELINE_METRICS_CACHE, REDUNDANCY_BASELINE_CACHE
 
-    # Accept either string path or an object with get_name()
-    if isinstance(directory, str):
-        path = directory
+    if isinstance(run_name, str):
+        r_name = run_name
     else:
-        # try to extract name (for Hyperon Atom-like objects)
         try:
-            path = str(directory.get_name())
+            r_name = str(run_name.get_name())
         except Exception:
-            raise TypeError("start_logger accepts a string path or an object with get_name()")
+            raise TypeError("start_logger accepts a string for run_name")
+            
+    b_name = None
+    if efficiency_baseline_name is not None:
+        if isinstance(efficiency_baseline_name, str):
+            b_name = efficiency_baseline_name
+        else:
+            try:
+                b_name = str(efficiency_baseline_name.get_name())
+            except Exception:
+                pass
 
-    base_path = Path(__file__).parent.parent.parent
-    path_str = Path(base_path / path)
+    r_b_name = None
+    if redundancy_baseline_name is not None:
+        if isinstance(redundancy_baseline_name, str):
+            r_b_name = redundancy_baseline_name
+        else:
+            try:
+                r_b_name = str(redundancy_baseline_name.get_name())
+            except Exception:
+                pass
 
-    if path_str.exists() and path_str.is_dir() and os.access(path_str, os.R_OK):
-        LOGGING_DIRECTORY = path_str
-    else:
-        raise ValueError(f"{path_str} can not be resolved")
-
-    log_dir = LOGGING_DIRECTORY / "output"
+    base_path = Path(__file__).parent.parent.parent / "experiments" / "output"
+    
+    log_dir = base_path / r_name
     log_dir.mkdir(parents=True, exist_ok=True)
+
+    LOGGING_DIRECTORY = log_dir
 
     SETTING_PATH = log_dir / "settings.json"
     CSV_PATH = log_dir / "output.csv"
     METRICS_PATH = log_dir / "metrics.csv"
 
-
-
     SETTING_PATH.write_text("")
     CSV_PATH.write_text("")
     METRICS_PATH.write_text("")
+
+    BASELINE_METRICS_CACHE = None
+    REDUNDANCY_BASELINE_CACHE = None
+
+    if b_name:
+        EFFICIENCY_BASELINE_PATH = base_path / b_name / "metrics.csv"
+    else:
+        EFFICIENCY_BASELINE_PATH = None
+        
+    if r_b_name:
+        REDUNDANCY_BASELINE_PATH = base_path / r_b_name / "metrics.csv"
+    else:
+        REDUNDANCY_BASELINE_PATH = None
 
     START_LOGGER_FLAG = True
     return ['started']
@@ -235,29 +267,29 @@ BASELINE_METRICS_CACHE = None
 REDUNDANCY_BASELINE_CACHE = None
 
 def _load_baseline_cache():
-    global BASELINE_METRICS_CACHE
+    global BASELINE_METRICS_CACHE, EFFICIENCY_BASELINE_PATH
     if BASELINE_METRICS_CACHE is None:
-        csv_path = LOGGING_DIRECTORY / "output" / "baseline_metrics.csv"
+        csv_path = EFFICIENCY_BASELINE_PATH if EFFICIENCY_BASELINE_PATH else LOGGING_DIRECTORY / "output" / "baseline_metrics.csv"
         # Fallback to old folder structure
         old_path = LOGGING_DIRECTORY / "baseline" / "output" / "metrics.csv"
         
-        target_path = csv_path if csv_path.exists() else old_path
+        target_path = csv_path if (csv_path and csv_path.exists()) else old_path
 
-        if target_path.exists():
-            with open(target_path, 'r') as f:
+        if target_path and target_path.exists():
+            with open(target_path, 'r', encoding='utf-8') as f:
                 reader = csv.DictReader(f)
                 BASELINE_METRICS_CACHE = list(reader)
         else:
             BASELINE_METRICS_CACHE = []
 
 def _load_redundancy_baseline_cache():
-    global REDUNDANCY_BASELINE_CACHE
+    global REDUNDANCY_BASELINE_CACHE, REDUNDANCY_BASELINE_PATH
 
     if REDUNDANCY_BASELINE_CACHE is None:
-        csv_path = LOGGING_DIRECTORY / "output" / "redundancy_baseline_metrics.csv"
+        csv_path = REDUNDANCY_BASELINE_PATH if REDUNDANCY_BASELINE_PATH else LOGGING_DIRECTORY / "output" / "redundancy_baseline_metrics.csv"
 
-        if csv_path.exists():
-            with open(csv_path, "r") as f:
+        if csv_path and csv_path.exists():
+            with open(csv_path, "r", encoding='utf-8') as f:
                 reader = csv.DictReader(f)
                 REDUNDANCY_BASELINE_CACHE = list(reader)
         else:
@@ -267,7 +299,7 @@ def get_baseline_effectiveness(index):
     """Load baseline metrics.csv and return the effectiveness at the given step index."""
     _load_baseline_cache()
     idx = int(index)
-    if 0 <= idx < len(BASELINE_METRICS_CACHE):
+    if BASELINE_METRICS_CACHE and 0 <= idx < len(BASELINE_METRICS_CACHE):
         return float(BASELINE_METRICS_CACHE[idx].get('effectiveness', 0.0))
     return 0.0
 
@@ -275,7 +307,7 @@ def get_baseline_redundancy_data(index):
     """Returns a tuple: (baseline_perf, baseline_cost)"""
     _load_redundancy_baseline_cache()
     idx = int(index)
-    if 0 <= idx < len(REDUNDANCY_BASELINE_CACHE):
+    if REDUNDANCY_BASELINE_CACHE and 0 <= idx < len(REDUNDANCY_BASELINE_CACHE):
         row = REDUNDANCY_BASELINE_CACHE[idx]
         af_res = float(row.get('af_resource', 0.0))
         sti_conc = float(row.get('sti_concentration', 0.0))

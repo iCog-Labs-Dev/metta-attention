@@ -56,8 +56,8 @@
 !(updateAttentionParam AFRentFrequency 2.0)
 
 ; write the params to a file
-!(start-log (attentionParam) "experiments")
-
+; usage(baseline parameters are optional): !(start-log (attentionParam) "current_experiment" "efficiency_baseline" "redundancy_baseline")
+!(start-log (attentionParam) "current_experiment" "effectiveness_baseline_1" "redundancy_baseline_1")
 
 !(initialize-baseline-cip)
 

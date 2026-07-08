@@ -10,8 +10,6 @@ import sys
 def resolve_output_root(path_like: Union[str, Path]) -> Path:
     path = Path(path_like).resolve()
     if path.is_file():
-        if path.name in {"output.csv", "metrics.csv"} and path.parent.name == "output":
-            return path.parent.parent
         return path.parent
     return path
 
@@ -27,7 +25,7 @@ class Plotter:
         self.plot()
     
     def get_data_path(self) -> Path:
-        data_path = self.output_path / 'data'
+        data_path = Path(__file__).parent / 'data'
         if not data_path.exists() or not data_path.is_dir():
             raise FileNotFoundError(f"No {data_path} directory found")
         file_paths = list(data_path.glob("words.json"))
@@ -38,7 +36,7 @@ class Plotter:
         return file_paths[0]
 
     def read_params(self) -> dict:
-        settings_path = self.output_path / 'output' / 'settings.json'
+        settings_path = self.output_path / 'settings.json'
         if not settings_path.exists():
             raise FileNotFoundError(f"No {settings_path} found in output directory")
         with open(settings_path, 'r') as f:
@@ -64,7 +62,7 @@ class Plotter:
         return self.word_to_category.get(word, 'Entered through spreading')
 
     def read_csv(self) -> pd.DataFrame:
-        csv = self.output_path / 'output' / 'output.csv'
+        csv = self.output_path / 'output.csv'
         df = pd.read_csv(csv, parse_dates=['timestamp'])
         words = df['pattern'].astype(str).str.extract(r'^\(?([^\s()]+)', expand=False)
         df.loc[:, 'category'] = words.map(self.word_to_category).fillna('Entered through spreading')
@@ -114,7 +112,7 @@ class Plotter:
         fig.supylabel(f'Attentional focus size {self.params["MAX_AF_SIZE"]}', fontsize=12)
         plt.xticks(rotation=45)
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-        plot_file = self.output_path / 'output' / 'plot_faceted.png'
+        plot_file = self.output_path / 'plot_faceted.png'
         plt.savefig(plot_file)
         plt.close(fig)
         print("Faceted plot saved to", plot_file)
@@ -151,13 +149,13 @@ class MetricsPlotter:
         self.plot()
 
     def get_metrics_path(self) -> Path:
-        metrics_path = self.output_path / "output" / "metrics.csv"
+        metrics_path = self.output_path / "metrics.csv"
         if not metrics_path.exists():
             raise FileNotFoundError(f"No {metrics_path} found")
         return metrics_path
 
     def read_params(self) -> dict:
-        settings_path = self.output_path / "output" / "settings.json"
+        settings_path = self.output_path / "settings.json"
         if not settings_path.exists():
             raise FileNotFoundError(f"No {settings_path} found in output directory")
         with open(settings_path, "r") as f:
@@ -259,7 +257,7 @@ class MetricsPlotter:
         # fig.supylabel("Metric Value", fontsize=22)
         plt.tight_layout(rect=[0.001, 0.12, 1, 0.95])
 
-        png_path = self.output_path / "output" / "metrics_plot_faceted.png"
+        png_path = self.output_path / "metrics_plot_faceted.png"
         plt.savefig(png_path)
         plt.close(fig)
         print("Metrics faceted plot saved to", png_path)
@@ -271,7 +269,7 @@ if __name__ == "__main__":
         targets = sys.argv[1:]
     else:
         targets = sorted(
-            {str(path.parent.parent) for path in base_dir.glob("**/output/output.csv")}
+            {str(path.parent) for path in base_dir.glob("output/**/output.csv")}
         )
 
     for target in targets:
