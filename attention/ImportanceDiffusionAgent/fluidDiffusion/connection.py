@@ -1,641 +1,73 @@
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass
 import json
-import logging
-import os
-import pickle
-import re
 from typing import Any
 
 import numpy as np
-import scipy.linalg
-import scipy.sparse
-import scipy.sparse.linalg
 
-DEFAULT_STI = 0.0
-EDGE_PATTERN = re.compile(
-    r"\(\((?P<link>\w+)\s+(?P<source>\S+)\s+(?P<target>\S+)\)\s+"
-    r"\((?P<mean>[-+0-9.eE]+)\s+(?P<confidence>[-+0-9.eE]+)\)\)"
+from params import FluidParams
+from params import DEFAULT_STI as DEFAULT_STI
+from graph import (
+    EDGE_PATTERN as EDGE_PATTERN,
+    parse_metta_edges,
+    extract_atoms,
+    build_adjacency_matrix as build_adjacency_matrix,
+    get_spectral_coordinates_magnetic as get_spectral_coordinates_magnetic,
+    spectral_to_grid_coords as spectral_to_grid_coords,
+)
+from density import push_sti_to_density, map_density_to_atoms, pull_density_to_sti
+from goals import (
+    get_center_seed as get_center_seed,
+    parse_goal_cells,
+    compute_distance_to_goals as compute_distance_to_goals,
+    compute_goal_mask as compute_goal_mask,
+    compute_cost_field as compute_cost_field,
+    solve_value_field as solve_value_field,
+    compute_control_from_value as compute_control_from_value,
+)
+from transport import (
+    precompute_fourier_velocity_modes as precompute_fourier_velocity_modes,
+    combine_modes_alignment as combine_modes_alignment,
+    advect_density_upwind as advect_density_upwind,
+    apply_cfl_scaling as apply_cfl_scaling,
+    transport_density,
+    compute_divergence as compute_divergence,
+    compute_diagnostics as compute_diagnostics,
+    print_diagnostics,
+)
+from cache import _load_or_compute_graph_data
+from render import (
+    SCRIPT_DIR as SCRIPT_DIR,
+    GIF_OUTPUT as GIF_OUTPUT,
+    _resolve_output_path as _resolve_output_path,
+    render_animation,
 )
 
 
-@dataclass
-class FluidParams:
-    """Transport-only parameters; ECAN state stays on the MeTTa side."""
-
-    grid_size: int = 36
-    num_steps: int = 100
-    dt: float = 0.1
-    target_cfl: float = 0.4
-    k_max: int = 4
-    spread_sigma: float = 1.0
-    control_mode: str = "value_alignment"
-    value_iterations: int = 100
-    gamma: float = 0.95
-    lambda_penalty: float = 0.01
-    density_radius: int = 1
-    diagnostics: bool = True
+AtomKey = str | tuple[str, ...]
 
 
-def parse_metta_edges(filepath: str) -> list[tuple[str, str, float, float]]:
-    """Parse weighted MeTTa links into source, target, mean, confidence tuples."""
-
-    with open(filepath) as handle:
-        content = handle.read()
-
-    return [
-        (
-            match.group("source"),
-            match.group("target"),
-            float(match.group("mean")),
-            float(match.group("confidence")),
-        )
-        for match in EDGE_PATTERN.finditer(content)
-    ]
+def _atom_key(name: Any) -> AtomKey:
+    if isinstance(name, list):
+        return tuple(name)
+    return str(name)
 
 
-def extract_atoms(edges: list[tuple[str, str, float, float]]) -> list[str]:
-    return sorted(set([edge[0] for edge in edges] + [edge[1] for edge in edges]))
+def _atom_to_metta(key: AtomKey) -> Any:
+    if isinstance(key, tuple):
+        return list(key)
+    return key
 
 
 def read_sti_pairs(
     atom_sti_pairs: list[list[Any]] | tuple[Any, ...] | None,
-) -> dict[str, float]:
+) -> dict[AtomKey, float]:
     """Convert MeTTa py-call pairs into a plain STI mapping."""
 
     if not atom_sti_pairs:
         return {}
-    return {str(name): float(value) for name, value in atom_sti_pairs}
-
-
-def build_adjacency_matrix(
-    edges: list[tuple[str, str, float, float]],
-    nodes: list[str],
-    make_symmetric: bool = False,
-) -> tuple[scipy.sparse.csr_matrix, dict[str, int]]:
-    """Build a sparse adjacency matrix from weighted MeTTa edges."""
-    n = len(nodes)
-    node_to_idx = {node: i for i, node in enumerate(nodes)}
-    matrix = scipy.sparse.lil_matrix((n, n), dtype=np.float64)
-
-    for source, target, mean, confidence in edges:
-        i, j = node_to_idx[source], node_to_idx[target]
-        matrix[i, j] = mean * confidence
-        if make_symmetric:
-            matrix[j, i] = mean * confidence
-
-    return matrix.tocsr(), node_to_idx
-
-
-def get_spectral_coordinates_magnetic(
-    matrix: scipy.sparse.csr_matrix, nodes: list[str], q: float = 0.25
-) -> dict[str, tuple[float, float]]:
-    """
-    Embed atoms using a magnetic Laplacian.
-
-    This gives the fluid layer manifold coordinates; it does not mutate ECAN
-    state or decide atom importance.
-    Uses eigsh (Lanczos) to extract only the 2 smallest eigenvectors,
-    avoiding the O(N^3) dense eigendecomposition.
-    """
-
-    if not nodes:
-        return {}
-    if len(nodes) == 1:
-        return {nodes[0]: (0.0, 0.0)}
-
-    n = len(nodes)
-
-    # For very small graphs, fall back to dense.
-    # SciPy's ARPACK backend for complex matrices strictly requires k < N - 1.
-    # Since we need k=2 eigenvectors, N must be at least 4.
-    if n <= 3:
-        dense = matrix.toarray()
-        weights = 0.5 * (dense + dense.T)
-        theta_mat = 2 * np.pi * q * (dense - dense.T)
-        hermitian = weights * np.exp(1j * theta_mat)
-        degree = np.diag(np.sum(weights, axis=1))
-        laplacian = degree - hermitian
-        try:
-            _, eigenvectors = scipy.linalg.eigh(laplacian)
-            vector = eigenvectors[:, 1]
-            return {
-                node: (float(np.real(vector[i])), float(np.imag(vector[i])))
-                for i, node in enumerate(nodes)
-            }
-        except Exception as exc:
-            print(f"Dense eigendecomposition failed: {exc}")
-            return {
-                node: (float(np.cos(2 * np.pi * i / n)), float(np.sin(2 * np.pi * i / n)))
-                for i, node in enumerate(nodes)
-            }
-
-    # Sparse path: build the magnetic Laplacian without dense arrays
-    weights = (matrix + matrix.T).multiply(0.5)
-    skew = matrix - matrix.T
-    theta_data = 2 * np.pi * q * skew.data
-    phase = skew.copy()
-    phase.data = np.exp(1j * theta_data)
-    hermitian = weights.multiply(phase).tocsr()
-
-    degree_vals = np.array(weights.sum(axis=1)).flatten()
-    degree_diag = scipy.sparse.diags(degree_vals, format="csr")
-    laplacian = degree_diag - hermitian
-
-    try:
-        _, eigenvectors = scipy.sparse.linalg.eigsh(laplacian, k=2, which="SM")
-        vector = eigenvectors[:, 1]
-        return {
-            node: (float(np.real(vector[i])), float(np.imag(vector[i])))
-            for i, node in enumerate(nodes)
-        }
-    except Exception as exc:
-        print(f"Sparse eigendecomposition failed: {exc}")
-        return {
-            node: (float(np.cos(2 * np.pi * i / n)), float(np.sin(2 * np.pi * i / n)))
-            for i, node in enumerate(nodes)
-        }
-
-
-def spectral_to_grid_coords(
-    spectral_coords: dict[str, tuple[float, float]], grid_size: int
-) -> dict[str, tuple[int, int]]:
-    if not spectral_coords:
-        return {}
-
-    coords = np.array(list(spectral_coords.values()), dtype=np.float64)
-    x_min, x_span = float(np.min(coords[:, 0])), float(np.ptp(coords[:, 0]))
-    y_min, y_span = float(np.min(coords[:, 1])), float(np.ptp(coords[:, 1]))
-    x_span = x_span if x_span > 1e-10 else 1.0
-    y_span = y_span if y_span > 1e-10 else 1.0
-
-    positions: dict[str, tuple[int, int]] = {}
-    for node, (x_coord, y_coord) in spectral_coords.items():
-        grid_x = int(((x_coord - x_min) / x_span) * (grid_size - 1)) % grid_size
-        grid_y = int(((y_coord - y_min) / y_span) * (grid_size - 1)) % grid_size
-        positions[node] = (grid_x, grid_y)
-    return positions
-
-
-def push_sti_to_density(
-    edges: list[tuple[str, str, float, float]],
-    nodes: list[str],
-    params: FluidParams,
-    sti_values: dict[str, float] | None = None,
-    spectral_coords: dict[str, tuple[float, float]] | None = None,
-) -> tuple[np.ndarray, dict[str, tuple[float, float]]]:
-    """Push current MeTTa STI values into a normalized density rho."""
-
-    if spectral_coords is None:
-        matrix, node_to_idx = build_adjacency_matrix(edges, nodes)
-        spectral_coords = get_spectral_coordinates_magnetic(matrix, nodes)
-    else:
-        node_to_idx = {node: i for i, node in enumerate(nodes)}
-
-    if sti_values:
-        node_sti = sti_values
-    else:
-        node_sti = {
-            node: float(np.mean(matrix[node_to_idx[node], :])) for node in nodes
-        }
-
-    rho = np.zeros((params.grid_size, params.grid_size), dtype=np.float64)
-    positions = spectral_to_grid_coords(spectral_coords, params.grid_size)
-
-    for node, (grid_x, grid_y) in positions.items():
-        weight = float(node_sti.get(node, DEFAULT_STI))
-        if weight <= 0:
-            continue
-        for dy in range(-3, 4):
-            for dx in range(-3, 4):
-                dist_sq = dx * dx + dy * dy
-                if dist_sq <= params.spread_sigma * params.spread_sigma * 9:
-                    gaussian = np.exp(-dist_sq / (2 * params.spread_sigma**2))
-                    px = (grid_x + dx) % params.grid_size
-                    py = (grid_y + dy) % params.grid_size
-                    rho[py, px] += weight * gaussian
-
-    total = float(np.sum(rho))
-    if total > 0:
-        rho /= total
-    return rho, spectral_coords
-
-
-def map_density_to_atoms(
-    rho: np.ndarray,
-    spectral_coords: dict[str, tuple[float, float]],
-    grid_size: int,
-    radius: int = 1,
-) -> dict[str, float]:
-    """Aggregate local density around each atom coordinate."""
-
-    positions = spectral_to_grid_coords(spectral_coords, grid_size)
-    densities: dict[str, float] = {}
-
-    for node, (grid_x, grid_y) in positions.items():
-        density = 0.0
-        for dy in range(-radius, radius + 1):
-            for dx in range(-radius, radius + 1):
-                px = (grid_x + dx) % grid_size
-                py = (grid_y + dy) % grid_size
-                density += float(rho[py, px])
-        densities[node] = density
-    return densities
-
-
-def pull_density_to_sti(
-    rho: np.ndarray,
-    spectral_coords: dict[str, tuple[float, float]],
-    params: FluidParams,
-    total_sti: float,
-) -> dict[str, float]:
-    """Pull rho back into atom STI values, preserving the total input STI."""
-
-    densities = map_density_to_atoms(
-        rho, spectral_coords, params.grid_size, params.density_radius
-    )
-    total_density = sum(densities.values()) or 1.0
-    return {
-        atom: total_sti * density / total_density
-        for atom, density in densities.items()
-        if density > 0
-    }
-
-
-def get_center_seed(grid_size: int, n_seeds: int = 4) -> list[tuple[int, int]]:
-    center = grid_size // 2
-    if n_seeds == 1:
-        return [(center, center)]
-    offsets = [(0, 0), (-4, 0), (4, 0), (0, -4), (0, 4)][:n_seeds]
-    return [(center + dy, center + dx) for dy, dx in offsets]
-
-
-def parse_goal_cells(
-    af_seeds: str | list[str] | list[tuple[int, int]] | None,
-    grid_size: int,
-    spectral_coords: dict[str, tuple[float, float]] | None = None,
-) -> list[tuple[int, int]]:
-    """Resolve drain targets to grid pixel coordinates.
-
-    af_seeds may be:
-      - None                  -> center of grid (default fallback)
-      - "center"              -> single center pixel
-      - "y,x y,x ..."        -> explicit pixel coordinates (legacy)
-      - list of atom names    -> resolved via spectral_coords
-      - list of (int, int)    -> raw pixel coordinates
-    """
-    if af_seeds is None:
-        seeds = get_center_seed(grid_size, n_seeds=4)
-    elif isinstance(af_seeds, str):
-        if af_seeds.lower() == "center":
-            seeds = get_center_seed(grid_size, n_seeds=1)
-        else:
-            seeds = [tuple(map(int, seed.split(","))) for seed in af_seeds.split()]
-    elif af_seeds and isinstance(af_seeds[0], str):
-        # af_seeds is a list of atom names — resolve to grid coords
-        seeds = []
-        if spectral_coords is not None:
-            positions = spectral_to_grid_coords(spectral_coords, grid_size)
-            seeds = [positions[atom] for atom in af_seeds if atom in positions]
-    else:
-        seeds = af_seeds
-        
-    if not seeds:
-        seeds = get_center_seed(grid_size, n_seeds=4)
-        
-    return [(seed_y % grid_size, seed_x % grid_size) for seed_y, seed_x in seeds]
-
-
-def compute_distance_to_goals(
-    grid_size: int, goal_cells: list[tuple[int, int]]
-) -> np.ndarray:
-    y_coords, x_coords = np.mgrid[0:grid_size, 0:grid_size]
-    distance = np.full((grid_size, grid_size), np.inf, dtype=np.float64)
-    for seed_y, seed_x in goal_cells:
-        dy = np.abs(seed_y - y_coords)
-        dy = np.minimum(dy, grid_size - dy)
-        dx = np.abs(seed_x - x_coords)
-        dx = np.minimum(dx, grid_size - dx)
-        distance = np.minimum(distance, np.sqrt(dy**2 + dx**2))
-    return distance
-
-
-def compute_goal_mask(
-    grid_size: int, goal_cells: list[tuple[int, int]], radius: int = 1
-) -> np.ndarray:
-    mask = np.zeros((grid_size, grid_size), dtype=bool)
-    for seed_y, seed_x in goal_cells:
-        for dy in range(-radius, radius + 1):
-            for dx in range(-radius, radius + 1):
-                mask[(seed_y + dy) % grid_size, (seed_x + dx) % grid_size] = True
-    return mask
-
-
-def compute_cost_field(distance: np.ndarray) -> np.ndarray:
-    """Bellman/HJB cost from normalized toroidal distance to goal."""
-
-    max_distance = float(np.max(distance)) or 1.0
-    return distance / max_distance
-
-
-def solve_value_field(
-    cost: np.ndarray,
-    gamma: float = 0.95,
-    iterations: int = 100,
-    goal_mask: np.ndarray | None = None,
-) -> np.ndarray:
-    """Discrete Bellman-style value field W used to guide fluid control."""
-
-    value = cost.copy()
-    if goal_mask is not None:
-        value[goal_mask] = 0.0
-
-    for _ in range(iterations):
-        neighbor_min = np.minimum.reduce(
-            [
-                np.roll(value, 1, axis=0),
-                np.roll(value, -1, axis=0),
-                np.roll(value, 1, axis=1),
-                np.roll(value, -1, axis=1),
-            ]
-        )
-        value = cost + gamma * neighbor_min
-        if goal_mask is not None:
-            value[goal_mask] = 0.0
-    return value
-
-
-def compute_control_from_value(value: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    grad_y = (np.roll(value, -1, axis=0) - np.roll(value, 1, axis=0)) / 2.0
-    grad_x = (np.roll(value, -1, axis=1) - np.roll(value, 1, axis=1)) / 2.0
-    return -grad_x, -grad_y
-
-
-def precompute_fourier_velocity_modes(
-    grid_size: int,
-    k_max: int = 4,
-) -> list[tuple[np.ndarray, np.ndarray]]:
-    """
-    Build divergence-free modes via a discrete stream-function curl.
-
-    The same centered differences are used by compute_divergence, so generated
-    modes are divergence-free under the numerical diagnostic.
-    """
-
-    modes: list[tuple[np.ndarray, np.ndarray]] = []
-    y_coords, x_coords = np.mgrid[0:grid_size, 0:grid_size]
-
-    for kx in range(-k_max, k_max + 1):
-        for ky in range(-k_max, k_max + 1):
-            if kx == 0 and ky == 0:
-                continue
-
-            theta = 2 * np.pi * (kx * x_coords + ky * y_coords) / grid_size
-            for psi in (np.sin(theta), np.cos(theta)):
-                u_x = (np.roll(psi, -1, axis=0) - np.roll(psi, 1, axis=0)) / 2.0
-                u_y = -(np.roll(psi, -1, axis=1) - np.roll(psi, 1, axis=1)) / 2.0
-                norm = np.sqrt(np.sum(u_x**2 + u_y**2) + 1e-8)
-                modes.append((u_x / norm, u_y / norm))
-    return modes
-
-
-
-# in-memory + pickle 
-_logger = logging.getLogger(__name__)
-_GRAPH_CACHE: dict[str, Any] = {}
-
-
-def _pickle_path_for(metta_path: str) -> str:
-    """Return pickle cache path adjacent to the source .metta file."""
-    base, _ = os.path.splitext(os.path.abspath(metta_path))
-    return base + ".fluid_cache.pkl"
-
-
-def _file_fingerprint(metta_path: str) -> float:
-    """Return file modification time, or 0.0 on error."""
-    try:
-        return os.path.getmtime(metta_path)
-    except OSError:
-        return 0.0
-
-
-def _load_or_compute_graph_data(
-    metta_path: str, params: FluidParams
-) -> tuple[
-    list[tuple[str, str, float, float]],
-    list[str],
-    dict[str, tuple[float, float]],
-    list[tuple[np.ndarray, np.ndarray]],
-]:
-    """Load graph data with dual-cache fallback (RAM -> Disk -> Recompute)."""
-    global _GRAPH_CACHE
-
-    fingerprint = _file_fingerprint(metta_path)
-    abs_path = os.path.abspath(metta_path)
-    pkl_path = _pickle_path_for(metta_path)
-
-    def is_valid(c: dict[str, Any]) -> bool:
-        return (
-            c.get("fingerprint") == fingerprint
-            and c.get("grid_size") == params.grid_size
-            and c.get("k_max") == params.k_max
-        )
-
-    def extract(c: dict[str, Any]) -> tuple:
-        return c["edges"], c["nodes"], c["coords"], c["modes"]
-
-    # In-memory cache 
-    if _GRAPH_CACHE.get("metta_path") == abs_path and is_valid(_GRAPH_CACHE):
-        return extract(_GRAPH_CACHE)
-
-    # Pickle file on disk
-    if os.path.exists(pkl_path):
-        try:
-            with open(pkl_path, "rb") as f:
-                cached = pickle.load(f)
-            if is_valid(cached):
-                _GRAPH_CACHE.update(cached)
-                _GRAPH_CACHE["metta_path"] = abs_path
-                return extract(cached)
-        except Exception as e:
-            _logger.warning("Disk cache read failed (%s), recomputing: %s", pkl_path, e)
-
-    edges = parse_metta_edges(metta_path)
-    nodes = extract_atoms(edges)
-    matrix, _ = build_adjacency_matrix(edges, nodes)
-    coords = get_spectral_coordinates_magnetic(matrix, nodes)
-    modes = precompute_fourier_velocity_modes(params.grid_size, params.k_max)
-
-    cache_data = {
-        "fingerprint": fingerprint,
-        "grid_size": params.grid_size,
-        "k_max": params.k_max,
-        "edges": edges,
-        "nodes": nodes,
-        "coords": coords,
-        "modes": modes,
-    }
-
-    try:
-        with open(pkl_path, "wb") as f:
-            pickle.dump(cache_data, f)
-    except Exception as e:
-        _logger.warning("Disk cache write failed (%s): %s", pkl_path, e)
-
-    _GRAPH_CACHE.update(cache_data)
-    _GRAPH_CACHE["metta_path"] = abs_path
-
-    return extract(cache_data)
-
-
-def compute_divergence(u_x: np.ndarray, u_y: np.ndarray) -> np.ndarray:
-    div_x = (np.roll(u_x, -1, axis=1) - np.roll(u_x, 1, axis=1)) / 2.0
-    div_y = (np.roll(u_y, -1, axis=0) - np.roll(u_y, 1, axis=0)) / 2.0
-    return div_x + div_y
-
-
-def combine_modes_alignment(
-    modes: list[tuple[np.ndarray, np.ndarray]],
-    rho: np.ndarray,
-    control_x: np.ndarray,
-    control_y: np.ndarray,
-    lambda_penalty: float,
-) -> tuple[np.ndarray, np.ndarray]:
-    u_x = np.zeros_like(rho)
-    u_y = np.zeros_like(rho)
-
-    for mode_ux, mode_uy in modes:
-        alignment = mode_ux * control_x + mode_uy * control_y
-        score = float(np.sum(alignment * rho)) / (1.0 + lambda_penalty)
-        u_x += score * mode_ux
-        u_y += score * mode_uy
-    return u_x, u_y
-
-
-def advect_density_upwind(
-    rho: np.ndarray,
-    u_x: np.ndarray,
-    u_y: np.ndarray,
-    dt: float,
-    preserve_mass: bool = True,
-) -> np.ndarray:
-    initial_mass = float(np.sum(rho))
-
-    flux_x_right = np.where(u_x > 0, rho * u_x, np.roll(rho, -1, axis=1) * u_x)
-    flux_x_left = np.roll(flux_x_right, 1, axis=1)
-    flux_y_down = np.where(u_y > 0, rho * u_y, np.roll(rho, -1, axis=0) * u_y)
-    flux_y_up = np.roll(flux_y_down, 1, axis=0)
-
-    rho_next = rho - dt * ((flux_x_right - flux_x_left) + (flux_y_down - flux_y_up))
-    rho_next = np.maximum(rho_next, 0.0)
-
-    if preserve_mass:
-        next_mass = float(np.sum(rho_next))
-        if initial_mass > 0 and next_mass > 0:
-            rho_next *= initial_mass / next_mass
-    return rho_next
-
-
-def apply_cfl_scaling(
-    u_x: np.ndarray,
-    u_y: np.ndarray,
-    dt: float,
-    target_cfl: float,
-) -> tuple[np.ndarray, np.ndarray, float]:
-    max_speed = float(np.max(np.sqrt(u_x**2 + u_y**2)))
-    if max_speed <= 1e-12:
-        return np.zeros_like(u_x), np.zeros_like(u_y), 0.0
-
-    current_cfl = dt * max_speed
-    scale = target_cfl / current_cfl
-    return u_x * scale, u_y * scale, target_cfl
-
-
-def transport_density(
-    rho_initial: np.ndarray,
-    params: FluidParams,
-    af_seeds: str | list[str] | list[tuple[int, int]] | None = None,
-    track_history: bool = False,
-    modes: list[tuple[np.ndarray, np.ndarray]] | None = None,
-    spectral_coords: dict[str, tuple[float, float]] | None = None,
-) -> tuple[
-    np.ndarray, tuple[np.ndarray, np.ndarray], dict[str, Any], list[np.ndarray] | None
-]:
-    goal_cells = parse_goal_cells(af_seeds, params.grid_size, spectral_coords)
-    goal_mask = compute_goal_mask(params.grid_size, goal_cells)
-    distance = compute_distance_to_goals(params.grid_size, goal_cells)
-    if modes is None:
-        modes = precompute_fourier_velocity_modes(params.grid_size, params.k_max)
-
-    rho = rho_initial.copy()
-    u_x = np.zeros_like(rho)
-    u_y = np.zeros_like(rho)
-    value = distance
-    history = [] if track_history else None
-
-    if params.control_mode == "value_alignment":
-        cost = compute_cost_field(distance)
-        value = solve_value_field(cost, params.gamma, params.value_iterations, goal_mask)
-
-    for _ in range(params.num_steps):
-        if params.control_mode not in ("distance", "value_alignment"):
-            raise ValueError(f"Unsupported control mode: {params.control_mode}")
-
-        control_x, control_y = compute_control_from_value(value)
-        u_x, u_y = combine_modes_alignment(
-            modes, rho, control_x, control_y, params.lambda_penalty
-        )
-        u_x, u_y, _ = apply_cfl_scaling(u_x, u_y, params.dt, params.target_cfl)
-
-        if track_history:
-            history.append(rho.copy())
-        rho = advect_density_upwind(rho, u_x, u_y, params.dt)
-
-    diagnostics = compute_diagnostics(
-        rho_initial, rho, u_x, u_y, distance, value, goal_mask, params.dt
-    )
-    diagnostics["goal_cells"] = goal_cells
-    return rho, (u_x, u_y), diagnostics, history
-
-
-def compute_diagnostics(
-    rho_initial: np.ndarray,
-    rho_final: np.ndarray,
-    u_x: np.ndarray,
-    u_y: np.ndarray,
-    distance: np.ndarray,
-    value: np.ndarray,
-    goal_mask: np.ndarray,
-    dt: float,
-) -> dict[str, float]:
-    divergence = compute_divergence(u_x, u_y)
-    max_speed = float(np.max(np.sqrt(u_x**2 + u_y**2)))
-    return {
-        "mass_error": abs(float(np.sum(rho_final)) - float(np.sum(rho_initial))),
-        "max_abs_divergence": float(np.max(np.abs(divergence))),
-        "l2_divergence": float(np.linalg.norm(divergence)),
-        "cfl": dt * max_speed,
-        "goal_mass": float(np.sum(rho_final[goal_mask])),
-        "expected_distance": float(np.sum(rho_final * distance)),
-        "expected_value_cost": float(np.sum(rho_final * value)),
-    }
-
-
-def print_diagnostics(diagnostics: dict[str, Any]) -> None:
-    keys = [
-        "mass_error",
-        "max_abs_divergence",
-        "l2_divergence",
-        "cfl",
-        "goal_mass",
-        "expected_value_cost",
-    ]
-    summary = ", ".join(
-        f"{key}={diagnostics[key]:.6g}" for key in keys if key in diagnostics
-    )
-    print(f"fluid diagnostics: {summary}")
+    return {_atom_key(name): float(value) for name, value in atom_sti_pairs}
 
 
 def fluid_from_af(
@@ -648,8 +80,15 @@ def fluid_from_af(
     spread_sigma: float = 1.0,
     target_cfl: float = 0.8,
     control_mode: str = "value_alignment",
+    visualize: bool = False,
+    overwrite: bool = True,
+    frame_step: int = 1,
+    fps: int = 10,
 ) -> list[list[Any]]:
     """Redistribute PeTTa-provided STI through fluid transport and return pairs."""
+
+    visualize = str(visualize).lower() in ("true", "1", "yes")
+    overwrite = str(overwrite).lower() in ("true", "1", "yes")
 
     params = FluidParams(
         grid_size=int(grid_size),
@@ -660,8 +99,6 @@ def fluid_from_af(
         control_mode=control_mode,
     )
 
-    # Dual-cache: avoids re-parsing the file and recomputing the heavy
-    # eigendecomposition + Fourier modes on every ECAN cycle.
     edges, nodes, coords, modes = _load_or_compute_graph_data(metta_path, params)
 
     sti_values = read_sti_pairs(atom_sti_pairs)
@@ -677,25 +114,41 @@ def fluid_from_af(
     if transport_total <= 0:
         return [[atom, value] for atom, value in passthrough_sti.items() if value > 0]
 
-    # Use AF atom names as drain targets so fluid flows toward them,
-    # not toward a hardcoded center pixel.
     af_atom_names = list(transport_sti.keys()) if af_seeds is None else af_seeds
 
-    # Pass cached coords so push_sti_to_density skips the eigendecomposition,
-    # and cached modes so transport_density skips Fourier precomputation.
+    goal_cells = parse_goal_cells(af_seeds, params.grid_size, coords)
+
     rho_initial, _ = push_sti_to_density(
         edges, nodes, params, transport_sti, spectral_coords=coords
     )
-    rho_final, _, diagnostics, _ = transport_density(
-        rho_initial, params, af_atom_names, modes=modes, spectral_coords=coords
+    rho_final, _, diagnostics, history = transport_density(
+        rho_initial,
+        params,
+        af_atom_names,
+        modes=modes,
+        spectral_coords=coords,
+        track_history=visualize,
     )
+    if visualize and history:
+        render_animation(
+            history,
+            params.grid_size,
+            coords,
+            frame_step=frame_step,
+            fps=fps,
+            sti_values=transport_sti,
+            overwrite=overwrite,
+            goal_cells=goal_cells,
+        )
     new_sti = pull_density_to_sti(rho_final, coords, params, transport_total)
     new_sti.update(passthrough_sti)
 
     if params.diagnostics:
         print_diagnostics(diagnostics)
 
-    return [[atom, value] for atom, value in new_sti.items() if value > 0]
+    return [
+        [_atom_to_metta(atom), value] for atom, value in new_sti.items() if value > 0
+    ]
 
 
 def _build_arg_parser() -> argparse.ArgumentParser:
@@ -716,6 +169,18 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         choices=["distance", "value_alignment"],
         default="value_alignment",
     )
+    parser.add_argument(
+        "--animate", action="store_true", help="Render fluid animation GIF"
+    )
+    parser.add_argument(
+        "--frame-step", type=int, default=1, help="Record every Nth frame"
+    )
+    parser.add_argument("--fps", type=int, default=10, help="GIF playback speed")
+    parser.add_argument(
+        "--no-overwrite",
+        action="store_true",
+        help="Auto-increment filename instead of overwriting",
+    )
     return parser
 
 
@@ -729,6 +194,11 @@ def _load_sti_json(path: str | None) -> dict[str, float] | None:
 def main() -> None:
     args = _build_arg_parser().parse_args()
     sti_values = _load_sti_json(args.sti_json)
+    if not sti_values:
+        edges = parse_metta_edges(args.input)
+        nodes = extract_atoms(edges)
+        rng = np.random.default_rng()
+        sti_values = {node: float(rng.uniform(300, 700)) for node in nodes}
     params = FluidParams(
         grid_size=args.grid,
         num_steps=args.steps,
@@ -738,12 +208,38 @@ def main() -> None:
         control_mode=args.control_mode,
     )
 
-    edges = parse_metta_edges(args.input)
-    nodes = extract_atoms(edges)
-    rho_initial, coords = push_sti_to_density(edges, nodes, params, sti_values)
-    rho_final, (u_x, u_y), diagnostics, _ = transport_density(
-        rho_initial, params, args.seeds
-    )
+    if args.animate:
+        edges, nodes, coords, modes = _load_or_compute_graph_data(args.input, params)
+        rho_initial, _ = push_sti_to_density(
+            edges, nodes, params, sti_values, spectral_coords=coords
+        )
+        goal_cells = parse_goal_cells(args.seeds, params.grid_size, coords)
+        rho_final, (u_x, u_y), diagnostics, history = transport_density(
+            rho_initial,
+            params,
+            args.seeds,
+            track_history=True,
+            modes=modes,
+            spectral_coords=coords,
+        )
+        render_animation(
+            history,
+            params.grid_size,
+            coords,
+            frame_step=args.frame_step,
+            fps=args.fps,
+            sti_values=sti_values,
+            overwrite=not args.no_overwrite,
+            goal_cells=goal_cells,
+        )
+    else:
+        edges = parse_metta_edges(args.input)
+        nodes = extract_atoms(edges)
+        rho_initial, coords = push_sti_to_density(edges, nodes, params, sti_values)
+        rho_final, (u_x, u_y), diagnostics, _ = transport_density(
+            rho_initial, params, args.seeds
+        )
+
     print_diagnostics(diagnostics)
     print(f"Final rho sum: {np.sum(rho_final):.6f}")
     print(f"Max velocity: {np.max(np.sqrt(u_x**2 + u_y**2)):.4f}")

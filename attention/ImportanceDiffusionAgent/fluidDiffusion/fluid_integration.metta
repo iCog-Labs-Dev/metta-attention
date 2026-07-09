@@ -20,8 +20,7 @@
     (let*
         (
             ($pairs (extractStiPairs (getAfAtoms)))
-            ($goals (py-call (getelement.get_fair_goals $pairs $now 5)))
-            ($newStis (py-call (connection.fluid_from_af $graphFile $pairs 36 100 0.1 $goals)))
+            ($newStis (py-call (connection.fluid_from_af $graphFile $pairs 70 70 0.1 ("abamectin" "beanbug" "beetle") 0.2 0.1 "value_alignment" True False)))
         )
         (applyNewStis $newStis)
     )
