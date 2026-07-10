@@ -133,14 +133,14 @@ def spectral_to_grid_coords(
         return {}
 
     coords = np.array(list(spectral_coords.values()), dtype=np.float64)
-    x_min, x_span = float(np.min(coords[:, 0])), float(np.ptp(coords[:, 0]))
-    y_min, y_span = float(np.min(coords[:, 1])), float(np.ptp(coords[:, 1]))
-    x_span = x_span if x_span > 1e-10 else 1.0
-    y_span = y_span if y_span > 1e-10 else 1.0
+    n = len(spectral_coords)
+
+    ranks_x = np.argsort(np.argsort(coords[:, 0]))
+    ranks_y = np.argsort(np.argsort(coords[:, 1]))
 
     positions: dict[str, tuple[int, int]] = {}
-    for node, (x_coord, y_coord) in spectral_coords.items():
-        grid_x = int(((x_coord - x_min) / x_span) * (grid_size - 1)) % grid_size
-        grid_y = int(((y_coord - y_min) / y_span) * (grid_size - 1)) % grid_size
+    for i, node in enumerate(spectral_coords):
+        grid_x = int(ranks_x[i] / n * (grid_size - 1)) % grid_size if n > 1 else 0
+        grid_y = int(ranks_y[i] / n * (grid_size - 1)) % grid_size if n > 1 else 0
         positions[node] = (grid_x, grid_y)
     return positions
