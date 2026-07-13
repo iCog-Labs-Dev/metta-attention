@@ -493,3 +493,21 @@
          (trace! () ("Updated"))
     )
 )
+
+(= (getAllHebLinks)
+    (collapse 
+        (match (TypeSpace) 
+            ((ASYMMETRIC_HEBBIAN_LINK $source $target) $val) 
+            (ASYMMETRIC_HEBBIAN_LINK $source $target)
+        )
+    )
+)
+
+(= (getAllHebLinksWithValues)
+    (collapse 
+        (match (TypeSpace) 
+            ((ASYMMETRIC_HEBBIAN_LINK $source $target) $val) 
+            ((ASYMMETRIC_HEBBIAN_LINK $source $target) $val)
+        )
+    )
+)
