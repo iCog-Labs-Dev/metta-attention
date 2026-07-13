@@ -16,11 +16,11 @@
     )
 )
 
-(= (applyFluidSimulation $graphFile)
+(= (applyFluidSimulation $graphFile $seeds)
     (let*
         (
             ($pairs (extractStiPairs (getAfAtoms)))
-            ($newStis (py-call (connection.fluid_from_af $graphFile $pairs 70 70 0.1 ("abamectin" "beanbug" "beetle") 0.2 0.1 "value_alignment" True False)))
+            ($newStis (py-call (connection.fluid_from_af $graphFile $pairs 70 50 0.9 $seeds 2.2 0.5 "value_alignment")))
         )
         (applyNewStis $newStis)
     )

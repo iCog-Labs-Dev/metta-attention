@@ -61,7 +61,25 @@
 ; write the params to a file
 !(start-log (attentionParam) "experiments")
 
-(= (batch) 50)
+(= (getSeed)
+    (let*
+        (
+            ($seed1t (getRandomAtomNotInAF)) 
+            ($seed1 (if (== $seed1t ())
+                        (getRandomAtomInAF)
+                        $seed1t
+                    )
+            )
+        )
+        $seed1 
+    )
+)
+
+(= (getSeeds)
+    ((getSeed) (getSeed) (getSeed) (getRandomAtomInAF))
+)
+
+(= (batch) 5)
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (empty)
@@ -76,7 +94,11 @@
                 (if (or (== (% $counter (batch)) 0) (== $rest ()))
                    (
                         (collapse (test-superpose &incident))
-                        (collapse (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta"))
+                        
+                        (let $tgt
+                            (getSeeds) 
+                            (collapse (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta" $tgt))
+                        )
                    ) 
                    (println! (agent not called))
                 )

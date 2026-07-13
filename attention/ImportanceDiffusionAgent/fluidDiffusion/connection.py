@@ -114,6 +114,15 @@ def fluid_from_af(
     if transport_total <= 0:
         return [[atom, value] for atom, value in passthrough_sti.items() if value > 0]
 
+    if af_seeds is not None:
+        flat_seeds = []
+        for item in af_seeds:
+            if isinstance(item, str):
+                flat_seeds.append(item)
+            elif isinstance(item, (list, tuple)):
+                flat_seeds.extend(item[1:])
+        af_seeds = flat_seeds
+
     af_atom_names = list(transport_sti.keys()) if af_seeds is None else af_seeds
 
     goal_cells = parse_goal_cells(af_seeds, params.grid_size, coords)
