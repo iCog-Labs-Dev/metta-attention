@@ -2,10 +2,10 @@
     (hyperpose 
         (
             (HebbianUpdatingAgent-Run (TypeSpace))
-            (AFImportanceDiffusionAgent-Run $incidentSpace (TypeSpace))
+            ;(AFImportanceDiffusionAgent-Run $incidentSpace (TypeSpace))
             (HebbianCreationAgent-Run (TypeSpace))
             (AFRentCollectionAgent-run)
-            (WAImportanceDiffusionAgent-Run $incidentSpace)
+            ;(WAImportanceDiffusionAgent-Run $incidentSpace)
             (WARentCollectionAgent-Run)
             ;(forgettingAgent-Run (atomBin))
         )

@@ -123,13 +123,13 @@
                         (let*
                             (
                                 ($_agents (runAttentionBatch))
+                                ($_fluid (collapse (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta" $now)))
                             )
                             True
                         )
                         (println! (continued to stimulate batched atoms ...))
                     )
                 )
-                ($_fluid (collapse (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta" $now)))
                 ($_cip (logcurrCip))
                 ($_next (insectPoisonReadExp $rest (+ $counter 1)))
             )
