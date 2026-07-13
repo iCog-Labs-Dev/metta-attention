@@ -80,8 +80,8 @@ def fluid_from_af(
     spread_sigma: float = 1.0,
     target_cfl: float = 0.8,
     control_mode: str = "value_alignment",
-    overwrite: bool = True,
     visualize: bool = False,
+    overwrite: bool = True,
     frame_step: int = 1,
     fps: int = 10,
 ) -> list[list[Any]]:
