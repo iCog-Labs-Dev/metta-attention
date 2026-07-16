@@ -7,13 +7,25 @@ import json
 import sys
 
 
+def parse_timestamp_column(series: pd.Series) -> pd.Series:
+    if pd.api.types.is_numeric_dtype(series):
+        return pd.to_datetime(series, unit="s", errors="coerce")
+
+    try:
+        return pd.to_datetime(series, errors="coerce", format="mixed")
+    except TypeError:
+        return pd.to_datetime(series, errors="coerce")
+
+
 def resolve_output_root(path_like: Union[str, Path]) -> Path:
     path = Path(path_like).resolve()
     if path.is_file():
         return path.parent
     return path
 
+
 class Plotter:
+
 
     def __init__(self, output_path: Union[str, Path]):
         self.output_path = resolve_output_root(output_path)
@@ -63,7 +75,9 @@ class Plotter:
 
     def read_csv(self) -> pd.DataFrame:
         csv = self.output_path / 'output.csv'
-        df = pd.read_csv(csv, parse_dates=['timestamp'])
+        df = pd.read_csv(csv)
+        df = df.assign(timestamp=parse_timestamp_column(df["timestamp"]))
+        df = df.dropna(subset=["timestamp"])
         words = df['pattern'].astype(str).str.extract(r'^\(?([^\s()]+)', expand=False)
         df.loc[:, 'category'] = words.map(self.word_to_category).fillna('Entered through spreading')
         df.loc[:, 'time_windows'] = df['timestamp'].dt.floor('0.0001s')
