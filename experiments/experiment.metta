@@ -64,36 +64,9 @@
 (= (logcurrCip) 
         (let* (
                 ($cip (transition-to-next-cip))
-                ((CIPSnapshot $index $time $afAtoms $metrice) $cip)
-                (($_gainedEfficiencyMetric $afResource $stiConcentration $fundSti $linkDensity $connectionRatio
-                    $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance
-                    $effectiveness $triangleCount $betti0 $betti1 $betti2) $metrice)
-                ($gainedEfficiency (getGainedEfficiency $index))
-                ($redundancyDegradation (getRedundancyDegradation $index))
+                ((CIPSnapshot $index $time $af_atoms $metrice) $cip)
         )
-        (write_metrics_wrapper
-            $index
-            $time
-            $afAtoms
-            $afResource
-            $stiConcentration
-            $fundSti
-            $linkDensity
-            $connectionRatio
-            $preallocation
-            $cognitiveSynergy
-            $modulation
-            $coordination
-            $contextRetention
-            $cognitiveMaintenance
-            $effectiveness
-            $gainedEfficiency
-            $redundancyDegradation
-            $triangleCount
-            $betti0
-            $betti1
-            $betti2
-        )
+        (write_cip_wrapper $index $time $af_atoms $metrice)
     )
 )
 
