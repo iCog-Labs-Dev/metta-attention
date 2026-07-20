@@ -1,10 +1,8 @@
 from pathlib import Path
 from typing import Union
-import ast
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-# import plotly.express as px
 import json
 import sys
 
@@ -22,12 +20,12 @@ def parse_timestamp_column(series: pd.Series) -> pd.Series:
 def resolve_output_root(path_like: Union[str, Path]) -> Path:
     path = Path(path_like).resolve()
     if path.is_file():
-        if path.name in {"output.csv", "metrics.csv"} and path.parent.name == "output":
-            return path.parent.parent
         return path.parent
     return path
 
+
 class Plotter:
+
 
     def __init__(self, output_path: Union[str, Path]):
         self.output_path = resolve_output_root(output_path)
@@ -39,7 +37,7 @@ class Plotter:
         self.plot()
     
     def get_data_path(self) -> Path:
-        data_path = self.output_path / 'data'
+        data_path = Path(__file__).parent / 'data'
         if not data_path.exists() or not data_path.is_dir():
             raise FileNotFoundError(f"No {data_path} directory found")
         file_paths = list(data_path.glob("words.json"))
@@ -50,7 +48,7 @@ class Plotter:
         return file_paths[0]
 
     def read_params(self) -> dict:
-        settings_path = self.output_path / 'output' / 'settings.json'
+        settings_path = self.output_path / 'settings.json'
         if not settings_path.exists():
             raise FileNotFoundError(f"No {settings_path} found in output directory")
         with open(settings_path, 'r') as f:
@@ -76,7 +74,7 @@ class Plotter:
         return self.word_to_category.get(word, 'Entered through spreading')
 
     def read_csv(self) -> pd.DataFrame:
-        csv = self.output_path / 'output' / 'output.csv'
+        csv = self.output_path / 'output.csv'
         df = pd.read_csv(csv)
         df = df.assign(timestamp=parse_timestamp_column(df["timestamp"]))
         df = df.dropna(subset=["timestamp"])
@@ -93,23 +91,18 @@ class Plotter:
         # === 1. Smoothing ===
         smoothed_counts = category_counts.rolling(window=3, min_periods=1).mean()
 
-        # === 2. Sort categories by frequency ===
+        # === 2. Plot all categories (sorted by cumulative frequency) ===
         all_categories = smoothed_counts.sum().sort_values(ascending=False).index
         smoothed_counts = smoothed_counts[all_categories]
 
-        # === 3. Color palette ===
+        # === 3. Distinct color palette ===
         colors = sns.color_palette("husl", n_colors=len(all_categories))
 
-        # === 4. Matplotlib faceted plot ===
+        # === 4. Faceted Subplots ===
         n_cols = 3
         n_rows = (len(all_categories) + n_cols - 1) // n_cols
-
-        fig, axs = plt.subplots(
-            n_rows,
-            n_cols,
-            figsize=(18, max(8, n_rows * 2.2)),
-            sharex=True
-        )
+        fig_height = max(8, n_rows * 2.2)
+        fig, axs = plt.subplots(n_rows, n_cols, figsize=(18, fig_height), sharex=True)
         axs = axs.flatten()
 
         for i, (category, color) in enumerate(zip(all_categories, colors)):
@@ -125,26 +118,19 @@ class Plotter:
             axs[i].grid(True, linestyle='--', alpha=0.4)
             axs[i].set_ylim(-0.02, 1.02)
 
-        # remove empty subplots
         for j in range(len(all_categories), len(axs)):
-            fig.delaxes(axs[j])
+            fig.delaxes(axs[j])  # Remove unused axes
 
         fig.suptitle('All Category Frequencies Over Time', fontsize=14)
         fig.supxlabel('Time Window', fontsize=12)
         fig.supylabel(f'Attentional focus size {self.params["MAX_AF_SIZE"]}', fontsize=12)
-
         plt.xticks(rotation=45)
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-
-        # save ONLY image (safe for git)
-        plot_file = self.output_path / 'output' / 'plot_faceted.png'
+        plot_file = self.output_path / 'plot_faceted.png'
         plt.savefig(plot_file)
-        plt.close()
-
+        plt.close(fig)
         print("Faceted plot saved to", plot_file)
 
-        # REMOVED: Plotly HTML generation completely
-        # This was causing 181MB GitHub rejection issues
 
 class MetricsPlotter:
     METRIC_COLUMNS = [
@@ -161,43 +147,12 @@ class MetricsPlotter:
         "cognitive_maintenance",
         "effectiveness",
         "gained_efficiency",
+        "redundancy_degradation",
         "triangle_count",
         "betti0",
         "betti1",
         "betti2",
     ]
-    METRIC_NAME_MAP = {
-        "afResource": "af_resource",
-        "sticoncentration": "sti_concentration",
-        "fundsti": "fund_sti",
-        "fundsSTI": "fund_sti",
-        "FUNDS_STI": "fund_sti",
-        "linkdensity": "link_density",
-        "connectionratio": "connection_ratio",
-        "preallocation": "preallocation",
-        "cognitivesynergy": "cognitive_synergy",
-        "modulation": "modulation",
-        "coordination": "coordination",
-        "contextretention": "context_retention",
-        "cognitivemaintenance": "cognitive_maintenance",
-        "gainedefficiency": "gained_efficiency",
-        "gainedEfficiency": "gained_efficiency",
-        "coherance": "coherance",
-        "normalized_sti_entropy": "normalized_sti_entropy",
-        "retention": "retention",
-        "p_correlation": "p_correlation",
-        "global_coordination": "global_coordination",
-        "trianglecount": "triangle_count",
-        "triangleCount": "triangle_count",
-        "triangles": "triangle_count",
-        "triangle_count": "triangle_count",
-        "betti0": "betti0",
-        "betti_0": "betti0",
-        "betti1": "betti1",
-        "betti_1": "betti1",
-        "betti2": "betti2",
-        "betti_2": "betti2",
-    }
     RESAMPLE_RULE = "15s"
 
     def __init__(self, output_path: Union[str, Path]):
@@ -208,13 +163,13 @@ class MetricsPlotter:
         self.plot()
 
     def get_metrics_path(self) -> Path:
-        metrics_path = self.output_path / "output" / "metrics.csv"
+        metrics_path = self.output_path / "metrics.csv"
         if not metrics_path.exists():
             raise FileNotFoundError(f"No {metrics_path} found")
         return metrics_path
 
     def read_params(self) -> dict:
-        settings_path = self.output_path / "output" / "settings.json"
+        settings_path = self.output_path / "settings.json"
         if not settings_path.exists():
             raise FileNotFoundError(f"No {settings_path} found in output directory")
         with open(settings_path, "r") as f:
@@ -222,48 +177,17 @@ class MetricsPlotter:
 
     def read_metrics_csv(self) -> pd.DataFrame:
         df = pd.read_csv(self.metrics_path)
-        if "timestamp" in df.columns:
-            df = df.assign(timestamp=parse_timestamp_column(df["timestamp"]))
-
-        if "metrics" in df.columns:
-            metrics_df = pd.DataFrame(
-                [self.parse_metrics_blob(value) for value in df["metrics"]]
-            )
-            df = pd.concat([df.drop(columns=["metrics"]), metrics_df], axis=1)
-
-        if "counter" not in df.columns and "cip_index" in df.columns:
-            df["counter"] = df["cip_index"]
-
-        for column in list(self.METRIC_NAME_MAP.values()) + ["counter"]:
+        df.insert(0, "timestamp", pd.to_datetime(df.pop("timestamp"), unit="s"))
+        for column in self.METRIC_COLUMNS + ["counter"]:
             if column in df.columns:
                 df.loc[:, column] = pd.to_numeric(df[column], errors="coerce")
 
-        available = [
-            column for column in self.METRIC_COLUMNS if column in df.columns
-        ]
+        available = [column for column in self.METRIC_COLUMNS if column in df.columns]
         if not available:
             raise ValueError("No expected metric columns found in metrics.csv")
 
-        base_columns = [column for column in ["timestamp", "counter"] if column in df.columns]
-        df = df[[*base_columns, *available]].copy()
+        df = df[["timestamp", "counter", *available]].copy()
         return df
-
-    def parse_metrics_blob(self, value) -> dict:
-        if pd.isna(value):
-            return {}
-
-        try:
-            pairs = ast.literal_eval(str(value))
-        except (SyntaxError, ValueError):
-            return {}
-
-        parsed = {}
-        for item in pairs:
-            if not isinstance(item, (list, tuple)) or len(item) < 2:
-                continue
-            name = self.METRIC_NAME_MAP.get(str(item[0]), str(item[0]))
-            parsed[name] = item[1]
-        return parsed
 
     def plot(self) -> None:
         df = self.data_frame
@@ -271,9 +195,9 @@ class MetricsPlotter:
             column for column in self.METRIC_COLUMNS if column in df.columns
         ]
 
-        if "timestamp" in df.columns and not df["timestamp"].isna().all():
+        if "timestamp" in df.columns:
             grouped = (
-                df.dropna(subset=["timestamp"]).set_index("timestamp")[metric_columns]
+                df.set_index("timestamp")[metric_columns]
                 .resample(self.RESAMPLE_RULE)
                 .mean()
                 .dropna(how="all")
@@ -347,37 +271,10 @@ class MetricsPlotter:
         # fig.supylabel("Metric Value", fontsize=22)
         plt.tight_layout(rect=[0.001, 0.12, 1, 0.95])
 
-        png_path = self.output_path / "output" / "metrics_plot_faceted.png"
+        png_path = self.output_path / "metrics_plot_faceted.png"
         plt.savefig(png_path)
+        plt.close(fig)
         print("Metrics faceted plot saved to", png_path)
-
-        try:
-            long_frames = []
-            for metric in metric_columns:
-                series = grouped[[x_axis, metric]].dropna(subset=[metric]).copy()
-                if series.empty:
-                    continue
-                series.loc[:, metric] = series[metric].rolling(window=3, min_periods=1).mean()
-                series = series.rename(columns={metric: "Value"})
-                series["Metric"] = metric
-                long_frames.append(series[[x_axis, "Metric", "Value"]])
-
-            if not long_frames:
-                raise ValueError("No metric data available for interactive plotting")
-
-            melted = pd.concat(long_frames, ignore_index=True)
-            fig = px.line(
-                melted,
-                x=x_axis,
-                y="Value",
-                color="Metric",
-                title="Interactive Evaluation Metrics Over Iterations",
-            )
-            html_path = self.output_path / "output" / "metrics_plot_interactive.html"
-            fig.write_html(str(html_path))
-            print("Metrics interactive plot saved to", html_path)
-        except Exception as error:
-            print("Plotly metrics plot failed:", error)
 
 
 if __name__ == "__main__":
@@ -386,7 +283,7 @@ if __name__ == "__main__":
         targets = sys.argv[1:]
     else:
         targets = sorted(
-            {str(path.parent.parent) for path in base_dir.glob("**/output/output.csv")}
+            {str(path.parent) for path in base_dir.glob("output/**/output.csv")}
         )
 
     for target in targets:

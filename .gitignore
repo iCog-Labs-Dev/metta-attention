@@ -15,4 +15,7 @@ wordnet/
 conceptnet_stv_clean
 conceptnet_links_only.*
 .ECAN
+experiments/output/**/*.csv
+experiments/output/output.csv
+experiments/output/metrics.csv
 kg.metta

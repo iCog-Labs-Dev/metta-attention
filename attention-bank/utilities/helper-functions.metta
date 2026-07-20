@@ -324,21 +324,24 @@
    ())
 
 (= (sortAtomsDescending $atoms $fun)
-   (let*
-     (
-       ($pivot (car-atom $atoms))
-       ($tail  (cdr-atom $atoms))
+   (if (== $atoms ())
+       (empty)
+       (let*
+         (
+           ($pivot (car-atom $atoms))
+           ($tail  (cdr-atom $atoms))
 
-       ($greater
-         (sortAtomsDescending
-           (binaryFilter greaterBy $pivot $tail $fun)
-           $fun))
+           ($greater
+             (sortAtomsDescending
+               (binaryFilter greaterBy $pivot $tail $fun)
+               $fun))
 
-       ($lesser
-         (sortAtomsDescending
-           (binaryFilter lessEqBy $pivot $tail $fun)
-           $fun))
-     )
-     (concatTuple $greater (cons-atom $pivot $lesser))
+           ($lesser
+             (sortAtomsDescending
+               (binaryFilter lessEqBy $pivot $tail $fun)
+               $fun))
+         )
+         (concatTuple $greater (cons-atom $pivot $lesser))
+       )
    )
 )
