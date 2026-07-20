@@ -178,22 +178,35 @@ class MetricsPlotter:
     def read_metrics_csv(self) -> pd.DataFrame:
         df = pd.read_csv(self.metrics_path)
         df.insert(0, "timestamp", pd.to_datetime(df.pop("timestamp"), unit="s"))
-        for column in self.METRIC_COLUMNS + ["counter"]:
+        
+        if "counter" not in df.columns and "cip_index" in df.columns:
+            df["counter"] = df["cip_index"]
+
+        skip_cols = {"timestamp", "counter", "cip_index", "af_atoms"}
+        available = [col for col in df.columns if col not in skip_cols]
+
+        for column in available + ["counter"]:
             if column in df.columns:
                 df.loc[:, column] = pd.to_numeric(df[column], errors="coerce")
 
-        available = [column for column in self.METRIC_COLUMNS if column in df.columns]
         if not available:
             raise ValueError("No expected metric columns found in metrics.csv")
 
-        df = df[["timestamp", "counter", *available]].copy()
+        base_columns = [col for col in ["timestamp", "counter"] if col in df.columns]
+        df = df[[*base_columns, *available]].copy()
         return df
 
     def plot(self) -> None:
         df = self.data_frame
         metric_columns = [
-            column for column in self.METRIC_COLUMNS if column in df.columns
+            col for col in df.columns if col not in {"timestamp", "counter"}
         ]
+        
+        # Sort columns to enforce visual order 
+        metric_columns = sorted(
+            metric_columns,
+            key=lambda k: self.METRIC_COLUMNS.index(k) if k in self.METRIC_COLUMNS else len(self.METRIC_COLUMNS) + 1
+        )
 
         if "timestamp" in df.columns:
             grouped = (
