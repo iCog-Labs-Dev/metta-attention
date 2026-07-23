@@ -277,10 +277,13 @@
     )
 )
 
-(= (getProbability $link)
+(= (getProbability ($link $val))
     (getMean $link)
 )
 
+(= (getProbability $link)
+    (getMean $link)
+)
 
 (= (pearsonCorrelationLists $listX $listY)
     (let* 

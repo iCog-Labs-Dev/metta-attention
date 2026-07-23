@@ -99,15 +99,14 @@
     )
 )
 
-(= (batch) 10)
-; (= (runAttentionBatch)
-;     (let*
-;         (
-;             ($_agents (collapse (test-superpose &incident)))
-;         )
-;         True
-;     )
-; )
+(= (runAttentionBatch)
+    (let*
+        (
+            ($_agents (collapse (test-superpose &incident)))
+        )
+        True
+    )
+)
 
 (= (runAttentionBatch $now)
     (
@@ -131,7 +130,7 @@
 )
 
 (= (getSeeds)
-    ((getSeed) (getSeed) (getSeed) (getRandomAtomInAF))
+    ((getRandomAtomInAF) (getRandomAtomInAF) (getRandomAtomInAF) (getRandomAtomInAF))
 )
 
 (= (batch) 5)
@@ -142,7 +141,7 @@
             (
                 ($now (car-atom $expr))
                 ($rest (cdr-atom $expr))
-                ($_stim (collapse (stimulate $now 10)))
+                ($_stim (collapse (stimulate $now 20)))
                 ($_stimlog (println! (stimulating atom --> $now)))
                 ($_readlog (println! (read-step $counter word $now remaining (size-atom $rest))))
                 ($_batch
