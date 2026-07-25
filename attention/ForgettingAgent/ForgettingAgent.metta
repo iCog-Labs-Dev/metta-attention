@@ -155,7 +155,7 @@
 ; return: True if atom can be removed else False
 (: atomBelowForgetThreshold (-> Atom Number Number Bool))
 (= (atomBelowForgetThreshold $head $removalAmount $count) 
-	(if (and (<= (getLti $head) (forgetThreshold)) (< $count $removalAmount))
+	(if (and (<= (getLti $head) (getAttentionParam FORGET_THRESHOLD)) (< $count $removalAmount))
 		(if (== (getVlti $head) 0.0 ) 
 			True
 			False
