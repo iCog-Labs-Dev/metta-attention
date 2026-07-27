@@ -109,7 +109,8 @@ def get_spectral_coordinates_magnetic(
     laplacian = degree_diag - hermitian
 
     try:
-        _, eigenvectors = scipy.sparse.linalg.eigsh(laplacian, k=2, which="SM")
+        X = np.random.rand(laplacian.shape[0], 2)
+        _, eigenvectors = scipy.sparse.linalg.lobpcg(laplacian, X, largest=False)
         vector = eigenvectors[:, 1]
         return {
             node: (float(np.real(vector[i])), float(np.imag(vector[i])))
