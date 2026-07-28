@@ -6,6 +6,7 @@ import numpy as np
 import scipy.linalg
 import scipy.sparse
 import scipy.sparse.linalg
+import scipy.sparse.csgraph
 
 
 EDGE_PATTERN = re.compile(
@@ -109,8 +110,14 @@ def get_spectral_coordinates_magnetic(
     laplacian = degree_diag - hermitian
 
     try:
-        X = np.random.rand(laplacian.shape[0], 2)
-        _, eigenvectors = scipy.sparse.linalg.lobpcg(laplacian, X, largest=False)
+        diag_vals = np.real(laplacian.diagonal())
+        diag_vals[diag_vals == 0] = 1.0
+        M = scipy.sparse.diags(1.0 / diag_vals)
+
+        X = np.random.rand(laplacian.shape[0], 2) + 1j * np.random.rand(laplacian.shape[0], 2)
+        
+        _, eigenvectors = scipy.sparse.linalg.lobpcg(laplacian, X, M=M, largest=False, maxiter=200, tol=1e-2)
+        
         vector = eigenvectors[:, 1]
         return {
             node: (float(np.real(vector[i])), float(np.imag(vector[i])))
