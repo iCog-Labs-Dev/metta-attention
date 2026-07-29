@@ -115,10 +115,13 @@ def get_spectral_coordinates_magnetic(
         M = scipy.sparse.diags(1.0 / diag_vals)
 
         X = np.random.rand(laplacian.shape[0], 2) + 1j * np.random.rand(laplacian.shape[0], 2)
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            eigenvalues, eigenvectors = scipy.sparse.linalg.lobpcg(laplacian, X, M=M, largest=False, maxiter=200, tol=1e-3)
         
-        _, eigenvectors = scipy.sparse.linalg.lobpcg(laplacian, X, M=M, largest=False, maxiter=200, tol=1e-2)
-        
-        vector = eigenvectors[:, 1]
+        order = np.argsort(eigenvalues)
+        vector = eigenvectors[:, order[1]]
         return {
             node: (float(np.real(vector[i])), float(np.imag(vector[i])))
             for i, node in enumerate(nodes)
