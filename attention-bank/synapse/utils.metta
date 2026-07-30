@@ -277,12 +277,12 @@
     )
 )
 
-(= (getProbability ($link $val))
-    (getMean $link)
+(= (getProbability ((ASYMMETRIC_HEBBIAN_LINK $src $tgt) $val))
+    (getMean (ASYMMETRIC_HEBBIAN_LINK $src $tgt))
 )
 
-(= (getProbability $link)
-    (getMean $link)
+(= (getProbability (ASYMMETRIC_HEBBIAN_LINK $src $tgt))
+    (getMean (ASYMMETRIC_HEBBIAN_LINK $src $tgt))
 )
 
 (= (pearsonCorrelationLists $listX $listY)
