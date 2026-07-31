@@ -68,7 +68,6 @@
     (identifyModules (A B C) (getHebLinksWithValues (A B) ()))
     ((A) (B) (C)))
 
-!(identifyAllHebbianModules)
 !(assertEqual
     (identifyAllHebbianModules)
     ((A) (B) (C)))
@@ -123,22 +122,6 @@
 !(assertEqual (getAllAtomsWithBins) ())
 !(assertEqual (match &timer (firstTime $x) $x) True)
 
-; here we have total of 3000 global sti fund
-!(getAttentionParam FUNDS_STI)
-
-; !(assertEqual (initialize-baseline-cip) true)
-; !(assertEqual (transition-to-next-cip) (CIPSnapshot 1 1779340647.1364384 () 
-;     ((afResource 0.0) 
-;      (stiConcentration 0.0)
-;      (linkDensity 0.0)
-;      (connectionRatio 0.0)
-;      (preallocation 0.0) 
-;      (cognitiveSynergy 0.0)
-;      (modulation 0.0) 
-;      (coordination 0.0) 
-;      (contextRetention 0.0)))
-; ) ; --- IGNORE --- time can not be asserted
-
 !(get-cip-snapshots 0)
 !(get-cip-af 0)
 
@@ -151,12 +134,6 @@
 !(stimulate aldicarb 30.0)
 !(stimulate aflatoxin 30.0)
 !(stimulate acetamiprid 30.0)
-
-!(getSti Ants) ; 600
-!(getSti abamectin) ; 600
-!(getSti aldicarb) ; 540
-!(getSti aflatoxin) ; 378.0
-!(getSti acetamiprid) ; 264.6
 
 !(assertEqual (getTotalSti (cons Ants (cons abamectin ())) 0) 1200.0)
 
@@ -176,39 +153,21 @@
 ; 3 all atoms inside attentional focus will diffuse N% of thire sti to thire related/nighbor links
 ; 4 rent will be collected from all attentional focus atoms if conditiond are statisfied
 
-!(getSti Ants) ; 372.35652000000005
-!(getSti abamectin) ; 371.88
-!(getSti aldicarb) ; 334.692
-!(getSti aflatoxin) ; 234.28439999999998
-!(getSti acetamiprid) ; 163.99908
 
-!(getAttentionParam FUNDS_STI)
-
-
-!(size-atom (getAfAtoms))
-
-!(getAfAtoms)
-
-!(getAllAtomsWithBins) 
-
-!(size-atom (collapse (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $x $y) $val) (ASYMMETRIC_HEBBIAN_LINK $x $y))))
-
-
-; write your synapse metrice tests here
-
+; ================= Synapse Baseline Metric Tests =================
 !(initialize-baseline-cip)
-!(getAfResourceUsage)
-!(getStiConcentration)
-!(getLinkDensity)
-!(getConnectionRatio)
-!(getPreallocationSpace)
-!(getCognitiveSynergy)
-!(getSelectionModulation)
-!(getGlobalCoordination (getAfAtoms))
-!(getContextRetention)
-!(getCognitiveMaintenance)
-!(getEffectiveness)
 
+!(let $v (getAfResourceUsage) (assertEqual (if (> $v 0.5) True False) True))
+!(let $v (getStiConcentration) (assertEqual (if (> $v 0.6) True False) True))
+!(let $v (getLinkDensity) (assertEqual (if (== $v 0.8) True False) True))
+!(let $v (getConnectionRatio) (assertEqual (if (== $v 0.75) True False) True))
+!(let $v (getPreallocationSpace) (assertEqual (if (> $v 0.2) True False) True))
+!(let $v (getCognitiveSynergy) (assertEqual (if (> $v 0.6) True False) True))
+!(let $v (getSelectionModulation) (assertEqual (if (> $v 1.0) True False) True))
+!(let $v (getGlobalCoordination (getAfAtoms)) (assertEqual (if (== $v 0.0) True False) True))
+!(let $v (getContextRetention) (assertEqual (if (== $v 1) True False) True))
+!(let $v (getCognitiveMaintenance) (assertEqual (if (== $v 0.0) True False) True))
+!(let $v (getEffectiveness) (assertEqual (if (== $v 0.0) True False) True))
 
 
 !(add-atom &cipspace (CIPSnapshot 1 1 (a b c) ()))
@@ -234,9 +193,6 @@
 !(assertEqual (getStiSeries b) (2 3 4 5 6))
 !(assertEqual (getStiSeries c) (3 4 5 6 7))
 
-!(cip-af-series 0 4)
-!(average-context-retention-pairs (cip-af-series 0 4))
-
 ; lettest cip index 4, its retenion with 3 should be 
 ; 1 common atom (d) and 5 unique atoms (a,b,c,e,f,h,i) so retention should be 1/5 = 0.2
 
@@ -247,15 +203,4 @@
 
 !(assertEqual (collapse (averageList (getStiSeries (superpose (a b c))))) (3.0 4.0 5.0))
 
-!(collapse (test-superpose &incident))
-
-; ; this changes of sti for atoms shows everytime agents called thire sti will be diffused for thire related links
-
-!(getSti Ants) ; 230.821096464
-!(getSti abamectin) ; 230.456362584
-!(getSti aldicarb) ; 273.716590584
-!(getSti aflatoxin) ; 211.56428618399997
-!(getSti acetamiprid) ; 164.26172258399998
-
-!(getAttentionParam FUNDS_STI) ; the fund is consistent accross all agent call?? it should be due to rent collection
 
