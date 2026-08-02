@@ -47,13 +47,25 @@
                   (
                     ($w (* $elapsedTime $multiplier))
                     ($input (collapse ($w (superpose $targetSet))))
+                      ($branches (makeApplyRentBranches $input))
                   )
-                  (bach-p applyRent $input)
+                          (collapse (hyperpose $branches))
               )
           )
       )
    )
 )
+
+        (= (makeApplyRentBranches ())
+            ()
+        )
+
+        (= (makeApplyRentBranches (cons ($w $atom) $tail))
+            (cons-atom
+                (quote (applyRent $w $atom))
+                (makeApplyRentBranches $tail)
+            )
+        )
 
 
 ; Function: applyRent

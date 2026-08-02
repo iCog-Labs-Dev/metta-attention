@@ -36,7 +36,20 @@
 (= (updateHebbianLinks $source $space)
     (let $iset 
         (collapse ($source ((getAllIncomingSetsForHUAgent $source $space ASYMMETRIC_HEBBIAN_LINK) $space)))
-        (bach-p bachUpdateHeb $iset) 
+        (let $branches (makeUpdateHebbianBranches $iset)
+            (collapse (hyperpose $branches))
+        )
+    )
+)
+
+(= (makeUpdateHebbianBranches ())
+    ()
+)
+
+(= (makeUpdateHebbianBranches (cons ($source ($iset $space)) $tail))
+    (cons-atom
+        (quote (bachUpdateHeb $source ($iset $space)))
+        (makeUpdateHebbianBranches $tail)
     )
 )
 

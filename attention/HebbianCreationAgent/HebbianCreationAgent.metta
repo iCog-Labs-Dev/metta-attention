@@ -34,14 +34,31 @@
             )
             (
                 (addFromOutSideAF $source $farLinks $afAtoms)
-                (let $target (collapse ((superpose $needToBeTarget) $source))
-                    (bach-p addHebbian $target)
+                (let* 
+                    (
+                        ($target (collapse ((superpose $needToBeTarget) $source)))
+                        ($branches (makeAddHebbianBranches $target))
+                    )
+                    (collapse
+                        (hyperpose $branches)
+                    )
                 )
              )
          )
        ))
     )
 )
+)
+
+(= (makeAddHebbianBranches ())
+    ()
+)
+
+(= (makeAddHebbianBranches (cons ($source $target) $tail))
+    (cons-atom
+        (quote (addHebbian $source $target))
+        (makeAddHebbianBranches $tail)
+    )
 )
 
 ;Function: getSourceAtom

@@ -90,9 +90,22 @@
             ($trades (collapse (tradeList $atoms)))
         )
         (
-            (bach-p setStis $trades)
+            (let $branches (makeSetStisBranches $trades)
+                (collapse (hyperpose $branches))
+            )
             (empty)
         )
+    )
+)
+
+(= (makeSetStisBranches ())
+    ()
+)
+
+(= (makeSetStisBranches (cons ($atom $sti) $tail))
+    (cons-atom
+        (quote (setStis $atom $sti))
+        (makeSetStisBranches $tail)
     )
 )
 
