@@ -4,7 +4,7 @@
 !(import! &self lib/lib_import)
 !(import! &self lib/lib_spaces)
 !(import! &self lib/lib_he)
-!(static-import! &incident ./data/kgadexp)
+!(static-import! &incident ./data/kg)
 ; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 !(import! &self ../attention/AttentionParam)
@@ -111,7 +111,7 @@
 (= (runAttentionBatch $now)
     (
         (collapse (test-superpose &incident))
-        (collapse (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta" $now))
+        (collapse (applyFluidSimulation "../metta-attention/experiments/data/kg_fluid_map.metta" $now))
     )
 )
 
