@@ -327,10 +327,12 @@
     )
 )
 
-(= (shanon-entropy $distribution)
+(= (shanon-entropy $stiDistribution)
     (let*
         (
-            ($probabilities (map-atom $distribution $atom (stiProbablity ($atom) $distribution)))
+            ($probabilities (
+                map-atom $stiDistribution $atom (stiProbablity ($atom) $stiDistribution))
+            )
             ($entropyTerms (map-atom $probabilities $p (entropyTerm $p)))
             ($sumTerms (foldl-atom $entropyTerms 0 $acc $x (+ $acc $x)))
         )
@@ -353,7 +355,8 @@
                 (== $name betti2))))
 )
 
-; Metrics kept out of the performance average: topology, fundSti, effectiveness.
+; Metrics kept out of the performance average: topology, fundSti and 
+; effectiveness (prevents restatement of the previous cycle's.)
 (= (isExcludedMetric $name)
     (or (isTopologyMetric $name)
         (or (== $name fundSti)
