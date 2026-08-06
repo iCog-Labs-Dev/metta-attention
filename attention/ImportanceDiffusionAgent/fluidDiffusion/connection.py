@@ -148,6 +148,7 @@ def fluid_from_af(
             sti_values=transport_sti,
             overwrite=overwrite,
             goal_cells=goal_cells,
+            goal_names=af_atom_names,
         )
     new_sti = pull_density_to_sti(rho_final, coords, params, transport_total)
     new_sti.update(passthrough_sti)
@@ -241,6 +242,7 @@ def main() -> None:
             sti_values=sti_values,
             overwrite=not args.no_overwrite,
             goal_cells=goal_cells,
+            goal_names=args.seeds,
         )
     else:
         rho_final, (u_x, u_y), diagnostics, _ = transport_density(

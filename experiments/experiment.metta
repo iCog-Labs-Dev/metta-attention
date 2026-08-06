@@ -1,10 +1,12 @@
-!(bind! &insect (new-space))
-; !(bind! &poison (new-space))
-!(import! &insect data/insect-sent)
 !(import! &self lib/lib_import)
+!(git-import! "https://github.com/patham9/mettaclaw.git")
+!(import! &self inject.py)
+!(import! &self (library mettaclaw lib_mettaclaw))
+!(bind! &insect (new-space))
+!(import! &insect data/insect-sent)
 !(import! &self lib/lib_spaces)
 !(import! &self lib/lib_he)
-!(static-import! &incident ./data/kg)
+!(static-import! &incident ./data/kgadexp)
 ; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 !(import! &self ../attention/AttentionParam)
@@ -17,6 +19,7 @@
 !(import! &self ../attention-bank/attention-value/getter-and-setter)
 !(import! &self ../attention-bank/bank/attention-bank)
 !(import! &self "utils/logger.py")
+!(import! &self "utils/goal_candidates.py")
 !(import! &self logger)
 !(import! &self ../attention-bank/bank/attentional-focus/attentional-focus)
 !(import! &self ../attention-bank/bank/importance-index/importance-index)
@@ -62,6 +65,11 @@
 !(start-log (attentionParam) "current_experiment" "fluid_integration" "redundancy_baseline_1")
 
 !(initialize-baseline-cip)
+!(bind! &goalspace (new-space))
+
+!(initLoop)
+!(initMemory)
+!(initChannels)
 
 (= (logcurrCip) 
         (let* (
@@ -111,7 +119,7 @@
 (= (runAttentionBatch $now)
     (
         (collapse (test-superpose &incident))
-        (collapse (applyFluidSimulation "../metta-attention/experiments/data/kg_fluid_map.metta" $now))
+        (collapse (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta" $now))
     )
 )
 
@@ -129,8 +137,20 @@
     )
 )
 
+; Goal candidates for Mettaclaw, grouped HUBS / MID / LEAVES by degree in the fluid
+; transport graph. Only names from this graph resolve to grid cells; anything else is
+; silently dropped by parse_goal_cells and falls back to the grid centre.
+(= (getGoalCandidates)
+    (py-call (goal_candidates.goal_candidates (getAfAtoms)))
+)
+
 (= (getSeeds)
-    ((getRandomAtomInAF) (getRandomAtomInAF) (getRandomAtomInAF) (getRandomAtomInAF))
+    (let $goals (collapse (match &goalspace (Goal $concept) $concept))
+        (if (== $goals ())
+            (let $_ (println! "[DEBUG] No goal set by Mettaclaw yet. ECAN falling back to random AF atoms.")
+                 ((getRandomAtomInAF) (getRandomAtomInAF) (getRandomAtomInAF) (getRandomAtomInAF)))
+            (let $_ (println! ("[DEBUG] TARGET ACQUIRED! ECAN using Mettaclaw goal:" $goals))
+                 $goals)))
 )
 
 (= (batch) 5)
@@ -148,6 +168,10 @@
                     (if (or (== (% $counter (batch)) 0) (== $rest ()))
                         (let*
                             (
+                                ($_debug1 (println! "\n=================================================="))
+                                ($_debug2 (println! "[DEBUG] Waking up Mettaclaw to evaluate current ECAN state..."))
+                                ($llm_cycle_result (mettaclaw-single-cycle (/ $counter (batch))))
+                                ($_debug3 (println! ("[DEBUG] Mettaclaw cycle complete. Result:" $llm_cycle_result)))
                                 ($seeds (getSeeds))
                                 ($_agents (runAttentionBatch $seeds))
                                 ; Full growing Hebbian graph modules. Swap these two lines with the two above.
