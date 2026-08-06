@@ -314,23 +314,10 @@
     )
 )
 
-(= (stiProbablity $atomSti $allSti)
+(= (shanon-entropy $distribution)
     (let*
         (
-            ($stiCount (car-atom (intersection-atom $allSti $atomSti)))
-            ($ratio (/ $stiCount (size-atom $allSti)))
-        )
-        $ratio
-    )
-)
-
-(= (shanon-entropy $stiDistribution)
-    (let*
-        (
-            ($probabilities
-                (map-atom $stiDistribution $atom (stiProbablity ($atom) $stiDistribution))
-            )
-            ($entropyTerms (map-atom $probabilities $p (entropyTerm $p)))
+            ($entropyTerms (map-atom $distribution $p (entropyTerm $p)))
             ($sumTerms (foldl-atom $entropyTerms 0 $acc $x (+ $acc $x)))
         )
         (* -1.0 $sumTerms)
@@ -350,6 +337,13 @@
         (or (== $name betti0)
             (or (== $name betti1)
                 (== $name betti2))))
+)
+
+; Metrics kept out of the performance average: topology, fundSti, effectiveness.
+(= (isExcludedMetric $name)
+    (or (isTopologyMetric $name)
+        (or (== $name fundSti)
+            (== $name effectiveness)))
 )
 
 (= (getMetrics $name $list)
@@ -378,7 +372,7 @@
                     ($tail (cdr-atom $list))
                     ($name (getMetricName $head))
                )
-               (if (isTopologyMetric $name)
+               (if (isExcludedMetric $name)
                    (sumMetrics $tail)
                    (+ (getMetricValue $head) (sumMetrics $tail))
                )
@@ -395,7 +389,7 @@
                   ($tail (cdr-atom $list))
                   ($name (getMetricName $head))
               )
-              (if (isTopologyMetric $name)
+              (if (isExcludedMetric $name)
                   (countMetrics $tail)
                   (+ 1 (countMetrics $tail))
               )
