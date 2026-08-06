@@ -314,10 +314,24 @@
     )
 )
 
+(= (stiProbablity $atomSti $allSti)
+    (let*
+        (
+            ($stiCount (car-atom (intersection-atom $allSti $atomSti)))
+            ($total (foldl-atom $allSti 0 $acc $x (+ $acc $x)))
+        )
+        (if (> $total 0)
+            (/ $stiCount $total)
+            0.0
+        )
+    )
+)
+
 (= (shanon-entropy $distribution)
     (let*
         (
-            ($entropyTerms (map-atom $distribution $p (entropyTerm $p)))
+            ($probabilities (map-atom $distribution $atom (stiProbablity ($atom) $distribution)))
+            ($entropyTerms (map-atom $probabilities $p (entropyTerm $p)))
             ($sumTerms (foldl-atom $entropyTerms 0 $acc $x (+ $acc $x)))
         )
         (* -1.0 $sumTerms)
