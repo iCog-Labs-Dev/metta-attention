@@ -62,10 +62,10 @@
 !(updateAttentionParam LTI_FUNDS_BUFFER 10000.0) 
 !(updateAttentionParam FUNDS_STI 100000.0) 
 !(updateAttentionParam FUNDS_LTI 100000.0) 
-!(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.8)
+!(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.4)
 (updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.5)
 ; !(updateAttentionParam TOPK 0.8)
-!(updateAttentionParam AFRentFrequency 5.0)
+!(updateAttentionParam AFRentFrequency 50.0)
 
 !(bind! &metamoState (new-space))
 !(let $initial 
@@ -94,10 +94,10 @@
 
 !(bind! &noveltyTrack (new-space))
 
-!(start-log (attentionParam) "metamo_guided" "metamo_guided" "redundancy_baseline_1")
+!(start-log (attentionParam) "mtmo_explore_novel" "metamo_guided" "redundancy_baseline_1")
 !(initialize-baseline-cip)
 
-(= (batch) 5)
+(= (batch) 3)
 
 (= (updateNoveltyTrack)
     (let* 
@@ -138,7 +138,6 @@
 (= (runMotivatedBatch)
     (let* 
         (
-            ($1 (println! (prty adf)))
             ($states (match &metamoState (metaMoStates $s) $s))
             ($stim (ecanStimulus))
             ($result (runMetaMoCycleDefault
@@ -167,7 +166,7 @@
         (let* (
             ($now (car-atom $expr))
             ($rest (cdr-atom $expr))
-            ($_stim (collapse (stimulate $now 40)))
+            ($_stim (stimulate $now 20))
             ($_stimlog (println! (stimulating atom --> $now)))
             ($_batch
                 (if (or (== (% $counter (batch)) 0) (== $rest ()))

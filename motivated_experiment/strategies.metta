@@ -5,14 +5,31 @@
 )
 
 (= (applyStrategy narrow-focus)
-    ((getRandomAtomInAF) (getRandomAtomInAF) (getRandomAtomInAF) (getRandomAtomInAF))
+    (let* (
+        ($a (getRandomAtomInAF))
+        ($b (getRandomAtomInAF))
+        ($c (getRandomAtomInAF))
+        ($d (getRandomAtomInAF))
+    )
+    ($a $b $c $d))
 )
 
 (= (applyStrategy expand-focus)
-    ((getRandomAtomInAF) (getRandomAtomInAF) (pickOutsideAF) (pickOutsideAF))
+    (let* (
+        ($a (getRandomAtomInAF))
+        ($b (getRandomAtomInAF))
+        ($c (pickOutsideAF))
+        ($d (pickOutsideAF))
+    )
+    ($a $b $c $d))
 )
 
 (= (applyStrategy explore-novel)
-    ((pickOutsideAF) (pickOutsideAF) (pickOutsideAF) (pickOutsideAF))
+    (let* (
+        ($a (pickOutsideAF))
+        ($b (pickOutsideAF))
+        ($c (pickOutsideAF))
+        ($d (pickOutsideAF))
+    )
+    ($a $b $c $d))
 )
-
