@@ -137,11 +137,29 @@
     )
 )
 
-; Goal candidates for Mettaclaw, grouped HUBS / MID / LEAVES by degree in the fluid
-; transport graph. Only names from this graph resolve to grid cells; anything else is
-; silently dropped by parse_goal_cells and falls back to the grid centre.
+; AF atoms paired with their STI, so candidates can be ranked by how well funded they
+; already are rather than by static graph structure alone.
+(= (getAfPairs)
+    (collapse (match &af ($atom $sti) ($atom $sti)))
+)
+
+; Goal candidates for Mettaclaw, grouped by position relative to the AF:
+; SHARPEN / SETTLE inside it, EXPAND / BREAK outside it. Only names from the fluid
+; transport graph resolve to grid cells; anything else is silently dropped by
+; parse_goal_cells and falls back to the grid centre.
 (= (getGoalCandidates)
-    (py-call (goal_candidates.goal_candidates (getAfAtoms)))
+    (py-call (goal_candidates.goal_candidates (getAfPairs)))
+)
+
+; contextRetention across one Mettaclaw decision interval instead of one cycle. The
+; per-cycle value is ~1.0 whenever Mettaclaw runs, because the churn happens later in
+; the batch, so R2 would never fire against it. Returns 1.0 before the first full batch
+; so R2 cannot fire at bootstrap when there is no previous goal to hold.
+(= (getContextRetentionBatch)
+    (let $prevIndex (- (get-lattest-cip-index) (batch))
+        (if (< $prevIndex 0)
+            1.0
+            (getContextRetention (get-cip-af $prevIndex) (getAfAtoms))))
 )
 
 (= (getSeeds)
