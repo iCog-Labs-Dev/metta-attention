@@ -359,7 +359,7 @@
             ))
             ($combindedAtoms (union-atom $diffusingAtoms $recivingAtoms))
             ($sources (unique-atom $combindedAtoms))
-            ($source (superpose $sources))
+            ($source (hyperpose $sources))
             ($sourceSti (collapse (filterTrade $result $source)))
             ($trade (foldl-atom $sourceSti 0 $acc $x (+ $acc $x)))
             ($newTrade (+ (getSti $source) $trade))

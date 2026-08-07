@@ -34,15 +34,11 @@
             )
             (
                 (addFromOutSideAF $source $farLinks $afAtoms)
-                (let* 
-                    (
-                        ($target (collapse ((superpose $needToBeTarget) $source)))
-                        ($branches (makeAddHebbianBranches $target))
-                    )
-                    (collapse
-                        (hyperpose $branches)
-                    )
-                )
+                ; (let $branches
+                ;     (makeAddHebbianBranches $needToBeTarget $source)
+                ;     (hyperpose $branches)
+                ; )
+                (addHebbian (hyperpose $needToBeTarget) $source)
              )
          )
        ))
@@ -50,14 +46,14 @@
 )
 )
 
-(= (makeAddHebbianBranches ())
+(= (makeAddHebbianBranches () $target)
     ()
 )
 
-(= (makeAddHebbianBranches (cons ($source $target) $tail))
+(= (makeAddHebbianBranches (cons $source $tail) $target)
     (cons-atom
         (quote (addHebbian $source $target))
-        (makeAddHebbianBranches $tail)
+        (makeAddHebbianBranches $tail $target)
     )
 )
 
