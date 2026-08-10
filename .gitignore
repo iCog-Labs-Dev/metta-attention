@@ -4,6 +4,7 @@ __pycache__
 *.swo
 .vscode
 *.pl
+!experiments/utils/detach_claw.pl
 *.qlf
 wordnet_stv_clean.metta
 conceptnet_stv_clean.metta

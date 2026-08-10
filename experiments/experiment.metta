@@ -7,7 +7,6 @@
 !(import! &self lib/lib_spaces)
 !(import! &self lib/lib_he)
 !(static-import! &incident ./data/kgadexp)
-; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 !(import! &self ../attention/AttentionParam)
 !(import! &self ../attention/baching)
@@ -35,43 +34,31 @@
 !(import! &self ../attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
 !(import! &self ../attention/HebbianCreationAgent/HebbianCreationAgent)
 !(import! &self ../attention/runner-Def)
-!(import! &self "../attention/ImportanceDiffusionAgent/getelement.py")
 !(import! &self ../attention/ImportanceDiffusionAgent/fluidDiffusion/fluid_integration)
 !(import! &self ../attention-bank/synapse/utils)
 !(import! &self ../attention-bank/synapse/synapse)
 !(import! &self "../attention-bank/synapse/topology_metrics.py")
 
+; Import before insectPoisonReadExp is defined so (detach_mettaclaw) compiles as a call.
+!(import_prolog_functions_from_file "../metta-attention/experiments/utils/detach_claw.pl" (detach_mettaclaw))
 
-; !(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-; !(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-; !(match &tempspace ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-
-
-; write the params to a file
 !(updateAttentionParam MAX_AF_SIZE 50.0)
 !(updateAttentionParam TARGET_STI 70000.0)
-!(updateAttentionParam TARGET_LTI 70000.0) 
-!(updateAttentionParam STI_FUNDS_BUFFER 70000.0) 
-!(updateAttentionParam LTI_FUNDS_BUFFER 70000.0) 
-!(updateAttentionParam FUNDS_STI 100000.0) 
-!(updateAttentionParam FUNDS_LTI 100000.0) 
+!(updateAttentionParam TARGET_LTI 70000.0)
+!(updateAttentionParam STI_FUNDS_BUFFER 70000.0)
+!(updateAttentionParam LTI_FUNDS_BUFFER 70000.0)
+!(updateAttentionParam FUNDS_STI 100000.0)
+!(updateAttentionParam FUNDS_LTI 100000.0)
 (updateAttentionParam MAX_SPREAD_PERCENTAGE 0.4)
 (updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.5)
-; !(updateAttentionParam TOPK 0.8)
 !(updateAttentionParam AFRentFrequency 50.0)
 
-; write the params to a file
-; usage(baseline parameters are optional): !(start-log (attentionParam) "current_experiment" "efficiency_baseline" "redundancy_baseline")
-!(start-log (attentionParam) "current_experiment" "fluid_integration" "redundancy_baseline_1")
+!(start-log (attentionParam) "experiment_3" "fluid_integration" "mettaclaw_detach_freerun")
 
 !(initialize-baseline-cip)
 !(bind! &goalspace (new-space))
 
-!(initLoop)
-!(initMemory)
-!(initChannels)
-
-(= (logcurrCip) 
+(= (logcurrCip)
         (let* (
                 ($cip (transition-to-next-cip))
                 ((CIPSnapshot $index $time $afAtoms $metrice) $cip)
@@ -107,54 +94,26 @@
     )
 )
 
-(= (runAttentionBatch)
+; Bare (agents fluid) would apply agents as a function to fluid — use let*.
+(= (runEcanBatch $seeds)
     (let*
         (
             ($_agents (collapse (test-superpose &incident)))
+            ($_fluid (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta" $seeds))
         )
         True
     )
 )
 
-(= (runAttentionBatch $now)
-    (
-        (collapse (test-superpose &incident))
-        (collapse (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta" $now))
-    )
-)
-
-(= (getSeed)
-    (let*
-        (
-            ($seed1t (getRandomAtomNotInAF)) 
-            ($seed1 (if (== $seed1t ())
-                        (getRandomAtomInAF)
-                        $seed1t
-                    )
-            )
-        )
-        $seed1 
-    )
-)
-
-; AF atoms paired with their STI, so candidates can be ranked by how well funded they
-; already are rather than by static graph structure alone.
 (= (getAfPairs)
     (collapse (match &af ($atom $sti) ($atom $sti)))
 )
 
-; Goal candidates for Mettaclaw, grouped by position relative to the AF:
-; SHARPEN / SETTLE inside it, EXPAND / BREAK outside it. Only names from the fluid
-; transport graph resolve to grid cells; anything else is silently dropped by
-; parse_goal_cells and falls back to the grid centre.
 (= (getGoalCandidates)
     (py-call (goal_candidates.goal_candidates (getAfPairs)))
 )
 
-; contextRetention across one Mettaclaw decision interval instead of one cycle. The
-; per-cycle value is ~1.0 whenever Mettaclaw runs, because the churn happens later in
-; the batch, so R2 would never fire against it. Returns 1.0 before the first full batch
-; so R2 cannot fire at bootstrap when there is no previous goal to hold.
+; Batch-window retention so R2 sees churn across the MettaClaw interval.
 (= (getContextRetentionBatch)
     (let $prevIndex (- (get-lattest-cip-index) (batch))
         (if (< $prevIndex 0)
@@ -162,13 +121,29 @@
             (getContextRetention (get-cip-af $prevIndex) (getAfAtoms))))
 )
 
+; Separate clauses: do not let $goals alias getSeeds' return value (empty goals then can't return seeds).
+(= (randomFallbackSeeds)
+    (let*
+        (
+            ($a (getRandomAtomInAF))
+            ($b (getRandomAtomInAF))
+            ($c (getRandomAtomInAF))
+            ($d (getRandomAtomInAF))
+        )
+        (cons-atom $a (cons-atom $b (cons-atom $c (cons-atom $d ()))))
+    )
+)
+
+(= (goalsOrFallback ())
+    (randomFallbackSeeds)
+)
+(= (goalsOrFallback $goals)
+    $goals
+)
+
 (= (getSeeds)
-    (let $goals (collapse (match &goalspace (Goal $concept) $concept))
-        (if (== $goals ())
-            (let $_ (println! "[DEBUG] No goal set by Mettaclaw yet. ECAN falling back to random AF atoms.")
-                 ((getRandomAtomInAF) (getRandomAtomInAF) (getRandomAtomInAF) (getRandomAtomInAF)))
-            (let $_ (println! ("[DEBUG] TARGET ACQUIRED! ECAN using Mettaclaw goal:" $goals))
-                 $goals)))
+    (with_mutex goalspace_mutex
+        (goalsOrFallback (collapse (match &goalspace (Goal $concept) $concept))))
 )
 
 (= (batch) 5)
@@ -186,24 +161,23 @@
                     (if (or (== (% $counter (batch)) 0) (== $rest ()))
                         (let*
                             (
-                                ($_debug1 (println! "\n=================================================="))
-                                ($_debug2 (println! "[DEBUG] Waking up Mettaclaw to evaluate current ECAN state..."))
-                                ($llm_cycle_result (mettaclaw-single-cycle (/ $counter (batch))))
-                                ($_debug3 (println! ("[DEBUG] Mettaclaw cycle complete. Result:" $llm_cycle_result)))
                                 ($seeds (getSeeds))
-                                ($_agents (runAttentionBatch $seeds))
-                                ; Full growing Hebbian graph modules. Swap these two lines with the two above.
+                                ($_agents (runEcanBatch $seeds))
                                 ($moduleLinksWithValues (getAllHebLinksWithValues))
                                 ($modules (identifyHebbianModules $moduleLinksWithValues))
                                 ($moduleCount (size-atom $modules))
                                 ($mo (println! (module-count $moduleCount modules $modules)))
+                                ; After first batch: avoid racing claw Python init with first fluid call.
+                                ($_claw
+                                    (if (== $counter 0)
+                                        (detach_mettaclaw)
+                                        True))
                             )
                             True
                         )
                         (println! (continued to stimulate batched atoms ...))
                     )
                 )
-                ; (py-call (time.sleep 5.0))
                 ($_cip (logcurrCip))
                 ($_next (insectPoisonReadExp $rest (+ $counter 1)))
             )
@@ -212,5 +186,7 @@
     )
 )
 
-!(insectPoisonReadExp (car-atom (collapse (match &insect (insectSent $x) $x))) 0)
-!(let $at (getAfAtoms) (map-atom $at $a ($a (getSti $a))))
+; once: top-level !() is collapse/findall; without once, nondet solutions flood and halt kills claw.
+!(once (progn
+    (insectPoisonReadExp (car-atom (collapse (match &insect (insectSent $x) $x))) 0)
+    True))
