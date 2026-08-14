@@ -7,6 +7,7 @@
 !(import! &self lib/lib_spaces)
 !(import! &self lib/lib_he)
 !(static-import! &incident ./data/kgadexp)
+; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 !(import! &self ../attention/AttentionParam)
 !(import! &self ../attention/baching)
@@ -34,6 +35,7 @@
 !(import! &self ../attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
 !(import! &self ../attention/HebbianCreationAgent/HebbianCreationAgent)
 !(import! &self ../attention/runner-Def)
+!(import! &self "../attention/ImportanceDiffusionAgent/getelement.py")
 !(import! &self ../attention/ImportanceDiffusionAgent/fluidDiffusion/fluid_integration)
 !(import! &self ../attention-bank/synapse/utils)
 !(import! &self ../attention-bank/synapse/synapse)
@@ -42,18 +44,27 @@
 ; Import before insectPoisonReadExp is defined so (detach_mettaclaw) compiles as a call.
 !(import_prolog_functions_from_file "../metta-attention/experiments/utils/detach_claw.pl" (detach_mettaclaw))
 
+; !(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+; !(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+; !(match &tempspace ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+
+
+; write the params to a file
 !(updateAttentionParam MAX_AF_SIZE 50.0)
 !(updateAttentionParam TARGET_STI 70000.0)
-!(updateAttentionParam TARGET_LTI 70000.0)
-!(updateAttentionParam STI_FUNDS_BUFFER 70000.0)
-!(updateAttentionParam LTI_FUNDS_BUFFER 70000.0)
-!(updateAttentionParam FUNDS_STI 100000.0)
-!(updateAttentionParam FUNDS_LTI 100000.0)
+!(updateAttentionParam TARGET_LTI 70000.0) 
+!(updateAttentionParam STI_FUNDS_BUFFER 70000.0) 
+!(updateAttentionParam LTI_FUNDS_BUFFER 70000.0) 
+!(updateAttentionParam FUNDS_STI 100000.0) 
+!(updateAttentionParam FUNDS_LTI 100000.0) 
 (updateAttentionParam MAX_SPREAD_PERCENTAGE 0.4)
 (updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.5)
+; !(updateAttentionParam TOPK 0.8)
 !(updateAttentionParam AFRentFrequency 50.0)
 
-!(start-log (attentionParam) "experiment_3" "fluid_integration" "mettaclaw_detach_freerun")
+; write the params to a file
+; usage(baseline parameters are optional): !(start-log (attentionParam) "current_experiment" "efficiency_baseline" "redundancy_baseline")
+!(start-log (attentionParam) "current_experiment" "fluid_integration" "redundancy_baseline_1")
 
 !(initialize-baseline-cip)
 !(bind! &goalspace (new-space))
@@ -105,12 +116,14 @@
     )
 )
 
+; AF atoms paired with their STI — for the MettaClaw prompt (atomspace, not Python).
 (= (getAfPairs)
     (collapse (match &af ($atom $sti) ($atom $sti)))
 )
 
+; Graph frontier only (EXPAND / BREAK). SHARPEN / SETTLE use &af via getAfPairs in the prompt.
 (= (getGoalCandidates)
-    (py-call (goal_candidates.goal_candidates (getAfPairs)))
+    (py-call (goal_candidates.goal_candidates (getAfAtoms)))
 )
 
 ; Batch-window retention so R2 sees churn across the MettaClaw interval.
@@ -178,6 +191,7 @@
                         (println! (continued to stimulate batched atoms ...))
                     )
                 )
+                ; (py-call (time.sleep 5.0))
                 ($_cip (logcurrCip))
                 ($_next (insectPoisonReadExp $rest (+ $counter 1)))
             )
