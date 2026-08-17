@@ -1,6 +1,20 @@
-# Profile Results
+# Compiled Agent Profiling Report
 
-Only application-level functions are shown (Prolog built-ins and MeTTa runtime internals excluded).
+This report summarizes the profiling results across all five core attention agent
+**Note**: Only application-level functions are shown (Prolog built-ins and MeTTa runtime internals excluded).
+**NB**:all agents profile are executed separatley from other sub-metta files with 500 agent cycles.
+
+### Agent-Level Overview
+
+| Agent Benchmark | Total Time |
+|-----------------|------------|
+| **AFRent Collection** | **0.806s** |
+| **WARent Collection** | **0.331s** |
+| **AFImportance Diffusion** | **0.406s** |
+| **WAImportance Diffusion** | **0.534s** |
+| **Hebbian Updating** | **0.497s** |
+| **Hebbian Creation** | **14.995s** |
+| **Forgetting Agent** | **0.176s** |
 
 
 ## 1. Rent Collection 
@@ -23,6 +37,10 @@ Only application-level functions are shown (Prolog built-ins and MeTTa runtime i
 | `findGroup`               | 4,002     | 0.01s ( 0.1%) | 0.03s ( 0.4%) | 0.04s ( 0.4%) |
 | `isAtomInAf`              | 10,013    | 0.01s ( 0.2%) | 0.02s ( 0.2%) | 0.03s ( 0.4%) |
 
+- `AF Rent collection agent` total time:0.806 seconds. avg time per agent cycle: 0.806/500 seconds
+- `WA Rent collection agent` total time:0.331 seconds. avg time per agent cycle: 0.331/500 seconds
+---
+
 
 
 ## 2. Importance Diffusion 
@@ -43,6 +61,9 @@ Only application-level functions are shown (Prolog built-ins and MeTTa runtime i
 | `profileHebbianDiffusionUsed`     | 1         | 0.02s ( 0.4%) | 0.05s ( 1.0%) | 0.07s ( 1.4%) |
 | `profileFilteroset`               | 1         | 0.02s ( 0.3%) | 0.03s ( 0.6%) | 0.05s ( 0.9%) |
 
+- `AF importancediffusion agent` total time:0.406 seconds. avg time per agent cycle: 0.406/500 seconds
+- `WA importancediffusion agent` total time:0.534 seconds. avg time per agent cycle: 0.534/500 seconds
+---
 
 
 ## 3. Hebbain Updating 
@@ -63,6 +84,8 @@ Only application-level functions are shown (Prolog built-ins and MeTTa runtime i
 | `profileTargetConjunction`    | 1         | 0.01s ( 0.4%) | 0.86s (29.2%) | 0.87s (29.6%) |
 | `getMinSTI`                   | 9,094     | 0.01s ( 0.5%) | 0.09s ( 3.1%) | 0.10s ( 3.6%) |
 
+- `AF Hebbain Updating agent` total time:0.497 seconds. avg time per agent cycle: 0.497/500 seconds
+---
 
 
 ## 4. Hebbain Creation 
@@ -74,6 +97,9 @@ Only application-level functions are shown (Prolog built-ins and MeTTa runtime i
 | `batch` (addHebbian spec)     | 2,006     | 0.00s ( 0.2%) | 2.36s (84.4%) | 2.36s (84.6%) |
 | `localToFarLinks`             | 1,000     | 0.00s ( 0.1%) | 0.00s ( 0.0%) | 0.00s ( 0.1%) |
 | `first-k`                     | 2,000     | 0.01s ( 0.3%) | 0.01s ( 0.5%) | 0.02s ( 0.8%) |
+
+- `hebbian creation agent` agent time:14.995 seconds, avg time per agent cycle: 14.995/500 seconds
+---
 
 
 ## 5. Forget Agent 
@@ -90,3 +116,6 @@ Only application-level functions are shown (Prolog built-ins and MeTTa runtime i
 | `updateMinAf`               | 1,012     | 0.01s ( 0.3%) | 0.01s ( 0.3%) | 0.02s ( 0.6%) |
 | `importanceBin`             | 1,012     | 0.01s ( 0.3%) | 0.03s ( 0.9%) | 0.04s ( 1.2%) |
 | `atomBelowForgetThreshold`  | 10,000    | 0.00s ( 0.1%) | 0.36s (13.2%) | 0.36s (13.3%) |
+
+- `Forgetting agent` total time:0.176 seconds. avg time per agent cycle: 0.176/500 seconds
+---
