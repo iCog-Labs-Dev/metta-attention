@@ -55,18 +55,11 @@
 )
 
 ; addFromOutSideAF
-;(= (profileAddFromOutSideAF $n)
-;   (if (<= $n 0)
-;       0
-;       (let* (($_ (addFromOutSideAF hc-atom-a 1 (getAfAtoms))))
-;             (profileAddFromOutSideAF (- $n 1))))
-;)
-
 (= (profileAddFromOutSideAF $n)
    (if (<= $n 0)
        0
        (let* (
-               ($_ (addFromOutSideAF hc-atom-a 1 (getAfAtoms)))
+               ($_ (collapse (addFromOutSideAF hc-atom-a 1 (getAfAtoms))))
                ($_ (collapse (match (TypeSpace)
                                ((ASYMMETRIC_HEBBIAN_LINK hc-atom-a $t) $val)
                                (if (and (not (== $t hc-atom-b)) (not (== $t hc-atom-c)))
@@ -81,7 +74,7 @@
 (= (profileGenerateRandom $n)
    (if (<= $n 0)
        0
-       (let* (($_ (generateRandom 2 (getAfAtoms))))
+       (let* (($_ (collapse (generateRandom 2 (getAfAtoms)))))
              (profileGenerateRandom (- $n 1))))
 )
 
@@ -100,7 +93,7 @@
 (= (profileGetRandomAtomInAF $n)
    (if (<= $n 0)
        0
-       (let* (($_ (getRandomAtomInAF (getAfAtoms))))
+       (let* (($_ (getRandomAtomInAF)))
              (profileGetRandomAtomInAF (- $n 1))))
 )
 
@@ -108,7 +101,7 @@
 (= (profileGetRandomAtomNotInAF $n)
    (if (<= $n 0)
        0
-       (let* (($_ (getRandomAtomNotInAF (getAfAtoms))))
+       (let* (($_ (getRandomAtomNotInAF)))
              (profileGetRandomAtomNotInAF (- $n 1))))
 )
 
@@ -141,8 +134,8 @@
 
 !(profileGetTargetNeighbors         500)
 !(profileAddHebbian                1000)
-;!(profileAddFromOutSideAF           500)  ;taking long 
-;!(profileGenerateRandom             500)  ;taking long 
+!(profileAddFromOutSideAF           500)  
+!(profileGenerateRandom             200)  
 !(profileSetDifference              500)
 !(profileGetRandomAtomInAF         2000)
 !(profileGetRandomAtomNotInAF       500)
