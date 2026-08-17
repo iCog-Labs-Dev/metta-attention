@@ -90,13 +90,17 @@ This report summarizes the profiling results across all five core attention agen
 
 ## 4. Hebbain Creation 
 
-| Function                      | Calls     | Self Time     | Children Time | Total Time    |
-|-------------------------------|-----------|---------------|---------------|---------------|
-| `addHebbian` (hyp/batch spec) | 10,006    | 0.02s ( 0.6%) | 2.32s (82.8%) | 2.34s (83.4%) |
-| `bach-p` (addHebbian spec)    | 1,997     | 0.01s ( 0.3%) | 2.45s (87.5%) | 2.46s (87.8%) |
-| `batch` (addHebbian spec)     | 2,006     | 0.00s ( 0.2%) | 2.36s (84.4%) | 2.36s (84.6%) |
-| `localToFarLinks`             | 1,000     | 0.00s ( 0.1%) | 0.00s ( 0.0%) | 0.00s ( 0.1%) |
-| `first-k`                     | 2,000     | 0.01s ( 0.3%) | 0.01s ( 0.5%) | 0.02s ( 0.8%) |
+| Function                             | Calls | Self Time    | Children Time | Total Time    | 
+|--------------------------------------|-------|--------------|---------------|---------------|
+| `addHebbian` (hyp_Spec_[addHebbian]) | 6,006 | 0.02s (0.3%) | 2.61s (46.0%) | 2.63s (46.3%) |
+| `bach-p` (parallel dispatcher)       | 1,991 | 0.00s (0.1%) | 2.39s (42.0%) | 2.39s (42.1%) |
+| `batch` (batch partitioner)          | 1,000 | 0.01s (0.3%) | 2.23s (39.3%) | 2.24s (39.6%) |
+| `hyp` (hypothesis evaluator)         | 4,000 | 0.00s (0.1%) | 2.21s (39.0%) | 2.21s (39.1%) |
+| `getValueType`                       | 6,017 | 0.01s (0.1%) | 0.10s (1.8%)  | 0.11s (1.9%)  |
+| `profileAddFromOutSideAF`            | 1     | 0.00s (0.1%) | 0.04s (0.8%)  | 0.04s (0.9%)  |
+| `first-k`                            | 2,000 | 0.02s (0.3%) | 0.02s (0.4%)  | 0.04s (0.7%)  |
+| `subtraction-atom`                   | 2,900 | 0.00s (0.1%) | 0.03s (0.6%)  | 0.03s (0.7%)  | 
+| `size-atom`                          | 23,500| 0.01s (0.2%) | 0.01s (0.3%)  | 0.02s (0.5%)  | 
 
 - `hebbian creation agent` agent time:14.995 seconds, avg time per agent cycle: 14.995/500 seconds
 ---
@@ -119,3 +123,5 @@ This report summarizes the profiling results across all five core attention agen
 
 - `Forgetting agent` total time:0.176 seconds. avg time per agent cycle: 0.176/500 seconds
 ---
+
+- beside the actual application level functions the execution time was consumed by many other low level functions like `reduce`, `match`, `format`, `thread_*`, `current_op`, `cyclic_term`, `$garbage_collect` and others. 
