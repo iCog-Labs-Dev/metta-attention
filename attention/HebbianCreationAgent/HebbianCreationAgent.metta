@@ -74,7 +74,7 @@
         ()
         (let*
             (
-                ($randomAtom (getRandomAtomInAF $afAtoms))
+                ($randomAtom (getRandomAtomInAF))
                 ($incomingSet (getIncomingSetByType $randomAtom HEBBIAN_LINK)) 
                 ; ($p (println! (incoming $incomingSet)))
                 ($x (remove-atom &typespace (car-atom $incomingSet)))
@@ -121,7 +121,7 @@
 (= (generateRandom $farLinks $afAtoms)
     (if (<= $farLinks 0)
         ()
-        (superpose ((getRandomAtomNotInAF $afAtoms) (generateRandom (- $farLinks 1) $afAtoms)))
+        (superpose ((getRandomAtomNotInAF) (generateRandom (- $farLinks 1) $afAtoms)))
     )
 )
 
