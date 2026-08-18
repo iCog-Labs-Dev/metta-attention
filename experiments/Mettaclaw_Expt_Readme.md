@@ -78,16 +78,26 @@ sh run.sh ../metta-attention/experiments/experiment.metta
 
 ---
 
-## 5. Goal-Setting Control Rules (`GOAL_RULES`)
+## 5. Goal-Setting Control Rules ('GOAL_RULES')
 
-On each Cognitive Integration Period (CIP), Mettaclaw reads the system state and applies the following hierarchy:
-
+- On each CIP, mettaclaw reads the system state and applies the following hierarchy:
+### Rule Hierarchy Summary
 | Rule | Trigger Condition | Source | Purpose |
 | :--- | :--- | :--- | :--- |
-| **`R1 BREAK`** | `modulation > 0.60` | `GRAPH_FRONTIER` | Disperses over-concentrated attention jets by targeting distant out-of-AF nodes. |
-| **`R2 SETTLE`** | `contextRetention < 0.70` | `CURRENT_ATTENTIONAL_FOCUS` | Funds starved, decaying low-STI concepts during sensory influx batches. |
-| **`R3 SHARPEN`** | `modulation < 0.25` | `CURRENT_ATTENTIONAL_FOCUS` | Concentrates attention onto top-funded / high-STI concepts when attention is diffuse. |
-| **`R4 EXPAND`** | *Otherwise* (Steady State) | `GRAPH_FRONTIER` | Expands the associative frontier to adjacent out-of-AF nodes. |
+| **`R1 BREAK`** | `modulation > 0.60` | `GRAPH_FRONTIER` | Disperses over-concentrated attention jets to distant nodes. |
+| **`R2 SETTLE`** | `contextRetention < 0.70` | `CURRENT_ATTENTIONAL_FOCUS` | Funds starved, decaying low-STI concepts during batch churn. |
+| **`R3 SHARPEN`** | `modulation < 0.25` | `CURRENT_ATTENTIONAL_FOCUS` | Concentrates attention onto top-funded / high-STI concepts. |
+| **`R4 EXPAND`** | *Otherwise* (Steady State) | `GRAPH_FRONTIER` | Expands associative frontier to adjacent out-of-AF nodes. |
+
+### 5.1 Goal-Candidates
+Mettaclaw selects goals using either static graph topology or live Hebbian connections. This can be toggle in experiment.metta
+
+```metta
+; Set to True for Dynamic Hebbian mode, or False for Static graph mode:
+(= (useDynamicFrontier) False)
+```
+* **Static Mode (`False`):** Frontier candidates (`EXPAND` / `BREAK`) are computed strictly from the predefined graph.
+* **Dynamic Mode (`True`):** Frontier candidates are augmented in real time with live Hebbian links learned during the simulation.
 
 ---
 
