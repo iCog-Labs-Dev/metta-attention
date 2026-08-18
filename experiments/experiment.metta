@@ -121,9 +121,14 @@
     (collapse (match &af ($atom $sti) ($atom $sti)))
 )
 
+; Toggle for goal candidates: False = static graph default, True = live thresholded Hebbian
+(= (useDynamicFrontier) False)
+
 ; Graph frontier only (EXPAND / BREAK). SHARPEN / SETTLE use &af via getAfPairs in the prompt.
 (= (getGoalCandidates)
-    (py-call (goal_candidates.goal_candidates (getAfAtoms)))
+    (if (useDynamicFrontier)
+        (py-call (goal_candidates.goal_candidates (getAfAtoms) (getAllHebLinksWithValues) () 5 True))
+        (py-call (goal_candidates.goal_candidates (getAfAtoms) () () 5 False)))
 )
 
 ; Batch-window retention so R2 sees churn across the MettaClaw interval.
