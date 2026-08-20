@@ -51,6 +51,7 @@
 !(import! &self ../../MetaMo/dynamics/default)
 !(import! &self ../../MetaMo/main/main)
 !(import! &self config)
+!(import! &self closeness)
 !(import! &self stimulus)
 !(import! &self strategies)
 
@@ -65,18 +66,18 @@
 !(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.4)
 (updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.5)
 ; !(updateAttentionParam TOPK 0.8)
-!(updateAttentionParam AFRentFrequency 50.0)
+!(updateAttentionParam AFRentFrequency 20.0)
 
 !(bind! &metamoState (new-space))
 !(let $initial 
     (
         (subsystemState 
             cautious 
-            (motivation (0.6 0.4 0.6 0.2 0.2 0.3 0.7 0.5) (0.4 0.3 0.3 0.6 0.7 0.6))
+            (motivation (0.7 0.3 0.7 0.1 0.1 0.2 0.8 0.6) (0.5 0.4 0.4 0.7 0.8 0.7))
         ) 
         (subsystemState 
             curious 
-            (motivation (0.2 0.9 0.3 0.8 0.7 0.6 0.2 0.5) (0.6 0.7 0.7 0.3 0.3 0.3))
+            (motivation (0.1 0.95 0.2 0.9 0.9 0.5 0.1 0.4) (0.7 0.8 0.8 0.2 0.2 0.2))
         )
     ) 
     (add-atom &metamoState (metaMoStates $initial))
@@ -84,9 +85,9 @@
 
 (= (setMetaMoStates $states) 
     (let $old 
-        (match &metamoState (metaMoStates $x) $x)
+        (car-atom (collapse (match &metamoState (metaMoStates $x) $x)))
         (let $removed 
-            (remove-atom &metamoState (metaMoStates $x))
+            (remove-atom &metamoState (metaMoStates $old))
             (add-atom &metamoState (metaMoStates $states))
         )
     )
@@ -97,14 +98,13 @@
 !(start-log (attentionParam) "mtmo_explore_novel" "metamo_guided" "redundancy_baseline_1")
 !(initialize-baseline-cip)
 
-(= (batch) 3)
+(= (batch) 5)
 
 (= (updateNoveltyTrack)
     (let* 
         (
             ($curr (getAfAtoms))
             ($prev (collapse (match &noveltyTrack (af-snapshot $atoms) $atoms)))
-            ($1 (println! (fnd $prev)))
         ) 
         (if (== $prev ())
             (add-atom &noveltyTrack (af-snapshot $curr))
@@ -138,8 +138,9 @@
 (= (runMotivatedBatch)
     (let* 
         (
-            ($states (match &metamoState (metaMoStates $s) $s))
+            ($states (car-atom (collapse (match &metamoState (metaMoStates $s) $s))))
             ($stim (ecanStimulus))
+            ($1 (println! (sti $stim)))
             ($result (runMetaMoCycleDefault
                 (defaultMetaMoBimonad)
                 $states
@@ -151,6 +152,16 @@
             ($strategy (actionId (cycleFinalAction $result)))
             ($seeds (applyStrategy $strategy))
             ($_log (println! (chose strategy $strategy)))
+            ($_seedrec
+                (let $old (collapse (match &noveltyTrack (lastSeeds $x) $x))
+                    (if (== $old ())
+                        (add-atom &noveltyTrack (lastSeeds $seeds))
+                        (let $removed (remove-atom &noveltyTrack (lastSeeds $old))
+                            (add-atom &noveltyTrack (lastSeeds $seeds))
+                        )
+                    )
+                )
+            )
             ($_ag (collapse (test-superpose &incident)))
             ($_fl (collapse (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta" $seeds)))
             ($_state (setMetaMoStates (cycleNextStates $result)))
@@ -166,7 +177,7 @@
         (let* (
             ($now (car-atom $expr))
             ($rest (cdr-atom $expr))
-            ($_stim (stimulate $now 20))
+            ($_stim (stimulate $now 30))
             ($_stimlog (println! (stimulating atom --> $now)))
             ($_batch
                 (if (or (== (% $counter (batch)) 0) (== $rest ()))
@@ -183,4 +194,3 @@
 )
 
 !(motivatedReadExp (car-atom (collapse (match &insect (insectSent $x) $x))) 0)
-!(let $at (getAfAtoms) (map-atom $at $a ($a (getSti $a))))

@@ -1,6 +1,33 @@
+(= (similarityNeighbor (similarityLink $x $y)) $x)
+
+(= (pickGraphNeighbor $atom)
+    (let* 
+        (
+            ($incidents (unify &incident ($atom $incident) $incident ()))
+            ($outside (subtraction-atom $incidents (getAfAtoms)))
+        )
+        (if (== $outside ())
+            (if (== $neighbors ()) () $atom)
+            (py-call (random.choice $outside))
+        )
+    )
+)
+
 (= (pickOutsideAF)
-    (let $x (getRandomAtomNotInAF)
-        (if (== $x ()) (getRandomAtomInAF) $x)
+    (pickGraphNeighbor (getRandomAtomInAF))
+)
+
+(= (pickOutsideAFHelper $attempt)
+    (let $a (getRandomAtomInAF)
+        (if (== $a ())
+            ()
+            (let $n (pickGraphNeighbor $a)
+                (if (and (== $n ()) (< $attempt 5))
+                    (pickOutsideAFHelper (+ $attempt 1))
+                    (if (== $n ()) $a $n)
+                )
+            )
+        )
     )
 )
 

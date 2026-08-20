@@ -1,25 +1,25 @@
 (= (ecanNovelty)
-    (let* (
-        ($prev (collapse (match &noveltyTrack (af-snapshot $atoms) $atoms)))
-        ($curr (getAfAtoms))
-        ($overlap (if (== $prev ()) 0 (size-atom (intersection-atom $curr $prev))))
-        ($maxSize (max-atom ((size-atom $curr) (if (== $prev ()) 0 (size-atom $prev)))))
-    )
-        (if (== $maxSize 0) 0.5 (- 1.0 (/ $overlap $maxSize)))
+    (let* 
+        (
+            ($prevs (collapse (match &noveltyTrack (af-snapshot $atoms) $atoms)))
+            ($prev (if (== $prevs ()) () (car-atom $prevs)))
+            ($curr (getAfAtoms))
+            ($seedes (collapse (match &noveltyTrack (lastSeeds $s) $s)))
+            ($seeds (if (== $seedes ()) () (car-atom $seedes)))
+            ($newAtoms (if (== $prev ()) () (subtraction-atom $curr $prev)))
+            ($maxSize (max-atom ((size-atom $curr) (if (== $prev ()) 0 (size-atom $prev)))))
+            ($related (collectRelated $seeds))
+            ($weighted (weightedNew $newAtoms $related))
+        )
+        (if (or (== $prev ()) (== $seeds ()) (== $maxSize 0))
+            0.5
+            (/ $weighted $maxSize)
+        )
     )
 )
 
 (= (ecanConduciveness)
-    (let* (
-        ($af (getAfAtoms))
-        ($stiList (getListsti $af))
-    )
-        (if (== $stiList ()) 0.5
-            (let $meanSti (mean $stiList)
-                (min-atom ((/ $meanSti 100.0) 1.0))
-            )
-        )
-    )
+    (getSelectionModulation)
 )
 
 (= (ecanRisk)
@@ -38,12 +38,7 @@
 )
 
 (= (ecanEffort)
-    (let* (
-        ($afSize (size-atom (getAfAtoms)))
-        ($maxSize (getAttentionParam MAX_AF_SIZE))
-    )
-        (if (== $maxSize 0) 0.5 (min-atom ((/ $afSize $maxSize) 1.0)))
-    )
+    (getEffectiveness)
 )
 
 (= (ecanStimulus)
