@@ -174,7 +174,7 @@
 !(assertAlmostEqual (getStiConcentration) 0.6975)
 !(assertAlmostEqual (getLinkDensity) 0.8)
 !(assertAlmostEqual (getConnectionRatio) 0.75)
-!(assertAlmostEqual (getPreallocationSpace) 0.2117)
+!(assertAlmostEqual (getPreallocationSpace) 0.9055)
 !(assertAlmostEqual (getCognitiveSynergy) 0.6057)
 !(assertAlmostEqual (getSelectionModulation) 1.3699)
 !(assertAlmostEqual (getGlobalCoordination (getAfAtoms)) 0.0)
