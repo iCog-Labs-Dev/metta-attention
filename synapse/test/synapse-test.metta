@@ -66,12 +66,12 @@
 )
 !(assertEqual
     (identifyModules (A B C) (getHebLinksWithValues (A B) ()))
-    ((A) (B) (C)))
+    ((A B C)))
 
 !(identifyAllHebbianModules)
 !(assertEqual
     (identifyAllHebbianModules)
-    ((A) (B) (C)))
+    ((A B C)))
 
 
 !(setStv (ASYMMETRIC_HEBBIAN_LINK A B) (0.5 0.9))
@@ -163,22 +163,24 @@
 !(size-atom (collapse (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $x $y) $val) (ASYMMETRIC_HEBBIAN_LINK $x $y))))
 
 
-; write your synapse metrice tests here
+
+; tolerance for stocastic metrics variations
+(= (assertAlmostEqual $actual $expected)
+    (assertEqual (< (abs (- $actual $expected)) 0.0005) True)
+)
 
 !(initialize-baseline-cip)
-!(getAfResourceUsage)
-!(getStiConcentration)
-!(getLinkDensity)
-!(getConnectionRatio)
-!(getPreallocationSpace)
-!(getCognitiveSynergy)
-!(getSelectionModulation)
-!(getGlobalCoordination (getAfAtoms))
-!(getContextRetention)
-!(getCognitiveMaintenance)
-!(getEffectiveness)
-
-
+!(assertAlmostEqual (getAfResourceUsage) (/ 5.0 9.0))
+!(assertAlmostEqual (getStiConcentration) 0.6975)
+!(assertAlmostEqual (getLinkDensity) 0.8)
+!(assertAlmostEqual (getConnectionRatio) 0.75)
+!(assertAlmostEqual (getPreallocationSpace) 0.9055)
+!(assertAlmostEqual (getCognitiveSynergy) 0.6057)
+!(assertAlmostEqual (getSelectionModulation) 1.3699)
+!(assertAlmostEqual (getGlobalCoordination (getAfAtoms)) 0.0)
+!(assertEqual (getContextRetention) 1)
+!(assertEqual (getCognitiveMaintenance) 0.0)
+!(assertEqual (getEffectiveness) 0.0)
 
 !(add-atom &cipspace (CIPSnapshot 1 1 (a b c) ()))
 !(add-atom &cipspace (CIPSnapshot 2 2 (a b c) ()))

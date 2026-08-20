@@ -143,7 +143,9 @@
          ($time (current-time))
          ($_ (add-atom &cipspace (CIPSnapshot $newIndex $time $af $baseMetrics)))
          ($gainedEfficiency (getGainedEfficiency $newIndex))
-         ($metrics (cons-atom (gainedEfficiency $gainedEfficiency) $baseMetrics))
+         ($redundancyDegradation (getRedundancyDegradation $newIndex))
+         ($metrics1 (cons-atom (gainedEfficiency $gainedEfficiency) $baseMetrics))
+         ($metricsFinal (cons-atom (redundancyDegradation $redundancyDegradation) $metrics1))
         ;  ($topology (record-topology-report $newIndex $time))
          ($stiSeries (recordCipSeries))
       )
@@ -151,7 +153,7 @@
           $newIndex
           $time
           $af
-          $metrics
+          $metricsFinal
       )
    )
 )
