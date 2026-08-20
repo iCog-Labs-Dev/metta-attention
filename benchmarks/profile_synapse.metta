@@ -179,6 +179,138 @@
              (profileTopologyMetrics (- $n 1))))
 )
 
+; Effectiveness Calculation Chain Profiling
+
+; getMetricsFromSnapshot
+(= (profileGetMetricsFromSnapshot $n)
+   (if (<= $n 0)
+       0
+       (let* (($snap (get-cip-snapshots 0))
+              ($_ (getMetricsFromSnapshot $snap)))
+             (profileGetMetricsFromSnapshot (- $n 1))))
+)
+
+; getTotalResourceCost
+(= (profileGetTotalResourceCost $n)
+   (if (<= $n 0)
+       0
+       (let* (($snap    (get-cip-snapshots 0))
+              ($metrics (getMetricsFromSnapshot $snap))
+              ($_ (getTotalResourceCost $metrics)))
+             (profileGetTotalResourceCost (- $n 1))))
+)
+
+; getAggregateMetricDelta  (requires >= 2 CIP snapshots -- run after profileTransitionToNextCip)
+(= (profileGetAggregateMetricDelta $n)
+   (if (<= $n 0)
+       0
+       (let* (($snap0 (get-cip-snapshots 0))
+              ($snap1 (get-cip-snapshots 1))
+              ($_ (getAggregateMetricDelta $snap0 $snap1)))
+             (profileGetAggregateMetricDelta (- $n 1))))
+)
+
+; calculateEffectiveness  (requires >= 2 CIP snapshots)
+(= (profileCalculateEffectiveness $n)
+   (if (<= $n 0)
+       0
+       (let* (($snap0 (get-cip-snapshots 0))
+              ($snap1 (get-cip-snapshots 1))
+              ($_ (calculateEffectiveness $snap0 $snap1)))
+             (profileCalculateEffectiveness (- $n 1))))
+)
+
+; getGlobalEffectiveness
+(= (profileGetGlobalEffectiveness $n)
+   (if (<= $n 0)
+       0
+       (let* (($_ (getGlobalEffectiveness)))
+             (profileGetGlobalEffectiveness (- $n 1))))
+)
+
+; getGainedEfficiency
+(= (profileGetGainedEfficiency $n)
+   (if (<= $n 0)
+       0
+       (let* (($index (get-lattest-cip-index))
+              ($_ (getGainedEfficiency $index)))
+             (profileGetGainedEfficiency (- $n 1))))
+)
+
+; getRedundancyDegradation
+(= (profileGetRedundancyDegradation $n)
+   (if (<= $n 0)
+       0
+       (let* (($index (get-lattest-cip-index))
+              ($_ (getRedundancyDegradation $index)))
+             (profileGetRedundancyDegradation (- $n 1))))
+)
+
+
+; CIP Internal Helper Profiling
+
+; updateMaxIndex
+(= (profileUpdateMaxIndex $n)
+   (if (<= $n 0)
+       0
+       (let* (($_ (updateMaxIndex)))
+             (profileUpdateMaxIndex (- $n 1))))
+)
+
+; get-lattest-cip-index
+(= (profileGetLattestCipIndex $n)
+   (if (<= $n 0)
+       0
+       (let* (($_ (get-lattest-cip-index)))
+             (profileGetLattestCipIndex (- $n 1))))
+)
+
+; get-cip-snapshots
+(= (profileGetCipSnapshots $n)
+   (if (<= $n 0)
+       0
+       (let* (($_ (get-cip-snapshots 0)))
+             (profileGetCipSnapshots (- $n 1))))
+)
+
+; get-cip-af
+(= (profileGetCipAf $n)
+   (if (<= $n 0)
+       0
+       (let* (($_ (get-cip-af 0)))
+             (profileGetCipAf (- $n 1))))
+)
+
+; has-cip-snapshots
+(= (profileHasCipSnapshots $n)
+   (if (<= $n 0)
+       0
+       (let* (($_ (has-cip-snapshots)))
+             (profileHasCipSnapshots (- $n 1))))
+)
+
+; cip-af-series  (fixed bound=3: avoids O(N*iters) cost from accumulated snapshots)
+; Using get-lattest-cip-index here would make cost grow with every prior profileTransitionToNextCip call.
+(= (profileCipAfSeries $n)
+   (if (<= $n 0)
+       0
+       (let* (($_ (cip-af-series 0 3)))
+             (profileCipAfSeries (- $n 1))))
+)
+
+
+; getContextRetention 2-arg Variant Profiling
+
+; getContextRetention $prevCip $currCip  (direct 2-arg call, isolated from 0-arg dispatch)
+(= (profileGetContextRetention2Arg $n)
+   (if (<= $n 0)
+       0
+       (let* (($prev (get-cip-af 0))
+              ($curr (getAfAtoms))
+              ($_ (getContextRetention $prev $curr)))
+             (profileGetContextRetention2Arg (- $n 1))))
+)
+
 ; Execute Workloads
 !(profileInitializeBaselineCip      50)
 !(profileMeasureAllMetrics         200)
@@ -196,3 +328,25 @@
 !(profileGetAfCoherence            500)
 !(profileGetContextRetention       500)
 !(profileTopologyMetrics           200)
+
+; Effectiveness chain
+!(profileGetMetricsFromSnapshot       500)
+!(profileGetTotalResourceCost         500)
+!(profileGetAggregateMetricDelta       500)
+!(profileCalculateEffectiveness        500)
+!(profileGetGlobalEffectiveness        500)
+
+; (used only when comparing against a baseline run) rather than core real-time attentional cycle operations
+; !(profileGetGainedEfficiency           500)
+; !(profileGetRedundancyDegradation      500)
+
+; CIP internals
+!(profileUpdateMaxIndex     500)
+!(profileGetLattestCipIndex 500)
+!(profileGetCipSnapshots    500)
+!(profileGetCipAf           500)
+!(profileHasCipSnapshots    500)
+!(profileCipAfSeries       500)  ; changed to fixed bound=3, not accumulated index.
+
+; 2-arg context retention
+!(profileGetContextRetention2Arg   500)
