@@ -6,20 +6,23 @@ Only application-level functions and direct Python FFI are shown (Prolog built-i
 
 | Synapse Component | Total Time | 
 |-------------------|------------|
-| **Synapse** | **7.368s** |
+| **Synapse** | **18.109s** |
 | **Synapse Utilities** | **4.114s** |
 | **Synapse Tentative Ratio** | **0.225s** |
-| **Total Synapse Suite** | **11.707s** |
+| **Total Synapse Suite** | **22.448s** |
 
 
 ## 1. Synapse
 
 | Function                  | Calls     | Self Time     | Children Time | Total Time    |
 |---------------------------|-----------|---------------|---------------|---------------|
-| `janus:py_call` (Python)  | 17        | 2.61s (35.5%) | 0.05s ( 0.6%) | 2.66s (36.1%) |
-| `getHebLinks`             | 1,009     | 0.01s ( 0.2%) | 0.03s ( 0.4%) | 0.04s ( 0.6%) |
-| `janus:py_call/3`         | 201       | 0.04s ( 0.5%) | 0.00s ( 0.0%) | 0.04s ( 0.5%) |
-| `zipMultiply`             | 200       | 0.02s ( 0.2%) | 0.00s ( 0.0%) | 0.02s ( 0.2%) |
+| `get-cip-snapshots`       | 11,400    | 0.06s ( 0.3%) | 6.43s (35.5%) | 6.49s (35.8%) |
+| `janus:py_call/2` (Python)| 17        | 2.36s (13.0%) | 0.05s ( 0.3%) | 2.41s (13.3%) |
+| `resolve_memoization`     | 90,110    | 0.04s ( 0.2%) | 0.06s ( 0.3%) | 0.10s ( 0.5%) |
+| `get-lattest-cip-index`   | 2,401     | 0.06s ( 0.3%) | 0.01s ( 0.1%) | 0.07s ( 0.4%) |
+| `janus:py_call/3`         | 201       | 0.04s ( 0.2%) | 0.00s ( 0.0%) | 0.04s ( 0.2%) |
+| `janus:py_initialize_/3`  | 1         | 0.03s ( 0.2%) | 0.00s ( 0.0%) | 0.03s ( 0.2%) |
+
 
 
 ## 2. Synapse Utils
