@@ -84,6 +84,7 @@
               ($minstiRent (min-atom ($stiRent $sti)))
               ($minltiRent (min-atom ($ltiRent $lti)))
               ($stiDiff (- $sti $minstiRent))
+              ($ren (println! (rent collected from atom $atom is $minstiRent)))
               ($ltiDiff (- $lti $minltiRent))
               ($atomVlti (getVlti $atom ))
             )
