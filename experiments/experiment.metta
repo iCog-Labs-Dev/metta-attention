@@ -150,18 +150,12 @@
                             (
                                 ($seeds (getSeeds))
                                 ($_agents (runAttentionBatch $seeds))
-                                ; Full growing Hebbian graph modules. Swap these two lines with the two above.
-                                ($moduleLinksWithValues (getAllHebLinksWithValues))
-                                ($modules (identifyHebbianModules $moduleLinksWithValues))
-                                ($moduleCount (size-atom $modules))
-                                ($mo (println! (module-count $moduleCount modules $modules)))
                             )
                             True
                         )
                         (println! (continued to stimulate batched atoms ...))
                     )
                 )
-                ; (py-call (time.sleep 5.0))
                 ($_cip (logcurrCip))
                 ($_next (insectPoisonReadExp $rest (+ $counter 1)))
             )
@@ -171,4 +165,3 @@
 )
 
 !(insectPoisonReadExp (car-atom (collapse (match &insect (insectSent $x) $x))) 0)
-!(let $at (getAfAtoms) (map-atom $at $a ($a (getSti $a))))

@@ -6,11 +6,13 @@ from typing import List, Tuple, Any
 import igraph as ig
 
 
-_RELATION_TRIPLET_PATTERN = re.compile(r"\(\s*([^\s()]+)\s+([^\s()]+)\s+([^\s()]+)\s*\)")
+_RELATION_TRIPLET_PATTERN = re.compile(
+    r"\(\s*([^\s()]+)\s+([^\s()]+)\s+([^\s()]+)\s*\)"
+)
 
 
 def list_to_sexp(lst):
-    return '(' + ' '.join(str(item) for item in lst) + ')'
+    return "(" + " ".join(str(item) for item in lst) + ")"
 
 
 def _atom_key(atom: Any) -> str:
@@ -44,7 +46,6 @@ def _stv_mean(value: Any) -> float | None:
     if len(value) >= 3 and str(value[0]) == "STV":
         return _as_float(value[1] * value[2])
 
-
     return None
 
 
@@ -74,7 +75,7 @@ def _edge_from_link(link: Any) -> tuple[str, str, float] | None:
 def get_dynamic_modules(af_atoms: Any, af_links: Any) -> List[List[Any]]:
     """Live dynamic clustering for the active Attentional Focus."""
     # af_links = _normalize_atoms(af_links)
-    
+
     node_to_id = {}
     id_to_original_atom = {}
 
@@ -83,7 +84,7 @@ def get_dynamic_modules(af_atoms: Any, af_links: Any) -> List[List[Any]]:
 
     for atom in af_atoms:
         _add_node(atom, node_to_id, id_to_original_atom)
-    
+
     for link in af_links:
         # print("link --> ", link)
         # print("length of link --> ", len(link))
@@ -99,25 +100,28 @@ def get_dynamic_modules(af_atoms: Any, af_links: Any) -> List[List[Any]]:
 
         if src == tgt or weight <= 0:
             continue
-        
+
         edges.append((node_to_id[src], node_to_id[tgt]))
         # print("edges ", edges)
         weights.append(weight)
         # print("weights ", weights)
-
 
     if not node_to_id:
         return []
 
     graph = ig.Graph(directed=False)
     graph.add_vertices(len(node_to_id))
-    
+
     if edges:
         graph.add_edges(edges)
         graph.es["weight"] = weights
 
     try:
-        partition = graph.community_multilevel(weights=graph.es["weight"], resolution=2.0) if edges else graph.components()
+        partition = (
+            graph.community_multilevel(weights=graph.es["weight"], resolution=2.0)
+            if edges
+            else graph.components()
+        )
     except Exception:
         partition = graph.components()
 
