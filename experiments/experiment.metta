@@ -121,6 +121,15 @@
     (collapse (match &af ($atom $sti) ($atom $sti)))
 )
 
+; Goal Rule thresholds
+
+; R1 fires when modulation exceeds this (attention too concentrated → BREAK)
+(= (thresholdBreak) 0.60)
+; R2 fires when contextRetention drops below this (memory churn → SETTLE)
+(= (thresholdSettle) 0.70)
+; R3 fires when modulation drops below this (attention too diffuse → SHARPEN)
+(= (thresholdSharpen) 0.25)
+
 ; Toggle for goal candidates: False = static graph default, True = live thresholded Hebbian
 (= (useDynamicFrontier) False)
 
