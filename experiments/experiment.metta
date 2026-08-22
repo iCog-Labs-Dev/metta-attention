@@ -125,19 +125,26 @@
 
 ; R1 fires when modulation exceeds this (attention too concentrated → BREAK)
 (= (thresholdBreak) 0.60)
-; R2 fires when contextRetention drops below this (memory churn → SETTLE)
+; R2 fires when cognitiveSynergy drops below this (LTI alignment weak → SYNERGIZE)
+(= (thresholdSynergy) 0.60)
+; R3 fires when contextRetention drops below this (memory churn → SETTLE)
 (= (thresholdSettle) 0.70)
-; R3 fires when modulation drops below this (attention too diffuse → SHARPEN)
+; R4 fires when modulation drops below this (attention too diffuse → SHARPEN)
 (= (thresholdSharpen) 0.25)
 
 ; Toggle for goal candidates: False = static graph default, True = live thresholded Hebbian
 (= (useDynamicFrontier) False)
 
-; Graph frontier only (EXPAND / BREAK). SHARPEN / SETTLE use &af via getAfPairs in the prompt.
+; All atoms with their LTI values for the SYNERGIZE candidate bucket
+(= (getAllLtiPairs)
+    (map-atom (getAllAtomsWithBins) $atom ($atom (getLti $atom)))
+)
+
+; Graph frontier candidates (EXPAND / BREAK / SYNERGIZE)
 (= (getGoalCandidates)
     (if (useDynamicFrontier)
-        (py-call (goal_candidates.goal_candidates (getAfAtoms) (getAllHebLinksWithValues) () 5 True))
-        (py-call (goal_candidates.goal_candidates (getAfAtoms) () () 5 False)))
+        (py-call (goal_candidates.goal_candidates (getAfAtoms) (getAllHebLinksWithValues) () 5 True (getAllLtiPairs)))
+        (py-call (goal_candidates.goal_candidates (getAfAtoms) () () 5 False (getAllLtiPairs))))
 )
 
 ; Batch-window retention so R2 sees churn across the MettaClaw interval.

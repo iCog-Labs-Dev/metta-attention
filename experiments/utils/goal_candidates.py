@@ -194,8 +194,40 @@ def _filter_strong_hebbian_edges(
     return hebbian_adj
 
 
-def goal_candidates_static(af_atoms=None, graph_path=None, group_size=GROUP_SIZE) -> str:
-    """STATIC mode: Return EXPAND | BREAK relative to AF, purely from static fluid graph."""
+def _extract_lti_candidates(lti_data: Any, in_af: set[str], fallback_nodes: Iterable[str], size: int = GROUP_SIZE) -> str:
+    """Extract top out-of-AF concepts ranked by Long-Term Importance (LTI)."""
+    candidates = []
+    if lti_data:
+        items = lti_data if isinstance(lti_data, (list, tuple)) else [lti_data]
+        for item in items:
+            if isinstance(item, (list, tuple)) and len(item) >= 2:
+                name = str(item[0]).strip().strip("\"'")
+                try:
+                    val = float(item[1])
+                except (ValueError, TypeError):
+                    val = 0.0
+                if name and name not in in_af and not name.startswith("(") and not name.startswith("[") and not name.lower().startswith("similaritylink") and not name.lower().startswith("hebbianlink") and " " not in name and "," not in name:
+                    candidates.append((name, val))
+
+    if candidates:
+        candidates.sort(key=lambda x: (-x[1], x[0]))
+        # Deduplicate while preserving order
+        seen = set()
+        deduped = []
+        for name, val in candidates:
+            if name not in seen:
+                seen.add(name)
+                deduped.append((name, val))
+        top = deduped[:size]
+        return " ".join(f"{name}:{int(val)}lti" for name, val in top) or "none"
+
+    # Fallback to high-degree outside nodes if no LTI data available
+    fallback = [n for n in fallback_nodes if n not in in_af][:size]
+    return " ".join(f"{name}:0lti" for name in fallback) or "none"
+
+
+def goal_candidates_static(af_atoms=None, graph_path=None, group_size=GROUP_SIZE, lti_data=None) -> str:
+    """STATIC mode: Return EXPAND | BREAK | SYNERGIZE relative to AF, purely from static fluid graph."""
     size = int(group_size)
     adjacency = _adjacency(graph_path or DEFAULT_GRAPH)
     in_af = _names(af_atoms)
@@ -227,7 +259,9 @@ def goal_candidates_static(af_atoms=None, graph_path=None, group_size=GROUP_SIZE
         )
     breakout = " ".join(f"{name}:d{degree}" for name, degree in detached[:size]) or "none"
 
-    return f"EXPAND(out-AF, adjacent) {expand} | BREAK(out-AF, distant) {breakout}"
+    synergize = _extract_lti_candidates(lti_data, in_af, [name for name, _ in outside], size)
+
+    return f"EXPAND(out-AF, adjacent) {expand} | BREAK(out-AF, distant) {breakout} | SYNERGIZE(out-AF, high-lti) {synergize}"
 
 
 def goal_candidates_dynamic(
@@ -237,6 +271,7 @@ def goal_candidates_dynamic(
     group_size=GROUP_SIZE,
     top_percentile: float = HEBBIAN_TOP_PERCENTILE,
     min_weight: float = HEBBIAN_MIN_WEIGHT,
+    lti_data=None,
 ) -> str:
     """DYNAMIC mode: Augments static graph with top-thresholded live Hebbian links from AtomSpace."""
     size = int(group_size)
@@ -292,7 +327,9 @@ def goal_candidates_dynamic(
         break_candidates.sort(key=lambda item: (item[1], item[0]))
         breakout = " ".join(f"{name}:d{deg}" for name, deg in break_candidates[:size]) or "none"
 
-    return f"EXPAND(out-AF, dynamic-adj) {expand} | BREAK(out-AF, isolated) {breakout}"
+    synergize = _extract_lti_candidates(lti_data, in_af, outside_nodes, size)
+
+    return f"EXPAND(out-AF, dynamic-adj) {expand} | BREAK(out-AF, isolated) {breakout} | SYNERGIZE(out-AF, high-lti) {synergize}"
 
 
 def _parse_bool(val: Any) -> bool:
@@ -309,6 +346,7 @@ def goal_candidates(
     graph_path=None,
     group_size=GROUP_SIZE,
     use_dynamic: Any = None,
+    lti_data: Any = None,
 ) -> str:
     """Entry point dispatching between static and dynamic modes based on use_dynamic / USE_DYNAMIC."""
     is_dynamic = USE_DYNAMIC if use_dynamic is None else _parse_bool(use_dynamic)
@@ -318,9 +356,11 @@ def goal_candidates(
             hebbian_links=hebbian_links,
             graph_path=graph_path,
             group_size=group_size,
+            lti_data=lti_data,
         )
     return goal_candidates_static(
         af_atoms=af_atoms,
         graph_path=graph_path,
         group_size=group_size,
+        lti_data=lti_data,
     )
