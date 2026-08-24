@@ -1,22 +1,16 @@
 ; AFRentCollectionAgent2
-; Cycle-based rent prototype with a dynamic STI floor.
+; Cycle-based STI rent collection.
 ;
-; This version removes wall-clock elapsed time from AF rent collection.
-; It collects rent only when FUNDS_STI is below TARGET_STI.
+; Rent is collected only when FUNDS_STI is below TARGET_STI.
 ;
 ; fundGap = max(0, TARGET_STI - FUNDS_STI)
-; desiredCollection = AFRentCoverageRatio * fundGap
+; bufferGap = max(0, STARTING_FUNDS_STI - TARGET_STI)
+; desiredCollection = fundGap + AFRentCoverageRatio * bufferGap
 ;
-; The floor is not a fixed STI parameter. It is the current minimum STI among
-; the AF atoms being charged. Rent is only collected from the capacity above
-; that floor, so the weakest atom(s) are preserved instead of being drained.
-;
-; floorSti = min(STI_i for i in AF)
-; capacity_i = max(0, STI_i - floorSti)
-; totalCapacity = sum(capacity_i)
-; collectionBudget = min(desiredCollection,
-;                        AFRentMaxCollectionRate * totalCapacity)
-; rent_i = collectionBudget * capacity_i / totalCapacity
+; The desired collection is split between atoms in attentional focus and atoms
+; outside attentional focus according to each group's STI at the start of the
+; cycle. Inside each group, rent is charged equally per atom and capped by the
+; atom's current STI, so atoms can reach 0.0 STI but never go negative.
 
 (= (selectAFTargets2)
     (getAfAtoms)
@@ -32,8 +26,25 @@
     )
 )
 
+(= (afRentBufferGap2)
+    (let*
+        (
+            ($startingFunds (getAttentionParam STARTING_FUNDS_STI))
+            ($target (getAttentionParam TARGET_STI))
+        )
+        (max-atom (0.0 (- $startingFunds $target)))
+    )
+)
+
+(= (afRentDesiredCollection2 $fundGap $bufferGap)
+    (if (<= $fundGap 0.0)
+        0.0
+        (+ $fundGap (* (getAttentionParam AFRentCoverageRatio) $bufferGap))
+    )
+)
+
 (= (afRentDesiredCollection2 $fundGap)
-    (* (getAttentionParam AFRentCoverageRatio) $fundGap)
+    (afRentDesiredCollection2 $fundGap (afRentBufferGap2))
 )
 
 (= (afRentStis2 $targetSet)
@@ -44,92 +55,127 @@
     )
 )
 
-(= (afRentMinSti2 $targetSet)
-    (min-atom (afRentStis2 $targetSet))
+(= (afRentTotalSti2 ()) 0.0)
+(= (afRentTotalSti2 (cons $head $tail))
+    (+ (getSti $head) (afRentTotalSti2 $tail))
 )
 
-(= (afRentCapacity2 $atom $floorSti)
-    (max-atom (0.0 (- (getSti $atom) $floorSti)))
-)
-
-(= (afRentTotalCapacity2 () $floorSti) 0.0)
-(= (afRentTotalCapacity2 (cons $head $tail) $floorSti)
-    (+ (afRentCapacity2 $head $floorSti) (afRentTotalCapacity2 $tail $floorSti))
-)
-
-(= (afRentCollectionBudget2 $desiredCollection $totalCapacity)
-    (min-atom
-        (
-            $desiredCollection
-            (* (getAttentionParam AFRentMaxCollectionRate) $totalCapacity)
-        )
-    )
-)
-
-(= (afRentAtomRent2 $atom $floorSti $collectionBudget $totalCapacity)
-    (if (<= $totalCapacity 0.0)
+(= (afRentGroupShare2 $groupTotalSTI $totalCurrentAtomSTI)
+    (if (<= $totalCurrentAtomSTI 0.0)
         0.0
-        (* $collectionBudget (/ (afRentCapacity2 $atom $floorSti) $totalCapacity))
+        (/ $groupTotalSTI $totalCurrentAtomSTI)
     )
 )
 
-(= (applyAFRent2 $atom $floorSti $collectionBudget $totalCapacity)
+(= (afRentPerAtomRent2 $targetSet $requestedCollection)
+    (if (or (== $targetSet ()) (<= $requestedCollection 0.0))
+        0.0
+        (/ $requestedCollection (size-atom $targetSet))
+    )
+)
+
+(= (afRentAtomRent2 $atom $perAtomRent)
+    (min-atom ((getSti $atom) $perAtomRent))
+)
+
+(= (afRentGroupCollected2 () $perAtomRent) 0.0)
+(= (afRentGroupCollected2 (cons $head $tail) $perAtomRent)
+    (+ (afRentAtomRent2 $head $perAtomRent) (afRentGroupCollected2 $tail $perAtomRent))
+)
+
+(= (applyAFRent2 $atom $perAtomRent)
     (let*
         (
             ($sti (getSti $atom))
             ($lti (getLti $atom))
             ($vlti (getVlti $atom))
-            ($rent (min-atom ($sti (afRentAtomRent2 $atom $floorSti $collectionBudget $totalCapacity))))
+            ($rent (afRentAtomRent2 $atom $perAtomRent))
             ($newSti (- $sti $rent))
         )
         (setAv $atom ($newSti $lti $vlti))
     )
 )
 
-(= (collectAFRent2 $targetSet)
+(= (applyAFRentGroup2 $targetSet $perAtomRent)
+    (if (or (== $targetSet ()) (<= $perAtomRent 0.0))
+        ()
+        (collapse
+            (let $atom (superpose $targetSet)
+                (applyAFRent2 $atom $perAtomRent)
+            )
+        )
+    )
+)
+
+(= (afRentWATargets2 $afAtoms)
+    (subtraction-atom (getAllAtomsWithBins) $afAtoms)
+)
+
+(= (collectAFRent2ForGroups $afAtoms $waAtoms)
     (let*
         (
             ($fundGap (afRentFundGap2))
-            ($desiredCollection (afRentDesiredCollection2 $fundGap))
+            ($bufferGap (afRentBufferGap2))
+            ($desiredCollection (afRentDesiredCollection2 $fundGap $bufferGap))
         )
-        (if (or (== $targetSet ()) (<= $fundGap 0.0))
-            (empty)
+        (if (== $fundGap 0.0)
+            ()
             (let*
                 (
-                    ($floorSti (afRentMinSti2 $targetSet))  
-                    ($totalCapacity (afRentTotalCapacity2 $targetSet $floorSti))
-                    ($collectionBudget (afRentCollectionBudget2 $desiredCollection $totalCapacity))
-                    ($_apply
-                        (collapse
-                            (let $atom (superpose $targetSet)
-                                (applyAFRent2 $atom $floorSti $collectionBudget $totalCapacity)
-                            )
+                    ($afTotalSTI (afRentTotalSti2 $afAtoms))
+                    ($waTotalSTI (afRentTotalSti2 $waAtoms))
+                    ($totalCurrentAtomSTI (+ $afTotalSTI $waTotalSTI))
+                )
+                (if (<= $totalCurrentAtomSTI 0.0)
+                    ()
+                    (let*
+                        (
+                            ($afShare (afRentGroupShare2 $afTotalSTI $totalCurrentAtomSTI))
+                            ($waShare (afRentGroupShare2 $waTotalSTI $totalCurrentAtomSTI))
+                            ($afRequested (* $desiredCollection $afShare))
+                            ($waRequested (* $desiredCollection $waShare))
+                            ($afPerAtomRent (afRentPerAtomRent2 $afAtoms $afRequested))
+                            ($waPerAtomRent (afRentPerAtomRent2 $waAtoms $waRequested))
+                            ($afCollected (afRentGroupCollected2 $afAtoms $afPerAtomRent))
+                            ($waCollected (afRentGroupCollected2 $waAtoms $waPerAtomRent))
+                            ($totalCollected (+ $afCollected $waCollected))
+                            ($_waApply (applyAFRentGroup2 $waAtoms $waPerAtomRent))
+                            ($_afApply (applyAFRentGroup2 $afAtoms $afPerAtomRent))
+                        )
+                        (AFRent2Stats
+                            (fundGap $fundGap)
+                            (bufferGap $bufferGap)
+                            (desiredCollection $desiredCollection)
+                            (afTotalSTI $afTotalSTI)
+                            (waTotalSTI $waTotalSTI)
+                            (totalCurrentAtomSTI $totalCurrentAtomSTI)
+                            (afShare $afShare)
+                            (waShare $waShare)
+                            (afRequested $afRequested)
+                            (waRequested $waRequested)
+                            (afCollected $afCollected)
+                            (waCollected $waCollected)
+                            (totalCollected $totalCollected)
                         )
                     )
-                )
-                (AFRent2Stats
-                    (fundGap $fundGap)
-                    (desiredCollection $desiredCollection)
-                    (floorSti $floorSti)
-                    (totalCapacity $totalCapacity)
-                    (collectionBudget $collectionBudget)
-                    (totalCollected $collectionBudget)
                 )
             )
         )
     )
 )
 
+(= (collectAFRent2 $targetSet)
+    (let $waAtoms
+        (afRentWATargets2 $targetSet)
+        (collectAFRent2ForGroups $targetSet $waAtoms)
+    )
+)
+
 (= (AFRentCollectionAgent2-run)
-    (with_mutex afrmutex2 
-        (let $targets 
-            (getAfAtoms) 
-            (if (== $targets ()) 
-                (empty) 
-                (let $_stats
-                    (collectAFRent2 $targets)
-                    ()
-                )
-            )
+    (with_mutex afrmutex2
+        (let $_stats
+            (collectAFRent2 (getAfAtoms))
+            ()
         )
-))
+    )
+)

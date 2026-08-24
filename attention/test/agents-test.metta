@@ -17,6 +17,7 @@
 !(import! &self ../RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent)
 !(import! &self ../RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent)
 !(import! &self ../RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent)
+!(import! &self ../RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent2)
 !(import! &self ../ImportanceDiffusionAgent/ImportanceDiffusionBase/ImportanceDiffusionBase)
 !(import! &self ../ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent)
 !(import! &self "../ImportanceDiffusionAgent/getelement.py")
@@ -51,8 +52,6 @@
 ; ================== assertions About inital state of Ecan spaces =============
 !(assertEqual (getAfAtoms) ())
 !(assertEqual (getAllAtomsWithBins) ())
-!(assertEqual (match &timer (firstTime $x) $x) True)
-
 !(stimulate Ants 30.0)
 !(collapse (test-superpose &incident))
 !(size-atom (getAfAtoms))
@@ -67,7 +66,6 @@
 !(test (getBin (SimilarityLink abamectin Ants)) 47.0)
 
 ; !(out (match &timer (firstTime $x) $x))
-!(test (match &timer (firstTime $x) $x) False)
 
 (test 
     (let $asym 

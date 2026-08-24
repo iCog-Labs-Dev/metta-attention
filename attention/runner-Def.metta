@@ -1,13 +1,13 @@
 (= (test-superpose $incidentSpace)
-    (hyperpose 
+    (superpose 
         (
             (HebbianCreationAgent-Run (TypeSpace))
             (HebbianUpdatingAgent-Run (TypeSpace))
             (AFImportanceDiffusionAgent-Run $incidentSpace (TypeSpace))
-            (AFRentCollectionAgent-run)
-            ; (AFRentCollectionAgent2-run)
+            ; (AFRentCollectionAgent-run)
+            (AFRentCollectionAgent2-run)
             (WAImportanceDiffusionAgent-Run $incidentSpace)
-            (WARentCollectionAgent-Run)
+            ; (WARentCollectionAgent-Run)
             ;(forgettingAgent-Run (atomBin))
         )
     )
