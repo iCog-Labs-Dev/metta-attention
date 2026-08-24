@@ -46,26 +46,13 @@
               (let*
                   (
                     ($w (* $elapsedTime $multiplier))
-                    ($input (collapse ($w (superpose $targetSet))))
-                      ($branches (makeApplyRentBranches $input))
                   )
-                          (collapse (hyperpose $branches))
+                  (collapse (applyRent $w (hyperpose $targetSet)))
               )
           )
       )
    )
 )
-
-        (= (makeApplyRentBranches ())
-            ()
-        )
-
-        (= (makeApplyRentBranches (cons ($w $atom) $tail))
-            (cons-atom
-                (quote (applyRent $w $atom))
-                (makeApplyRentBranches $tail)
-            )
-        )
 
 
 ; Function: applyRent

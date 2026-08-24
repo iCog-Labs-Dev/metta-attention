@@ -34,23 +34,7 @@
 
 ; (: updateHebbianLinks (-> Atom Grounded Atom))
 (= (updateHebbianLinks $source $space)
-    (let $iset 
-        (collapse ($source ((getAllIncomingSetsForHUAgent $source $space ASYMMETRIC_HEBBIAN_LINK) $space)))
-        (let $branches (makeUpdateHebbianBranches $iset)
-            (collapse (hyperpose $branches))
-        )
-    )
-)
-
-(= (makeUpdateHebbianBranches ())
-    ()
-)
-
-(= (makeUpdateHebbianBranches (cons ($source ($iset $space)) $tail))
-    (cons-atom
-        (quote (bachUpdateHeb $source ($iset $space)))
-        (makeUpdateHebbianBranches $tail)
-    )
+    (collapse (bachUpdateHeb $source (getAllIncomingSetsForHUAgent $source $space ASYMMETRIC_HEBBIAN_LINK) $space))
 )
 
 (= (bachUpdateHeb $source ($iset $space))

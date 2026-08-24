@@ -87,27 +87,19 @@
                     ))
                 )
             ))
-            ($trades (collapse (tradeList $atoms)))
+            ; ($trades (collapse (tradeList $atoms)))
         )
         (
-            (let $branches (makeSetStisBranches $trades)
-                (collapse (hyperpose $branches))
-            )
+            (collapse (let ($atom $sti) 
+                (tradeList $atoms)
+                (setStis $atom $sti)
+            ))
             (empty)
         )
     )
 )
 
-(= (makeSetStisBranches ())
-    ()
-)
 
-(= (makeSetStisBranches (cons ($atom $sti) $tail))
-    (cons-atom
-        (quote (setStis $atom $sti))
-        (makeSetStisBranches $tail)
-    )
-)
 
 ;; This function is the entry point to the AFImportance Diffusion Agent
 ;; Parameters $space: The space that will be used to find the diffusion source vector
