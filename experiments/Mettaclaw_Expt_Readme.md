@@ -78,19 +78,21 @@ sh run.sh ../metta-attention/experiments/experiment.metta
 
 ---
 
-## 5. Goal-Setting Control Rules ('GOAL_RULES')
+## 5. Goal-Setting Control Rules (`GOAL_RULES`)
 
-- On each CIP, mettaclaw reads the system state and applies the following hierarchy:
+On each CIP, Mettaclaw reads the live state and applies the following 5-rule hierarchy:
+
 ### Rule Hierarchy Summary
-| Rule | Trigger Condition | Source | Purpose |
+| Rule | Trigger Condition | Source | Action & Purpose |
 | :--- | :--- | :--- | :--- |
-| **`R1 BREAK`** | `modulation > 0.60` | `GRAPH_FRONTIER` | Disperses over-concentrated attention jets to distant nodes. |
-| **`R2 SETTLE`** | `contextRetention < 0.70` | `CURRENT_ATTENTIONAL_FOCUS` | Funds starved, decaying low-STI concepts during batch churn. |
-| **`R3 SHARPEN`** | `modulation < 0.25` | `CURRENT_ATTENTIONAL_FOCUS` | Concentrates attention onto top-funded / high-STI concepts. |
-| **`R4 EXPAND`** | *Otherwise* (Steady State) | `GRAPH_FRONTIER` | Expands associative frontier to adjacent out-of-AF nodes. |
+| **`R1 BREAK`** | `modulation > 0.60` | `GRAPH_FRONTIER` (distant) | **Disperse Vortex:** Disperses over-concentrated energy jets to distant nodes. |
+| **`R2 SYNERGIZE`** | `cognitiveSynergy < 0.60` | `AF` (top STI) + `GRAPH_FRONTIER` (high LTI) | **Deep Integration:** Anchors active sensory attention into core long-term knowledge. |
+| **`R3 SETTLE`** | `afResource > 0.80` OR `contextRetention < 0.70` | `CURRENT_ATTENTIONAL_FOCUS` (low STI) | **Memory Preservation:** Funds decaying concepts during capacity overload or batch churn. |
+| **`R4 SHARPEN`** | `modulation < 0.25` OR `preallocationSpace > 0.90` | `CURRENT_ATTENTIONAL_FOCUS` (high STI) | **Concentrate Focus:** Sharpens diffuse fog or chaotic entropy onto top active hubs. |
+| **`R5 EXPAND`** | *Otherwise* (Steady State) | `GRAPH_FRONTIER` (adjacent) | **Associative Growth:** Expands associative frontier to adjacent out-of-AF nodes. |
 
 ### 5.1 Goal-Candidates
-Mettaclaw selects goals using either static graph topology or live Hebbian connections. This can be toggle in experiment.metta
+Mettaclaw selects out-of-AF goals across three candidate buckets (`EXPAND`, `BREAK`, `SYNERGIZE`). Dynamic Hebbian mode can be toggled in `experiment.metta`:
 
 ```metta
 ; Set to True for Dynamic Hebbian mode, or False for Static graph mode:
@@ -98,6 +100,7 @@ Mettaclaw selects goals using either static graph topology or live Hebbian conne
 ```
 * **Static Mode (`False`):** Frontier candidates (`EXPAND` / `BREAK`) are computed strictly from the predefined graph.
 * **Dynamic Mode (`True`):** Frontier candidates are augmented in real time with live Hebbian links learned during the simulation.
+* **`SYNERGIZE` Bucket:** Always extracts the highest Long-Term Importance (LTI) concepts currently outside the AF.
 
 ---
 

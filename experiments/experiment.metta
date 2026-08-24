@@ -127,10 +127,12 @@
 (= (thresholdBreak) 0.60)
 ; R2 fires when cognitiveSynergy drops below this (LTI alignment weak → SYNERGIZE)
 (= (thresholdSynergy) 0.60)
-; R3 fires when contextRetention drops below this (memory churn → SETTLE)
+; R3 fires when AF capacity is full or memory churn is high (→ SETTLE)
+(= (thresholdAfResource) 0.80)
 (= (thresholdSettle) 0.70)
-; R4 fires when modulation drops below this (attention too diffuse → SHARPEN)
+; R4 fires when modulation is diffuse or entropy is chaotic (→ SHARPEN)
 (= (thresholdSharpen) 0.25)
+(= (thresholdEntropyHigh) 0.90)
 
 ; Toggle for goal candidates: False = static graph default, True = live thresholded Hebbian
 (= (useDynamicFrontier) False)
@@ -143,8 +145,8 @@
 ; Graph frontier candidates (EXPAND / BREAK / SYNERGIZE)
 (= (getGoalCandidates)
     (if (useDynamicFrontier)
-        (py-call (goal_candidates.goal_candidates (getAfAtoms) (getAllHebLinksWithValues) () 5 True (getAllLtiPairs)))
-        (py-call (goal_candidates.goal_candidates (getAfAtoms) () () 5 False (getAllLtiPairs))))
+        (py-call (goal_candidates.goal_candidates (getAfAtoms) (getAllHebLinksWithValues) () 20 True (getAllLtiPairs)))
+        (py-call (goal_candidates.goal_candidates (getAfAtoms) () () 20 False (getAllLtiPairs))))
 )
 
 ; Batch-window retention so R2 sees churn across the MettaClaw interval.

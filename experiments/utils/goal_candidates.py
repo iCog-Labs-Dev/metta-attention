@@ -347,6 +347,8 @@ def goal_candidates(
     group_size=GROUP_SIZE,
     use_dynamic: Any = None,
     lti_data: Any = None,
+    *args,
+    **kwargs,
 ) -> str:
     """Entry point dispatching between static and dynamic modes based on use_dynamic / USE_DYNAMIC."""
     is_dynamic = USE_DYNAMIC if use_dynamic is None else _parse_bool(use_dynamic)
