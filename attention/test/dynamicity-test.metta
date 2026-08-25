@@ -102,7 +102,7 @@ go_on_v_wn_contact prodigalizes_v flare_v amniocytic_a served_in_cup) $expressio
 !(updateAttentionParam FUNDS_LTI 20000.0) 
 !(updateAttentionParam STARTING_FUNDS_STI 20000.0)
 !(updateAttentionParam STARTING_FUNDS_LTI 20000.0)
-
+ 
 
 
 

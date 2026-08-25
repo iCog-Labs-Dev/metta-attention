@@ -12,7 +12,7 @@
     "LOCAL_FAR_LINK_RATIO": "10.0",
     "MAX_LINK_NUM": "300.0",
     "DIFFUSION_TOURNAMENT_SIZE": "5.0",
-    "AFRentCoverageRatio": "1.0",
+    "AFRentCoverageRatio": "0.4",
     "AFRentMaxCollectionRate": "1.0",
     "SPREAD_HEBBIAN_ONLY": "0.0",
     "StartingAtomStiRent": "1.0",
@@ -22,8 +22,6 @@
     "TC_DECAY_RATE": "0.1",
     "DEFAULT_K": "800",
     "SPREADING_FILTER": "['MemberLink', ['Type', 'MemberLink']]",
-    "STARTING_FUNDS_STI": "100000",
-    "STARTING_FUNDS_LTI": "100000",
     "STI_ATOM_WAGE": "10",
     "LTI_ATOM_WAGE": "10",
     "TOPK": "1",
@@ -36,5 +34,7 @@
     "FUNDS_LTI": "100000.0",
     "MAX_SPREAD_PERCENTAGE": "0.8",
     "HEBBIAN_MAX_ALLOCATION_PERCENTAGE": "0.5",
-    "AFRentFrequency": "2.0"
+    "AFRentFrequency": "2.0",
+    "STARTING_FUNDS_STI": "100000.0",
+    "STARTING_FUNDS_LTI": "100000.0"
 }

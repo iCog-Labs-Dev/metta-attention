@@ -31,7 +31,7 @@ moth species caterpillar
 grasshopper species change colour behaviour form swarms
 dragonflies human culture artifacts pottery
 apiformes bees flying insects wasps ants
-pollen food bee larvae
+pollen food
 
 ))
 

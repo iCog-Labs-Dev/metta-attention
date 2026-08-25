@@ -54,6 +54,9 @@
 !(updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.5)
 ; !(updateAttentionParam TOPK 0.8)
 !(updateAttentionParam AFRentFrequency 2.0)
+!(updateAttentionParam STARTING_FUNDS_STI 100000.0) 
+!(updateAttentionParam STARTING_FUNDS_LTI 100000.0) 
+
 
 ; write the params to a file
 ; usage(baseline parameters are optional): !(start-log (attentionParam) "current_experiment" "efficiency_baseline" "redundancy_baseline")
@@ -70,7 +73,7 @@
     )
 )
 
-(= (batch) 10)
+(= (batch) 25)
 (= (runAttentionBatch)
     (let*
         (
@@ -89,7 +92,8 @@
                 ($rest (cdr-atom $expr))
                 ($_stim (collapse (stimulate $now 10)))
                 ($_stimlog (println! (stimulating atom --> $now)))
-                ($_readlog (println! (read-step $counter word $now remaining (size-atom $rest))))
+                ($afsize (size-atom (getAfAtoms)))
+                ($_readlog (println! (read-step $counter word $now remaining (size-atom $rest) af size $afsize)))
                 ($_batch
                     (if (or (== (% $counter (batch)) 0) (== $rest ()))
                         (let*
@@ -107,7 +111,7 @@
                     )
                 )
                 ; (py-call (time.sleep 5.0))
-                ; ($_cip (logcurrCip))
+                ($_cip (logcurrCip))
                 ($_next (insectPoisonReadExp $rest (+ $counter 1)))
             )
             True
