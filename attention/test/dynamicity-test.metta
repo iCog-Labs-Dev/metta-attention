@@ -68,13 +68,8 @@
 !(add-atom &incident (amniocytic_a ((relatedto amniocytic_a amniocyte))))
 !(add-atom &incident (served_in_cup ((receivesaction sauce served_in_cup))))
 
-(let $expression (mush_up_v frosty_a dented_a_wn makhnovism_n making_mountains high_angle_fire_n_wn_act divine_law_n_wn_cognition
-sir_joseph_john_thomson_n_wn_person john_stuart_mill_n_wn_person anticize_v mutual_induction_n_wn_phenomenon lesages_n
-effloresce_v_wn_change resequencing_n damper_a butadiyne_n chain_stories_n e_readers_n gliriform_a decorrelated_a sandquists_n
-aqueousness sumitriptan_n aluminum_floating_foot_bridge_n life_n_wn_attribute sister_souljah_moments_n 
-go_on_v_wn_contact prodigalizes_v flare_v amniocytic_a served_in_cup) $expression)
 
-; runner
+
 
 
 ; if the difference between fund and target is more than buffer we will stimulate with full capacity which is 20
@@ -124,10 +119,14 @@ go_on_v_wn_contact prodigalizes_v flare_v amniocytic_a served_in_cup) $expressio
     ($atom (println! (af size $size stimulated atom is $first with sti $sti)))
     
     ; ($rent (println! (amount of rent collected )))
-    ($agents (collapse (test-superpose &incident)))
     
     ($fund (getAttentionParam FUNDS_STI))
     ($f (println! (total fund $fund)))
+    ($agents (collapse (test-superpose &incident)))
+    ($fund2 (getAttentionParam FUNDS_STI))
+
+    ($f (println! (total fund $fund2)))
+
 
 
    )
@@ -146,3 +145,4 @@ go_on_v_wn_contact prodigalizes_v flare_v amniocytic_a served_in_cup))
 
 
 
+ 

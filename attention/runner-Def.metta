@@ -1,5 +1,5 @@
 (= (test-superpose $incidentSpace)
-    (hyperpose 
+    (superpose 
         (
             (HebbianCreationAgent-Run (TypeSpace))
             (HebbianUpdatingAgent-Run (TypeSpace))
