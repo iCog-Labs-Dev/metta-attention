@@ -1,6 +1,6 @@
 !(bind! &incident (new-space))
-!(import! &self lib/lib_he)
-!(import! &self lib/lib_spaces)
+!(import! &self (library lib_he))
+!(import! &self (library lib_spaces))
 !(import! &self (library lib_import))
 
 !(import! &self ../AttentionParam)
