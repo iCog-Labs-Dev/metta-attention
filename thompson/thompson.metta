@@ -73,13 +73,14 @@
 )
 
 (= (rawReward $prevStim $nextStim)
-    (+ (* 0.6 (bandReward (stimConduciveness $prevStim) (stimConduciveness $nextStim)))
-       (* 0.4 (- 1.0 (stimEffort $nextStim)))
-    )
+    (+ (+ (* 0.15 (stimNovelty $nextStim))
+          (* 0.35 (bandReward (stimConduciveness $prevStim) (stimConduciveness $nextStim))))
+       (+ (* 0.30 (- 1.0 (stimRisk $nextStim)))
+          (* 0.20 (- 1.0 (stimEffort $nextStim)))))
 )
 
 (= (differentialReward $raw $baseline)
-    (clamp01 (+ (- $raw $baseline) 0.5))
+    (clamp01 (+ (- $raw $baseline) 0.2))
 )
 
 (= (updateBaseline $baseline $raw)
