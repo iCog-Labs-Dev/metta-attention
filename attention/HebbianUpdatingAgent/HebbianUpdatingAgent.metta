@@ -34,13 +34,10 @@
 
 ; (: updateHebbianLinks (-> Atom Grounded Atom))
 (= (updateHebbianLinks $source $space)
-    (let $iset 
-        (collapse ($source ((getAllIncomingSetsForHUAgent $source $space ASYMMETRIC_HEBBIAN_LINK) $space)))
-        (bach-p bachUpdateHeb $iset) 
-    )
+    (collapse (bachUpdateHeb $source (getAllIncomingSetsForHUAgent $source $space ASYMMETRIC_HEBBIAN_LINK) $space))
 )
 
-(= (bachUpdateHeb $source ($iset $space))
+(= (bachUpdateHeb $source $iset $space)
     (with_mutex hupdt_mutex (let*
         (
             ; ($iset (getAllIncomingSetsForHUAgent $source $space ASYMMETRIC_HEBBIAN_LINK))
@@ -63,7 +60,6 @@
         ) 
     ))
 )
-
 
 ;;; Function: targetConjunction
 ;;; Description: Calculates the target conjunction of a given link.

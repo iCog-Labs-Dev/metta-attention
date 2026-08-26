@@ -46,9 +46,8 @@
               (let*
                   (
                     ($w (* $elapsedTime $multiplier))
-                    ($input (collapse ($w (superpose $targetSet))))
                   )
-                  (bach-p applyRent $input)
+                  (collapse (applyRent $w (hyperpose $targetSet)))
               )
           )
       )

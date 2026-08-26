@@ -87,14 +87,19 @@
                     ))
                 )
             ))
-            ($trades (collapse (tradeList $atoms)))
+            ; ($trades (collapse (tradeList $atoms)))
         )
         (
-            (bach-p setStis $trades)
+            (collapse (let ($atom $sti) 
+                (tradeList $atoms)
+                (setStis $atom $sti)
+            ))
             (empty)
         )
     )
 )
+
+
 
 ;; This function is the entry point to the AFImportance Diffusion Agent
 ;; Parameters $space: The space that will be used to find the diffusion source vector

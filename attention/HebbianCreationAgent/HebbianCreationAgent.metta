@@ -34,15 +34,15 @@
             )
             (
                 (addFromOutSideAF $source $farLinks $afAtoms)
-                (let $target (collapse ((superpose $needToBeTarget) $source))
-                    (bach-p addHebbian $target)
-                )
+                (addHebbian (hyperpose $needToBeTarget) $source)
              )
          )
        ))
     )
 )
 )
+
+
 
 ;Function: getSourceAtom
 ;Description: returns the source atom of a link
