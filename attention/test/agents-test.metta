@@ -42,6 +42,13 @@
 !(import! &self (library metta-attention attention/HebbianCreationAgent/HebbianCreationAgent))
 !(import! &self (library metta-attention attention/runner-Def))
 !(bind! &incident (new-space))
+
+(= (setAFRentElapsedSeconds $seconds)
+    (let $now (timeTime)
+        (setLastUpdate (- $now $seconds))
+    )
+)
+
 !(add-atom &incident (Ants ( (SimilarityLink abamectin Ants))))
 !(add-atom &incident (abamectin ( (SimilarityLink abamectin Ants))))
 !(add-atom &incident (aldicarb ( (SimilarityLink aldicarb aflatoxin))))
@@ -93,7 +100,7 @@
 
 !(stimulate aflatoxin 30.0)
 !(test (getAttentionParam FUNDS_STI) 980.0)
-!(py-call (time.sleep 0.5))
+!(setAFRentElapsedSeconds 0.2)
 !(collapse (test-superpose &incident))
 
 (test (getAttentionParam FUNDS_STI) 980.0)

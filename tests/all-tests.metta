@@ -17,14 +17,14 @@
 )
 
 !(registerLocalMettaAttentionLibrary)
-!(import! &self (library metta-attention tests/all_tests_runner.py))
+!(import_prolog_functions_from_file (library metta-attention tests/test_shell_runner.pl) (run_metta_attention_tests run_metta_attention_tests_detailed))
 
 (= (runAllMettaTests)
-    (py-call (all_tests_runner.run_all_metta_tests))
+    (run_metta_attention_tests)
 )
 
 (= (runAllMettaTestsDetailed)
-    (py-call (all_tests_runner.run_all_metta_tests_detailed))
+    (run_metta_attention_tests_detailed)
 )
 
 !(runAllMettaTests)

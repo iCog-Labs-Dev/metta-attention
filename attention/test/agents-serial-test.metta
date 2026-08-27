@@ -42,6 +42,13 @@
 !(import! &self (library metta-attention attention/runner-Def))
 
 !(bind! &incident (new-space))
+
+(= (setAFRentElapsedSeconds $seconds)
+    (let $now (timeTime)
+        (setLastUpdate (- $now $seconds))
+    )
+)
+
 !(add-atom &incident (Ants ( (SimilarityLink abamectin Ants))))
 !(add-atom &incident (abamectin ( (SimilarityLink abamectin Ants))))
 !(add-atom &incident (aldicarb ( (SimilarityLink aldicarb aflatoxin))))
@@ -121,7 +128,7 @@
 
 ; ========================== RentCollectionAgent ==============================
 !(test (getAttentionParam FUNDS_STI) 980.0)
-!(py-call (time.sleep 0.3))
+!(setAFRentElapsedSeconds 0.3)
 !(AFRentCollectionAgent-run)
 
 ; => assert FUNDS_STI retrived from atoms
@@ -166,4 +173,3 @@
     )
     (test (> $sizeStv 4) True)
 )
-
