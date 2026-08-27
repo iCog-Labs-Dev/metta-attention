@@ -27,6 +27,8 @@
 ; Python helpers used by the agents and optional logging/metrics functions.
 !(import! &self (library metta-attention attention/ImportanceDiffusionAgent/getelement.py))
 !(import! &self (library metta-attention experiments/utils/logger.py))
+!(import! &self (library metta-attention synapse/community_detector.py))
+!(import! &self (library metta-attention synapse/topology_metrics.py))
 !(import! &self (library metta-attention experiments/logger))
 
 ; ECAN agents.
@@ -45,3 +47,7 @@
 ; Optional ECAN analysis and topology helpers.
 !(import! &self (library metta-attention synapse/utils))
 !(import! &self (library metta-attention synapse/synapse))
+
+; tests
+!(import! &self (library metta-attention tests/all-tests))
+
