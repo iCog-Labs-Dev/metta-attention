@@ -118,3 +118,6 @@
 !(test (getSti (ASYMMETRIC_HEBBIAN_LINK target2 target3)) 0.0)
 !(test (getSti (INHERITANCE_LINK target3 (ASYMMETRIC_HEBBIAN_LINK sorce target4))) 1885.1257142857144)
 
+!(test (py-call (getelement.getTopK (3.0 10.0 2.0 7.0) 2)) (10.0 7.0))
+!(test (py-call (getelement.getTopK (3.0 10.0 2.0 7.0) 0)) ())
+!(test (py-call (getelement.getK (alpha beta gamma delta) 3)) (alpha beta gamma))

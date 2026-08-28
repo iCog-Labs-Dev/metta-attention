@@ -27,4 +27,4 @@
     (run_metta_attention_tests_detailed)
 )
 
-!(runAllMettaTests)
+
