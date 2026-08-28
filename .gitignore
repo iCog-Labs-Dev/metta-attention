@@ -4,6 +4,7 @@ __pycache__
 *.swo
 .vscode
 *.pl
+!tests/test_shell_runner.pl
 *.qlf
 *.csv
 wordnet_stv_clean.metta
