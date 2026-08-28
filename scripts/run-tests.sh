@@ -22,41 +22,90 @@ FAILED=0
 SKIPPED=0
 FAILED_TESTS=()
 
-ATTENTION_BANK_TESTS=(
-  "attention-bank/bank/tests/attention-bank-test.metta"
-  "attention-bank/attention-value/tests/getter-and-setter-test.metta"
-  "attention-bank/utilities/tests/helper-functions-test.metta"
-  "attention-bank/bank/importance-index/tests/importance-index-test.metta"
-  "attention-bank/bank/attentional-focus/tests/attentional-focus-test.metta"
-  "attention-bank/bank/stochastic-importance-diffusion/tests/merge-bin-test.metta"
-  "attention-bank/bank/stochastic-importance-diffusion/tests/stochastic-importance-diffusion-test.metta"
+ATTENTION_BANK_TEST_GLOBS=(
+  "attention-bank/**/*-test.metta"
 )
 
-AGENT_TESTS=(
-  "attention/HebbianCreationAgent/HebbianCreationAgentTest/HebbianCreationAgentC++-test.metta"
-  "attention/HebbianUpdatingAgent/tests/HebbianUpdatingAgent-test.metta"
-  "attention/ImportanceDiffusionAgent/ImportanceDiffusionBase/tests/ImportanceDiffusionBase-test.metta"
-  "attention/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/tests/WAImportanceDiffusion-test.metta"
-  "attention/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/tests/AFImportanceDiffusion-test.metta"
-  "attention/RentCollectionAgent/RentCollectionBaseAgent/tests/RentCollectionBaseAgent-test.metta"
-  "attention/RentCollectionAgent/WARentCollectionAgent/tests/WARentCollectionAgent-test.metta"
-  "attention/RentCollectionAgent/AFRentCollectionAgent/tests/AFRentCollectionAgent-test.metta"
-  "attention/RentCollectionAgent/AFRentCollectionAgent/tests/AFRentCollectionAgent-economic-parameters-test.metta"
-  "attention/RentCollectionAgent/AFRentCollectionAgent/tests/AFRentCollectionAgent2-test.metta"
-  "attention/RentCollectionAgent/AFRentCollectionAgent/tests/AFRentCollectionAgent-fund-frequency-elapsed-test.metta"
-  "attention/RentCollectionAgent/AFRentCollectionAgent/tests/AFRentCollectionAgent-deterministic-timer-test.metta"
-  "attention/RentCollectionAgent/AFRentCollectionAgent/tests/AFRentCollectionAgent-liquidity-equation-test.metta"
-  "attention/test/agents-test.metta"
-  "attention/test/agents-serial-test.metta"
-  "attention/test/dynamicity-test.metta"
+AGENT_TEST_GLOBS=(
+  "attention/**/*-test.metta"
 )
 
 KNOWN_EXCLUDED_TESTS=(
   "attention/ForgettingAgent/tests/ForgettingAgent-test.metta"
 )
 
+ATTENTION_BANK_TESTS=()
+AGENT_TESTS=()
+
 print_header() {
   printf "${BOLD}${CYAN}\n=== %s ===${RESET}\n" "$1"
+}
+
+sort_unique_array() {
+  local -n values="$1"
+
+  if [[ ${#values[@]} -eq 0 ]]; then
+    return
+  fi
+
+  mapfile -t values < <(printf "%s\n" "${values[@]}" | LC_ALL=C sort -u)
+}
+
+collect_globbed_tests() {
+  local -n tests="$1"
+  shift
+
+  local pattern
+  local test_file
+
+  tests=()
+  shopt -s globstar nullglob
+
+  for pattern in "$@"; do
+    for test_file in "$ROOT_DIR"/$pattern; do
+      if [[ -f "$test_file" ]]; then
+        tests+=("${test_file#"$ROOT_DIR"/}")
+      fi
+    done
+  done
+
+  sort_unique_array tests
+}
+
+is_known_excluded_test() {
+  local candidate="$1"
+  local test_file
+
+  for test_file in "${KNOWN_EXCLUDED_TESTS[@]}"; do
+    if [[ "$candidate" == "$test_file" ]]; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+filter_known_excluded_tests() {
+  local -n tests="$1"
+  local filtered=()
+  local test_file
+
+  for test_file in "${tests[@]}"; do
+    if ! is_known_excluded_test "$test_file"; then
+      filtered+=("$test_file")
+    fi
+  done
+
+  tests=("${filtered[@]}")
+}
+
+discover_metta_tests() {
+  collect_globbed_tests ATTENTION_BANK_TESTS "${ATTENTION_BANK_TEST_GLOBS[@]}"
+  collect_globbed_tests AGENT_TESTS "${AGENT_TEST_GLOBS[@]}"
+
+  if [[ "${METTA_INCLUDE_KNOWN_EXCLUDED:-0}" != "1" ]]; then
+    filter_known_excluded_tests AGENT_TESTS
+  fi
 }
 
 resolve_petta_runner() {
@@ -157,14 +206,15 @@ run_metta_suite() {
 
 print_skipped_known_excluded() {
   if [[ "${METTA_INCLUDE_KNOWN_EXCLUDED:-0}" == "1" ]]; then
-    AGENT_TESTS+=("${KNOWN_EXCLUDED_TESTS[@]}")
     return
   fi
 
   print_header "Skipped Known Excluded Tests"
   for test_file in "${KNOWN_EXCLUDED_TESTS[@]}"; do
-    SKIPPED=$((SKIPPED + 1))
-    printf "${YELLOW}skipped: %s${RESET}\n" "$test_file"
+    if [[ -f "$ROOT_DIR/$test_file" ]]; then
+      SKIPPED=$((SKIPPED + 1))
+      printf "${YELLOW}skipped: %s${RESET}\n" "$test_file"
+    fi
   done
 }
 
@@ -174,6 +224,7 @@ main() {
   unset PYTHONPATH
 
   resolve_petta_runner
+  discover_metta_tests
 
   print_header "Test Runner"
   printf "${CYAN}Repo root    : %s${RESET}\n" "$ROOT_DIR"
