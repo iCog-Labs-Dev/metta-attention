@@ -1,5 +1,12 @@
 # AF Rent Collection Agent: Current Formula and Proposed Update
 
+> Current implementation note: `AFRentCollectionAgent2.metta` has moved past the
+> dynamic-floor prototype described in this document. The active v2 agent now
+> computes `fundGap + AFRentCoverageRatio * (STARTING_FUNDS_STI - TARGET_STI)`,
+> splits that desired STI collection by the cycle-start STI held inside vs.
+> outside attentional focus, and charges equal capped rent within each group.
+> The dynamic-floor formula below is retained as historical design context.
+
 ## Executive Summary
 
 The current `AFRentCollectionAgent` collects rent from attentional-focus atoms using a wall-clock timer. Rent is only collected when:

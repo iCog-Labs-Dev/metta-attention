@@ -51,5 +51,4 @@ jobs:
 
     - name: Run Tests
       run: |
-        cd PeTTa
-        python ../metta-attention/scripts/run-tests.py
+        bash metta-attention/scripts/run-tests.sh

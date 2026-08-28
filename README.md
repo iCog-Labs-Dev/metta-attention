@@ -49,6 +49,41 @@ pip install -r requirments.txt
     sh run.sh ../metta-attention/attention/HebbianCreationAgent/HebbianCreationAgentTest/HebbianCreationAgentc++-test.metta
     ```
 
+## Using ECAN as a Library
+
+The root [`lib.metta`](lib.metta) file loads the reusable ECAN attention bank,
+agents, and helper functions. In another PeTTa project, register this repository
+first, then import the library entry point:
+
+```metta
+!(import! &self (library lib_import))
+
+!(git-import! "https://github.com/iCog-Labs-Dev/metta-attention.git")
+
+!(import! &self (library metta-attention lib))
+
+!(getAttentionParam FUNDS_STI)
+```
+
+For local development before the library entry point is published, register your
+checkout directly with an absolute path:
+
+```metta
+!(assertaPredicate (Predicate (library_path "/absolute/path/to/metta-attention")))
+
+!(import! &self (library metta-attention lib))
+```
+
+After the import, ECAN functions such as `stimulate`, `setAv`, `getAfAtoms`,
+`HebbianCreationAgent-Run`, `HebbianUpdatingAgent-Run`,
+`AFImportanceDiffusionAgent-Run`, `WAImportanceDiffusionAgent-Run`,
+`AFRentCollectionAgent-run`, `WARentCollectionAgent-Run`, and
+`forgettingAgent-Run` are available in `&self`.
+
+PeTTa standard libraries should be imported with `(library ...)`, for example
+`(library lib_spaces)`. This keeps imports independent of the directory where
+the user runs `run.sh`.
+
 - to run the experiment
     - first run the run.sh script as follows `sh run.sh` the script uses pyhton3 by default to run scripts to convert
       wordnet and coneptnet data to metta equivalent data but you can specify desired metta version as `PYTHON=python3.10 sh run.sh`
@@ -67,4 +102,3 @@ Before you start contributing to this repository, make sure to read the [CONTRIB
 - [Economic attention allocation](https://wiki.opencog.org/w/Economic_attention_allocation_(Obsolete)) wiki page 
 
 - C++ implementation of [attention](https://github.com/singnet/attention) codebase
-

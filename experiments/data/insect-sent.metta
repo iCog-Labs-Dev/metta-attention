@@ -16,6 +16,7 @@ members tribe proconiini subfamily cicadellinae sharpshooters
 damage foliage flowers crops earwigs common_earwig forficula auricularia
 250 species bumblebee
 
+
 caffeine central nervous system stimulant methylxanthine class
 nicotine carnogenic addictive substance
 water role world economy
@@ -31,9 +32,11 @@ moth species caterpillar
 grasshopper species change colour behaviour form swarms
 dragonflies human culture artifacts pottery
 apiformes bees flying insects wasps ants
-pollen food bee larvae
+pollen food
 
 ))
+
+
 
 
 ; (insectSent (                                                                                                    

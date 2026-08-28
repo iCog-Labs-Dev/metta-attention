@@ -1,17 +1,30 @@
-!(import! &self lib/lib_he)
-!(import! &self lib/lib_spaces)
-!(import! &self ../../../../attention/AttentionParam)
-!(import! &self ../../../../attention-bank/utilities/helper-functions)
-!(import! &self ../../../../attention-bank/utilities/helper-functions)
+!(import! &self (library lib_import))
+!(import_prolog_function working_dir)
+!(import_prolog_function directory_file_path)
+!(import_prolog_function absolute_file_name)
 
-!(import! &self ../../../../attention-bank/bank/importance-index/importance-index)
+(= (registerLocalMettaAttentionLibrary)
+    (let*
+        (
+            ($testDir (working_dir))
+            ($rootPath (directory_file_path $testDir "../../../.."))
+            ($repoRoot (absolute_file_name $rootPath))
+        )
+        (assertaPredicate (Predicate (library_path $repoRoot)))
+    )
+)
 
-!(import! &self ../../../../attention-bank/attention-value/getter-and-setter)
-
-!(import! &self ../../../../attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
-!(import! &self ../../../../attention-bank/bank/attention-bank)
-!(import! &self ../../../../attention-bank/utilities/recentVal)
-; This sets the STI of a to 1 which will give bin index of 1
+!(registerLocalMettaAttentionLibrary)
+!(import! &self (library lib_he))
+!(import! &self (library lib_spaces))
+!(import! &self (library metta-attention attention/AttentionParam))
+!(import! &self (library metta-attention attention-bank/utilities/helper-functions))
+!(import! &self (library metta-attention attention-bank/utilities/helper-functions))
+!(import! &self (library metta-attention attention-bank/bank/importance-index/importance-index))
+!(import! &self (library metta-attention attention-bank/attention-value/getter-and-setter))
+!(import! &self (library metta-attention attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion))
+!(import! &self (library metta-attention attention-bank/bank/attention-bank))
+!(import! &self (library metta-attention attention-bank/utilities/recentVal)); This sets the STI of a to 1 which will give bin index of 1
 !(setAv a (1.0 1.0 1.0))
 
 
