@@ -40,11 +40,7 @@
 !(import! &self (library metta-attention attention/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent))
 !(import! &self (library metta-attention attention/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent))
 !(import! &self (library metta-attention attention/ImportanceDiffusionAgent/getelement.py))
-!(import! &self (library metta-attention attention/RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent))
-!(import! &self (library metta-attention attention/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent))
-!(import! &self (library metta-attention attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent))
 !(import! &self (library metta-attention attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent2))
-!(import! &self (library metta-attention attention/runner-Def))
 ; knowldge base
 
 !(add-atom &incident (mush_up_v ((relatedto mush_up_v mushy) (relatedto mush_up_v paste))))
@@ -108,11 +104,24 @@
 !(updateAttentionParam FUNDS_LTI 20000.0) 
 !(updateAttentionParam STARTING_FUNDS_STI 20000.0)
 !(updateAttentionParam STARTING_FUNDS_LTI 20000.0)
+!(updateAttentionParam AFRentCoverageRatio 0.4)
  
 
 
 
 !(size-atom (getAfAtoms))
+
+(= (dynamicity-test-runner $incidentSpace)
+    (hyperpose
+        (
+            (HebbianCreationAgent-Run (TypeSpace))
+            (HebbianUpdatingAgent-Run (TypeSpace))
+            (AFImportanceDiffusionAgent-Run $incidentSpace (TypeSpace))
+            (WAImportanceDiffusionAgent-Run $incidentSpace)
+            (AFRentCollectionAgent2-run)
+        )
+    )
+)
 
 
 (= (testDynamicity $exp) 
@@ -133,7 +142,7 @@
     
     ($fund (getAttentionParam FUNDS_STI))
     ($f (println! (total fund $fund)))
-    ($agents (collapse (test-superpose &incident)))
+    ($agents (collapse (dynamicity-test-runner &incident)))
     ($fund2 (getAttentionParam FUNDS_STI))
 
     ($f (println! (total fund $fund2)))
@@ -153,7 +162,7 @@ aqueousness sumitriptan_n aluminum_floating_foot_bridge_n life_n_wn_attribute si
 go_on_v_wn_contact prodigalizes_v flare_v amniocytic_a served_in_cup))
 
 !(size-atom (getAfAtoms))
+!(test (> (getAttentionParam FUNDS_STI) (getAttentionParam TARGET_STI)) True)
 
 
 
- 
