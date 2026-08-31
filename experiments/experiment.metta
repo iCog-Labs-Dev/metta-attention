@@ -6,7 +6,7 @@
 !(import! &insect data/insect-sent)
 !(import! &self lib/lib_spaces)
 !(import! &self lib/lib_he)
-!(static-import! &incident ./data/kgadexp)
+!(static-import! &incident ./data/kg)
 ; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 !(import! &self ../attention/AttentionParam)
@@ -106,11 +106,11 @@
 )
 
 ; Bare (agents fluid) would apply agents as a function to fluid — use let*.
-(= (runEcanBatch $seeds)
+(= (runAttentionBatch $seeds)
     (let*
         (
             ($_agents (collapse (test-superpose &incident)))
-            ($_fluid (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta" $seeds))
+            ($_fluid (collapse (applyFluidSimulation "../metta-attention/experiments/data/kg_fluid_map.metta" $seeds)))
         )
         True
     )
@@ -198,7 +198,7 @@
                         (let*
                             (
                                 ($seeds (getSeeds))
-                                ($_agents (runEcanBatch $seeds))
+                                ($_agents (runAttentionBatch $seeds))
                                 ($moduleLinksWithValues (getAllHebLinksWithValues))
                                 ($modules (identifyHebbianModules $moduleLinksWithValues))
                                 ($moduleCount (size-atom $modules))
