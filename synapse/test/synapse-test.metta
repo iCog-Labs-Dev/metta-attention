@@ -152,7 +152,7 @@
 ; when the buffer sti target reached atoms start to get sti according to the global fund budget rule
 ; during aget excution all agent excute on the existing attentional focus atoms
 
-!(collapse (test-superpose &incident))
+!(collapse (agent-runner &incident))
 
 
 ; 1 n * (n - 1) aymetric hebbian link will be created 
@@ -233,7 +233,7 @@
 
 !(assertEqual (collapse (averageList (getStiSeries (superpose (a b c))))) (3.0 4.0 5.0))
 
-!(collapse (test-superpose &incident))
+!(collapse (agent-runner &incident))
 
 ; ; this changes of sti for atoms shows everytime agents called thire sti will be diffused for thire related links
 

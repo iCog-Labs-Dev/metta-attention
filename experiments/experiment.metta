@@ -77,7 +77,7 @@
 (= (runAttentionBatch)
     (let*
         (
-            ($_agents (collapse (test-superpose &incident)))
+            ($_agents (collapse (agent-runner &incident)))
         )
         True
     )

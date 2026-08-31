@@ -75,7 +75,7 @@
 !(assertEqual (getAfAtoms) ())
 !(assertEqual (getAllAtomsWithBins) ())
 !(stimulate Ants 30.0)
-!(collapse (test-superpose &incident))
+!(collapse (agent-runner &incident))
 !(size-atom (getAfAtoms))
 
 !(test (subtraction-atom (getAfAtoms) ((SimilarityLink abamectin Ants) Ants)) ())
@@ -101,7 +101,7 @@
 !(stimulate aflatoxin 30.0)
 !(test (getAttentionParam FUNDS_STI) 980.0)
 !(setAFRentElapsedSeconds 0.2)
-!(collapse (test-superpose &incident))
+!(collapse (agent-runner &incident))
 
 (test (getAttentionParam FUNDS_STI) 980.0)
 (test (> (getAttentionParam FUNDS_STI) 980.0) True)
