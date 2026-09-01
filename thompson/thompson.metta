@@ -1,15 +1,5 @@
 !(bind! &tsState (new-space))
 
-(= (lowBinMax) 0.36)
-(= (midBinMax) 0.65)
-
-(= (conducivenessBin $cond)
-    (if (<= $cond (lowBinMax))
-        low
-        (if (<= $cond (midBinMax)) mid high)
-    )
-)
-
 (= (thompsonStrategies)
     (narrow-focus expand-focus explore-novel)
 )
@@ -22,18 +12,18 @@
     (if (< $x 0.0) (- 0.0 $x) $x)
 )
 
-(= (tsLookup $strat $bin)
-    (unify &tsState (ts-posterior $strat $bin $alpha $beta) ($alpha $beta) (1.0 1.0))
+(= (tsLookup $strat)
+    (unify &tsState (ts-posterior $strat $alpha $beta) ($alpha $beta) (1.0 1.0))
 )
 
-(= (tsScores $bin ()) ())
-(= (tsScores $bin (cons $head $tail))
+(= (tsScores ()) ())
+(= (tsScores (cons $head $tail))
     (let* 
         (
-            (($alpha $beta) (tsLookup $head $bin))
+            (($alpha $beta) (tsLookup $head))
             ($sample (randomBeta $alpha $beta))
         )
-        (cons-atom ($head $sample) (tsScores $bin $tail))
+        (cons-atom ($head $sample) (tsScores $tail))
     )
 )
 
@@ -60,10 +50,10 @@
     (car-atom (pickBest $samples -1.0 ()))
 )
 
-(= (tsUpdate $strat $bin $r)
-    (match &tsState (ts-posterior $strat $bin $alpha $beta)
-        (let $_ (remove-atom &tsState (ts-posterior $strat $bin $alpha $beta))
-            (add-atom &tsState (ts-posterior $strat $bin (+ $alpha $r) (+ $beta (- 1.0 $r))))
+(= (tsUpdate $strat $r)
+    (match &tsState (ts-posterior $strat $alpha $beta)
+        (let $_ (remove-atom &tsState (ts-posterior $strat $alpha $beta))
+            (add-atom &tsState (ts-posterior $strat (+ $alpha $r) (+ $beta (- 1.0 $r))))
         )
     )
 )
@@ -73,10 +63,10 @@
 )
 
 (= (rawReward $prevStim $nextStim)
-    (+ (+ (* 0.15 (stimNovelty $nextStim))
+    (+ (+ (* 0.25 (stimNovelty $nextStim))
           (* 0.35 (bandReward (stimConduciveness $prevStim) (stimConduciveness $nextStim))))
-       (+ (* 0.30 (- 1.0 (stimRisk $nextStim)))
-          (* 0.20 (- 1.0 (stimEffort $nextStim)))))
+       (+ (* 0.10 (- 1.0 (stimRisk $nextStim)))
+          (* 0.10 (- 1.0 (stimEffort $nextStim)))))
 )
 
 (= (differentialReward $raw $baseline)

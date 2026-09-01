@@ -63,15 +63,9 @@
 ;; ══════════════════════════════════════════════════════════════════════════════
 !(bind! &noveltyTrack (new-space))
 
-!(add-atom &tsState (ts-posterior narrow-focus low 1.0 1.0))
-!(add-atom &tsState (ts-posterior narrow-focus mid 1.0 1.0))
-!(add-atom &tsState (ts-posterior narrow-focus high 1.0 1.0))
-!(add-atom &tsState (ts-posterior expand-focus low 1.0 1.0))
-!(add-atom &tsState (ts-posterior expand-focus mid 1.0 1.0))
-!(add-atom &tsState (ts-posterior expand-focus high 1.0 1.0))
-!(add-atom &tsState (ts-posterior explore-novel low 1.0 1.0))
-!(add-atom &tsState (ts-posterior explore-novel mid 1.0 1.0))
-!(add-atom &tsState (ts-posterior explore-novel high 1.0 1.0))
+!(add-atom &tsState (ts-posterior narrow-focus 1.0 1.0))
+!(add-atom &tsState (ts-posterior expand-focus 1.0 1.0))
+!(add-atom &tsState (ts-posterior explore-novel 1.0 1.0))
 
 !(add-atom &tsState (tsBaseline 0.5))
 
@@ -128,12 +122,11 @@
     (let*
         (
             ($prevStim (ecanStimulus))
-            ($bin (conducivenessBin (stimConduciveness $prevStim)))
             ($baseline (car-atom (collapse (match &tsState (tsBaseline $b) $b))))
-            ($samples (tsScores $bin (thompsonStrategies)))
+            ($samples (tsScores (thompsonStrategies)))
             ($strategy (pickBestSample $samples))
             ($seeds (applyStrategy $strategy))
-            ($_log (println! (thompson chose $strategy in bin $bin)))
+            ($_log (println! (thompson chose $strategy)))
             ($_samples (println! (samples $samples)))
             ($_stimlog (println! (stim $prevStim)))
             ($_seedrec
@@ -154,7 +147,7 @@
             ($reward (differentialReward $raw $baseline))
             ($newBaseline (updateBaseline $baseline $raw))
             ($_reward (println! (reward raw $raw reward $reward baseline $newBaseline)))
-            ($_pu (tsUpdate $strategy $bin $reward))
+            ($_pu (tsUpdate $strategy $reward))
             ($_bu
                 (let $oldB (collapse (match &tsState (tsBaseline $x) $x))
                     (let $removedB (remove-atom &tsState (tsBaseline $x))
