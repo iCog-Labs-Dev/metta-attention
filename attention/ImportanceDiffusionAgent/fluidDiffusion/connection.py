@@ -202,12 +202,6 @@ def _load_sti_json(path: str | None) -> dict[str, float] | None:
 
 def main() -> None:
     args = _build_arg_parser().parse_args()
-    sti_values = _load_sti_json(args.sti_json)
-    if not sti_values:
-        edges = parse_metta_edges(args.input)
-        nodes = extract_atoms(edges)
-        rng = np.random.default_rng()
-        sti_values = {node: float(rng.uniform(300, 700)) for node in nodes}
     params = FluidParams(
         grid_size=args.grid,
         num_steps=args.steps,
@@ -217,11 +211,18 @@ def main() -> None:
         control_mode=args.control_mode,
     )
 
+    edges, nodes, coords, modes = _load_or_compute_graph_data(args.input, params)
+
+    sti_values = _load_sti_json(args.sti_json)
+    if not sti_values:
+        rng = np.random.default_rng()
+        sti_values = {node: float(rng.uniform(300, 700)) for node in nodes}
+
+    rho_initial, _ = push_sti_to_density(
+        edges, nodes, params, sti_values, spectral_coords=coords
+    )
+
     if args.animate:
-        edges, nodes, coords, modes = _load_or_compute_graph_data(args.input, params)
-        rho_initial, _ = push_sti_to_density(
-            edges, nodes, params, sti_values, spectral_coords=coords
-        )
         goal_cells = parse_goal_cells(args.seeds, params.grid_size, coords)
         rho_final, (u_x, u_y), diagnostics, history = transport_density(
             rho_initial,
@@ -242,11 +243,8 @@ def main() -> None:
             goal_cells=goal_cells,
         )
     else:
-        edges = parse_metta_edges(args.input)
-        nodes = extract_atoms(edges)
-        rho_initial, coords = push_sti_to_density(edges, nodes, params, sti_values)
         rho_final, (u_x, u_y), diagnostics, _ = transport_density(
-            rho_initial, params, args.seeds
+            rho_initial, params, args.seeds, modes=modes, spectral_coords=coords
         )
 
     print_diagnostics(diagnostics)

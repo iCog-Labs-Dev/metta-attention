@@ -2,9 +2,7 @@ from __future__ import annotations
 
 import io
 import os
-
 import matplotlib
-
 matplotlib.use("Agg")
 import matplotlib.patheffects
 import matplotlib.pyplot as plt
@@ -13,10 +11,8 @@ from PIL import Image
 
 from graph import spectral_to_grid_coords
 
-
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 GIF_OUTPUT = os.path.join(SCRIPT_DIR, "fluid_animation.gif")
-
 
 def _resolve_output_path(path: str, overwrite: bool) -> str:
     if overwrite:
@@ -26,7 +22,6 @@ def _resolve_output_path(path: str, overwrite: bool) -> str:
     while os.path.exists(f"{base}_{i}{ext}"):
         i += 1
     return f"{base}_{i}{ext}"
-
 
 def render_animation(
     history: list[np.ndarray],
@@ -43,6 +38,33 @@ def render_animation(
     positions = spectral_to_grid_coords(spectral_coords, grid_size)
     total_steps = len(history)
     resolved = _resolve_output_path(output_path, overwrite)
+    
+    # Pre-extract coordinate arrays for fast scatter plotting
+    atoms = list(positions.keys())
+    x_coords = [positions[a][0] for a in atoms]
+    y_coords = [positions[a][1] for a in atoms]
+    
+    if sti_values:
+        weights = [sti_values.get(a, 0) for a in atoms]
+    else:
+        weights = [1] * len(atoms)
+        
+    sizes = [max(6, min(14, w * 0.5)) * 0.6 for w in weights]
+    
+    # Identify top nodes to render  (mathplot lib crashes for concept net)
+    MAX_NODES_TO_RENDER = 2000
+    if len(atoms) > MAX_NODES_TO_RENDER:
+        render_indices = sorted(range(len(weights)), key=lambda i: weights[i], reverse=True)[:MAX_NODES_TO_RENDER]
+    else:
+        render_indices = list(range(len(atoms)))
+        
+    x_coords_render = [x_coords[i] for i in render_indices]
+    y_coords_render = [y_coords[i] for i in render_indices]
+    sizes_render = [sizes[i] for i in render_indices]
+    
+    # Identify top nodes to label so it's not a cluttered mess (nodes with 0 weight are not labeled unless they are seeds)
+    top_label_indices = sorted(range(len(weights)), key=lambda i: weights[i], reverse=True)[:30]
+    top_label_indices = [i for i in top_label_indices if weights[i] > 0] # only label if they have some STI
 
     for idx in range(0, total_steps, frame_step):
         rho = history[idx]
@@ -54,24 +76,16 @@ def render_animation(
         ax.set_ylabel("grid y")
         plt.colorbar(im, ax=ax, shrink=0.8, label="density")
 
-        for atom, (gx, gy) in positions.items():
-            weight = sti_values.get(atom, 0) if sti_values else 1
-            size = max(6, min(14, weight * 0.5))
-            ax.plot(
-                gx,
-                gy,
-                "o",
-                color="white",
-                markersize=size * 0.6,
-                markerfacecolor="none",
-                markeredgewidth=0.5,
-            )
+        # Vectorized scatter plot for the top salient nodes (extremely fast)
+        ax.scatter(x_coords_render, y_coords_render, s=sizes_render, facecolors="none", edgecolors="white", linewidths=0.5)
+
+        for i in top_label_indices:
             ax.text(
-                gx,
-                gy,
-                atom,
+                x_coords[i],
+                y_coords[i],
+                atoms[i],
                 color="white",
-                fontsize=5,
+                fontsize=7,
                 ha="center",
                 va="center",
                 path_effects=[
