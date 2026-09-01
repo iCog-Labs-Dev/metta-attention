@@ -66,7 +66,7 @@
     (+ (+ (* 0.25 (stimNovelty $nextStim))
           (* 0.35 (bandReward (stimConduciveness $prevStim) (stimConduciveness $nextStim))))
        (+ (* 0.10 (- 1.0 (stimRisk $nextStim)))
-          (* 0.10 (- 1.0 (stimEffort $nextStim)))))
+          (* 0.25 (- 1.0 (stimEffort $nextStim)))))
 )
 
 (= (differentialReward $raw $baseline)
