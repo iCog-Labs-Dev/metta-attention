@@ -193,17 +193,5 @@
     )
 )
 
-(= (loop $x)
-    (if (== $x 0)
-        (empty)
-        (let*
-            (
-                ($_run (runThompsonBatch))
-                ($_cip (logcurrCip))
-                ($1 (println! (at cycle $x)))
-            )
-            (loop (- $x 1)))
-    )
-)
 
 !(motivatedReadExp (car-atom (collapse (match &insect (insectSent $x) $x))) 0)
