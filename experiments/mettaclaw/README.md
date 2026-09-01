@@ -123,7 +123,7 @@ cd PeTTa && \
     OPENROUTER_API_KEY="sk-or-v1-xxxxxxxx" \
     ASI_API_KEY="dummy" \
     ANTHROPIC_API_KEY="dummy" \
-    sh run.sh ../metta-attention/experiments/mettaclaw/experiment.metta | tee output_1.txt
+    sh run.sh ../metta-attention/experiments/mettaclaw/experiment.metta
 ```
 
 Or with exported env vars:
@@ -138,7 +138,7 @@ export OPENROUTER_MODEL="openai/gpt-oss-20b:free"   # optional override
 export ASI_API_KEY="dummy"
 export ANTHROPIC_API_KEY="dummy"
 
-sh run.sh ../metta-attention/experiments/mettaclaw/experiment.metta | tee output_1.txt
+sh run.sh ../metta-attention/experiments/mettaclaw/experiment.metta
 ```
 
 ### What healthy output looks like
