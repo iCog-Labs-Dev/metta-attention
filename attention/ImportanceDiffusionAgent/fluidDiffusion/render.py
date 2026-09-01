@@ -33,7 +33,6 @@ def render_animation(
     sti_values: dict[str, float] | None = None,
     overwrite: bool = True,
     goal_cells: list[tuple[int, int]] | None = None,
-    goal_names: list[str] | None = None,
 ) -> None:
     frames: list[Image.Image] = []
     positions = spectral_to_grid_coords(spectral_coords, grid_size)
@@ -95,22 +94,8 @@ def render_animation(
             )
 
         if goal_cells:
-            for idx, (gy, gx) in enumerate(goal_cells):
+            for gy, gx in goal_cells:
                 ax.plot(gx, gy, "X", color="cyan", markersize=10, markeredgewidth=2)
-                if goal_names and idx < len(goal_names):
-                    ax.text(
-                        gx,
-                        gy + 2, # Offset slightly above the X
-                        f"GOAL: {goal_names[idx]}",
-                        color="cyan",
-                        fontsize=9,
-                        fontweight="bold",
-                        ha="center",
-                        va="bottom",
-                        path_effects=[
-                            matplotlib.patheffects.withStroke(linewidth=1.5, foreground="black")
-                        ],
-                    )
 
         buf = io.BytesIO()
         fig.savefig(buf, format="png", dpi=100, bbox_inches="tight")
