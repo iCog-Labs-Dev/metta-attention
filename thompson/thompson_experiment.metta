@@ -54,7 +54,7 @@
 !(updateAttentionParam LTI_FUNDS_BUFFER 10000.0) 
 !(updateAttentionParam FUNDS_STI 100000.0) 
 !(updateAttentionParam FUNDS_LTI 100000.0) 
-!(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.8)
+!(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.4)
 (updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.5)
 !(updateAttentionParam AFRentFrequency 20.0)
 
