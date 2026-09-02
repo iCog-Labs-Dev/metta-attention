@@ -89,7 +89,7 @@ def write_string_to_csv(filename, data, header=["timestamp", "pattern", "sti"], 
     for pat in data:
         if len(pat)==2:
             pattern, sti = pat
-            rows.append([str(datetime.now()), format_pattern(pattern), sti])
+            rows.append([datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f'), format_pattern(pattern), sti])
     with open(filename, mode, newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
         if os.path.getsize(filename) == 0:

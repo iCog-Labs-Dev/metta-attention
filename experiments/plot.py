@@ -7,22 +7,11 @@ import json
 import sys
 
 
-def parse_timestamp_column(series: pd.Series) -> pd.Series:
-    if pd.api.types.is_numeric_dtype(series):
-        return pd.to_datetime(series, unit="s", errors="coerce")
-
-    try:
-        return pd.to_datetime(series, errors="coerce", format="mixed")
-    except TypeError:
-        return pd.to_datetime(series, errors="coerce")
-
-
 def resolve_output_root(path_like: Union[str, Path]) -> Path:
     path = Path(path_like).resolve()
     if path.is_file():
         return path.parent
     return path
-
 
 class Plotter:
 
@@ -178,35 +167,22 @@ class MetricsPlotter:
     def read_metrics_csv(self) -> pd.DataFrame:
         df = pd.read_csv(self.metrics_path)
         df.insert(0, "timestamp", pd.to_datetime(df.pop("timestamp"), unit="s"))
-        
-        if "counter" not in df.columns and "cip_index" in df.columns:
-            df["counter"] = df["cip_index"]
-
-        skip_cols = {"timestamp", "counter", "cip_index", "af_atoms"}
-        available = [col for col in df.columns if col not in skip_cols]
-
-        for column in available + ["counter"]:
+        for column in self.METRIC_COLUMNS + ["counter"]:
             if column in df.columns:
                 df.loc[:, column] = pd.to_numeric(df[column], errors="coerce")
 
+        available = [column for column in self.METRIC_COLUMNS if column in df.columns]
         if not available:
             raise ValueError("No expected metric columns found in metrics.csv")
 
-        base_columns = [col for col in ["timestamp", "counter"] if col in df.columns]
-        df = df[[*base_columns, *available]].copy()
+        df = df[["timestamp", "counter", *available]].copy()
         return df
 
     def plot(self) -> None:
         df = self.data_frame
         metric_columns = [
-            col for col in df.columns if col not in {"timestamp", "counter"}
+            column for column in self.METRIC_COLUMNS if column in df.columns
         ]
-        
-        # Sort columns to enforce visual order 
-        metric_columns = sorted(
-            metric_columns,
-            key=lambda k: self.METRIC_COLUMNS.index(k) if k in self.METRIC_COLUMNS else len(self.METRIC_COLUMNS) + 1
-        )
 
         if "timestamp" in df.columns:
             grouped = (

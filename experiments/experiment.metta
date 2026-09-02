@@ -32,57 +32,108 @@
 !(import! &self ../attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
 !(import! &self ../attention/HebbianCreationAgent/HebbianCreationAgent)
 !(import! &self ../attention/runner-Def)
-!(import! &self ../synapse/utils)
-!(import! &self ../synapse/synapse)
-!(import! &self "../synapse/topology_metrics.py")
+!(import! &self "../attention/ImportanceDiffusionAgent/getelement.py")
+!(import! &self ../attention/ImportanceDiffusionAgent/fluidDiffusion/fluid_integration)
+!(import! &self ../attention-bank/synapse/utils)
+!(import! &self ../attention-bank/synapse/synapse)
+!(import! &self "../attention-bank/synapse/topology_metrics.py")
 
 
-; (match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-; (match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+; !(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+; !(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 ; !(match &tempspace ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
 
 
 ; write the params to a file
-!(updateAttentionParam MAX_AF_SIZE 70.0)
-!(updateAttentionParam TARGET_STI 10000.0)
-!(updateAttentionParam TARGET_LTI 10000.0) 
-!(updateAttentionParam STI_FUNDS_BUFFER 10000.0) 
-!(updateAttentionParam LTI_FUNDS_BUFFER 10000.0) 
+!(updateAttentionParam MAX_AF_SIZE 50.0)
+!(updateAttentionParam TARGET_STI 70000.0)
+!(updateAttentionParam TARGET_LTI 70000.0) 
+!(updateAttentionParam STI_FUNDS_BUFFER 70000.0) 
+!(updateAttentionParam LTI_FUNDS_BUFFER 70000.0) 
 !(updateAttentionParam FUNDS_STI 100000.0) 
 !(updateAttentionParam FUNDS_LTI 100000.0) 
-!(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.8)
-!(updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.5)
+(updateAttentionParam MAX_SPREAD_PERCENTAGE 0.4)
+(updateAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE 0.5)
 ; !(updateAttentionParam TOPK 0.8)
-!(updateAttentionParam AFRentFrequency 2.0)
-!(updateAttentionParam STARTING_FUNDS_STI 100000.0) 
-!(updateAttentionParam STARTING_FUNDS_LTI 100000.0) 
-
+!(updateAttentionParam AFRentFrequency 50.0)
 
 ; write the params to a file
 ; usage(baseline parameters are optional): !(start-log (attentionParam) "current_experiment" "efficiency_baseline" "redundancy_baseline")
-!(start-log (attentionParam) "current_experiment" "effectiveness_baseline_1" "redundancy_baseline_1")
+!(start-log (attentionParam) "current_experiment" "fluid_integration" "redundancy_baseline_1")
 
 !(initialize-baseline-cip)
 
 (= (logcurrCip) 
         (let* (
                 ($cip (transition-to-next-cip))
-                ((CIPSnapshot $index $time $af_atoms $metrice) $cip)
+                ((CIPSnapshot $index $time $afAtoms $metrice) $cip)
+                (($_gainedEfficiencyMetric $afResource $stiConcentration $fundSti $linkDensity $connectionRatio
+                    $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance
+                    $effectiveness $triangleCount $betti0 $betti1 $betti2) $metrice)
+                ($gainedEfficiency (getGainedEfficiency $index))
+                ($redundancyDegradation (getRedundancyDegradation $index))
         )
-        (write_cip_wrapper $index $time $af_atoms $metrice)
+        (write_metrics_wrapper
+            $index
+            $time
+            $afAtoms
+            $afResource
+            $stiConcentration
+            $fundSti
+            $linkDensity
+            $connectionRatio
+            $preallocation
+            $cognitiveSynergy
+            $modulation
+            $coordination
+            $contextRetention
+            $cognitiveMaintenance
+            $effectiveness
+            $gainedEfficiency
+            $redundancyDegradation
+            $triangleCount
+            $betti0
+            $betti1
+            $betti2
+        )
     )
 )
 
-(= (batch) 25)
 (= (runAttentionBatch)
     (let*
         (
-            ($_agents (collapse (agent-runner &incident)))
+            ($_agents (collapse (test-superpose &incident)))
         )
         True
     )
 )
 
+(= (runAttentionBatch $now)
+    (
+        (collapse (test-superpose &incident))
+        (collapse (applyFluidSimulation "../metta-attention/experiments/data/kg_fluid_map.metta" $now))
+    )
+)
+
+(= (getSeed)
+    (let*
+        (
+            ($seed1t (getRandomAtomNotInAF)) 
+            ($seed1 (if (== $seed1t ())
+                        (getRandomAtomInAF)
+                        $seed1t
+                    )
+            )
+        )
+        $seed1 
+    )
+)
+
+(= (getSeeds)
+    ((getRandomAtomInAF) (getRandomAtomInAF) (getRandomAtomInAF) (getRandomAtomInAF))
+)
+
+(= (batch) 5)
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (let $_done (println! (finished-read count $counter)) True)
@@ -90,27 +141,21 @@
             (
                 ($now (car-atom $expr))
                 ($rest (cdr-atom $expr))
-                ($_stim (collapse (stimulate $now 10)))
+                ($_stim (collapse (stimulate $now 20)))
                 ($_stimlog (println! (stimulating atom --> $now)))
-                ($afsize (size-atom (getAfAtoms)))
-                ($_readlog (println! (read-step $counter word $now remaining (size-atom $rest) af size $afsize)))
+                ($_readlog (println! (read-step $counter word $now remaining (size-atom $rest))))
                 ($_batch
                     (if (or (== (% $counter (batch)) 0) (== $rest ()))
                         (let*
                             (
-                                ($_agents (runAttentionBatch))
-                                ; Full growing Hebbian graph modules. Swap these two lines with the two above.
-                                ; ($moduleLinksWithValues (getAllHebLinksWithValues))
-                                ; ($modules (identifyHebbianModules $moduleLinksWithValues))
-                                ; ($moduleCount (size-atom $modules))
-                                ; ($mo (println! (module-count $moduleCount modules $modules)))
+                                ($seeds (getSeeds))
+                                ($_agents (runAttentionBatch $seeds))
                             )
                             True
                         )
                         (println! (continued to stimulate batched atoms ...))
                     )
                 )
-                ; (py-call (time.sleep 5.0))
                 ($_cip (logcurrCip))
                 ($_next (insectPoisonReadExp $rest (+ $counter 1)))
             )
@@ -119,7 +164,4 @@
     )
 )
 
-; !(insectPoisonReadExp (match &insect (insectSent $x) $x) 0)
 !(insectPoisonReadExp (car-atom (collapse (match &insect (insectSent $x) $x))) 0)
-
-
