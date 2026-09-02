@@ -15,7 +15,6 @@ def resolve_output_root(path_like: Union[str, Path]) -> Path:
 
 class Plotter:
 
-
     def __init__(self, output_path: Union[str, Path]):
         self.output_path = resolve_output_root(output_path)
         self.data_path = self.get_data_path()
@@ -64,9 +63,7 @@ class Plotter:
 
     def read_csv(self) -> pd.DataFrame:
         csv = self.output_path / 'output.csv'
-        df = pd.read_csv(csv)
-        df = df.assign(timestamp=parse_timestamp_column(df["timestamp"]))
-        df = df.dropna(subset=["timestamp"])
+        df = pd.read_csv(csv, parse_dates=['timestamp'])
         words = df['pattern'].astype(str).str.extract(r'^\(?([^\s()]+)', expand=False)
         df.loc[:, 'category'] = words.map(self.word_to_category).fillna('Entered through spreading')
         df.loc[:, 'time_windows'] = df['timestamp'].dt.floor('0.0001s')

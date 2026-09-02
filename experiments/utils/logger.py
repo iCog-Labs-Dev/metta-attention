@@ -5,83 +5,10 @@ import csv
 import json
 from pathlib import Path
 
-
-METRIC_COLUMNS = [
-    "af_resource",
-    "sti_concentration",
-    "fund_sti",
-    "link_density",
-    "connection_ratio",
-    "preallocation",
-    "cognitive_synergy",
-    "modulation",
-    "coordination",
-    "context_retention",
-    "cognitive_maintenance",
-    "effectiveness",
-    "gained_efficiency",
-    "redundancy_degradation",
-    "triangle_count",
-    "betti0",
-    "betti1",
-    "betti2",
-]
-
 def format_pattern(pat):
     if isinstance(pat, (list, tuple)):
         return f"({' '.join(format_pattern(p) for p in pat)})"
     return str(pat)
-
-def normalize_metric_name(name):
-    """Auto-convert any metric name to clean snake_case."""
-    text = str(name)
-    normalized = []
-    for index, char in enumerate(text):
-        if char.isupper() and index > 0:
-            normalized.append("_")
-        elif char in {"-", " "}:
-            normalized.append("_")
-            continue
-        normalized.append(char.lower())
-    return "".join(normalized)
-
-def metric_pair(metric):
-    """Extract a (name, value) pair from a MeTTa expression or plain tuple."""
-    if isinstance(metric, (list, tuple)) and len(metric) >= 2:
-        return metric[0], metric[1]
-    try:
-        children = metric.get_children()
-    except Exception:
-        return None
-    if len(children) < 2:
-        return None
-    return children[0], children[1]
-
-def flatten_metrics(metrics):
-    """Convert an iterable of metric pairs into an ordered dict of {column: value}.
-       Preserves the insertion order from MeTTa so the CSV columns match
-    """
-    values = {}
-    try:
-        metric_items = iter(metrics)
-    except TypeError:
-        return values
-    for metric in metric_items:
-        pair = metric_pair(metric)
-        if pair is None:
-            continue
-        name, value = pair
-        column = normalize_metric_name(name)
-        values[column] = value
-    return values
-
-def append_csv_row(path, header, row):
-    """Append a single row to a CSV, writing the header if the file is empty."""
-    with open(path, 'a', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        if os.path.getsize(path) == 0:
-            writer.writerow(header)
-        writer.writerow(row)
 
 def write_string_to_csv(filename, data, header=["timestamp", "pattern", "sti"], mode='a'):
     """Append rows to a CSV. `data` is an iterable of (pattern, av) pairs."""
@@ -98,15 +25,14 @@ def write_string_to_csv(filename, data, header=["timestamp", "pattern", "sti"], 
             writer.writerow(row)
 
 
-
-
+# Logger state
 START_LOGGER_FLAG = False
 LOGGING_DIRECTORY = None
 SETTING_PATH = None
 CSV_PATH = None
 METRICS_PATH = None
 BASELINE_METRICS_CACHE = None
-REDUNDANCY_BASELINE_CACHE = None
+
 
 EFFICIENCY_BASELINE_PATH = None
 REDUNDANCY_BASELINE_PATH = None
@@ -225,7 +151,9 @@ def save_params(params):
 
 
 def write_to_csv(afatoms):
-    """Append AF snapshot rows to the configured CSV file."""
+    """
+    Append AF snapshot rows to the configured CSV file.
+    """
     global START_LOGGER_FLAG, CSV_PATH
 
     if not START_LOGGER_FLAG or CSV_PATH is None or len(afatoms[0])==0:
@@ -234,37 +162,109 @@ def write_to_csv(afatoms):
     write_string_to_csv(str(CSV_PATH), afatoms)
     return ['wrote']
 
-def write_cip_row(index, time, af_atoms, metrices):
-    """Append one dynamically-structured metrics row to metrics.csv."""
+
+def write_metrics_row(counter, time, af_atoms, af_resource, sti_concentration, fund_sti, link_density,
+                      connection_ratio, preallocation, cognitive_synergy, modulation, coordination,
+                      context_retention, cognitive_maintenance, effectiveness, gained_efficiency=0.0,
+                      redundancy_degradation=0.0, triangle_count=0.0, betti0=0.0, betti1=0.0, betti2=0.0):
+    
+    # Append one metrics row per iteration to metrics.csv.
+
     global START_LOGGER_FLAG, METRICS_PATH
 
     if not START_LOGGER_FLAG or METRICS_PATH is None:
         return ['not written']
 
-    metrics = flatten_metrics(metrices)
+    header = [
+        "counter",
+        "timestamp",
+        "af_resource",
+        "sti_concentration",
+        "fund_sti",
+        "link_density",
+        "connection_ratio",
+        "preallocation",
+        "cognitive_synergy",
+        "modulation",
+        "coordination",
+        "context_retention",
+        "cognitive_maintenance",
+        "effectiveness",
+        "gained_efficiency",
+        "redundancy_degradation",
+        "triangle_count",
+        "betti0",
+        "betti1",
+        "betti2",
+        "af_atoms",
+    ]
+
+    row = [
+        str(counter),
+        str(time),
+        str(af_resource[1]),
+        str(sti_concentration[1]),
+        str(fund_sti[1]),
+        str(link_density[1]),
+        str(connection_ratio[1]),
+        str(preallocation[1]),
+        str(cognitive_synergy[1]),
+        str(modulation[1]),
+        str(coordination[1]),
+        str(context_retention[1]),
+        str(cognitive_maintenance[1]),
+        str(effectiveness[1]),
+        str(gained_efficiency),
+        str(redundancy_degradation),
+        str(triangle_count[1]),
+        str(betti0[1]),
+        str(betti1[1]),
+        str(betti2[1]),
+        str(af_atoms),
+    ]
+
+    with open(METRICS_PATH, 'a', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        if os.path.getsize(METRICS_PATH) == 0:
+            writer.writerow(header)
+        writer.writerow(row)
+
+    return ['wrote']
+
+
+def write_cip_row(index, time, af_atoms, metrices):
     
-    # Sort columns to enforce visual order (unknown metrics go to the end)
-    metric_columns = sorted(
-        metrics.keys(),
-        key=lambda k: METRIC_COLUMNS.index(k) if k in METRIC_COLUMNS else len(METRIC_COLUMNS) + 1
-    )
+    # Append one metrics row per iteration to metrics.csv.
+
+    global START_LOGGER_FLAG, METRICS_PATH
+
+    if not START_LOGGER_FLAG or METRICS_PATH is None:
+        return ['not written']
 
     header = [
         "cip_index",
         "timestamp",
-        *metric_columns,
         "af_atoms",
+        "metrics",
     ]
 
     row = [
         str(index),
         str(time),
-        *[str(metrics.get(column, "")) for column in metric_columns],
         str(af_atoms),
+        str(metrices),
     ]
 
-    append_csv_row(METRICS_PATH, header, row)
+    with open(METRICS_PATH, 'a', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        if os.path.getsize(METRICS_PATH) == 0:
+            writer.writerow(header)
+        writer.writerow(row)
+
     return ['wrote']
+
+BASELINE_METRICS_CACHE = None
+REDUNDANCY_BASELINE_CACHE = None
 
 def _load_baseline_cache():
     global BASELINE_METRICS_CACHE, EFFICIENCY_BASELINE_PATH
