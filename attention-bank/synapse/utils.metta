@@ -321,9 +321,12 @@
     (let*
         (
             ($stiCount (car-atom (intersection-atom $allSti $atomSti)))
-            ($ratio (/ $stiCount (size-atom $allSti)))
+            ($total (foldl-atom $allSti 0 $acc $x (+ $acc $x)))
         )
-        $ratio
+        (if (> $total 0)
+            (/ $stiCount $total)
+            0.0
+        )
     )
 )
 
@@ -355,6 +358,12 @@
                 (== $name betti2))))
 )
 
+(= (isExcludedMetric $name)
+    (or (isTopologyMetric $name)
+        (or (== $name fundSti)
+            (== $name effectiveness)))
+)
+
 (= (getMetrics $name $list)
     (if (== $list ())
         0.0
@@ -381,7 +390,7 @@
                     ($tail (cdr-atom $list))
                     ($name (getMetricName $head))
                )
-               (if (isTopologyMetric $name)
+               (if (isExcludedMetric $name)
                    (sumMetrics $tail)
                    (+ (getMetricValue $head) (sumMetrics $tail))
                )
@@ -398,7 +407,7 @@
                   ($tail (cdr-atom $list))
                   ($name (getMetricName $head))
               )
-              (if (isTopologyMetric $name)
+              (if (isExcludedMetric $name)
                   (countMetrics $tail)
                   (+ 1 (countMetrics $tail))
               )

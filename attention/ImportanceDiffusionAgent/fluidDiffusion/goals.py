@@ -38,7 +38,13 @@ def parse_goal_cells(
         seeds = []
         if spectral_coords is not None:
             positions = spectral_to_grid_coords(spectral_coords, grid_size)
-            seeds = [positions[atom] for atom in af_seeds if atom in positions]
+            # spectral_to_grid_coords returns (x, y); goal cells are (y, x) to match
+            # the row-major grid that density.py writes as rho[y, x].
+            seeds = [
+                (positions[atom][1], positions[atom][0])
+                for atom in af_seeds
+                if atom in positions
+            ]
     else:
         seeds = af_seeds
 
