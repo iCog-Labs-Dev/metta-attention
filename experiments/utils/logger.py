@@ -1,4 +1,3 @@
-
 from datetime import datetime
 import os
 import csv
@@ -27,10 +26,12 @@ METRIC_COLUMNS = [
     "betti2",
 ]
 
+
 def format_pattern(pat):
     if isinstance(pat, (list, tuple)):
         return f"({' '.join(format_pattern(p) for p in pat)})"
     return str(pat)
+
 
 def normalize_metric_name(name):
     """Auto-convert any metric name to clean snake_case."""
@@ -45,6 +46,7 @@ def normalize_metric_name(name):
         normalized.append(char.lower())
     return "".join(normalized)
 
+
 def metric_pair(metric):
     """Extract a (name, value) pair from a MeTTa expression or plain tuple."""
     if isinstance(metric, (list, tuple)) and len(metric) >= 2:
@@ -57,9 +59,10 @@ def metric_pair(metric):
         return None
     return children[0], children[1]
 
+
 def flatten_metrics(metrics):
     """Convert an iterable of metric pairs into an ordered dict of {column: value}.
-       Preserves the insertion order from MeTTa so the CSV columns match
+    Preserves the insertion order from MeTTa so the CSV columns match
     """
     values = {}
     try:
@@ -75,29 +78,31 @@ def flatten_metrics(metrics):
         values[column] = value
     return values
 
+
 def append_csv_row(path, header, row):
     """Append a single row to a CSV, writing the header if the file is empty."""
-    with open(path, 'a', newline='', encoding='utf-8') as file:
+    with open(path, "a", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         if os.path.getsize(path) == 0:
             writer.writerow(header)
         writer.writerow(row)
 
-def write_string_to_csv(filename, data, header=["timestamp", "pattern", "sti"], mode='a'):
+
+def write_string_to_csv(
+    filename, data, header=["timestamp", "pattern", "sti"], mode="a"
+):
     """Append rows to a CSV. `data` is an iterable of (pattern, av) pairs."""
     rows = []
     for pat in data:
-        if len(pat)==2:
+        if len(pat) == 2:
             pattern, sti = pat
             rows.append([str(datetime.now()), format_pattern(pattern), sti])
-    with open(filename, mode, newline='', encoding='utf-8') as file:
+    with open(filename, mode, newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         if os.path.getsize(filename) == 0:
             writer.writerow(header)
         for row in rows:
             writer.writerow(row)
-
-
 
 
 START_LOGGER_FLAG = False
@@ -112,7 +117,9 @@ EFFICIENCY_BASELINE_PATH = None
 REDUNDANCY_BASELINE_PATH = None
 
 
-def start_logger(run_name, efficiency_baseline_name=None, redundancy_baseline_name=None):
+def start_logger(
+    run_name, efficiency_baseline_name=None, redundancy_baseline_name=None
+):
     """Set up an `output` folder for the experiment and load baseline metrics if provided.
 
     `run_name` is the name of the current experiment run.
@@ -121,7 +128,11 @@ def start_logger(run_name, efficiency_baseline_name=None, redundancy_baseline_na
     Returns a Hyperon-style empty result.
     """
     global START_LOGGER_FLAG, LOGGING_DIRECTORY, SETTING_PATH, CSV_PATH, METRICS_PATH
-    global EFFICIENCY_BASELINE_PATH, REDUNDANCY_BASELINE_PATH, BASELINE_METRICS_CACHE, REDUNDANCY_BASELINE_CACHE
+    global \
+        EFFICIENCY_BASELINE_PATH, \
+        REDUNDANCY_BASELINE_PATH, \
+        BASELINE_METRICS_CACHE, \
+        REDUNDANCY_BASELINE_CACHE
 
     if isinstance(run_name, str):
         r_name = run_name
@@ -130,7 +141,7 @@ def start_logger(run_name, efficiency_baseline_name=None, redundancy_baseline_na
             r_name = str(run_name.get_name())
         except Exception:
             raise TypeError("start_logger accepts a string for run_name")
-            
+
     b_name = None
     if efficiency_baseline_name is not None:
         if isinstance(efficiency_baseline_name, str):
@@ -152,7 +163,7 @@ def start_logger(run_name, efficiency_baseline_name=None, redundancy_baseline_na
                 pass
 
     base_path = Path(__file__).parent.parent.parent / "experiments" / "output"
-    
+
     log_dir = base_path / r_name
     log_dir.mkdir(parents=True, exist_ok=True)
 
@@ -173,14 +184,14 @@ def start_logger(run_name, efficiency_baseline_name=None, redundancy_baseline_na
         EFFICIENCY_BASELINE_PATH = base_path / b_name / "metrics.csv"
     else:
         EFFICIENCY_BASELINE_PATH = None
-        
+
     if r_b_name:
         REDUNDANCY_BASELINE_PATH = base_path / r_b_name / "metrics.csv"
     else:
         REDUNDANCY_BASELINE_PATH = None
 
     START_LOGGER_FLAG = True
-    return ['started']
+    return ["started"]
 
 
 def save_params(params):
@@ -191,7 +202,7 @@ def save_params(params):
         return []
 
     data = {}
-    
+
     for param in params:
         try:
             key, value = param.get_children()
@@ -209,7 +220,7 @@ def save_params(params):
         data[key] = value
 
     if SETTING_PATH.exists():
-        with SETTING_PATH.open('r', encoding='utf-8') as f:
+        with SETTING_PATH.open("r", encoding="utf-8") as f:
             try:
                 existing = json.load(f)
             except json.JSONDecodeError:
@@ -218,35 +229,38 @@ def save_params(params):
     else:
         existing = data
 
-    with SETTING_PATH.open('w', encoding='utf-8') as f:
+    with SETTING_PATH.open("w", encoding="utf-8") as f:
         json.dump(existing, f, indent=4)
 
-    return ['saved']
+    return ["saved"]
 
 
 def write_to_csv(afatoms):
     """Append AF snapshot rows to the configured CSV file."""
     global START_LOGGER_FLAG, CSV_PATH
 
-    if not START_LOGGER_FLAG or CSV_PATH is None or len(afatoms[0])==0:
-        return ['not written']
+    if not START_LOGGER_FLAG or CSV_PATH is None or len(afatoms[0]) == 0:
+        return ["not written"]
 
     write_string_to_csv(str(CSV_PATH), afatoms)
-    return ['wrote']
+    return ["wrote"]
+
 
 def write_cip_row(index, time, af_atoms, metrices):
     """Append one dynamically-structured metrics row to metrics.csv."""
     global START_LOGGER_FLAG, METRICS_PATH
 
     if not START_LOGGER_FLAG or METRICS_PATH is None:
-        return ['not written']
+        return ["not written"]
 
     metrics = flatten_metrics(metrices)
-    
+
     # Sort columns to enforce visual order (unknown metrics go to the end)
     metric_columns = sorted(
         metrics.keys(),
-        key=lambda k: METRIC_COLUMNS.index(k) if k in METRIC_COLUMNS else len(METRIC_COLUMNS) + 1
+        key=lambda k: (
+            METRIC_COLUMNS.index(k) if k in METRIC_COLUMNS else len(METRIC_COLUMNS) + 1
+        ),
     )
 
     header = [
@@ -264,44 +278,56 @@ def write_cip_row(index, time, af_atoms, metrices):
     ]
 
     append_csv_row(METRICS_PATH, header, row)
-    return ['wrote']
+    return ["wrote"]
+
 
 def _load_baseline_cache():
     global BASELINE_METRICS_CACHE, EFFICIENCY_BASELINE_PATH
     if BASELINE_METRICS_CACHE is None:
-        csv_path = EFFICIENCY_BASELINE_PATH if EFFICIENCY_BASELINE_PATH else LOGGING_DIRECTORY / "output" / "baseline_metrics.csv"
+        csv_path = (
+            EFFICIENCY_BASELINE_PATH
+            if EFFICIENCY_BASELINE_PATH
+            else LOGGING_DIRECTORY / "output" / "baseline_metrics.csv"
+        )
         # Fallback to old folder structure
         old_path = LOGGING_DIRECTORY / "baseline" / "output" / "metrics.csv"
-        
+
         target_path = csv_path if (csv_path and csv_path.exists()) else old_path
 
         if target_path and target_path.exists():
-            with open(target_path, 'r', encoding='utf-8') as f:
+            with open(target_path, "r", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 BASELINE_METRICS_CACHE = list(reader)
         else:
             BASELINE_METRICS_CACHE = []
 
+
 def _load_redundancy_baseline_cache():
     global REDUNDANCY_BASELINE_CACHE, REDUNDANCY_BASELINE_PATH
 
     if REDUNDANCY_BASELINE_CACHE is None:
-        csv_path = REDUNDANCY_BASELINE_PATH if REDUNDANCY_BASELINE_PATH else LOGGING_DIRECTORY / "output" / "redundancy_baseline_metrics.csv"
+        csv_path = (
+            REDUNDANCY_BASELINE_PATH
+            if REDUNDANCY_BASELINE_PATH
+            else LOGGING_DIRECTORY / "output" / "redundancy_baseline_metrics.csv"
+        )
 
         if csv_path and csv_path.exists():
-            with open(csv_path, "r", encoding='utf-8') as f:
+            with open(csv_path, "r", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 REDUNDANCY_BASELINE_CACHE = list(reader)
         else:
             REDUNDANCY_BASELINE_CACHE = []
+
 
 def get_baseline_effectiveness(index):
     """Load baseline metrics.csv and return the effectiveness at the given step index."""
     _load_baseline_cache()
     idx = int(index)
     if BASELINE_METRICS_CACHE and 0 <= idx < len(BASELINE_METRICS_CACHE):
-        return float(BASELINE_METRICS_CACHE[idx].get('effectiveness', 0.0))
+        return float(BASELINE_METRICS_CACHE[idx].get("effectiveness", 0.0))
     return 0.0
+
 
 def get_baseline_redundancy_data(index):
     """Returns a tuple: (baseline_perf, baseline_cost)"""
@@ -309,14 +335,14 @@ def get_baseline_redundancy_data(index):
     idx = int(index)
     if REDUNDANCY_BASELINE_CACHE and 0 <= idx < len(REDUNDANCY_BASELINE_CACHE):
         row = REDUNDANCY_BASELINE_CACHE[idx]
-        af_res = float(row.get('af_resource', 0.0))
-        sti_conc = float(row.get('sti_concentration', 0.0))
-        link_den = float(row.get('link_density', 0.0))
-        effectiveness = float(row.get('effectiveness', 0.0))
-        
+        af_res = float(row.get("af_resource", 0.0))
+        sti_conc = float(row.get("sti_concentration", 0.0))
+        link_den = float(row.get("link_density", 0.0))
+        effectiveness = float(row.get("effectiveness", 0.0))
+
         # Reverse engineer cost and performance
         baseline_cost = af_res + sti_conc + link_den
         baseline_perf = effectiveness * baseline_cost
-        
+
         return [baseline_perf, baseline_cost]
     return [0.0, 0.0]

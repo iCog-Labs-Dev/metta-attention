@@ -33,12 +33,12 @@
       ($contextRetention (getContextRetention))
       ($cognitiveMaintenance (getCognitiveMaintenance))
       ($fundSti (getAttentionParam FUNDS_STI))
+      ($topology (topologyMetrics))
+      ($triangleCount (getTopologyTriangleCount $topology))
+      ($betti0 (getTopologyBetti0 $topology))
+      ($betti1 (getTopologyBetti1 $topology))
+      ($betti2 (getTopologyBetti2 $topology))
       ($effectiveness (getEffectiveness))
-    ;   ($topology (topologyMetrics))
-    ;   ($triangleCount (getTopologyTriangleCount $topology))
-    ;   ($betti0 (getTopologyBetti0 $topology))
-    ;   ($betti1 (getTopologyBetti1 $topology))
-    ;   ($betti2 (getTopologyBetti2 $topology))
    )
    (
     (afResource $afResource)
@@ -53,10 +53,10 @@
     (contextRetention $contextRetention)
     (cognitiveMaintenance $cognitiveMaintenance)
     (effectiveness $effectiveness)
-    (triangleCount 1)
-    (betti0 1)
-    (betti1 1)
-    (betti2 1)
+    (triangleCount $triangleCount)
+    (betti0 $betti0)
+    (betti1 $betti1)
+    (betti2 $betti2)
 )))
 
 (= (updateMaxIndex)
@@ -143,9 +143,7 @@
          ($time (current-time))
          ($_ (add-atom &cipspace (CIPSnapshot $newIndex $time $af $baseMetrics)))
          ($gainedEfficiency (getGainedEfficiency $newIndex))
-         ($redundancyDegradation (getRedundancyDegradation $newIndex))
-         ($metrics1 (cons-atom (gainedEfficiency $gainedEfficiency) $baseMetrics))
-         ($metricsFinal (cons-atom (redundancyDegradation $redundancyDegradation) $metrics1))
+         ($metrics (cons-atom (gainedEfficiency $gainedEfficiency) $baseMetrics))
         ;  ($topology (record-topology-report $newIndex $time))
          ($stiSeries (recordCipSeries))
       )
@@ -153,7 +151,7 @@
           $newIndex
           $time
           $af
-          $metricsFinal
+          $metrics
       )
    )
 )
@@ -566,5 +564,16 @@
 (= (getBetti2 (TopologyReport $triangles $betti0 $betti1 $betti2)) $betti2)
 
 
+(= (logcurrCip) 
+    (let* 
+        (
+            ($cip (transition-to-next-cip))
+            ((CIPSnapshot $index $time $af_atoms $metrice) $cip)
+            ($redundancyDegradation (getRedundancyDegradation $index))
+            ($metrices (cons-atom (redundancy_degradation $redundancyDegradation) $metrice))
+        )
+    (write_cip_wrapper $index $time $af_atoms $metrices))
+    
+)
 
 

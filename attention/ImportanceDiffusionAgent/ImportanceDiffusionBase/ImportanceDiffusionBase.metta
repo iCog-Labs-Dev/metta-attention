@@ -16,6 +16,7 @@
                     )
             
             )
+            ; ($at (println))
             ($oset (collapse (filteroset $foset)))
             ($incidentAndoset (concatTuple $incidentAtoms $oset))
             ($iset (collapse (match $space ((ASYMMETRIC_HEBBIAN_LINK $atom $b) $a) $b)))

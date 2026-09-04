@@ -1,4 +1,4 @@
-!(import! &self "community_detector.py")
+!(import! &self (library metta-attention attention-bank/synapse/community_detector.py))
 !(bind! &stiSeries (new-space))
 
 ; ## Time Series
@@ -277,10 +277,13 @@
     )
 )
 
-(= (getProbability $link)
-    (getMean $link)
+(= (getProbability ((ASYMMETRIC_HEBBIAN_LINK $src $tgt) $val))
+    (getMean (ASYMMETRIC_HEBBIAN_LINK $src $tgt))
 )
 
+(= (getProbability (ASYMMETRIC_HEBBIAN_LINK $src $tgt))
+    (getMean (ASYMMETRIC_HEBBIAN_LINK $src $tgt))
+)
 
 (= (pearsonCorrelationLists $listX $listY)
     (let* 
@@ -330,8 +333,8 @@
 (= (shanon-entropy $stiDistribution)
     (let*
         (
-            ($probabilities (
-                map-atom $stiDistribution $atom (stiProbablity ($atom) $stiDistribution))
+            ($probabilities
+                (map-atom $stiDistribution $atom (stiProbablity ($atom) $stiDistribution))
             )
             ($entropyTerms (map-atom $probabilities $p (entropyTerm $p)))
             ($sumTerms (foldl-atom $entropyTerms 0 $acc $x (+ $acc $x)))
@@ -355,8 +358,6 @@
                 (== $name betti2))))
 )
 
-; Metrics kept out of the performance average: topology, fundSti and 
-; effectiveness (prevents restatement of the previous cycle's.)
 (= (isExcludedMetric $name)
     (or (isTopologyMetric $name)
         (or (== $name fundSti)
