@@ -109,7 +109,7 @@
 (= (runAttentionBatch $seeds)
     (let*
         (
-            ($_agents (collapse (test-superpose &incident)))
+            ($_agents (collapse (agent-runner &incident)))
             ($_fluid (collapse (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta" $seeds)))
         )
         True

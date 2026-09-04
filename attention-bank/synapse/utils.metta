@@ -1,4 +1,4 @@
-!(import! &self "community_detector.py")
+!(import! &self (library metta-attention attention-bank/synapse/community_detector.py))
 !(bind! &stiSeries (new-space))
 
 ; ## Time Series

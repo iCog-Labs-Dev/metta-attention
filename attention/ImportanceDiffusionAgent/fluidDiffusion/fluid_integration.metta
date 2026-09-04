@@ -1,4 +1,4 @@
-!(import! &self "../attention/ImportanceDiffusionAgent/fluidDiffusion/connection.py")
+!(import! &self (library metta-attention attention/ImportanceDiffusionAgent/fluidDiffusion/connection.py))
 
 (= (extractStiPairs ())
     ())

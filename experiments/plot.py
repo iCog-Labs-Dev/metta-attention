@@ -7,14 +7,24 @@ import json
 import sys
 
 
+def parse_timestamp_column(series: pd.Series) -> pd.Series:
+    if pd.api.types.is_numeric_dtype(series):
+        return pd.to_datetime(series, unit="s", errors="coerce")
+
+    try:
+        return pd.to_datetime(series, errors="coerce", format="mixed")
+    except TypeError:
+        return pd.to_datetime(series, errors="coerce")
+
+
 def resolve_output_root(path_like: Union[str, Path]) -> Path:
     path = Path(path_like).resolve()
     if path.is_file():
         return path.parent
     return path
 
-class Plotter:
 
+class Plotter:
     def __init__(self, output_path: Union[str, Path]):
         self.output_path = resolve_output_root(output_path)
         self.data_path = self.get_data_path()
@@ -23,9 +33,9 @@ class Plotter:
         self.word_to_category = self.create_word_lookup()
         self.data_frame = self.read_csv()
         self.plot()
-    
+
     def get_data_path(self) -> Path:
-        data_path = Path(__file__).parent / 'data'
+        data_path = Path(__file__).parent / "data"
         if not data_path.exists() or not data_path.is_dir():
             raise FileNotFoundError(f"No {data_path} directory found")
         file_paths = list(data_path.glob("words.json"))
@@ -36,15 +46,15 @@ class Plotter:
         return file_paths[0]
 
     def read_params(self) -> dict:
-        settings_path = self.output_path / 'settings.json'
+        settings_path = self.output_path / "settings.json"
         if not settings_path.exists():
             raise FileNotFoundError(f"No {settings_path} found in output directory")
-        with open(settings_path, 'r') as f:
+        with open(settings_path, "r") as f:
             setting_json = json.load(f)
         return setting_json
 
     def create_category(self) -> dict:
-        with open(self.data_path, 'r') as f:
+        with open(self.data_path, "r") as f:
             return json.load(f)
 
     def create_word_lookup(self) -> dict:
@@ -59,16 +69,22 @@ class Plotter:
 
     def categorize_pattern(self, pattern) -> str:
         word = str(pattern).split()[0].lstrip("(")
-        return self.word_to_category.get(word, 'Entered through spreading')
+        return self.word_to_category.get(word, "Entered through spreading")
 
     def read_csv(self) -> pd.DataFrame:
-        csv = self.output_path / 'output.csv'
-        df = pd.read_csv(csv, parse_dates=['timestamp'])
-        words = df['pattern'].astype(str).str.extract(r'^\(?([^\s()]+)', expand=False)
-        df.loc[:, 'category'] = words.map(self.word_to_category).fillna('Entered through spreading')
-        df.loc[:, 'time_windows'] = df['timestamp'].dt.floor('0.0001s')
-        category_counts = df.groupby(['time_windows', 'category']).size().unstack(fill_value=0)
-        af_size = int(float(self.params['MAX_AF_SIZE']))
+        csv = self.output_path / "output.csv"
+        df = pd.read_csv(csv)
+        df = df.assign(timestamp=parse_timestamp_column(df["timestamp"]))
+        df = df.dropna(subset=["timestamp"])
+        words = df["pattern"].astype(str).str.extract(r"^\(?([^\s()]+)", expand=False)
+        df.loc[:, "category"] = words.map(self.word_to_category).fillna(
+            "Entered through spreading"
+        )
+        df.loc[:, "time_windows"] = df["timestamp"].dt.floor("0.0001s")
+        category_counts = (
+            df.groupby(["time_windows", "category"]).size().unstack(fill_value=0)
+        )
+        af_size = int(float(self.params["MAX_AF_SIZE"]))
         return category_counts / af_size
 
     def plot(self) -> None:
@@ -98,21 +114,23 @@ class Plotter:
                 label=category,
                 color=color,
                 linewidth=1.0,
-                alpha=0.9
+                alpha=0.9,
             )
             axs[i].set_title(category, fontsize=11)
-            axs[i].grid(True, linestyle='--', alpha=0.4)
+            axs[i].grid(True, linestyle="--", alpha=0.4)
             axs[i].set_ylim(-0.02, 1.02)
 
         for j in range(len(all_categories), len(axs)):
             fig.delaxes(axs[j])  # Remove unused axes
 
-        fig.suptitle('All Category Frequencies Over Time', fontsize=14)
-        fig.supxlabel('Time Window', fontsize=12)
-        fig.supylabel(f'Attentional focus size {self.params["MAX_AF_SIZE"]}', fontsize=12)
+        fig.suptitle("All Category Frequencies Over Time", fontsize=14)
+        fig.supxlabel("Time Window", fontsize=12)
+        fig.supylabel(
+            f"Attentional focus size {self.params['MAX_AF_SIZE']}", fontsize=12
+        )
         plt.xticks(rotation=45)
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-        plot_file = self.output_path / 'plot_faceted.png'
+        plot_file = self.output_path / "plot_faceted.png"
         plt.savefig(plot_file)
         plt.close(fig)
         print("Faceted plot saved to", plot_file)
@@ -164,22 +182,39 @@ class MetricsPlotter:
     def read_metrics_csv(self) -> pd.DataFrame:
         df = pd.read_csv(self.metrics_path)
         df.insert(0, "timestamp", pd.to_datetime(df.pop("timestamp"), unit="s"))
-        for column in self.METRIC_COLUMNS + ["counter"]:
+
+        if "counter" not in df.columns and "cip_index" in df.columns:
+            df.loc[:, "counter"] = df["cip_index"]
+
+        skip_cols = {"timestamp", "counter", "cip_index", "af_atoms"}
+        available = [col for col in df.columns if col not in skip_cols]
+
+        for column in available + ["counter"]:
             if column in df.columns:
                 df.loc[:, column] = pd.to_numeric(df[column], errors="coerce")
 
-        available = [column for column in self.METRIC_COLUMNS if column in df.columns]
         if not available:
             raise ValueError("No expected metric columns found in metrics.csv")
 
-        df = df[["timestamp", "counter", *available]].copy()
+        base_columns = [col for col in ["timestamp", "counter"] if col in df.columns]
+        df = df[[*base_columns, *available]].copy()
         return df
 
     def plot(self) -> None:
         df = self.data_frame
         metric_columns = [
-            column for column in self.METRIC_COLUMNS if column in df.columns
+            col for col in df.columns if col not in {"timestamp", "counter"}
         ]
+
+        # Sort columns to enforce visual order
+        metric_columns = sorted(
+            metric_columns,
+            key=lambda k: (
+                self.METRIC_COLUMNS.index(k)
+                if k in self.METRIC_COLUMNS
+                else len(self.METRIC_COLUMNS) + 1
+            ),
+        )
 
         if "timestamp" in df.columns:
             grouped = (
@@ -232,7 +267,9 @@ class MetricsPlotter:
                 axs[idx].grid(True, linestyle="--", alpha=0.35)
                 continue
 
-            series.loc[:, metric] = series[metric].rolling(window=3, min_periods=1).mean()
+            series.loc[:, metric] = (
+                series[metric].rolling(window=3, min_periods=1).mean()
+            )
             axs[idx].plot(
                 series[x_axis],
                 series[metric],
@@ -242,7 +279,7 @@ class MetricsPlotter:
             )
             axs[idx].set_title(metric, fontsize=28)
             axs[idx].grid(True, linestyle="--", alpha=0.35)
-            axs[idx].tick_params(axis='both', labelsize=25)
+            axs[idx].tick_params(axis="both", labelsize=25)
 
         for idx in range(len(metric_columns), len(axs)):
             fig.delaxes(axs[idx])

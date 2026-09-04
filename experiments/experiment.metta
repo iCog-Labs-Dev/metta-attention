@@ -1,47 +1,56 @@
 !(bind! &insect (new-space))
-; !(bind! &poison (new-space))
 !(import! &insect data/insect-sent)
-!(import! &self lib/lib_import)
-!(import! &self lib/lib_spaces)
-!(import! &self lib/lib_he)
-!(static-import! &incident ./data/kg)
-; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
-!(import! &self ../attention/AttentionParam)
-!(import! &self ../attention/baching)
+!(import! &self (library lib_import))
+!(import! &self (library lib_spaces))
+!(import! &self (library lib_he))
+!(import_prolog_function working_dir)
+!(import_prolog_function directory_file_path)
+!(import_prolog_function absolute_file_name)
 
-!(import! &self ../attention-bank/utilities/helper-functions)
-!(import! &self ../attention-bank/utilities/recentVal)
-!(import! &self "../attention/ImportanceDiffusionAgent/getelement.py")
+(= (registerLocalMettaAttentionLibrary)
+    (let*
+        (
+            ($testDir (working_dir))
+            ($rootPath (directory_file_path $testDir ".."))
+            ($repoRoot (absolute_file_name $rootPath))
+        )
+        (assertaPredicate (Predicate (library_path $repoRoot)))
+    )
+)
 
-!(import! &self ../attention-bank/attention-value/getter-and-setter)
-!(import! &self ../attention-bank/bank/attention-bank)
-!(import! &self "utils/logger.py")
-!(import! &self logger)
-!(import! &self ../attention-bank/bank/attentional-focus/attentional-focus)
-!(import! &self ../attention-bank/bank/importance-index/importance-index)
-!(import! &self ../attention/Neighbors)
-!(import! &self ../attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
-!(import! &self ../attention/RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent)
-!(import! &self ../attention/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent)
-!(import! &self ../attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent)
-!(import! &self ../attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent2)
-!(import! &self ../attention/ImportanceDiffusionAgent/ImportanceDiffusionBase/ImportanceDiffusionBase)
-!(import! &self ../attention/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent)
-!(import! &self ../attention/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent)
-!(import! &self ../attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
-!(import! &self ../attention/HebbianCreationAgent/HebbianCreationAgent)
-!(import! &self ../attention/runner-Def)
-!(import! &self "../attention/ImportanceDiffusionAgent/getelement.py")
-!(import! &self ../attention/ImportanceDiffusionAgent/fluidDiffusion/fluid_integration)
-!(import! &self ../attention-bank/synapse/utils)
-!(import! &self ../attention-bank/synapse/synapse)
-!(import! &self "../attention-bank/synapse/topology_metrics.py")
+!(registerLocalMettaAttentionLibrary)
+!(import! &self (library lib_he))
 
+!(static-import! &incident ./data/kgadexp)
 
-; !(match &wordnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-; !(match &conceptnet ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
-; !(match &tempspace ($atom ($mean $conf)) (setStv $atom ($mean $conf)))
+!(import! &self (library metta-attention attention/AttentionParam))
+!(import! &self (library metta-attention attention/baching))
+!(import! &self (library metta-attention attention-bank/utilities/helper-functions))
+!(import! &self (library metta-attention attention-bank/utilities/recentVal))
+!(import! &self (library metta-attention attention-bank/attention-value/getter-and-setter))
+!(import! &self (library metta-attention attention-bank/bank/attention-bank))
+!(import! &self (library metta-attention experiments/utils/logger.py))
+!(import! &self (library metta-attention experiments/logger))
+!(import! &self (library metta-attention attention-bank/bank/attentional-focus/attentional-focus))
+!(import! &self (library metta-attention attention-bank/bank/importance-index/importance-index))
+!(import! &self (library metta-attention attention/Neighbors))
+!(import! &self (library metta-attention attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion))
+!(import! &self (library metta-attention attention/RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent))
+!(import! &self (library metta-attention attention/RentCollectionAgent/WARentCollectionAgent/WARentCollectionAgent))
+!(import! &self (library metta-attention attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent))
+!(import! &self (library metta-attention attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent2))
+!(import! &self (library metta-attention attention/ImportanceDiffusionAgent/ImportanceDiffusionBase/ImportanceDiffusionBase))
+!(import! &self (library metta-attention attention/ImportanceDiffusionAgent/WAImportanceDiffusionAgent/WAImportanceDiffusionAgent))
+!(import! &self (library metta-attention attention/ImportanceDiffusionAgent/getelement.py))
+!(import! &self (library metta-attention attention/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent))
+!(import! &self (library metta-attention attention/HebbianUpdatingAgent/HebbianUpdatingAgent))
+!(import! &self (library metta-attention attention/HebbianCreationAgent/HebbianCreationAgent))
+!(import! &self (library metta-attention attention/runner-Def))
+!(import! &self (library metta-attention attention/ImportanceDiffusionAgent/fluidDiffusion/fluid_integration))
+!(import! &self (library metta-attention attention-bank/synapse/utils))
+!(import! &self (library metta-attention attention-bank/synapse/synapse))
+!(import! &self (library metta-attention attention-bank/synapse/topology_metrics.py))
 
 
 ; write the params to a file
@@ -63,46 +72,11 @@
 
 !(initialize-baseline-cip)
 
-(= (logcurrCip) 
-        (let* (
-                ($cip (transition-to-next-cip))
-                ((CIPSnapshot $index $time $afAtoms $metrice) $cip)
-                (($_gainedEfficiencyMetric $afResource $stiConcentration $fundSti $linkDensity $connectionRatio
-                    $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance
-                    $effectiveness $triangleCount $betti0 $betti1 $betti2) $metrice)
-                ($gainedEfficiency (getGainedEfficiency $index))
-                ($redundancyDegradation (getRedundancyDegradation $index))
-        )
-        (write_metrics_wrapper
-            $index
-            $time
-            $afAtoms
-            $afResource
-            $stiConcentration
-            $fundSti
-            $linkDensity
-            $connectionRatio
-            $preallocation
-            $cognitiveSynergy
-            $modulation
-            $coordination
-            $contextRetention
-            $cognitiveMaintenance
-            $effectiveness
-            $gainedEfficiency
-            $redundancyDegradation
-            $triangleCount
-            $betti0
-            $betti1
-            $betti2
-        )
-    )
-)
 
 (= (runAttentionBatch)
     (let*
         (
-            ($_agents (collapse (test-superpose &incident)))
+            ($_agents (collapse (agent-runner &incident)))
         )
         True
     )
@@ -110,8 +84,8 @@
 
 (= (runAttentionBatch $now)
     (
-        (collapse (test-superpose &incident))
-        (collapse (applyFluidSimulation "../metta-attention/experiments/data/kg_fluid_map.metta" $now))
+        (collapse (agent-runner &incident))
+        (collapse (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta" $now))
     )
 )
 

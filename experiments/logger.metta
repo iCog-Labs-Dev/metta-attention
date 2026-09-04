@@ -1,40 +1,6 @@
-
 (= (write_csv_wrapper $afAtoms)
         (py-call (logger.write_to_csv $afAtoms))
 )
-
-(= (write_metrics_wrapper 
-    $counter $time $af_atoms $afResource $stiConcentration $fundSti $linkDensity $connectionRatio
-    $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance $effectiveness
-    $gainedEfficiency $redundancyDegradation $triangleCount $betti0 $betti1 $betti2)
-    (py-call (logger.write_metrics_row 
-                $counter 
-                $time 
-                $af_atoms 
-                $afResource 
-                $stiConcentration 
-                $fundSti
-                $linkDensity 
-                $connectionRatio 
-                $preallocation 
-                $cognitiveSynergy 
-                $modulation 
-                $coordination 
-                $contextRetention 
-                $cognitiveMaintenance
-                $effectiveness
-                $gainedEfficiency
-                $redundancyDegradation
-                $triangleCount
-                $betti0
-                $betti1
-                $betti2)
-    )
-)
-
-
-
-
 
 (= (write_cip_wrapper $index $time $af_atoms $metrice)
     (py-call (logger.write_cip_row $index $time $af_atoms $metrice))

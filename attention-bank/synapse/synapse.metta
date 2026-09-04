@@ -564,5 +564,16 @@
 (= (getBetti2 (TopologyReport $triangles $betti0 $betti1 $betti2)) $betti2)
 
 
+(= (logcurrCip) 
+    (let* 
+        (
+            ($cip (transition-to-next-cip))
+            ((CIPSnapshot $index $time $af_atoms $metrice) $cip)
+            ($redundancyDegradation (getRedundancyDegradation $index))
+            ($metrices (cons-atom (redundancy_degradation $redundancyDegradation) $metrice))
+        )
+    (write_cip_wrapper $index $time $af_atoms $metrices))
+    
+)
 
 
