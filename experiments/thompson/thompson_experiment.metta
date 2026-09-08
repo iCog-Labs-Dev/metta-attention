@@ -49,9 +49,9 @@
 !(import! &self (library metta-attention attention/HebbianCreationAgent/HebbianCreationAgent))
 !(import! &self (library metta-attention attention/runner-Def))
 !(import! &self (library metta-attention attention/ImportanceDiffusionAgent/fluidDiffusion/fluid_integration))
-!(import! &self (library metta-attention attention-bank/synapse/utils))
-!(import! &self (library metta-attention attention-bank/synapse/synapse))
-!(import! &self (library metta-attention attention-bank/synapse/topology_metrics.py))
+!(import! &self (library metta-attention synapse/utils))
+!(import! &self (library metta-attention synapse/synapse))
+!(import! &self (library metta-attention synapse/topology_metrics.py))
 
 !(import! &self "thompson_utils.py")
 !(import! &self thompson_utils)

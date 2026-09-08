@@ -37,9 +37,9 @@
 !(import! &self ../../attention/runner-Def)
 !(import! &self "../../attention/ImportanceDiffusionAgent/getelement.py")
 !(import! &self ../../attention/ImportanceDiffusionAgent/fluidDiffusion/fluid_integration)
-!(import! &self ../../attention-bank/synapse/utils)
-!(import! &self ../../attention-bank/synapse/synapse)
-!(import! &self "../../attention-bank/synapse/topology_metrics.py")
+!(import! &self ../../synapse/utils)
+!(import! &self ../../synapse/synapse)
+!(import! &self "../../synapse/topology_metrics.py")
 
 ; Import before insectPoisonReadExp is defined so (detach_mettaclaw) compiles as a call.
 !(import_prolog_functions_from_file "../metta-attention/experiments/mettaclaw/utils/detach_claw.pl" (detach_mettaclaw))
