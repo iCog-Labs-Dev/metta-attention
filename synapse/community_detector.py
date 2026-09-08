@@ -118,7 +118,7 @@ def get_dynamic_modules(af_atoms: Any, af_links: Any) -> List[List[Any]]:
 
     try:
         partition = (
-            graph.community_multilevel(weights=graph.es["weight"], resolution=2.0)
+            graph.community_multilevel(weights=graph.es["weight"], resolution=1.0)
             if edges
             else graph.components()
         )
