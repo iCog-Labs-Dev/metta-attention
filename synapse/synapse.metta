@@ -224,11 +224,13 @@
         (
             ($afAtoms (getAfAtoms))
             ($afSize (size-atom $afAtoms))
-            ($hebLinks (size-atom (getHebLinks $afAtoms ())))
+            ($allAfLinks (getHebLinks $afAtoms ()))
+            ($internalFlags (map-atom $allAfLinks $link (isInternalLink $link $afAtoms)))
+            ($internalLinks (foldl-atom $internalFlags 0 $acc $x (+ $acc $x)))
             ($maxHeblink (* $afSize (- $afSize 1)))
         )
         (if (> $maxHeblink 0)
-            (/ $hebLinks $maxHeblink)
+            (/ $internalLinks $maxHeblink)
             0.0
         )
     )
