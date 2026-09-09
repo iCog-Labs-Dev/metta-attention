@@ -165,6 +165,17 @@
     (identifyHebbianModules (getAllHebLinksWithValues))
 )
 
+; Community detection on the static knowledge graph (&incident).
+; Returns stable communities from similarityLink atoms.
+(= (identifyStaticKGModules)
+    (let $rawLinks
+        (collapse (match &incident ($insect $links) $links))
+        (let $allLinks (flattener $rawLinks)
+            (identifyHebbianModules $allLinks)
+        )
+    )
+)
+
 ; helps to measure the linear relation between two continues value
 ; helps to know if two value have posetive or negative relation
 (= (pearsonCorrelation $afAtoms $meanSti $meanLti)
@@ -381,7 +392,7 @@
                     ($tail (cdr-atom $list))
                     ($name (getMetricName $head))
                )
-               (if (isTopologyMetric $name)
+               (if (or (isTopologyMetric $name) (== $name fundSti))
                    (sumMetrics $tail)
                    (+ (getMetricValue $head) (sumMetrics $tail))
                )
@@ -398,10 +409,10 @@
                   ($tail (cdr-atom $list))
                   ($name (getMetricName $head))
               )
-              (if (isTopologyMetric $name)
-                  (countMetrics $tail)
-                  (+ 1 (countMetrics $tail))
-              )
+               (if (or (isTopologyMetric $name) (== $name fundSti))
+                   (countMetrics $tail)
+                   (+ 1 (countMetrics $tail))
+               )
          )
      )
 )
