@@ -1,44 +1,104 @@
 ; MeTTa frontier candidates for Mettaclaw.
-; Native port of goal_candidates.py — computes EXPAND / BREAK candidates
+; Native port of goal_candidates.py -- computes EXPAND / BREAK candidates
 ; for the LLM goal-setting agent based on graph topology and optionally
 ; live Hebbian links from AtomSpace.
-
-; ---------------------------------------------------------------------------
-; Configuration
-; ---------------------------------------------------------------------------
 
 (= (goalCandidatesUseDynamic) False)
 (= (goalCandidatesGroupSize) 5)
 (= (goalCandidatesHebbianTopPercentile) 0.20)
 (= (goalCandidatesHebbianMinWeight) 0.05)
 
-; Toggle boolean-like values (mirrors Python _parse_bool)
 (= (goalCandidatesToggle $value)
     (if (== $value False) False True))
 
-; ---------------------------------------------------------------------------
-; List helpers
-; ---------------------------------------------------------------------------
+; Sorting utilities
 
-; First $n elements of $list.
-(= (goalCandidatesTake $n ())
-   ())
+(= (goalCandidatesSortCompareLessEqBy $elem $pivot $fun)
+   (<= ($fun $elem) ($fun $pivot)))
+
+(= (goalCandidatesSortCompareGreaterBy $elem $pivot $fun)
+   (> ($fun $elem) ($fun $pivot)))
+
+(= (goalCandidatesSortBinaryFilter $f $pivot $tuple $fun)
+   (if (== $tuple ()) ()
+       (let*
+           (($head (car-atom $tuple))
+            ($tail (cdr-atom $tuple))
+            ($isValid ($f $head $pivot $fun))
+            ($filteredTail (goalCandidatesSortBinaryFilter $f $pivot $tail $fun)))
+           (if $isValid
+               (cons-atom $head $filteredTail)
+               $filteredTail))))
+
+; Quicksort descending by score
+(= (goalCandidatesSortAtomsDescending $atoms $fun)
+   (if (== $atoms ()) ()
+       (let*
+           (($pivot (car-atom $atoms))
+            ($tail  (cdr-atom $atoms))
+            ($greater (goalCandidatesSortAtomsDescending
+                          (goalCandidatesSortBinaryFilter goalCandidatesSortCompareGreaterBy $pivot $tail $fun) $fun))
+            ($lesser  (goalCandidatesSortAtomsDescending
+                          (goalCandidatesSortBinaryFilter goalCandidatesSortCompareLessEqBy $pivot $tail $fun) $fun)))
+           (goalCandidatesLocalConcatTuple $greater (cons-atom $pivot $lesser)))))
+
+(= (goalCandidatesSortExpand $entries)
+   (goalCandidatesSortAtomsDescending $entries goalCandidatesExpandScore))
+
+(= (goalCandidatesSortBreak $entries)
+   (goalCandidatesSortAtomsDescending $entries goalCandidatesBreakScore))
+
+(= (goalCandidatesSortEdgeWeight $entries)
+   (goalCandidatesSortAtomsDescending $entries goalCandidatesEdgeWeight))
+
+(= (goalCandidatesSortExpandDyn $entries)
+   (goalCandidatesSortAtomsDescending $entries goalCandidatesExpandDynScore))
+
+(= (goalCandidatesSortBreakFallback $entries)
+   (goalCandidatesSortAtomsDescending $entries goalCandidatesBreakFallbackScore))
+
+; Ceiling function
+(= (goalCandidatesCeil $x)
+   (let $int_part (trunc-math $x)
+      (if (== $x $int_part)
+          $int_part
+          (+ $int_part 1))))
+
+; List utilities
+(= (goalCandidatesLocalConcatTuple $xs $ys)
+   (if (== $xs ()) $ys
+       (let* (
+           ($head (car-atom $xs))
+           ($tail (cdr-atom $xs))
+           ($tailNew (goalCandidatesLocalConcatTuple $tail $ys)))
+       (cons-atom $head $tailNew))))
+
+; Check if element is in list
+(= (goalCandidatesLocalContains $list $elem)
+   (if (== $list ()) False
+       (if (== (car-atom $list) $elem) True
+           (goalCandidatesLocalContains (cdr-atom $list) $elem))))
+
+; Remove duplicate elements from list
+(= (goalCandidatesLocalRemoveDuplicates $list)
+   (if (== $list ()) ()
+       (let* (
+           ($head (car-atom $list))
+           ($tail (cdr-atom $list))
+           ($rest (goalCandidatesLocalRemoveDuplicates $tail)))
+       (if (goalCandidatesLocalContains $rest $head)
+           $rest
+           (cons-atom $head $rest)))))
+
+; Take first n elements from list
 (= (goalCandidatesTake $n $list)
-   (if (<= $n 0)
+   (if (or (== $list ()) (<= $n 0))
        ()
        (cons-atom (car-atom $list)
                   (goalCandidatesTake (- $n 1) (cdr-atom $list)))))
 
-; Number of elements in a flat list.
-(= (goalCandidatesSize $list)
-   (if (== $list ()) 0 (+ 1 (goalCandidatesSize (cdr-atom $list)))))
-
-; ---------------------------------------------------------------------------
-; Edge accessors — edges from graph space are ((Link src tgt) (mean conf))
-; Hebbian edges from getAllHebLinksWithValues are the same shape.
-; ---------------------------------------------------------------------------
-
-; Extract all edges from a graph space.
+; $graph is a MeTTa space (e.g. &graph) loaded via static-import!.
+; match queries the space to get all atoms as edge lists.
 (= (goalCandidatesEdges $graph)
    (collapse (match $graph ($edge $value) ($edge $value))))
 
@@ -50,29 +110,26 @@
 
 (= (goalCandidatesEdgeWeight $edge)
    (let* (
-       ($val (cdr-atom $edge))
+       ($val (car-atom (cdr-atom $edge)))
        ($mean (car-atom $val))
        ($conf (car-atom (cdr-atom $val)))
    )
    (* $mean $conf)))
 
-; Collect all distinct node names that appear in an edge list.
-(= (goalCandidatesNodesFromEdges ())
-   ())
+; Extract all nodes from edge list
 (= (goalCandidatesNodesFromEdges $edges)
    (if (== $edges ()) ()
-       (let* (
-           ($head (car-atom $edges))
-           ($tail (cdr-atom $edges))
-           ($src (goalCandidatesEdgeSource $head))
-           ($tgt (goalCandidatesEdgeTarget $head))
-           ($rest (goalCandidatesNodesFromEdges $tail))
-       )
-       (removeDuplicates (cons-atom $src (cons-atom $tgt $rest))))))
+       (goalCandidatesNodesFromEdgesAux
+           (car-atom $edges)
+           (cdr-atom $edges))))
 
-; Collect neighbor names of $node from an edge list (undirected).
-(= (goalCandidatesNeighborsFromEdges () $node)
-   ())
+(= (goalCandidatesNodesFromEdgesAux $head $tail)
+   (goalCandidatesLocalRemoveDuplicates
+       (cons-atom (goalCandidatesEdgeSource $head)
+                  (cons-atom (goalCandidatesEdgeTarget $head)
+                             (goalCandidatesNodesFromEdges $tail)))))
+
+; Find neighbors of a node in edge list
 (= (goalCandidatesNeighborsFromEdges $edges $node)
    (if (== $edges ()) ()
        (let* (
@@ -88,60 +145,27 @@
                (cons-atom $src $rest)
                $rest)))))
 
-; Count how many elements of $list are also in $set.
-(= (goalCandidatesCountInSet () $set) 0)
+; Count elements from list that are in set
 (= (goalCandidatesCountInSet $list $set)
    (if (== $list ()) 0
        (let*
            (($head (car-atom $list))
             ($tail (cdr-atom $list))
             ($rest (goalCandidatesCountInSet $tail $set)))
-           (if (contains $set $head)
+            (if (goalCandidatesLocalContains $set $head)
                (+ 1 $rest)
                $rest))))
 
-; Collect elements of $list that are in $set.
-(= (goalCandidatesFilterInSet () $set) ())
-(= (goalCandidatesFilterInSet $list $set)
-   (if (== $list ()) ()
-       (let*
-           (($head (car-atom $list))
-            ($tail (cdr-atom $list))
-            ($rest (goalCandidatesFilterInSet $tail $set)))
-           (if (contains $set $head)
-               (cons-atom $head $rest)
-               $rest))))
-
-; Collect elements of $list that are NOT in $set.
-(= (goalCandidatesFilterOutSet () $set) ())
-(= (goalCandidatesFilterOutSet $list $set)
-   (if (== $list ()) ()
-       (let*
-           (($head (car-atom $list))
-            ($tail (cdr-atom $list))
-            ($rest (goalCandidatesFilterOutSet $tail $set)))
-           (if (contains $set $head)
-               $rest
-               (cons-atom $head $rest)))))
-
-; ---------------------------------------------------------------------------
-; Expand formatting
-; ---------------------------------------------------------------------------
-
-; Single entry: (name afCount)
-; Returns string "name:countaf"
-(= (goalCandidatesFormatOneExpand ())
-   "")
+; FormatOneExpand
 (= (goalCandidatesFormatOneExpand $entry)
-   (let* (
-       ($name (car-atom $entry))
-       ($count (car-atom (cdr-atom $entry)))
-   )
-   (concat (str $name) ":" (str $count) "af")))
+   (if (== $entry ()) ""
+       (let* (
+           ($name (car-atom $entry))
+           ($count (car-atom (cdr-atom $entry)))
+       )
+       (atom_concat (atom_concat (atom_concat $name ":") (atom_concat $count "af")) ""))))
 
-; Build space-separated expand string from entries.
-(= (goalCandidatesFormatExpand ())
-   "none")
+; FormatExpand
 (= (goalCandidatesFormatExpand $entries)
    (if (== $entries ()) "none"
        (let* (
@@ -152,26 +176,18 @@
        )
        (if (== $restStr "none")
            $headStr
-           (concat $headStr " " $restStr)))))
+           (atom_concat (atom_concat $headStr " ") $restStr)))))
 
-; ---------------------------------------------------------------------------
-; Break formatting
-; ---------------------------------------------------------------------------
-
-; Single entry: (name degree)
-; Returns string "name:dDegree"
-(= (goalCandidatesFormatOneBreak ())
-   "")
+; FormatOneBreak
 (= (goalCandidatesFormatOneBreak $entry)
-   (let* (
-       ($name (car-atom $entry))
-       ($degree (car-atom (cdr-atom $entry)))
-   )
-   (concat (str $name) ":d" (str $degree))))
+   (if (== $entry ()) ""
+       (let* (
+           ($name (car-atom $entry))
+           ($degree (car-atom (cdr-atom $entry)))
+       )
+       (atom_concat (atom_concat (atom_concat $name ":d") $degree) ""))))
 
-; Build space-separated break string from entries.
-(= (goalCandidatesFormatBreak ())
-   "none")
+; FormatBreak
 (= (goalCandidatesFormatBreak $entries)
    (if (== $entries ()) "none"
        (let* (
@@ -182,221 +198,39 @@
        )
        (if (== $restStr "none")
            $headStr
-           (concat $headStr " " $restStr)))))
+           (atom_concat (atom_concat $headStr " ") $restStr)))))
 
-; ---------------------------------------------------------------------------
-; Expand scoring — entries are (name afCount)
-; Sort key: -afCount (number) for descending by afCount.
-; NOTE: MeTTa < >= only work on Numbers, not tuples, so secondary
-; tiebreak by name is not possible via sortAtomsDescending.
-; ---------------------------------------------------------------------------
+; FilterEntries
+(= (goalCandidatesFilterEntries $list)
+   (if (== $list ()) ()
+       (let* (
+           ($head (car-atom $list))
+           ($tail (cdr-atom $list))
+           ($rest (goalCandidatesFilterEntries $tail))
+       )
+       (if (== $head ())
+           $rest
+           (cons-atom $head $rest)))))
 
 (= (goalCandidatesExpandScore ($name $afCount))
    (- 0 $afCount))
 
-; ---------------------------------------------------------------------------
-; Break scoring — entries are (name degree)
-; Sort key: degree (number) for ascending by degree.
-; ---------------------------------------------------------------------------
-
 (= (goalCandidatesBreakScore ($name $degree))
    $degree)
-
-; Break fallback scoring — entries are (name afConn)
-; Sort key: afConn (number) for ascending by AF connectivity.
-; ---------------------------------------------------------------------------
 
 (= (goalCandidatesBreakFallbackScore ($name $afConn))
    $afConn)
 
-; ---------------------------------------------------------------------------
-; STATIC MODE
-; ---------------------------------------------------------------------------
-
-(= (goalCandidatesStatic $afAtoms $graph $groupSize)
-   (let* (
-       ($size (if (== $groupSize ()) (goalCandidatesGroupSize) $groupSize))
-       ($af $afAtoms)
-       ($edges (goalCandidatesEdges $graph))
-       ($allNodes (goalCandidatesNodesFromEdges $edges))
-       ($outside (goalCandidatesFilterOutSet $allNodes $af))
-
-       ; EXPAND: outside nodes with at least one AF neighbor
-       ($expandRaw
-           (collapse
-               (map-atom $outside $node
-                   (let* (
-                       ($neigh (goalCandidatesNeighborsFromEdges $edges $node))
-                       ($afNeigh (goalCandidatesFilterInSet $neigh $af))
-                       ($count (goalCandidatesSize $afNeigh))
-                   )
-                   (if (> $count 0)
-                       (cons-atom $node (cons-atom $count ()))
-                       ())))))
-
-       ; Sort expand entries descending by afCount
-       ($expandSorted
-           (sortAtomsDescending $expandRaw goalCandidatesExpandScore))
-
-       ($expandTop (goalCandidatesTake $size $expandSorted))
-       ($expandStr (goalCandidatesFormatExpand $expandTop))
-
-       ; BREAK: outside nodes with zero AF neighbors
-       ($breakRaw
-           (collapse
-               (map-atom $outside $node
-                   (let* (
-                       ($neigh (goalCandidatesNeighborsFromEdges $edges $node))
-                       ($afNeigh (goalCandidatesFilterInSet $neigh $af))
-                       ($afCount (goalCandidatesSize $afNeigh))
-                       ($degree (goalCandidatesSize $neigh))
-                   )
-                   (if (== $afCount 0)
-                       (cons-atom $node (cons-atom $degree ()))
-                       ())))))
-
-       ; Sort break entries ascending by degree
-       ($breakSorted
-           (sortAtomsDescending $breakRaw goalCandidatesBreakScore))
-
-       ($breakTop (goalCandidatesTake $size $breakSorted))
-       ($breakStr (goalCandidatesFormatBreak $breakTop))
-   )
-   (concat "EXPAND(out-AF, adjacent) " $expandStr
-           " | BREAK(out-AF, distant) " $breakStr)))
-
-; ---------------------------------------------------------------------------
-; DYNAMIC MODE
-; ---------------------------------------------------------------------------
-
-(= (goalCandidatesDynamic $afAtoms $hebbianLinks $graph $groupSize)
-   (let* (
-       ($size (if (== $groupSize ()) (goalCandidatesGroupSize) $groupSize))
-       ($af $afAtoms)
-       ($staticEdges (goalCandidatesEdges $graph))
-       ($hebbianEdges $hebbianLinks)
-
-       ; Threshold Hebbian links: keep top percentile by weight, min 0.05
-       ($sortedHebbian
-           (sortAtomsDescending $hebbianEdges goalCandidatesEdgeWeight))
-       ($hebbianCount (goalCandidatesSize $sortedHebbian))
-       ($topCount (ceil (* $hebbianCount (goalCandidatesHebbianTopPercentile))))
-       ($strongHebbianRaw (goalCandidatesTake $topCount $sortedHebbian))
-       ($strongHebbian
-           (collapse
-               (map-atom $strongHebbianRaw $edge
-                   (if (>= (goalCandidatesEdgeWeight $edge)
-                           (goalCandidatesHebbianMinWeight))
-                       $edge
-                       ()))))
-
-       ; All known nodes
-       ($staticNodes (goalCandidatesNodesFromEdges $staticEdges))
-       ($hebbianNodes (goalCandidatesNodesFromEdges $strongHebbian))
-       ($allNodes (removeDuplicates (concatTuple $staticNodes $hebbianNodes)))
-       ($outside (goalCandidatesFilterOutSet $allNodes $af))
-
-       ; EXPAND: outside nodes with static AF neighbors OR hebbian AF neighbors
-       ; Score = staticCount*1.0 + hebbCount*2.0 + hebbWeight
-       ; Entry format: (name staticAfCount hebbAfCount score)
-       ($expandRaw
-           (collapse
-               (map-atom $outside $node
-                   (let* (
-                       ($staticNeigh (goalCandidatesNeighborsFromEdges $staticEdges $node))
-                       ($hebbNeigh (goalCandidatesNeighborsFromEdges $strongHebbian $node))
-                       ($staticAfCount (goalCandidatesCountInSet $staticNeigh $af))
-                       ($hebbAfCount (goalCandidatesCountInSet $hebbNeigh $af))
-                       ($hebbAfNodes (goalCandidatesFilterInSet $hebbNeigh $af))
-                       ; Sum hebbian weights to AF neighbors
-                       ($hebbWeight
-                           (foldl-atom $hebbAfNodes 0 $acc $n
-                               (+ $acc
-                                  (let ($w
-                                      (goalCandidatesEdgeWeight
-                                          (goalCandidatesFindEdge $strongHebbian $node $n)))
-                                      (if (== $w ()) 0.0 $w)))))
-                       ($score (+ (+ (* $staticAfCount 1.0)
-                                    (* $hebbAfCount 2.0))
-                                 $hebbWeight))
-                   )
-                   (if (or (> $staticAfCount 0) (> $hebbAfCount 0))
-                       (cons-atom $node
-                           (cons-atom $staticAfCount
-                               (cons-atom $hebbAfCount
-                                   (cons-atom $score ()))))
-                       ())))))
-
-       ; Sort expand by score descending (score is 4th element)
-       ($expandSorted
-           (sortAtomsDescending $expandRaw goalCandidatesExpandDynScore))
-
-       ($expandTop (goalCandidatesTake $size $expandSorted))
-       ($expandStr (goalCandidatesFormatExpandDyn $expandTop))
-
-       ; BREAK: outside nodes with ZERO AF connections in both static and hebbian
-       ($breakRaw
-           (collapse
-               (map-atom $outside $node
-                   (let* (
-                       ($staticNeigh (goalCandidatesNeighborsFromEdges $staticEdges $node))
-                       ($hebbNeigh (goalCandidatesNeighborsFromEdges $strongHebbian $node))
-                       ($staticAfCount (goalCandidatesCountInSet $staticNeigh $af))
-                       ($hebbAfCount (goalCandidatesCountInSet $hebbNeigh $af))
-                       ($degree (+ (goalCandidatesSize $staticNeigh)
-                                   (goalCandidatesSize $hebbNeigh)))
-                   )
-                   (if (and (== $staticAfCount 0) (== $hebbAfCount 0))
-                       (cons-atom $node (cons-atom $degree ()))
-                       ())))))
-
-        ; Sort break ascending by degree
-        ($breakSorted
-            (sortAtomsDescending $breakRaw goalCandidatesBreakScore))
-
-        ($breakTop (goalCandidatesTake $size $breakSorted))
-
-        ; Fallback: if no isolated nodes, pick nodes with lowest AF connectivity
-        ($breakStr
-            (if (== $breakTop ())
-                (let* (
-                    ($fallbackRaw
-                        (collapse
-                            (map-atom $outside $node
-                                (let* (
-                                    ($staticNeigh (goalCandidatesNeighborsFromEdges $staticEdges $node))
-                                    ($hebbNeigh (goalCandidatesNeighborsFromEdges $strongHebbian $node))
-                                    ($staticAfCount (goalCandidatesCountInSet $staticNeigh $af))
-                                    ($hebbAfCount (goalCandidatesCountInSet $hebbNeigh $af))
-                                    ($afConn (+ $staticAfCount $hebbAfCount))
-                                )
-                                (cons-atom $node (cons-atom $afConn ()))))))
-                    ($fallbackSorted
-                        (sortAtomsDescending $fallbackRaw goalCandidatesBreakFallbackScore))
-                    ($fallbackTop (goalCandidatesTake $size $fallbackSorted))
-                )
-                (goalCandidatesFormatBreakFallback $fallbackTop))
-                (goalCandidatesFormatBreak $breakTop)))
-    )
-    (concat "EXPAND(out-AF, dynamic-adj) " $expandStr
-            " | BREAK(out-AF, isolated) " $breakStr)))
-
-; ---------------------------------------------------------------------------
-; Break fallback formatting (used when no isolated nodes found)
-; Entry format: (name afConn) -- sorted ascending by afConn
-; ---------------------------------------------------------------------------
-
-(= (goalCandidatesFormatOneBreakFallback ())
-   "")
+; FormatOneBreakFallback
 (= (goalCandidatesFormatOneBreakFallback $entry)
-   (let* (
-       ($name (car-atom $entry))
-       ($afConn (car-atom (cdr-atom $entry)))
-   )
-   (concat (str $name) ":c" (str $afConn))))
+   (if (== $entry ()) ""
+       (let* (
+           ($name (car-atom $entry))
+           ($afConn (car-atom (cdr-atom $entry)))
+       )
+       (atom_concat (atom_concat (atom_concat $name ":c") $afConn) ""))))
 
-(= (goalCandidatesFormatBreakFallback ())
-   "none")
+; FormatBreakFallback
 (= (goalCandidatesFormatBreakFallback $entries)
    (if (== $entries ()) "none"
        (let* (
@@ -407,14 +241,9 @@
        )
        (if (== $restStr "none")
            $headStr
-           (concat $headStr " " $restStr)))))
+           (atom_concat (atom_concat $headStr " ") $restStr)))))
 
-; ---------------------------------------------------------------------------
-; Dynamic expand helpers
-; ---------------------------------------------------------------------------
-
-; Find an edge between $src and $tgt in an edge list (undirected).
-(= (goalCandidatesFindEdge () $src $tgt) ())
+; FindEdge
 (= (goalCandidatesFindEdge $edges $src $tgt)
    (if (== $edges ()) ()
        (let* (
@@ -428,26 +257,22 @@
            $head
            (goalCandidatesFindEdge $tail $src $tgt)))))
 
-; Dynamic expand entry: (name staticAfCount hebbAfCount score)
-; Sort key: -score (number) for descending by score.
 (= (goalCandidatesExpandDynScore ($name $staticAf $hebbAf $score))
    (- 0 $score))
 
-; Format dynamic expand entry: "name:Naf+Mheb" or "name:Naf"
-(= (goalCandidatesFormatOneExpandDyn ())
-   "")
+; FormatOneExpandDyn
 (= (goalCandidatesFormatOneExpandDyn $entry)
-   (let* (
-       ($name (car-atom $entry))
-       ($staticAf (car-atom (cdr-atom $entry)))
-       ($hebbAf (car-atom (cdr-atom (cdr-atom $entry))))
-   )
-   (if (> $hebbAf 0)
-       (concat (str $name) ":" (str $staticAf) "af+" (str $hebbAf) "heb")
-       (concat (str $name) ":" (str $staticAf) "af"))))
+   (if (== $entry ()) ""
+       (let* (
+           ($name (car-atom $entry))
+           ($staticAf (car-atom (cdr-atom $entry)))
+           ($hebbAf (car-atom (cdr-atom (cdr-atom $entry))))
+       )
+       (if (> $hebbAf 0)
+           (atom_concat (atom_concat (atom_concat (atom_concat $name ":") (atom_concat $staticAf "af+")) (atom_concat $hebbAf "heb")) "")
+           (atom_concat (atom_concat (atom_concat $name ":") (atom_concat $staticAf "af")) "")))))
 
-(= (goalCandidatesFormatExpandDyn ())
-   "none")
+; FormatExpandDyn
 (= (goalCandidatesFormatExpandDyn $entries)
    (if (== $entries ()) "none"
        (let* (
@@ -458,11 +283,172 @@
        )
        (if (== $restStr "none")
            $headStr
-           (concat $headStr " " $restStr)))))
+           (atom_concat (atom_concat $headStr " ") $restStr)))))
+
+; Join formatted expand and break strings
+(= (goalCandidatesJoinStatic $expandStr $breakStr)
+   (atom_concat (atom_concat "EXPAND(out-AF, adjacent) " $expandStr)
+                (atom_concat " | BREAK(out-AF, distant) " $breakStr)))
+
+(= (goalCandidatesJoinDynamic $expandStr $breakStr)
+   (atom_concat (atom_concat "EXPAND(out-AF, dynamic-adj) " $expandStr)
+                (atom_concat " | BREAK(out-AF, isolated) " $breakStr)))
 
 ; ---------------------------------------------------------------------------
-; Entry point
+; STATIC MODE
 ; ---------------------------------------------------------------------------
+
+(= (goalCandidatesStaticExpandEntry $node $edges $af)
+   (let* (
+       ($neigh (goalCandidatesNeighborsFromEdges $edges $node))
+       ($afNeigh (intersection-atom $af $neigh))
+       ($count (size-atom $afNeigh))
+   )
+   (if (> $count 0)
+       (cons-atom $node (cons-atom $count ()))
+       ())))
+
+(= (goalCandidatesStaticBreakEntry $node $edges $af)
+   (let* (
+       ($neigh (goalCandidatesNeighborsFromEdges $edges $node))
+       ($afCount (goalCandidatesCountInSet $af $neigh))
+       ($degree (size-atom $neigh))
+   )
+   (if (== $afCount 0)
+       (cons-atom $node (cons-atom $degree ()))
+       ())))
+
+(= (goalCandidatesStaticExpandEntries $nodes $edges $af)
+   (goalCandidatesFilterEntries (map-atom $nodes $node (goalCandidatesStaticExpandEntry $node $edges $af))))
+
+(= (goalCandidatesStaticBreakEntries $nodes $edges $af)
+   (goalCandidatesFilterEntries (map-atom $nodes $node (goalCandidatesStaticBreakEntry $node $edges $af))))
+
+(= (goalCandidatesComputeExpandStr $size $outside $edges $af)
+   (goalCandidatesFormatExpand
+       (goalCandidatesTake $size
+           (goalCandidatesSortExpand
+               (goalCandidatesStaticExpandEntries $outside $edges $af)))))
+
+(= (goalCandidatesComputeBreakStr $size $outside $edges $af)
+   (goalCandidatesFormatBreak
+       (goalCandidatesTake $size
+           (goalCandidatesSortBreak
+               (goalCandidatesStaticBreakEntries $outside $edges $af)))))
+
+(= (goalCandidatesStatic $afAtoms $graph $groupSize)
+   (let* (
+       ($size (if (== $groupSize ()) (goalCandidatesGroupSize) $groupSize))
+       ($edges (goalCandidatesEdges $graph))
+       ($allNodes (goalCandidatesNodesFromEdges $edges))
+       ($outside (subtraction-atom $allNodes $afAtoms))
+   )
+   (goalCandidatesJoinStatic
+       (goalCandidatesComputeExpandStr $size $outside $edges $afAtoms)
+       (goalCandidatesComputeBreakStr $size $outside $edges $afAtoms))))
+
+
+; ---------------------------------------------------------------------------
+; DYNAMIC MODE — extract lambda bodies as helper functions
+; ---------------------------------------------------------------------------
+
+(= (goalCandidatesFilterStrongHebb $edge)
+   (if (>= (goalCandidatesEdgeWeight $edge)
+           (goalCandidatesHebbianMinWeight))
+       $edge
+       ()))
+
+(= (goalCandidatesHebbWeightForNode $node $hebbAfNodes $strongHebbian)
+   (foldl-atom $hebbAfNodes 0 $acc $n
+       (+ $acc (goalCandidatesEdgeWeight
+                    (goalCandidatesFindEdge $strongHebbian $node $n)))))
+
+(= (goalCandidatesDynamicExpandEntry $node $staticEdges $strongHebbian $af)
+   (let* (
+       ($staticNeigh (goalCandidatesNeighborsFromEdges $staticEdges $node))
+       ($hebbNeigh (goalCandidatesNeighborsFromEdges $strongHebbian $node))
+       ($staticAfCount (goalCandidatesCountInSet $staticNeigh $af))
+       ($hebbAfCount (goalCandidatesCountInSet $hebbNeigh $af))
+       ($hebbAfNodes (intersection-atom $af $hebbNeigh))
+       ($hebbWeight (goalCandidatesHebbWeightForNode $node $hebbAfNodes $strongHebbian))
+       ($score (+ (+ (* $staticAfCount 1.0) (* $hebbAfCount 2.0)) $hebbWeight))
+   )
+   (if (or (> $staticAfCount 0) (> $hebbAfCount 0))
+       (cons-atom $node (cons-atom $staticAfCount (cons-atom $hebbAfCount (cons-atom $score ()))))
+       ())))
+
+(= (goalCandidatesDynamicBreakEntry $node $staticEdges $strongHebbian $af)
+   (let* (
+       ($staticNeigh (goalCandidatesNeighborsFromEdges $staticEdges $node))
+       ($hebbNeigh (goalCandidatesNeighborsFromEdges $strongHebbian $node))
+       ($staticAfCount (goalCandidatesCountInSet $staticNeigh $af))
+       ($hebbAfCount (goalCandidatesCountInSet $hebbNeigh $af))
+       ($degree (+ (size-atom $staticNeigh) (size-atom $hebbNeigh)))
+   )
+   (if (and (== $staticAfCount 0) (== $hebbAfCount 0))
+       (cons-atom $node (cons-atom $degree ()))
+       ())))
+
+(= (goalCandidatesDynamicFallbackEntry $node $staticEdges $strongHebbian $af)
+   (let* (
+       ($staticNeigh (goalCandidatesNeighborsFromEdges $staticEdges $node))
+       ($hebbNeigh (goalCandidatesNeighborsFromEdges $strongHebbian $node))
+       ($staticAfCount (goalCandidatesCountInSet $staticNeigh $af))
+       ($hebbAfCount (goalCandidatesCountInSet $hebbNeigh $af))
+       ($afConn (+ $staticAfCount $hebbAfCount))
+   )
+   (cons-atom $node (cons-atom $afConn ()))))
+
+(= (goalCandidatesComputeStrongHebbian $hebbianLinks)
+   (goalCandidatesFilterEntries
+       (map-atom
+           (goalCandidatesTake
+               (goalCandidatesCeil (* (size-atom (goalCandidatesSortEdgeWeight $hebbianLinks))
+                                      (goalCandidatesHebbianTopPercentile)))
+               (goalCandidatesSortEdgeWeight $hebbianLinks))
+           $edge
+           (goalCandidatesFilterStrongHebb $edge))))
+
+(= (goalCandidatesComputeOutside $staticEdges $strongHebbian $afAtoms)
+   (let* (
+       ($staticNodes (goalCandidatesNodesFromEdges $staticEdges))
+       ($hebbianNodes (goalCandidatesNodesFromEdges $strongHebbian))
+       ($merged (goalCandidatesLocalConcatTuple $staticNodes $hebbianNodes))
+       ($allNodes (goalCandidatesLocalRemoveDuplicates $merged))
+   )
+   (subtraction-atom $allNodes $afAtoms)))
+
+(= (goalCandidatesComputeExpandStrDyn $size $outside $staticEdges $strongHebbian $af)
+   (goalCandidatesFormatExpandDyn
+       (goalCandidatesTake $size
+           (goalCandidatesSortExpandDyn
+               (goalCandidatesFilterEntries (map-atom $outside $node (goalCandidatesDynamicExpandEntry $node $staticEdges $strongHebbian $af)))))))
+
+(= (goalCandidatesComputeBreakStrDyn $size $outside $staticEdges $strongHebbian $af)
+   (let* (
+       ($top (goalCandidatesTake $size
+               (goalCandidatesSortBreak
+                   (goalCandidatesFilterEntries (map-atom $outside $node (goalCandidatesDynamicBreakEntry $node $staticEdges $strongHebbian $af))))))
+   )
+   (if (== $top ())
+       (let* (
+           ($fallbackTop (goalCandidatesTake $size
+                   (goalCandidatesSortBreakFallback
+                       (goalCandidatesFilterEntries (map-atom $outside $node (goalCandidatesDynamicFallbackEntry $node $staticEdges $strongHebbian $af))))))
+       )
+       (goalCandidatesFormatBreakFallback $fallbackTop))
+       (goalCandidatesFormatBreak $top))))
+
+(= (goalCandidatesDynamic $afAtoms $hebbianLinks $graph $groupSize)
+   (let* (
+       ($size (if (== $groupSize ()) (goalCandidatesGroupSize) $groupSize))
+       ($staticEdges (goalCandidatesEdges $graph))
+       ($strongHebbian (goalCandidatesComputeStrongHebbian $hebbianLinks))
+       ($outside (goalCandidatesComputeOutside $staticEdges $strongHebbian $afAtoms))
+   )
+   (goalCandidatesJoinDynamic
+       (goalCandidatesComputeExpandStrDyn $size $outside $staticEdges $strongHebbian $afAtoms)
+       (goalCandidatesComputeBreakStrDyn $size $outside $staticEdges $strongHebbian $afAtoms))))
 
 (= (goalCandidates $afAtoms $hebbianLinks $graph $groupSize $useDynamic)
    (if (goalCandidatesToggle $useDynamic)

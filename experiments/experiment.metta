@@ -21,7 +21,7 @@
 !(import! &self ../attention-bank/attention-value/getter-and-setter)
 !(import! &self ../attention-bank/bank/attention-bank)
 !(import! &self "utils/logger.py")
-!(import! &self goal_candidates)
+!(import! &self utils/goal_candidates)
 !(import! &self logger)
 !(import! &self ../attention-bank/bank/attentional-focus/attentional-focus)
 !(import! &self ../attention-bank/bank/importance-index/importance-index)
