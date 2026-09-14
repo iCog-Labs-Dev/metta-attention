@@ -216,10 +216,10 @@
    (- 0 $afCount))
 
 (= (goalCandidatesBreakScore ($name $degree))
-   $degree)
+   (- 0 $degree))
 
 (= (goalCandidatesBreakFallbackScore ($name $afConn))
-   $afConn)
+   (- 0 $afConn))
 
 ; FormatOneBreakFallback
 (= (goalCandidatesFormatOneBreakFallback $entry)
