@@ -80,7 +80,7 @@
 ;		$pivot: an atom to be compared
 ; return: false if any of the condition in the descripton return false
 (: lessThanLtiThenTV (-> Atom Atom Atom Bool))
-(= (lessThanLtiThenTV $elem $pivot $_)
+(= (lessThanLtiThenTV $elem $pivot $fun)
     (if (or (== $elem ()) (== $pivot ()))
 		False
 		(if (== (getLti $elem) (getLti $pivot))
@@ -97,7 +97,7 @@
 ;		$pivot: an atom to be compared
 ; return: true if all conditions in descripton are fulfilled
 (: greaterThanLtiThenTV (-> Atom Atom Atom Bool))
-(= (greaterThanLtiThenTV $elem $pivot $_)
+(= (greaterThanLtiThenTV $elem $pivot $fun)
 	(if (or (== $elem ()) (== $pivot ()))
 		False
 		(if (== (getLti $elem) (getLti $pivot))
@@ -195,7 +195,7 @@
 			(
 				($head (car-atom $atoms))
 				($tail (cdr-atom $atoms))
-                ($_ (refundAV $head))
+                ($refund (refundAV $head))
 			)
             (removeTypeSpace $head)
 		)
