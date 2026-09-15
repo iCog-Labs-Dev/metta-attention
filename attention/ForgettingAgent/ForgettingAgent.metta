@@ -29,7 +29,7 @@
 ; params :
 ;	$atoms : List of atoms to be filtered
 ; return: List of atoms that are below threshold
-(: filterByLti (-> List Number List))
+(: filterByLti (-> Expression Number Expression))
 (= (filterByLti $atoms $forgetThreshold)
 	(if (== $atoms ())
 		()
@@ -39,7 +39,7 @@
 				($tail (cdr-atom $atoms))
 			)
 			(if (<= (getLti $head) $forgetThreshold)
-				(if (== (getVlti $head) 0)
+				(if (== (getVlti $head) 0.0)
 					(concatTuple ($head) (filterByLti $tail $forgetThreshold))
 					(filterByLti $tail $forgetThreshold)
 				)
@@ -55,7 +55,7 @@
 ; params:
 ;       $atoms: a List of unsorted atoms
 ; return: List of sorted atoms
-(: ForgettingLtiThenTVAscendingSort (-> List List))
+(: ForgettingLtiThenTVAscendingSort (-> Expression Expression))
 (= (ForgettingLtiThenTVAscendingSort $atoms)
 	(if (== $atoms ())
 		()
@@ -63,8 +63,8 @@
 			(
 				($pivot (car-atom $atoms))
 				($tail (cdr-atom $atoms))
-				($lesser (binaryFilter lessThanLtiThenTV $pivot $tail))
-				($greater (binaryFilter greaterThanLtiThenTV $pivot $tail))
+				($lesser (binaryFilter lessThanLtiThenTV $pivot $tail ()))
+				($greater (binaryFilter greaterThanLtiThenTV $pivot $tail ()))
                 ($sortedLesser (ForgettingLtiThenTVAscendingSort $lesser))
                 ($sortedGreater (ForgettingLtiThenTVAscendingSort $greater))
 			)	
@@ -79,8 +79,8 @@
 ; 		$elem: an atom to be compared
 ;		$pivot: an atom to be compared
 ; return: false if any of the condition in the descripton return false
-(: lessThanLtiThenTV (-> Atom Atom Bool))
-(= (lessThanLtiThenTV $elem $pivot)
+(: lessThanLtiThenTV (-> Atom Atom Atom Bool))
+(= (lessThanLtiThenTV $elem $pivot $fun)
     (if (or (== $elem ()) (== $pivot ()))
 		False
 		(if (== (getLti $elem) (getLti $pivot))
@@ -96,8 +96,8 @@
 ; 		$elem: an atom to be compared
 ;		$pivot: an atom to be compared
 ; return: true if all conditions in descripton are fulfilled
-(: greaterThanLtiThenTV (-> Atom Atom Bool))
-(= (greaterThanLtiThenTV $elem $pivot)
+(: greaterThanLtiThenTV (-> Atom Atom Atom Bool))
+(= (greaterThanLtiThenTV $elem $pivot $fun)
 	(if (or (== $elem ()) (== $pivot ()))
 		False
 		(if (== (getLti $elem) (getLti $pivot))
@@ -115,7 +115,7 @@
 ;        $removalAmount: the amount of atoms to be removed
 ;		 $count: the amount of atoms that have been removed
 ; return: None
-(: checkThenRemoveAtom (-> List Number Number empty))
+; (: checkThenRemoveAtom (-> Expression Number Number empty))
 (= (checkThenRemoveAtom $sortedatoms $removalAmount $count)
 	(if (== $sortedatoms ())
 		()
@@ -169,7 +169,7 @@
 ; 	$head: an atom that needs to be removed
 ;	$nsiet: all incoming sets of the atom
 ; return: None
-(: globalRemoveAtom (-> Atom List empty))
+; (: globalRemoveAtom (-> Atom Expression empty))
 (= (globalRemoveAtom $head $niset) 
 	(let $bin 
         (importanceBin (getSti $head))
@@ -187,7 +187,7 @@
 ; params:
 ;		$atoms: List of incoming atoms of an atom
 ; return: None
-(: extractAtomRecursive (-> List empty))
+; (: extractAtomRecursive (-> Expression empty))
 (= (extractAtomRecursive $atoms)
 	(if (== $atoms ())
 		()
@@ -195,7 +195,7 @@
 			(
 				($head (car-atom $atoms))
 				($tail (cdr-atom $atoms))
-                (() (refundAV $head))
+                ($refund (refundAV $head))
 			)
             (removeTypeSpace $head)
 		)
