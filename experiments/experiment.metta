@@ -3,10 +3,12 @@
 !(import! &self inject.py)
 !(import! &self (library mettaclaw lib_mettaclaw))
 !(bind! &insect (new-space))
+!(bind! &graph (new-space))
 !(import! &insect data/insect-sent)
 !(import! &self lib/lib_spaces)
 !(import! &self lib/lib_he)
 !(static-import! &incident ./data/kgadexp)
+!(static-import! &graph ./data/adagram_sparse_random)
 ; !(static-import! &conceptnet data/conceptnet_stv_clean)
 
 !(import! &self ../attention/AttentionParam)
@@ -19,7 +21,7 @@
 !(import! &self ../attention-bank/attention-value/getter-and-setter)
 !(import! &self ../attention-bank/bank/attention-bank)
 !(import! &self "utils/logger.py")
-!(import! &self "utils/goal_candidates.py")
+!(import! &self utils/goal_candidates)
 !(import! &self logger)
 !(import! &self ../attention-bank/bank/attentional-focus/attentional-focus)
 !(import! &self ../attention-bank/bank/importance-index/importance-index)
@@ -135,9 +137,7 @@
 
 ; Graph frontier only (EXPAND / BREAK). SHARPEN / SETTLE use &af via getAfPairs in the prompt.
 (= (getGoalCandidates)
-    (if (useDynamicFrontier)
-        (py-call (goal_candidates.goal_candidates (getAfAtoms) (getAllHebLinksWithValues) () 5 True))
-        (py-call (goal_candidates.goal_candidates (getAfAtoms) () () 5 False)))
+    (goalCandidates (getAfAtoms) (getAllHebLinksWithValues) &graph 5 (useDynamicFrontier))
 )
 
 ; Batch-window retention so R2 sees churn across the MettaClaw interval.
