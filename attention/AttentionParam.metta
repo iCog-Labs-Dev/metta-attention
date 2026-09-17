@@ -37,6 +37,7 @@
 !(add-atom &attentionParam  (STI_ATOM_WAGE 10))
 !(add-atom &attentionParam  (LTI_ATOM_WAGE 10))
 !(add-atom &attentionParam  (TOPK 1))
+!(add-atom &attentionParam  (SYNAPSE_MODE base))
 
 ; (: getAttentionParam (-> Symbol Number))
 (= (getAttentionParam $param)
