@@ -69,41 +69,6 @@
 !(initialize-baseline-cip)
 !(bind! &goalspace (new-space))
 
-(= (logcurrCip)
-        (let* (
-                ($cip (transition-to-next-cip))
-                ((CIPSnapshot $index $time $afAtoms $metrice) $cip)
-                (($_gainedEfficiencyMetric $afResource $stiConcentration $fundSti $linkDensity $connectionRatio
-                    $preallocation $cognitiveSynergy $modulation $coordination $contextRetention $cognitiveMaintenance
-                    $effectiveness $triangleCount $betti0 $betti1 $betti2) $metrice)
-                ($gainedEfficiency (getGainedEfficiency $index))
-                ($redundancyDegradation (getRedundancyDegradation $index))
-        )
-        (write_metrics_wrapper
-            $index
-            $time
-            $afAtoms
-            $afResource
-            $stiConcentration
-            $fundSti
-            $linkDensity
-            $connectionRatio
-            $preallocation
-            $cognitiveSynergy
-            $modulation
-            $coordination
-            $contextRetention
-            $cognitiveMaintenance
-            $effectiveness
-            $gainedEfficiency
-            $redundancyDegradation
-            $triangleCount
-            $betti0
-            $betti1
-            $betti2
-        )
-    )
-)
 
 ; Bare (agents fluid) would apply agents as a function to fluid — use let*.
 (= (runAttentionBatch $seeds)

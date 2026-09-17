@@ -21,7 +21,7 @@
 !(import! &self (library lib_spaces))
 !(import! &self (library lib_he))
 
-!(static-import! &incident ../data/kgadexp)
+!(static-import! &incident ../data/kg)
 
 !(import! &self (library metta-attention attention/AttentionParam))
 !(import! &self (library metta-attention attention/baching))
@@ -114,7 +114,7 @@
 !(start-log (attentionParam) "mtmo_explore_novel" "metamo_guided" "redundancy_baseline_1")
 !(initialize-baseline-cip)
 
-(= (batch) 5)
+(= (batch) 15)
 
 (= (updateNoveltyTrack)
     (let* 
@@ -162,7 +162,7 @@
                 )
             )
             ($_ag (collapse (agent-runner &incident)))
-            ($_fl (collapse (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta" $seeds)))
+            ($_fl (collapse (applyFluidSimulation "../metta-attention/experiments/data/kg_full_graph.metta" $seeds)))
             ($_state (setMetaMoStates (cycleNextStates $result)))
             ($_nt (updateNoveltyTrack))
         )
@@ -192,4 +192,6 @@
     )
 )
 
-!(motivatedReadExp (car-atom (collapse (match &insect (insectSent $x) $x))) 0)
+!(once (progn
+    (motivatedReadExp (car-atom (collapse (match &insect (insectSent $x) $x))) 0)
+    True))
