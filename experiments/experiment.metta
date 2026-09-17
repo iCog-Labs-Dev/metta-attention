@@ -22,7 +22,7 @@
 !(registerLocalMettaAttentionLibrary)
 !(import! &self (library lib_he))
 
-!(static-import! &incident ./data/kgadexp)
+!(static-import! &incident ./data/kg)
 
 !(import! &self (library metta-attention attention/AttentionParam))
 !(import! &self (library metta-attention attention/baching))
@@ -85,7 +85,7 @@
 (= (runAttentionBatch $now)
     (
         (collapse (agent-runner &incident))
-        (collapse (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta" $now))
+        (collapse (applyFluidSimulation "../metta-attention/experiments/data/kg_full_graph.metta" $now))
     )
 )
 
@@ -107,7 +107,7 @@
     ((getRandomAtomInAF) (getRandomAtomInAF) (getRandomAtomInAF) (getRandomAtomInAF))
 )
 
-(= (batch) 5)
+(= (batch) 35)
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (let $_done (println! (finished-read count $counter)) True)
