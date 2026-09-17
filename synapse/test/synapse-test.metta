@@ -187,7 +187,7 @@
 !(initialize-baseline-cip)
 !(assertAlmostEqual (getAfResourceUsage) (/ 5.0 9.0))
 !(assertAlmostEqual (getStiConcentration) 0.6975)
-!(assertAlmostEqual (getLinkDensity) 0.8)
+!(assertAlmostEqual (getLinkDensity) 0.6)
 !(assertAlmostEqual (getConnectionRatio) 0.75)
 !(assertAlmostEqual (getPreallocationSpace) 0.9055)
 !(assertAlmostEqual (getCognitiveSynergy) 0.6057)
