@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import io
 import os
+import sys
+from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.patheffects
@@ -13,6 +15,30 @@ from graph import spectral_to_grid_coords
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 GIF_OUTPUT = os.path.join(SCRIPT_DIR, "fluid_animation.gif")
+REPO_ROOT = Path(SCRIPT_DIR).resolve().parents[2]
+
+
+def get_active_logging_directory() -> Path | None:
+    """Check if logger has an active experiment logging directory."""
+    for mod_name, mod in list(sys.modules.items()):
+        if hasattr(mod, "LOGGING_DIRECTORY"):
+            log_dir = getattr(mod, "LOGGING_DIRECTORY")
+            if log_dir is not None:
+                return Path(log_dir)
+    return None
+
+
+def resolve_animation_output_path(folder_name: str | None = None) -> str:
+    if folder_name:
+        out_dir = REPO_ROOT / "experiments" / "output" / folder_name
+    elif get_active_logging_directory():
+        out_dir = get_active_logging_directory()
+    else:
+        return GIF_OUTPUT
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    return str(out_dir / "fluid_animation.gif")
+
 
 def _resolve_output_path(path: str, overwrite: bool) -> str:
     if overwrite:
@@ -22,6 +48,7 @@ def _resolve_output_path(path: str, overwrite: bool) -> str:
     while os.path.exists(f"{base}_{i}{ext}"):
         i += 1
     return f"{base}_{i}{ext}"
+
 
 def render_animation(
     history: list[np.ndarray],

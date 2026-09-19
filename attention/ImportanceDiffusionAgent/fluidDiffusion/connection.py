@@ -41,6 +41,7 @@ from render import (
     SCRIPT_DIR as SCRIPT_DIR,
     GIF_OUTPUT as GIF_OUTPUT,
     _resolve_output_path as _resolve_output_path,
+    resolve_animation_output_path,
     render_animation,
 )
 
@@ -84,6 +85,7 @@ def fluid_from_af(
     overwrite: bool = True,
     frame_step: int = 1,
     fps: int = 10,
+    output_dir: str | Path | None = None,
 ) -> list[list[Any]]:
     """Redistribute PeTTa-provided STI through fluid transport and return pairs."""
 
@@ -139,10 +141,12 @@ def fluid_from_af(
         track_history=visualize,
     )
     if visualize and history:
+        resolved_gif_path = resolve_animation_output_path(output_dir)
         render_animation(
             history,
             params.grid_size,
             coords,
+            output_path=resolved_gif_path,
             frame_step=frame_step,
             fps=fps,
             sti_values=transport_sti,
@@ -190,6 +194,12 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Auto-increment filename instead of overwriting",
     )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default=None,
+        help="Directory or experiment folder name to save animation GIF",
+    )
     return parser
 
 
@@ -232,10 +242,12 @@ def main() -> None:
             modes=modes,
             spectral_coords=coords,
         )
+        resolved_output = resolve_animation_output_path(args.output_dir)
         render_animation(
             history,
             params.grid_size,
             coords,
+            output_path=resolved_output,
             frame_step=args.frame_step,
             fps=args.fps,
             sti_values=sti_values,
