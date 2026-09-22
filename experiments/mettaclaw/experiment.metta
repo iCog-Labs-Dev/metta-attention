@@ -68,14 +68,32 @@
 
 !(initialize-baseline-cip)
 !(bind! &goalspace (new-space))
+!(bind! &lastGoalsState (new-state (INITIAL_NONE)))
 
+(= (useConditionalFluid) True)
+
+(= (shouldRunFluid)
+    (if (not (useConditionalFluid))
+        True
+        (if (checkGoalsChanged)
+            (let $_ (println! (fluid-flow: RUNNING (triggered by goal event (collapse (match &goalspace (Goal $c) $c))))) True)
+            (if (isCognitiveReflexNeeded)
+                (let $_ (println! (fluid-flow: RUNNING (triggered by cognitive reflex))) True)
+                (let $_ (println! (fluid-flow: SKIPPED (goals unchanged and metrics healthy))) False)
+            )
+        )
+    )
+)
 
 ; Bare (agents fluid) would apply agents as a function to fluid — use let*.
 (= (runAttentionBatch $seeds)
     (let*
         (
             ($_agents (collapse (agent-runner &incident)))
-            ($_fluid (collapse (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta" $seeds)))
+            ($_fluid
+                (if (shouldRunFluid)
+                    (collapse (applyFluidSimulation "../metta-attention/experiments/data/adagram_sparse_random.metta" $seeds))
+                    True))
         )
         True
     )
