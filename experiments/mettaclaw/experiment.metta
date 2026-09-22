@@ -72,6 +72,43 @@
 
 (= (useConditionalFluid) True)
 
+; helpers for order-agnostic goal set comparison
+(= (isMember $elem $list)
+    (if (== $list ())
+        False
+        (let $head (car-atom $list)
+            (if (== $elem $head)
+                True
+                (isMember $elem (cdr-atom $list))
+            )
+        )
+    )
+)
+
+(= (isSubset () $target) True)
+(= (isSubset $source $target)
+    (if (== $source ())
+        True
+        (let*
+            (
+                ($head (car-atom $source))
+                ($tail (cdr-atom $source))
+            )
+            (if (isMember $head $target)
+                (isSubset $tail $target)
+                False
+            )
+        )
+    )
+)
+
+(= (isSameGoalSet $a $b)
+    (if (== (size-atom $a) (size-atom $b))
+        (isSubset $a $b)
+        False))
+
+
+
 (= (shouldRunFluid)
     (if (not (useConditionalFluid))
         True
