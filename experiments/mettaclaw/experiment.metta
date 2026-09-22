@@ -107,7 +107,41 @@
         (isSubset $a $b)
         False))
 
+; Check if executive goals in &goalspace changed from last batch
+(= (checkGoalsChanged)
+    (with_mutex goalspace_mutex
+        (let*
+            (
+                ($currGoals (collapse (match &goalspace (Goal $c) $c)))
+                ($prevGoals (get-state &lastGoalsState))
+                ($same (isSameGoalSet $currGoals $prevGoals))
+            )
+            (if $same
+                False
+                (let $_ (change-state! &lastGoalsState $currGoals)
+                    True)
+            )
+        )
+    )
+)
 
+; Cognitive reflex: fires when attention state is outside healthy control boundaries
+(= (isCognitiveReflexNeeded)
+    (let*
+        (
+            ($mod (getSelectionModulation))
+            ($ret (getContextRetentionBatch))
+            ($syn (getCognitiveSynergy))
+            ($res (getAfResourceUsage))
+            ($ent (getPreallocationSpace))
+        )
+        (or (> $mod (thresholdBreak))
+            (or (< $ret (thresholdSettle))
+                (or (< $syn (thresholdSynergy))
+                    (or (> $res (thresholdAfResource))
+                        (or (< $mod (thresholdSharpen))
+                            (> $ent (thresholdEntropyHigh))))))))
+)
 
 (= (shouldRunFluid)
     (if (not (useConditionalFluid))
