@@ -34,14 +34,13 @@ from __future__ import annotations
 
 import argparse
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Dict, Iterable, Tuple
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, Subset
-from torchvision import datasets, transforms
 
 
 torch.manual_seed(0)
@@ -90,6 +89,8 @@ class Config:
 
     region_logit_scale: float = 40.0
     disable_flow: bool = False
+    disable_pc: bool = False
+    seed: int = 0
 
 
 # -----------------------------------------------------------------------------
@@ -436,7 +437,7 @@ def infer_density(
     cfg: Config,
     steps: int | None = None,
 ) -> Tuple[torch.Tensor, Dict[str, float]]:
-    """Run PC reaction + learned incompressible advection without BPTT."""
+    """Run optional PC reaction and fluid transport without BPTT."""
 
     total_steps = cfg.infer_steps if steps is None else steps
     a = model.random_density(x)
@@ -449,9 +450,10 @@ def infer_density(
 
     for step in range(total_steps):
         # Reaction: minimize 1/(2N)||a-a_hat||^2, then restore unit budget.
-        a_hat = model.pc_prediction(a, x)
-        grad_pc = cfg.pc_reaction_weight * (a - a_hat) / PIXELS
-        a = normalize_density(a - cfg.hidden_lr * grad_pc)
+        if not cfg.disable_pc:
+            a_hat = model.pc_prediction(a, x)
+            grad_pc = cfg.pc_reaction_weight * (a - a_hat) / PIXELS
+            a = normalize_density(a - cfg.hidden_lr * grad_pc)
 
         if cfg.disable_flow:
             continue
@@ -495,13 +497,16 @@ def train_batch(
     # ------------------------------------------------------------------
     # 1. Local PC parameter update
     # ------------------------------------------------------------------
-    optimizers["pc"].zero_grad(set_to_none=True)
-    a_hat = model.pc_prediction(a_fixed, x)
-    pc_per_sample = 0.5 * (a_fixed - a_hat).square().sum(dim=(1, 2, 3)) / PIXELS
-    pc_loss = pc_per_sample.mean()
-    weighted_pc_loss = cfg.pc_weight * pc_loss
-    weighted_pc_loss.backward()
-    optimizers["pc"].step()
+    pc_loss = x.new_zeros(())
+    weighted_pc_loss = pc_loss
+    if not cfg.disable_pc:
+        optimizers["pc"].zero_grad(set_to_none=True)
+        a_hat = model.pc_prediction(a_fixed, x)
+        pc_per_sample = 0.5 * (a_fixed - a_hat).square().sum(dim=(1, 2, 3)) / PIXELS
+        pc_loss = pc_per_sample.mean()
+        weighted_pc_loss = cfg.pc_weight * pc_loss
+        weighted_pc_loss.backward()
+        optimizers["pc"].step()
 
     # ------------------------------------------------------------------
     # 2. Value-like cost-to-go update
@@ -614,6 +619,8 @@ def evaluate(model: FluidPCN, loader: DataLoader, cfg: Config) -> Tuple[float, D
 
 
 def make_loader(train: bool, subset: int, batch_size: int) -> DataLoader:
+    from torchvision import datasets, transforms
+
     data = datasets.MNIST(
         "./data",
         train=train,
@@ -627,14 +634,17 @@ def make_loader(train: bool, subset: int, batch_size: int) -> DataLoader:
 
 
 def make_optimizers(model: FluidPCN, cfg: Config) -> Dict[str, torch.optim.Optimizer]:
-    return {
-        "pc": torch.optim.Adam(
-            list(model.source_encoder.parameters()) + list(model.pc_local.parameters()),
-            lr=cfg.pc_lr,
-        ),
+    optimizers = {
         "value": torch.optim.Adam(model.value_encoder.parameters(), lr=cfg.value_lr),
         "flow": torch.optim.Adam(model.stream_controller.parameters(), lr=cfg.flow_lr),
     }
+
+    if not cfg.disable_pc:
+        optimizers["pc"] = torch.optim.Adam(
+            list(model.source_encoder.parameters()) + list(model.pc_local.parameters()),
+            lr=cfg.pc_lr,
+        )
+    return optimizers
 
 
 def smoke_test(cfg: Config) -> None:
@@ -703,6 +713,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--control_weight", type=float, default=1e-3)
     p.add_argument("--divergence_weight", type=float, default=1e-2)
     p.add_argument("--disable_flow", action="store_true")
+    p.add_argument("--disable_pc", action="store_true", help="Skip PC reaction and PC learning")
+    p.add_argument("--compare_pc", action="store_true", help="Train with and without PC from the same seed")
+    p.add_argument("--seed", type=int, default=0)
     p.add_argument("--smoke_test", action="store_true")
     return p.parse_args()
 
@@ -729,30 +742,36 @@ def config_from_args(args: argparse.Namespace) -> Config:
         control_weight=args.control_weight,
         divergence_weight=args.divergence_weight,
         disable_flow=args.disable_flow,
+        disable_pc=args.disable_pc,
+        seed=args.seed,
     )
 
 
-def main() -> None:
-    args = parse_args()
-    cfg = config_from_args(args)
+def run_experiment(cfg: Config, smoke: bool = False) -> list[float]:
+    # Reset before model creation and loader iteration for paired ablations.
+    torch.manual_seed(cfg.seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(cfg.seed)
 
     print("Paper-aligned discriminative Fluid-PCN routing experiment")
     print(f"device={DEVICE}")
     print(
         f"infer_steps={cfg.infer_steps} control_horizon={cfg.control_horizon} "
         f"target_cfl={cfg.target_cfl} diffusion_start={cfg.diffusion_start} "
-        f"flow={'off' if cfg.disable_flow else 'on'}"
+        f"flow={'off' if cfg.disable_flow else 'on'} "
+        f"pc={'off' if cfg.disable_pc else 'on'} seed={cfg.seed}"
     )
 
-    if args.smoke_test:
+    if smoke:
         smoke_test(cfg)
-        return
+        return []
 
     model = FluidPCN(cfg).to(DEVICE)
     optimizers = make_optimizers(model, cfg)
     train_loader = make_loader(True, cfg.train_subset, cfg.batch_size)
     test_loader = make_loader(False, cfg.test_subset, cfg.batch_size)
 
+    history = []
     best_test = 0.0
     for epoch in range(1, cfg.epochs + 1):
         model.train()
@@ -769,6 +788,7 @@ def main() -> None:
                 )
 
         test_acc, diag = evaluate(model, test_loader, cfg)
+        history.append(test_acc)
         best_test = max(best_test, test_acc)
         print("=" * 90)
         print(
@@ -777,6 +797,29 @@ def main() -> None:
             f"cfl={diag['cfl']:.3f}"
         )
         print("=" * 90)
+
+    return history
+
+
+def main() -> None:
+    args = parse_args()
+    if args.compare_pc and (args.disable_pc or args.disable_flow):
+        raise SystemExit("--compare_pc requires flow enabled and cannot be combined with --disable_pc")
+    cfg = config_from_args(args)
+    if not args.compare_pc:
+        run_experiment(cfg, smoke=args.smoke_test)
+        return
+
+    with_pc = run_experiment(replace(cfg, disable_pc=False), smoke=args.smoke_test)
+    without_pc = run_experiment(replace(cfg, disable_pc=True), smoke=args.smoke_test)
+    if args.smoke_test:
+        return
+    print("PC comparison: test accuracy; delta = without PC - with PC (percentage points)")
+    for epoch, (pc_acc, fluid_acc) in enumerate(zip(with_pc, without_pc), start=1):
+        print(
+            f"epoch={epoch} with_pc={pc_acc:.2f}% without_pc={fluid_acc:.2f}% "
+            f"delta={fluid_acc - pc_acc:+.2f}pp"
+        )
 
 
 if __name__ == "__main__":

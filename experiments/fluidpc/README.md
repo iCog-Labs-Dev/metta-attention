@@ -161,6 +161,44 @@ python experiments/fluidpc/fluidPc.py \
   --disable_flow
 ```
 
+## Compare fluid transport with and without PC
+
+Train both variants from scratch with the same seed and settings:
+
+```sh
+python experiments/fluidpc/fluidPc.py --compare_pc --seed 0
+```
+
+For a smaller comparison, add `--epochs 1 --train_subset 2000 --test_subset 500`.
+The two runs execute sequentially. At the end, the script prints each epoch's
+held-out test accuracy with PC, without PC, and the difference in percentage
+points (`without PC - with PC`). A positive difference favors fluid-only.
+Repeat with different `--seed` values to assess variation; GPU operations may
+still be nondeterministic.
+
+Run only the fluid-only variant:
+
+```sh
+python experiments/fluidpc/fluidPc.py --disable_pc
+```
+
+`--disable_pc` skips both the density reaction and the local PC loss/optimizer.
+The initial random central density, value-map learning, fluid controller,
+advection, diffusion schedule, and target-region classifier stay the same.
+The source encoder is currently unused in both variants. Fluid-only therefore
+means the existing transport system with its learned value guidance, without
+PC reaction or PC learning. Default runs continue to include PC.
+
+Check both modes without downloading MNIST:
+
+```sh
+python experiments/fluidpc/fluidPc.py --compare_pc --smoke_test
+python -m unittest discover -s experiments/fluidpc -p 'test_*.py'
+```
+
+Smoke-test accuracy is on random synthetic inputs, not an MNIST result.
+`--compare_pc` cannot be combined with `--disable_pc` or `--disable_flow`.
+
 ## Useful CLI Options
 
 - `--epochs`: number of training epochs.
@@ -172,6 +210,9 @@ python experiments/fluidpc/fluidPc.py \
 - `--control_horizon`: short rollout length used for flow training.
 - `--target_cfl`: target Courant number for stable advection.
 - `--diffusion_start`: initial diffusion strength before annealing.
+- `--disable_pc`: disables PC reaction and learning for fluid-only runs.
+- `--compare_pc`: trains both PC variants and prints test accuracy differences.
+- `--seed`: random seed for initialization, batch order, and density sampling.
 - `--disable_flow`: disables learned fluid transport for ablation.
 - `--smoke_test`: runs a fast correctness check.
 
