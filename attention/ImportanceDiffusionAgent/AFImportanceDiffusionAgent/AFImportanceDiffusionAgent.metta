@@ -46,7 +46,7 @@
             ($hebbianMaximumLinkAllocation (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE))
             ($diffPercentage (* $maxSpreadPercentage $hebbianMaximumLinkAllocation))
             ($stiportion (/ $diffPercentage $diffsize))
-            (($atomToReceive (STV $mean $conf)) 
+            (($atomToReceive (stv $mean $conf))
                 (match $space ((ASYMMETRIC_HEBBIAN_LINK $atom $target) $val) ($target $val))
             )
             ($stiGiven (* (* $stiportion (* $mean $conf)) $sourceSti))
