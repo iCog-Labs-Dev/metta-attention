@@ -56,7 +56,7 @@ so we dont need to consider if it is within funds value.
 
 ## modified atom structure
 
-(atom (((STV mean conf) (AV sti lti vlti)) (Bin binNumber)))
+(atom (((stv mean conf) (AV sti lti vlti)) (Bin binNumber)))
 we removed atombin space. now all information of an atom is stored in typespace.
 
 ## getter functions
