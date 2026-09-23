@@ -72,7 +72,7 @@
 
 !(assertEqual
     (getHebLinksWithValues (A) ())
-    (((ASYMMETRIC_HEBBIAN_LINK A B) (STV 0.8 0.5)))
+    (((ASYMMETRIC_HEBBIAN_LINK A B) (stv 0.8 0.5)))
 )
 
 !(assertEqual
@@ -244,4 +244,3 @@
 !(getSti acetamiprid) ; 164.26172258399998
 
 !(getAttentionParam FUNDS_STI) ; the fund is consistent accross all agent call?? it should be due to rent collection
-
