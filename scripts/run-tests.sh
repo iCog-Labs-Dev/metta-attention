@@ -30,9 +30,7 @@ AGENT_TEST_GLOBS=(
   "attention/**/*-test.metta"
 )
 
-KNOWN_EXCLUDED_TESTS=(
-  "attention/ForgettingAgent/tests/ForgettingAgent-test.metta"
-)
+KNOWN_EXCLUDED_TESTS=()
 
 ATTENTION_BANK_TESTS=()
 AGENT_TESTS=()
