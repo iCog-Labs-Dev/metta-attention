@@ -95,8 +95,8 @@
 ;;;   $stv2: The second STV to merge.
 ;;;   $formula-to-use: The formula to use for merging the STVs.
 ;;; Returns: The merged STV.
-;;; Example: (mergeCalculation (STV 0.1 0.9) (STV 0.3 0.9) PLN_BOOK_REVISION)
-;;;          Returns (STV 0.0105976 0.9)
+;;; Example: (mergeCalculation (0.1 0.9) (0.3 0.9) PLN_BOOK_REVISION)
+;;;          Returns (0.0105976 0.9)
 
 ; (: mergeCalculation (-> STV STV Symbol STV))
 (= (mergeCalculation $stv1 $stv2 $formula-to-use)
@@ -131,8 +131,8 @@
 ;;;   $stv1: The first STV to merge.
 ;;;   $stv2: The second STV to merge.
 ;;; Returns: The STV with the higher confidence.
-;;; Example: (higherConfidenceMerge (STV 0.1 0.8) (STV 0.3 0.9))
-;;;          Returns (STV 0.3 0.9)
+;;; Example: (higherConfidenceMerge (0.1 0.8) (0.3 0.9))
+;;;          Returns (0.3 0.9)
 
 ; (: higherConfidenceMerge (-> STV STV STV))
 (= (higherConfidenceMerge $stv1 $stv2)

@@ -79,11 +79,11 @@
 
 ; Test case 06: testing simple truth value getter (getStv) functions for symbol atom type.
 
-!(test (getStv A) (STV 1.0 0.9))
-!(test (getStv Cat) (STV 0.8 0.9))
-!(test (getStv Animal) (STV 0.7 0.8))
-!(test (getStv Human) (STV 0.4 0.3))
-!(test (getStv Socratus) (STV 0.5 0.6))
+!(test (getStv A) (stv 1.0 0.9))
+!(test (getStv Cat) (stv 0.8 0.9))
+!(test (getStv Animal) (stv 0.7 0.8))
+!(test (getStv Human) (stv 0.4 0.3))
+!(test (getStv Socratus) (stv 0.5 0.6))
 !(test (getStv k) %Undefined%)
 
 
@@ -99,12 +99,12 @@
 
 ; Test case 08: testing simple truth value getter functions for link/expressions atom type
 
-!(test (getStv (a)) (STV 0.2 0.9))
-!(test (getStv (C)) (STV 1 0.9))
-!(test (getStv (EvaluationLink a b)) (STV 0.1 0.9))
-!(test (getStv (Hebbianlink Human Cat)) (STV 0.3 0.9))
-!(test (getStv (Hebbianlink (Hebbianlink Cat Human) Animal)) (STV 0.5 0.6))
-!(test (getStv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat))) (STV 0.1 0.9))
+!(test (getStv (a)) (stv 0.2 0.9))
+!(test (getStv (C)) (stv 1 0.9))
+!(test (getStv (EvaluationLink a b)) (stv 0.1 0.9))
+!(test (getStv (Hebbianlink Human Cat)) (stv 0.3 0.9))
+!(test (getStv (Hebbianlink (Hebbianlink Cat Human) Animal)) (stv 0.5 0.6))
+!(test (getStv (Hebbianlink (Hebbianlink Animal Human) (Hebbianlink Animal Cat))) (stv 0.1 0.9))
 
 
 ; Test case 09: testing mean, confidence, STI, LTI and VLTI getter functions

@@ -47,7 +47,7 @@
     (let*
         (
             ($stiportion (/ $diffPercentage $diffsize))
-            (($atomToReceive (STV $mean $conf)) 
+            (($atomToReceive (stv $mean $conf))
                 (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $atom $target) $val) ($target $val))
             )
             ($stiGiven (* (* $stiportion (* $mean $conf)) $diffAmount))
@@ -101,5 +101,3 @@
     (spreadImportanceWA $space (TypeSpace))
   ; )
 )
-
-

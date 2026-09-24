@@ -3,7 +3,7 @@
     &typeSpace
 )
 
-; updated data structure (atom (((STV mean conf) (AV sti lti vlti)) (Bin bin)))
+; updated data structure (atom (((stv mean conf) (AV sti lti vlti)) (Bin bin)))
 ; setAv function accepts a pattern (it could be a symbol or an expression) and attention values(contain STI, LTI and VLTI)
 ; and set the attention value as a type for the pattern. 
 ; then the pattern will be stored with attention value type in a space called typespace.
@@ -88,7 +88,7 @@
 (= (setStv $pattern ($mean $conf))
     (let $space (TypeSpace)
     (if (== (getValueType $pattern) %Undefined%)
-        (add-atom $space ($pattern (STV $mean $conf)))
+        (add-atom $space ($pattern (stv $mean $conf)))
          (let* 
             (
                 ($av (getAv $pattern))
@@ -97,8 +97,8 @@
                 ($b (remove-atom $space $value))
               )
             (if (== $av %Undefined%)
-                (add-atom $space ($pattern (STV $mean $conf)))
-                (add-atom $space ($pattern ( ((STV $mean $conf) $av) (Bin $bin))))))
+                (add-atom $space ($pattern (stv $mean $conf)))
+                (add-atom $space ($pattern ( ((stv $mean $conf) $av) (Bin $bin))))))
     )
 ))
 
@@ -126,7 +126,7 @@
  (case (getValueType $pattern)
    (
      ( ((AV $a $b $c) (Bin $bin)) (AV $a $b $c))
-     ( (((STV $a $b) (AV $x $y $z)) (Bin $bin)) (AV $x $y $z))
+     ( (((stv $a $b) (AV $x $y $z)) (Bin $bin)) (AV $x $y $z))
      ($else %Undefined%)
      )
  )
@@ -138,7 +138,7 @@
 (case (getValueType $pattern)
   (
     ( ((AV $a $b $c) (Bin $bin)) $bin)
-    ( (((STV $a $b) (AV $x $y $z)) (Bin $bin)) $bin)
+    ( (((stv $a $b) (AV $x $y $z)) (Bin $bin)) $bin)
     ($else %Undefined%)
     )
 )
@@ -147,14 +147,14 @@
  ; getStv function accepts a pattern/node and returns the simple truth
  ; value attaced to the pattern/node
  ;
- ; i.e !(getStv A)  output: (STV 0.1 0.9)
+ ; i.e !(getStv A)  output: (stv 0.1 0.9)
 
 
 (= (getStv $pattern)
         (case (getValueType $pattern)
           (
-            ( (STV $a $b) (STV $a $b))
-            ( (((STV $a $b) (AV $x $y $z)) (Bin $bin)) (STV $a $b))
+            ( (stv $a $b) (stv $a $b))
+            ( (((stv $a $b) (AV $x $y $z)) (Bin $bin)) (stv $a $b))
             ($else %Undefined%)
             )
         )
@@ -168,7 +168,7 @@
 (= (getMean $pattern)
     (case (getStv $pattern)
             ((%Undefined% 0.0)
-            ((STV $mean $conf) $mean))
+            ((stv $mean $conf) $mean))
     )
 )
 
@@ -178,7 +178,7 @@
 (= (getConfidence $pattern)
     (case (getStv $pattern)
         ((%Undefined% 0)
-        ((STV $mean $conf) $conf))
+        ((stv $mean $conf) $conf))
     )
 )
 

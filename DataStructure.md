@@ -97,7 +97,7 @@ Need to reconstruct the etire pattern after updating the values tv or av -------
 ```
 (: TruthValue Type)
 
-(: STV (-> Number Number TruthValue))
+(: stv (-> Number Number TruthValue))
 
 (: ≞ (-> $event $tv Type))
 
@@ -109,16 +109,16 @@ Need to reconstruct the etire pattern after updating the values tv or av -------
 (: kb (-> Atom))
 
 
-(= (kb) (superpose ((: Pm (≞ P (STV 0.2 0.3)))
-                    (: Qm (≞ Q (STV 0.3 0.2)))
-                    (: Rm (≞ R (STV 0.4 0.1)))
+(= (kb) (superpose ((: Pm (≞ P (stv 0.2 0.3)))
+                    (: Qm (≞ Q (stv 0.3 0.2)))
+                    (: Rm (≞ R (stv 0.4 0.1)))
                     (: P2 (⊷ P (fromNumber 2) True))
                     (: Q2 (⊷ Q (fromNumber 2) False))
                     (: P7 (⊷ P (fromNumber 7) True))
                     (: Q7 (⊷ Q (fromNumber 7) True))
-                    (: QRm (≞ (→ Q R) (STV 0.9 0.7))))))
+                    (: QRm (≞ (→ Q R) (stv 0.9 0.7))))))
 
-!(get-type Pm)  ;gives (≞ P (STV 0.2 0.3))
+!(get-type Pm)  ;gives (≞ P (stv 0.2 0.3))
 ```
 
 The Truthvalue is being attached as a type to the Pm
@@ -132,7 +132,7 @@ So the same can be done for the AV
 (: AV (-> Number Number Number AttentionValue))
 
 (= (Test $pattern $sti $lti $vlti)
-    (: $pattern ( (STV 0.2 0.3) (AV $sti $lti $vlti)) )
+    (: $pattern ( (stv 0.2 0.3) (AV $sti $lti $vlti)) )
 )
 ```
 ```
@@ -159,6 +159,6 @@ The data structure to represent atoms in attention allocation system will be lik
 
 (: TruthValue Type)
 
-(: STV (-> Number Number TruthValue))
+(: stv (-> Number Number TruthValue))
 
 ```

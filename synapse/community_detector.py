@@ -41,7 +41,7 @@ def _stv_mean(value: Any) -> float | None:
     if not isinstance(value, list):
         return None
 
-    if len(value) >= 3 and str(value[0]) == "STV":
+    if len(value) >= 3 and str(value[0]).lower() == "stv":
         return _as_float(value[1] * value[2])
 
 
@@ -53,7 +53,7 @@ def _edge_from_link(link: Any) -> tuple[str, str, float] | None:
         return None
 
     if len(link) == 2 and isinstance(link[0], list) and len(link[0]) >= 3:
-        # refering [['ASYMMETRIC_HEBBIAN_LINK', 'A', 'B'], ['STV', 0.8, 0.5]] kind of link/list
+        # Handles [['ASYMMETRIC_HEBBIAN_LINK', 'A', 'B'], ['stv', 0.8, 0.5]].
         src = _atom_key(link[0][1])
         tgt = _atom_key(link[0][2])
         weight = _stv_mean(link[1])
