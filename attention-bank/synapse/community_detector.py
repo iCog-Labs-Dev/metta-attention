@@ -1,9 +1,19 @@
 import re
 import argparse
 import time
+import random
 from pathlib import Path
 from typing import List, Tuple, Any
 import igraph as ig
+
+
+# igraph's Louvain (community_multilevel) draws from the global RNG; without a
+# fixed seed two calls on identical input return different partitions, which
+# broke the no-fluid condition (seeds picked from one community were seen as
+# belonging to different communities by check time). Reseed before every
+# partition so every call is reproducible.
+def _set_deterministic_rng() -> None:
+    ig.set_random_number_generator(random.Random(42))
 
 
 _RELATION_TRIPLET_PATTERN = re.compile(
@@ -72,7 +82,9 @@ def _edge_from_link(link: Any) -> tuple[str, str, float] | None:
     return None
 
 
-def get_dynamic_modules(af_atoms: Any, af_links: Any) -> List[List[Any]]:
+def get_dynamic_modules(
+    af_atoms: Any, af_links: Any, resolution: float = 2.0
+) -> List[List[Any]]:
     """Live dynamic clustering for the active Attentional Focus."""
     # af_links = _normalize_atoms(af_links)
 
@@ -117,8 +129,11 @@ def get_dynamic_modules(af_atoms: Any, af_links: Any) -> List[List[Any]]:
         graph.es["weight"] = weights
 
     try:
+        _set_deterministic_rng()
         partition = (
-            graph.community_multilevel(weights=graph.es["weight"], resolution=2.0)
+            graph.community_multilevel(
+                weights=graph.es["weight"], resolution=resolution
+            )
             if edges
             else graph.components()
         )
@@ -130,6 +145,8 @@ def get_dynamic_modules(af_atoms: Any, af_links: Any) -> List[List[Any]]:
     return grouped
 
 
-def get_dynamic_hebbian_modules(hebbian_links: Any) -> List[List[Any]]:
+def get_dynamic_hebbian_modules(
+    hebbian_links: Any, resolution: float = 2.0
+) -> List[List[Any]]:
     """Cluster all supplied Hebbian links without limiting the graph to AF atoms."""
-    return get_dynamic_modules([], hebbian_links)
+    return get_dynamic_modules([], hebbian_links, resolution)
