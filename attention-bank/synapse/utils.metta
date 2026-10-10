@@ -167,11 +167,23 @@
 
 ; Community detection on the static knowledge graph (&incident).
 ; Returns stable communities from similarityLink atoms.
+; Uses a one-level flatten (flattener would fully recurse and destroy the
+; link triples) and resolution=1.05 (the default 2.0 shatters this dense
+; uniform-weight KG into 161 singletons; 1.0 gives 3 giant communities of
+; 65/64/32 nodes which can never fit inside MAX_AF_SIZE=50; 1.05 yields
+; 30 stable communities of 4-6 nodes that are representable in the AF).
+(= (flattenLinksOnce $lists)
+    (if (== $lists ())
+        ()
+        (concatTuple (car-atom $lists) (flattenLinksOnce (cdr-atom $lists)))
+    )
+)
+
 (= (identifyStaticKGModules)
     (let $rawLinks
         (collapse (match &incident ($insect $links) $links))
-        (let $allLinks (flattener $rawLinks)
-            (identifyHebbianModules $allLinks)
+        (let $allLinks (flattenLinksOnce $rawLinks)
+            (py-call (community_detector.get_dynamic_hebbian_modules $allLinks 1.05))
         )
     )
 )

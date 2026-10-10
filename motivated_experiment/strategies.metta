@@ -222,3 +222,48 @@
         ($a $b $c $d)
     )
 )
+
+
+; --------------------------------------------------
+; No-fluid condition: skip fluid sim when all seeds
+; belong to communities at least 50% represented in AF
+; --------------------------------------------------
+
+(= (seedInAnyRepresented $seed $communities)
+    (if (== $communities ())
+        False
+        (let* (
+                ($head (car-atom $communities))
+                ($tail (cdr-atom $communities))
+                ($contains (communityContains $seed $head))
+                ($inter (size-atom (intersection-atom $head (getAfAtoms))))
+                ($csize (size-atom $head))
+            )
+            (if (and $contains (>= (* $inter 2) $csize))
+                True
+                (seedInAnyRepresented $seed $tail)
+            )
+        )
+    )
+)
+
+(= (seedsAllRepresented $seeds $communities)
+    (if (== $seeds ())
+        True
+        (let* (
+                ($seed (car-atom $seeds))
+                ($rest (cdr-atom $seeds))
+            )
+            (if (seedInAnyRepresented $seed $communities)
+                (seedsAllRepresented $rest $communities)
+                False
+            )
+        )
+    )
+)
+
+(= (seedsFromRepresentedCommunities $seeds)
+    (let $communities (communityModules)
+        (seedsAllRepresented $seeds $communities)
+    )
+)
