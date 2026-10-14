@@ -109,6 +109,9 @@
 )
 
 (= (batch) 35)
+
+(= (getStimuli $words) (py-call (nlp_stimulus.stimuli $words)))
+
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (let $_done (println! (finished-read count $counter)) True)
@@ -139,4 +142,4 @@
     )
 )
 
-!(insectPoisonReadExp (py-call (nlp_stimulus.stimuli (car-atom (collapse (match &insect (insectSent $x) $x))))) 0)
+!(insectPoisonReadExp (getStimuli (car-atom (collapse (match &insect (insectSent $x) $x)))) 0)

@@ -1,9 +1,10 @@
 """spaCy NLP preprocessing for the insect-sent read loop.
 
-Used by experiments/experiment.metta (read entry point, line ~123):
+Used by experiments/experiment.metta through its MeTTa wrapper (same-file
+pattern, like timeTime/currentTime elsewhere in the repo):
 
     !(import! &self "utils/nlp_stimulus.py")
-    (py-call (nlp_stimulus.stimuli <word-list>))
+    (= (getStimuli $words) (py-call (nlp_stimulus.stimuli $words)))
 
 Functions
 ---------
@@ -14,11 +15,7 @@ stimuli(word_list)  Raw (insectSent ...) word list -> stimulus atoms:
                     stopwords and punctuation. Returns a flat list in
                     reading order, ready for insectPoisonReadExp.
 
-triples(word_list)  (subject, verb, object) triples from dependency parses.
-                    Intended as the future hook for growing &incident from
-                    text; not wired into experiment.metta yet.
-
-Requirements: spacy + en_core_web_sm (see requirements.txt) and a run
+Requirements: spacy + en_core_web_sm (see requirments.txt) and a run
 started from the activated .ECAN314 environment - its VIRTUAL_ENV variable
 is what makes PeTTa's embedded Python interpreter see the venv packages.
 """
@@ -49,18 +46,3 @@ def stimuli(word_list):
         if tok.pos_ in CONTENT_POS and not tok.is_stop and not tok.is_punct:
             atoms.append(tok.lemma_.lower())
     return atoms
-
-
-def triples(word_list):
-    """Extract simple (subject, verb, object) triples for future KG growth."""
-    out = []
-    for tok in _to_doc(word_list):
-        if tok.dep_ == "nsubj" and tok.head.pos_ == "VERB":
-            for child in tok.head.children:
-                if child.dep_ in ("dobj", "attr", "pobj"):
-                    out.append([
-                        tok.lemma_.lower(),
-                        tok.head.lemma_.lower(),
-                        child.lemma_.lower(),
-                    ])
-    return out
