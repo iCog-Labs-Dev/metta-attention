@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 
-ROOT_DIR = Path(__file__).resolve().parents[0]
+ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
 from community_detector import (
@@ -84,13 +84,13 @@ class DynamicModulesTest(unittest.TestCase):
         modules = get_dynamic_modules(
             [],
             [
-                [["ASYMMETRIC_HEBBIAN_LINK", "insect", "spider"], ["STV", 0.9, 0.9]],
-                [["ASYMMETRIC_HEBBIAN_LINK", "spider", "moth"], ["STV", 0.8, 0.9]],
-                [["ASYMMETRIC_HEBBIAN_LINK", "insect", "moth"], ["STV", 0.85, 0.9]],
-                [["ASYMMETRIC_HEBBIAN_LINK", "poison", "toxin"], ["STV", 0.9, 0.9]],
-                [["ASYMMETRIC_HEBBIAN_LINK", "toxin", "caffeine"], ["STV", 0.8, 0.9]],
-                [["ASYMMETRIC_HEBBIAN_LINK", "poison", "caffeine"], ["STV", 0.85, 0.9]],
-                [["ASYMMETRIC_HEBBIAN_LINK", "moth", "poison"], ["STV", 0.01, 0.9]],
+                [["ASYMMETRIC_HEBBIAN_LINK", "insect", "spider"], ["stv", 0.9, 0.9]],
+                [["ASYMMETRIC_HEBBIAN_LINK", "spider", "moth"], ["stv", 0.8, 0.9]],
+                [["ASYMMETRIC_HEBBIAN_LINK", "insect", "moth"], ["stv", 0.85, 0.9]],
+                [["ASYMMETRIC_HEBBIAN_LINK", "poison", "toxin"], ["stv", 0.9, 0.9]],
+                [["ASYMMETRIC_HEBBIAN_LINK", "toxin", "caffeine"], ["stv", 0.8, 0.9]],
+                [["ASYMMETRIC_HEBBIAN_LINK", "poison", "caffeine"], ["stv", 0.85, 0.9]],
+                [["ASYMMETRIC_HEBBIAN_LINK", "moth", "poison"], ["stv", 0.01, 0.9]],
             ],
         )
 
@@ -103,9 +103,9 @@ class DynamicModulesTest(unittest.TestCase):
         modules = get_dynamic_modules(
             ["A", "B", "C", "D"],
             [
-                [["ASYMMETRIC_HEBBIAN_LINK", "A", "B"], ["STV", 1.0, 0.9]],
-                [["ASYMMETRIC_HEBBIAN_LINK", "C", "D"], ["STV", 1.0, 0.9]],
-                [["ASYMMETRIC_HEBBIAN_LINK", "B", "C"], ["STV", 0.0, 0.9]],
+                [["ASYMMETRIC_HEBBIAN_LINK", "A", "B"], ["stv", 1.0, 0.9]],
+                [["ASYMMETRIC_HEBBIAN_LINK", "C", "D"], ["stv", 1.0, 0.9]],
+                [["ASYMMETRIC_HEBBIAN_LINK", "B", "C"], ["stv", 0.0, 0.9]],
             ],
         )
 
@@ -117,10 +117,10 @@ class DynamicModulesTest(unittest.TestCase):
     def test_hebbian_modules_cluster_all_supplied_typespace_links(self):
         modules = get_dynamic_hebbian_modules(
             [
-                [["ASYMMETRIC_HEBBIAN_LINK", "A", "B"], ["STV", 0.8, 0.5]],
-                [["ASYMMETRIC_HEBBIAN_LINK", "B", "C"], ["STV", 0.8, 0.5]],
-                [["ASYMMETRIC_HEBBIAN_LINK", "X", "Y"], ["STV", 0.8, 0.5]],
-                [["ASYMMETRIC_HEBBIAN_LINK", "Y", "Z"], ["STV", 0.8, 0.5]],
+                [["ASYMMETRIC_HEBBIAN_LINK", "A", "B"], ["stv", 0.8, 0.5]],
+                [["ASYMMETRIC_HEBBIAN_LINK", "B", "C"], ["stv", 0.8, 0.5]],
+                [["ASYMMETRIC_HEBBIAN_LINK", "X", "Y"], ["stv", 0.8, 0.5]],
+                [["ASYMMETRIC_HEBBIAN_LINK", "Y", "Z"], ["stv", 0.8, 0.5]],
             ],
         )
 
