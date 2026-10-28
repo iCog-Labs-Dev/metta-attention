@@ -32,6 +32,7 @@
 !(import! &self (library metta-attention attention-bank/bank/attention-bank))
 !(import! &self (library metta-attention experiments/utils/logger.py))
 !(import! &self (library metta-attention experiments/logger))
+!(import! &self (library metta-attention experiments/utils/nlp_stimulus.py))
 !(import! &self (library metta-attention attention-bank/bank/attentional-focus/attentional-focus))
 !(import! &self (library metta-attention attention-bank/bank/importance-index/importance-index))
 !(import! &self (library metta-attention attention/Neighbors))
@@ -108,6 +109,9 @@
 )
 
 (= (batch) 35)
+
+(= (getStimuli $words) (py-call (nlp_stimulus.stimuli $words)))
+
 (= (insectPoisonReadExp $expr $counter)
     (if (== $expr ())
         (let $_done (println! (finished-read count $counter)) True)
@@ -138,4 +142,4 @@
     )
 )
 
-!(insectPoisonReadExp (car-atom (collapse (match &insect (insectSent $x) $x))) 0)
+!(insectPoisonReadExp (getStimuli (car-atom (collapse (match &insect (insectSent $x) $x)))) 0)
