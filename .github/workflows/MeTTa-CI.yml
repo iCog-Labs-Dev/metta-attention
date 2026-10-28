@@ -12,7 +12,8 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Keep system Python at 3.12 for Janus; hyperon 0.2.2 has no Python 3.14 wheel.
+    runs-on: ubuntu-24.04
 
     steps:
     - name: Checkout metta-attention Repository
