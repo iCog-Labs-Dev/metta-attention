@@ -1,4 +1,3 @@
-
 (= (write_csv_wrapper $afAtoms)
         (py-call (logger.write_to_csv $afAtoms))
 )

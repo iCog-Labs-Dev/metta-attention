@@ -29,7 +29,7 @@
 )
 
 (= (getListsti $atoms)
-   (collapse (let $atom (superpose $atoms) (match &af ($atom $val) $val)))
+   (map-atom $atoms getSti)
 )
 (= (getListatom $stis)
    (unique-atom (collapse (let $sti (superpose $stis) (match &af ($atom $sti) $atom))))
