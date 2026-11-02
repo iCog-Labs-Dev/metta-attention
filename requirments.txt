@@ -21,5 +21,7 @@ pytz==2025.2
 regex==2025.11.3
 seaborn==0.13.2
 six==1.17.0
+spacy==3.8.16
+en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
 tqdm==4.67.1
 tzdata==2025.2

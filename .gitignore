@@ -7,6 +7,8 @@ __pycache__
 !tests/test_shell_runner.pl
 *.qlf
 *.csv
+experiments/output/**/*.csv
+kg.metta
 wordnet_stv_clean.metta
 conceptnet_stv_clean.metta
 conceptnet-assertions-5.7.0.csv
@@ -16,7 +18,5 @@ wordnet/
 conceptnet_stv_clean
 conceptnet_links_only.*
 .ECAN
-experiments/output/**/*.csv
 experiments/output/output.csv
 experiments/output/metrics.csv
-kg.metta

@@ -1,0 +1,13 @@
+
+(= (mean $arr)
+    (py-call (thompson_utils.mean $arr))
+)
+(= (std $arr)
+    (py-call (thompson_utils.std $arr))
+)
+(= (randomBeta $alpha $beta)
+    (py-call (thompson_utils.random_beta $alpha $beta))
+)
+(= (seedRandom $seed)
+    (py-call (thompson_utils.seed_random $seed))
+)

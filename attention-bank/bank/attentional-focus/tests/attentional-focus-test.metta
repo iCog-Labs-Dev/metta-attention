@@ -24,7 +24,6 @@
 !(import! &self (library metta-attention attention-bank/utilities/helper-functions))
 !(import! &self (library metta-attention attention-bank/bank/attention-bank))
 !(import! &self (library metta-attention attention-bank/bank/attentional-focus/attentional-focus))
-!(import! &self (library metta-attention attention-bank/attention-value/get-min-max))
 !(import! &self (library metta-attention attention-bank/utilities/recentVal))
 !(import! &self (library metta-attention experiments/utils/logger.py)); ##################### Prep: inserting Atoms in attentional focus ####################
 

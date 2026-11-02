@@ -19,45 +19,78 @@
     ; every diffusion/update round
     ; every moment where AF changes meaningfully
 
+(= (baseMetrics)
+    (let* 
+        (
+            ($afResource (getAfResourceUsage))
+            ($stiConcentration (getStiConcentration))
+            ($linkDensity (getLinkDensity))
+            ($connectionRatio (getConnectionRatio))
+            ($modulation (getSelectionModulation))
+            ($contextRetention (getContextRetention))
+            ($cognitiveMaintenance (getCognitiveMaintenance))
+            ($fundSti (getAttentionParam FUNDS_STI))
+            ($effectiveness (getEffectiveness))
+        )
+        (
+            (afResource $afResource)
+            (stiConcentration $stiConcentration)
+            (fundSti $fundSti)
+            (linkDensity $linkDensity)
+            (connectionRatio $connectionRatio)
+            (modulation $modulation)
+            (contextRetention $contextRetention)
+            (cognitiveMaintenance $cognitiveMaintenance)
+            (effectiveness $effectiveness)
+        )
+    )
+)
+
+(= (topologyRelatedMetrics)
+    (let*
+        (
+            ($topology (topologyMetrics))
+            ($triangleCount (getTopologyTriangleCount $topology))
+            ($betti0 (getTopologyBetti0 $topology))
+            ($betti1 (getTopologyBetti1 $topology))
+            ($betti2 (getTopologyBetti2 $topology))
+        )
+        (
+            (triangleCount $triangleCount)
+            (betti0 $betti0)
+            (betti1 $betti1)
+            (betti2 $betti2)
+        )
+    )
+)
+
+(= (highCostMetrics)
+    (let* 
+        (
+            ($af (getAfAtoms))
+            ($preallocation (getPreallocationSpace))
+            ($cognitiveSynergy (getCognitiveSynergy))
+            ($coordination (getGlobalCoordination $af))
+        )
+        (
+            (preallocation $preallocation)
+            (cognitiveSynergy $cognitiveSynergy)
+            (coordination $coordination)
+        )
+    )
+)
+
 (= (measure-all-metrics)
-   (let* (
-      ($af (getAfAtoms))
-      ($afResource (getAfResourceUsage))
-      ($stiConcentration (getStiConcentration))
-      ($linkDensity (getLinkDensity))
-      ($connectionRatio (getConnectionRatio))
-      ($preallocation (getPreallocationSpace))
-      ($cognitiveSynergy (getCognitiveSynergy))
-      ($modulation (getSelectionModulation))
-      ($coordination (getGlobalCoordination $af))
-      ($contextRetention (getContextRetention))
-      ($cognitiveMaintenance (getCognitiveMaintenance))
-      ($fundSti (getAttentionParam FUNDS_STI))
-      ($effectiveness (getEffectiveness))
-    ;   ($topology (topologyMetrics))
-    ;   ($triangleCount (getTopologyTriangleCount $topology))
-    ;   ($betti0 (getTopologyBetti0 $topology))
-    ;   ($betti1 (getTopologyBetti1 $topology))
-    ;   ($betti2 (getTopologyBetti2 $topology))
-   )
-   (
-    (afResource $afResource)
-    (stiConcentration $stiConcentration)
-    (fundSti $fundSti)
-    (linkDensity $linkDensity)
-    (connectionRatio $connectionRatio)
-    (preallocation $preallocation)
-    (cognitiveSynergy $cognitiveSynergy)
-    (modulation $modulation)
-    (coordination $coordination)
-    (contextRetention $contextRetention)
-    (cognitiveMaintenance $cognitiveMaintenance)
-    (effectiveness $effectiveness)
-    (triangleCount 1)
-    (betti0 1)
-    (betti1 1)
-    (betti2 1)
-)))
+    (let $mode (getAttentionParam SYNAPSE_MODE)
+        (if (== $mode base)
+            (baseMetrics)
+            (if (== $mode full)
+                (union-atom (baseMetrics) (highCostMetrics))
+                (union-atom (baseMetrics) (union-atom (highCostMetrics) (topologyRelatedMetrics)))
+            )
+        )
+    )
+)
 
 (= (updateMaxIndex)
     (let $index 
@@ -143,9 +176,7 @@
          ($time (current-time))
          ($_ (add-atom &cipspace (CIPSnapshot $newIndex $time $af $baseMetrics)))
          ($gainedEfficiency (getGainedEfficiency $newIndex))
-         ($redundancyDegradation (getRedundancyDegradation $newIndex))
-         ($metrics1 (cons-atom (gainedEfficiency $gainedEfficiency) $baseMetrics))
-         ($metricsFinal (cons-atom (redundancyDegradation $redundancyDegradation) $metrics1))
+         ($metrics (cons-atom (gainedEfficiency $gainedEfficiency) $baseMetrics))
         ;  ($topology (record-topology-report $newIndex $time))
          ($stiSeries (recordCipSeries))
       )
@@ -153,7 +184,7 @@
           $newIndex
           $time
           $af
-          $metricsFinal
+          $metrics
       )
    )
 )
@@ -193,11 +224,13 @@
         (
             ($afAtoms (getAfAtoms))
             ($afSize (size-atom $afAtoms))
-            ($hebLinks (size-atom (getHebLinks $afAtoms ())))
+            ($allAfLinks (getHebLinks $afAtoms ()))
+            ($internalFlags (map-atom $allAfLinks $link (isInternalLink $link $afAtoms)))
+            ($internalLinks (foldl-atom $internalFlags 0 $acc $x (+ $acc $x)))
             ($maxHeblink (* $afSize (- $afSize 1)))
         )
         (if (> $maxHeblink 0)
-            (/ $hebLinks $maxHeblink)
+            (/ $internalLinks $maxHeblink)
             0.0
         )
     )
@@ -566,5 +599,16 @@
 (= (getBetti2 (TopologyReport $triangles $betti0 $betti1 $betti2)) $betti2)
 
 
+(= (logcurrCip) 
+    (let* 
+        (
+            ($cip (transition-to-next-cip))
+            ((CIPSnapshot $index $time $af_atoms $metrice) $cip)
+            ($redundancyDegradation (getRedundancyDegradation $index))
+            ($metrices (cons-atom (redundancy_degradation $redundancyDegradation) $metrice))
+        )
+    (write_cip_wrapper $index $time $af_atoms $metrices))
+    
+)
 
 
