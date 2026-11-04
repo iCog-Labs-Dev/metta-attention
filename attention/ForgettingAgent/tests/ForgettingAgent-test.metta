@@ -15,13 +15,22 @@
 )
 
 !(registerLocalMettaAttentionLibrary)
-!(import! &self (library metta-attention attention/ForgettingAgent/ForgettingAgent))
-!(import! &self (library metta-attention attention-bank/utilities/helper-functions))
+!(import! &self (library lib_he))
+!(import! &self (library lib_spaces))
+
 !(import! &self (library metta-attention attention/AttentionParam))
+!(import! &self (library metta-attention attention/baching))
+!(import! &self (library metta-attention attention-bank/utilities/helper-functions))
+!(import! &self (library metta-attention attention-bank/utilities/recentVal))
 !(import! &self (library metta-attention attention-bank/attention-value/getter-and-setter))
+!(import! &self (library metta-attention attention-bank/bank/importance-index/importance-index))
+!(import! &self (library metta-attention attention/Neighbors))
+!(import! &self (library metta-attention experiments/utils/logger.py))
+!(import! &self (library metta-attention experiments/logger))
 !(import! &self (library metta-attention attention-bank/bank/attention-bank))
 !(import! &self (library metta-attention attention-bank/bank/attentional-focus/attentional-focus))
-!(import! &self (library metta-attention attention-bank/bank/importance-index/importance-index))
+!(import! &self (library metta-attention attention/ForgettingAgent/ForgettingAgent))
+
 !(updateAttentionParam FORGET_THRESHOLD 5)
 ; stimualte 0.25 translated to lti 5
 
@@ -99,16 +108,6 @@
 
 
 !(forgettingAgent-Run (TypeSpace))
-
-
-!(let*
-    (
-        ($rmvspace (getAtomsInRemoveSpace))	
-        ($typspace (getAtomsInTypeSpace)) 
-        ($assertTypespace (assertEqual (intersection-atom $typspace $rmvspace) ()))
-    )
-    ()
-) 
 
 !(assertEqual (getAttentionParam FUNDS_STI) 99468.40000000002)
 
