@@ -1,0 +1,7 @@
+{
+  "case_id": "smokes_seed",
+  "max_steps": 100,
+  "task_queue_size": 10,
+  "belief_queue_size": 100,
+  "timeout_seconds": 60
+}
