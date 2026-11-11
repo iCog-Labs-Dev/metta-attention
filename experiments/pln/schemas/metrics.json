@@ -1,28 +1,44 @@
 {
-  "version": 1,
-  "units": {"time": "milliseconds", "steps": "selected tasks"},
+  "version": 2,
+  "units": {
+    "time": "milliseconds",
+    "steps": "selected tasks"
+  },
   "missing_values": "Empty CSV cells mean unavailable or not applicable, never a measured zero.",
   "files": {
     "runs.csv": "One row per forward inference run, shared by all questions.",
     "query_results.csv": "One row per fixed question for completed runs; no query rows for failed runs.",
-    "task_trace.csv": "One row per selected task, with variable names normalized within each term."
+    "task_trace.csv": "One row per selected task, with variable names normalized within each term.",
+    "step_metrics.csv": "One row per scheduler step in scheduler_snapshots mode; header only in none mode."
   },
   "definitions": {
     "status": "completed, error, or timeout. A completed run may have unanswered questions.",
     "answer_found": "The final belief buffer yields an answer using PeTTa's ConfidenceRank selector, including its strict > comparison against zero confidence.",
     "verified_answer_status": "unknown until a separate independent answer check is available; regression agreement is not scientific correctness.",
     "selected_task_count": "Count of consecutive SELECTED records between exactly one BEGIN and END pair.",
-    "pln_elapsed_ms": "PeTTa current-time difference around the unmodified PLN.Derive call. Wall clock, includes SELECTED tracing; excludes imports and final-state/query printing.",
+    "pln_elapsed_ms": "PeTTa current-time difference around PLN.Derive, including the selected trace mode. scheduler_snapshots adds full-buffer printing. Compare identical modes; use none mode for timing controls.",
     "total_elapsed_ms": "Monotonic parent-process wall time around process launch, wait and result parsing. Includes PeTTa startup, compilation, imports, tracing and query evaluation; excludes settings hashing and final CSV writing. Not pure inference time.",
     "ecan_elapsed_ms": "Zero for the PLN-only condition.",
     "relevant_facts_selected": "Distinct annotated evidence IDs appearing in selected tasks; derived tasks may carry several IDs. Not a measure of all premises used as paired beliefs.",
     "relevant_facts_in_answer": "Distinct annotated IDs present in the returned answer's evidence stamp.",
     "relevant_facts_available": "Size of an annotated sufficient evidence path, not an exhaustive list of every possible path. Blank if no path is known.",
-    "stop_reason": "task_queue_empty if no tasks remain, otherwise step_limit."
+    "stop_reason": "task_queue_empty if no tasks remain, otherwise step_limit.",
+    "first_answer_step": "First initial/post-pruning belief buffer from which the original ConfidenceRank selector returns an answer. Initial facts are step 0. Blank if never present, or if instrumentation is none.",
+    "rule_attempt_count": "Dispatcher invocation count inferred from the reviewed scheduler: one unary call plus two binary calls per disjoint selected-task/belief evidence pair. Counts calls, not individual rule-clause match attempts. Available only in scheduler_snapshots mode.",
+    "derived_sentence_count": "Total entries in raw derivation tuples before deduplication and queue pruning, including repeated derivations.",
+    "unique_derived_sentence_count": "Distinct generated complete (term, STV, evidence) sentences, excluding initial sentences and prior generated sentences. Variables are normalized per sentence up to renaming. Includes conclusions later pruned."
   },
   "unavailable_in_first_increment": [
-    "first_answer_step", "rule_attempt_count", "unique_derived_sentence_count",
-    "ecan_update_count", "focus_size", "relevant_facts_in_focus"
+    "ecan_update_count",
+    "focus_size",
+    "relevant_facts_in_focus"
   ],
-  "limits": "PeTTa LimitSize trims until length < configured limit. Initial queues are not pre-trimmed. Input ordering is preserved."
+  "limits": "PeTTa LimitSize trims until length < configured limit. Initial queues are not pre-trimmed. Input ordering is preserved.",
+  "unavailable_without_scheduler_snapshots": [
+    "first_answer_step",
+    "rule_attempt_count",
+    "derived_sentence_count",
+    "unique_derived_sentence_count"
+  ],
+  "instrumentation": "Run-local copy of the reviewed library with exactly one added trace expression; all original code remains unchanged. Refuses unreviewed library hashes in measured mode. Config instrumentation=none imports original source directly."
 }

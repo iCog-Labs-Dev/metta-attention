@@ -11,7 +11,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from run_baseline import ANSI, execute, parse_output, sexpr
+from run_baseline import ANSI, OBSERVER_ANCHOR, OBSERVER_REPLACEMENT, digest, execute, instrument_library, normalize, parse_output, sexpr
 
 
 PETTA = Path(os.environ.get("PETTA_PATH", ROOT.parents[2] / "PeTTa")).resolve()
@@ -80,8 +80,10 @@ class PeTTaIntegrationTests(unittest.TestCase):
         self.assertEqual([int(row["step"]) for row in trace], list(range(1, len(trace) + 1)))
         self.assertEqual(self.answers["helen_cancer"]["answer_found"], "False")
         self.assertEqual(self.answers["helen_cancer"]["answer_strength"], "")
-        self.assertEqual(self.answers["bob_cancer"]["first_answer_step"], "")
-        self.assertEqual(rows(self.output / "runs.csv")[0]["rule_attempt_count"], "")
+        self.assertGreater(int(self.answers["bob_cancer"]["first_answer_step"]), 0)
+        self.assertGreater(int(rows(self.output / "runs.csv")[0]["rule_attempt_count"]), 0)
+        self.assertEqual(self.answers["anna_smokes"]["first_answer_step"], "0")
+        self.assertEqual(self.answers["helen_cancer"]["first_answer_step"], "")
 
     def test_repeatability_and_output_reuse(self):
         output, run = execute(PETTA, CONFIG, self.tmp.name, "repeat")
@@ -111,8 +113,58 @@ class PeTTaIntegrationTests(unittest.TestCase):
         self.assertEqual(run["selected_task_count"], 5)
         self.assertEqual(run["stop_reason"], "step_limit")
 
+    def test_observer_only_adds_the_trace_expression(self):
+        original = (PETTA / "lib/lib_pln.metta").read_text()
+        observed = (self.output / "observed_lib_pln.metta").read_text()
+        self.assertEqual(observed.replace(OBSERVER_REPLACEMENT, OBSERVER_ANCHOR), original)
+        self.assertEqual(observed.count(OBSERVER_REPLACEMENT), 1)
+
+    def test_observed_and_original_states_and_task_order_match(self):
+        for budget in (0, 5, 100):
+            base = {**CONFIG, "max_steps": budget}
+            measured, mrun = execute(PETTA, base, self.tmp.name, f"observed_{budget}")
+            original, orun = execute(PETTA, {**base, "instrumentation": "none"}, self.tmp.name, f"original_{budget}")
+            self.assertEqual(mrun["status"], "completed", mrun)
+            self.assertEqual(orun["status"], "completed", orun)
+            mparsed = parse_output((measured / "stdout.txt").read_text(), QUESTIONS, budget, True)
+            oparsed = parse_output((original / "stdout.txt").read_text(), QUESTIONS, budget)
+            self.assertEqual(mparsed[0], oparsed[0])
+            self.assertEqual(normalize(mparsed[2]), normalize(oparsed[2]))
+            self.assertEqual(mparsed[1], oparsed[1])
+            self.assertEqual(rows(original / "runs.csv")[0]["rule_attempt_count"], "")
+
+    def test_first_answer_steps_match_unmodified_prefix_runs(self):
+        budgets = {int(r["first_answer_step"]) for r in self.answers.values() if r["first_answer_step"]}
+        budgets |= {b - 1 for b in budgets if b > 0}
+        states = {}
+        for budget in sorted(budgets):
+            output, run = execute(PETTA, {**CONFIG, "max_steps": budget, "instrumentation": "none"}, self.tmp.name, f"prefix_{budget}")
+            self.assertEqual(run["status"], "completed", run)
+            states[budget] = {r["query_id"]: r for r in rows(output / "query_results.csv")}
+        for qid, result in self.answers.items():
+            if result["first_answer_step"]:
+                first = int(result["first_answer_step"])
+                self.assertEqual(states[first][qid]["answer_found"], "True")
+                if first:
+                    self.assertEqual(states[first - 1][qid]["answer_found"], "False")
+
+    def test_measurement_totals_match_step_records(self):
+        steps = rows(self.output / "step_metrics.csv")
+        self.assertEqual(len(steps), self.run_record["selected_task_count"])
+        self.assertEqual(int(steps[0]["rule_attempt_count"]), 19)
+        for total, field in (("rule_attempt_count", "rule_attempt_count"), ("derived_sentence_count", "derived_sentence_count"), ("unique_derived_sentence_count", "new_unique_derived_sentence_count")):
+            self.assertEqual(self.run_record[total], sum(int(s[field]) for s in steps))
+
 
 class FailureTests(unittest.TestCase):
+    def test_unknown_library_version_is_not_instrumented(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "library.metta"
+            source.write_text("unexpected source")
+            with self.assertRaisesRegex(ValueError, "reviewed PeTTa library hash"):
+                instrument_library(source, "wrong hash")
+            with self.assertRaisesRegex(ValueError, "observer anchor"):
+                instrument_library(source, digest(source))
     def test_incomplete_trace_is_not_a_valid_no_answer(self):
         for text in ("", "(PLN_BASELINE_BEGIN)\n", "(PLN_BASELINE_BEGIN)\n(PLN_BASELINE_END)\n"):
             with self.assertRaises(ValueError):
@@ -134,7 +186,7 @@ class FailureTests(unittest.TestCase):
                 ("timeout", "sleep 10\n", 0.05, "timeout"),
             ):
                 (fake / "run.sh").write_text(script)
-                output, run = execute(fake, {**CONFIG, "timeout_seconds": timeout}, Path(tmp) / "out", name)
+                output, run = execute(fake, {**CONFIG, "timeout_seconds": timeout, "instrumentation": "none"}, Path(tmp) / "out", name)
                 self.assertEqual(run["status"], expected, run)
                 self.assertTrue(run["error"])
                 self.assertEqual(rows(output / "query_results.csv"), [])

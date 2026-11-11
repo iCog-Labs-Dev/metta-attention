@@ -23,7 +23,7 @@ RUN_FIELDS = [
     "status", "error", "returncode", "stop_reason", "selected_task_count",
     "final_task_count", "final_belief_count", "pln_elapsed_ms", "ecan_elapsed_ms",
     "total_elapsed_ms", "rule_attempt_count", "unique_derived_sentence_count",
-    "ecan_update_count", "focus_size",
+    "derived_sentence_count", "instrumentation", "ecan_update_count", "focus_size",
 ]
 QUERY_FIELDS = [
     "run_id", "query_id", "answer_found", "first_answer_step", "answer_strength",
@@ -35,6 +35,13 @@ TRACE_FIELDS = [
     "run_id", "step", "selected_term", "selected_strength", "selected_confidence",
     "selected_evidence_ids",
 ]
+STEP_FIELDS = [
+    "run_id", "step", "task_count_before", "belief_count_before",
+    "binary_dispatch_count", "unary_dispatch_count", "rule_attempt_count",
+    "derived_sentence_count", "new_unique_derived_sentence_count",
+]
+OBSERVER_ANCHOR = "(let $temp (trace! (SELECTED $steps (Sentence $x $Ev1)) 42)"
+OBSERVER_REPLACEMENT = "(let $temp (trace! (SELECTED $steps (Sentence $x $Ev1)) (trace! (PLN_BASELINE_STEP $steps $Tasks $Beliefs $derivations) 42))"
 
 
 def sexpr(text):
@@ -83,7 +90,7 @@ def normalize(value):
     names = {}
 
     def visit(item):
-        if isinstance(item, list):
+        if isinstance(item, (list, tuple)):
             return [visit(child) for child in item]
         if isinstance(item, str) and item.startswith("$"):
             return names.setdefault(item, f"$v{len(names)}")
@@ -106,9 +113,10 @@ def sentence(value):
     return render(normalize(term)), tv[1], tv[2], evidence
 
 
-def parse_output(text, questions, max_steps):
+def parse_output(text, questions, max_steps, require_snapshots=False):
     active, ended = False, False
     selected, answers, state, elapsed = [], {}, None, None
+    snapshots = []
     for raw in ANSI.sub("", text).splitlines():
         line = raw.strip()
         if line == "(PLN_BASELINE_BEGIN)":
@@ -124,6 +132,13 @@ def parse_output(text, questions, max_steps):
             if type(step) is not int or step != len(selected) + 1 or step > max_steps:
                 raise ValueError("Invalid selected-task sequence")
             selected.append((step, *sentence(entry)))
+        elif active and line.startswith("(PLN_BASELINE_STEP "):
+            _, step, tasks, beliefs, derivations = sexpr(line)
+            if type(step) is not int or step != len(snapshots) + 1 or not selected or selected[-1][0] != step:
+                raise ValueError("Invalid scheduler snapshot sequence")
+            for entry in tasks + beliefs + derivations:
+                sentence(entry)
+            snapshots.append((step, tasks, beliefs, derivations))
         elif active and line.startswith("(PLN_BASELINE_STATE "):
             if state is not None:
                 raise ValueError("Duplicate final state")
@@ -150,7 +165,56 @@ def parse_output(text, questions, max_steps):
         raise ValueError("Missing or unexpected query results")
     if state[0] and len(selected) != max_steps:
         raise ValueError("Inference stopped before the requested budget")
-    return selected, answers, state, elapsed
+    if require_snapshots and len(snapshots) != len(selected):
+        raise ValueError("Missing scheduler snapshots")
+    if not require_snapshots and snapshots:
+        raise ValueError("Unexpected scheduler snapshots")
+    return selected, answers, state, elapsed, snapshots
+
+
+def instrument_library(source, expected_sha256):
+    if digest(source) != expected_sha256:
+        raise ValueError("Instrumentation requires the reviewed PeTTa library hash; use instrumentation=none for other versions")
+    text = source.read_text()
+    if text.count(OBSERVER_ANCHOR) != 1:
+        raise ValueError("Unsupported PeTTa scheduler: observer anchor is not unique")
+    return text.replace(OBSERVER_ANCHOR, OBSERVER_REPLACEMENT)
+
+
+def answer_from_beliefs(beliefs, term):
+    best, confidence = [], 0
+    for entry in beliefs:
+        candidate, tv = entry[1]
+        if candidate == term and tv[2] > confidence:
+            best, confidence = [tv, entry[2]], tv[2]
+    return best
+
+
+def detailed_metrics(snapshots, selected, state, questions, answers, run_id, initial_beliefs):
+    first_steps = {}
+    for q in questions:
+        if answer_from_beliefs(initial_beliefs, sexpr(q["term"])):
+            first_steps[q["id"]] = 0
+    seen = {render(normalize(entry)) for entry in initial_beliefs}
+    step_rows, total_dispatches, total_derived, total_unique = [], 0, 0, 0
+    for index, (step, tasks, beliefs, derivations) in enumerate(snapshots):
+        selected_evidence = set(selected[index][4])
+        disjoint_pairs = sum(not selected_evidence.intersection(entry[2]) for entry in beliefs)
+        new_keys = {render(normalize(entry)) for entry in derivations} - seen
+        seen.update(new_keys)
+        dispatches = 2 * disjoint_pairs + 1
+        total_dispatches += dispatches
+        total_derived += len(derivations)
+        total_unique += len(new_keys)
+        step_rows.append(dict(run_id=run_id, step=step, task_count_before=len(tasks), belief_count_before=len(beliefs), binary_dispatch_count=2 * disjoint_pairs, unary_dispatch_count=1, rule_attempt_count=dispatches, derived_sentence_count=len(derivations), new_unique_derived_sentence_count=len(new_keys)))
+        after = snapshots[index + 1][2] if index + 1 < len(snapshots) else state[1]
+        for q in questions:
+            if q["id"] not in first_steps and answer_from_beliefs(after, sexpr(q["term"])):
+                first_steps[q["id"]] = step
+    for q in questions:
+        if answer_from_beliefs(state[1], sexpr(q["term"])) != answers[q["id"]]:
+            raise ValueError("Snapshot answer selection disagrees with MeTTa")
+    return first_steps, step_rows, total_dispatches, total_derived, total_unique
 
 
 def write_csv(path, fields, rows):
@@ -173,6 +237,9 @@ def execute(petta, config, output_root, run_id=None):
     if not (petta / "run.sh").is_file() or not (petta / "lib/lib_pln.metta").is_file():
         raise ValueError("PeTTa checkout must contain run.sh and lib/lib_pln.metta")
     config = dict(config)
+    mode = config.setdefault("instrumentation", "none")
+    if mode not in ("none", "scheduler_snapshots"):
+        raise ValueError("instrumentation must be none or scheduler_snapshots")
     if config.get("case_id") != "smokes_seed":
         raise ValueError("Only the smokes_seed case is supported in this increment")
     for field, minimum in (("max_steps", 0), ("task_queue_size", 2), ("belief_queue_size", 2)):
@@ -194,7 +261,13 @@ def execute(petta, config, output_root, run_id=None):
     output.parent.mkdir(parents=True, exist_ok=True)
     output.mkdir()
     driver = output / "driver.metta"
-    imports = "".join(f"!(import! &self {json.dumps(str(path.with_suffix('')))})\n" for path in (ROOT / "baseline.metta", ROOT / "cases/smokes_seed.metta"))
+    library = petta / "lib/lib_pln.metta"
+    if mode == "scheduler_snapshots":
+        expected = json.loads((ROOT / "cases/provenance.json").read_text())["pln_library_sha256_at_import"]
+        observed = instrument_library(library, expected)
+        library = output / "observed_lib_pln.metta"
+        library.write_text(observed)
+    imports = "".join(f"!(import! &self {json.dumps(str(path.with_suffix('')))})\n" for path in (library, ROOT / "baseline.metta", ROOT / "cases/smokes_seed.metta"))
     query_terms = " ".join(f"({q['id']} {q['term']})" for q in questions)
     driver.write_text(imports + f"!(Baseline.Run (kb) {config['max_steps']} {config['task_queue_size']} {config['belief_queue_size']} ({query_terms}))\n")
     source_files = [petta / "run.sh", petta / "lib/lib_pln.metta", *sorted((petta / "src").rglob("*.pl")), *sorted((petta / "lib").glob("*.pl"))]
@@ -203,17 +276,19 @@ def execute(petta, config, output_root, run_id=None):
         source_files.append(mork)
     local_files = [ROOT / "baseline.metta", ROOT / "run_baseline.py", ROOT / "cases/smokes_seed.metta", ROOT / "cases/questions.json", ROOT / "cases/provenance.json", ROOT / "schemas/metrics.json"]
     settings = {
-        "schema_version": 1, "run_id": run_id, "condition": "pln_only", "config": config,
+        "schema_version": 2, "run_id": run_id, "condition": "pln_only", "config": config,
         "created_utc": datetime.now(timezone.utc).isoformat(), "petta_path": str(petta),
         "python": sys.version, "platform": platform.platform(), "questions": questions,
         "source_sha256": {str(p.relative_to(petta)): digest(p) for p in source_files},
         "benchmark_sha256": {str(p.relative_to(ROOT)): digest(p) for p in local_files},
         "swipl": subprocess.run(["swipl", "--version"], capture_output=True, text=True, check=True).stdout.strip(),
-        "trace_mode": "selected_tasks_and_final_state", "command": ["bash", str(petta / "run.sh"), str(driver)],
+        "trace_mode": mode, "observer_sha256": digest(library) if mode == "scheduler_snapshots" else None,
+        "command": ["bash", str(petta / "run.sh"), str(driver)],
     }
     (output / "settings.json").write_text(json.dumps(settings, indent=2) + "\n")
     row = dict(run_id=run_id, condition="pln_only", case_id=config["case_id"], max_steps=config["max_steps"], repeat=1, state_mode="fresh", ecan_elapsed_ms=0, status="error")
-    queries, trace = [], []
+    row["instrumentation"] = mode
+    queries, trace, step_rows = [], [], []
     started = time.perf_counter()
     try:
         with (output / "stdout.txt").open("w") as stdout, (output / "stderr.txt").open("w") as stderr:
@@ -233,12 +308,22 @@ def execute(petta, config, output_root, run_id=None):
             raise ValueError(f"PeTTa exited with code {row['returncode']}")
         if "ERROR:" in (output / "stderr.txt").read_text():
             raise ValueError("PeTTa reported an error; see stderr.txt")
-        selected, answers, state, elapsed = parse_output((output / "stdout.txt").read_text(), questions, config["max_steps"])
+        selected, answers, state, elapsed, snapshots = parse_output((output / "stdout.txt").read_text(), questions, config["max_steps"], mode == "scheduler_snapshots")
         row.update(status="completed", pln_elapsed_ms=elapsed, selected_task_count=len(selected), final_task_count=len(state[0]), final_belief_count=len(state[1]), stop_reason="task_queue_empty" if not state[0] else "step_limit")
+        first_steps = {}
+        if mode == "scheduler_snapshots":
+            if snapshots:
+                initial = snapshots[0][2]
+            else:
+                initial = state[1]
+            first_steps, step_rows, dispatches, derived, unique = detailed_metrics(snapshots, selected, state, questions, answers, run_id, initial)
+            row.update(rule_attempt_count=dispatches, derived_sentence_count=derived, unique_derived_sentence_count=unique)
         selected_ids = {i for item in selected for i in item[4]}
         for q in questions:
             answer = answers[q["id"]]
             result = dict(run_id=run_id, query_id=q["id"], answer_found=bool(answer), verified_answer_status="unknown")
+            if q["id"] in first_steps:
+                result["first_answer_step"] = first_steps[q["id"]]
             if answer:
                 tv, evidence = answer
                 result.update(answer_strength=tv[1], answer_confidence=tv[2], answer_evidence_ids=json.dumps(evidence))
@@ -250,7 +335,7 @@ def execute(petta, config, output_root, run_id=None):
             trace.append(dict(run_id=run_id, step=step, selected_term=term, selected_strength=strength, selected_confidence=confidence, selected_evidence_ids=json.dumps(evidence)))
         row["total_elapsed_ms"] = (time.perf_counter() - started) * 1000
     except (ValueError, OSError, TypeError, IndexError) as error:
-        queries, trace = [], []
+        queries, trace, step_rows = [], [], []
         row["error"] = str(error)
         if row["status"] != "timeout":
             row["status"] = "error"
@@ -258,6 +343,7 @@ def execute(petta, config, output_root, run_id=None):
     write_csv(output / "runs.csv", RUN_FIELDS, [row])
     write_csv(output / "query_results.csv", QUERY_FIELDS, queries)
     write_csv(output / "task_trace.csv", TRACE_FIELDS, trace)
+    write_csv(output / "step_metrics.csv", STEP_FIELDS, step_rows)
     return output, row
 
 

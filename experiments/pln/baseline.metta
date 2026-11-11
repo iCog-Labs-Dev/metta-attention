@@ -1,5 +1,3 @@
-!(import! &self (library lib_pln))
-
 (= (Baseline.Answer $beliefs $term)
    (BestCandidate ConfidenceRank ()
       (collapse
