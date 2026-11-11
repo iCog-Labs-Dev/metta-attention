@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "units": {
     "time": "milliseconds",
     "steps": "selected tasks"
@@ -26,7 +26,9 @@
     "first_answer_step": "First initial/post-pruning belief buffer from which the original ConfidenceRank selector returns an answer. Initial facts are step 0. Blank if never present, or if instrumentation is none.",
     "rule_attempt_count": "Dispatcher invocation count inferred from the reviewed scheduler: one unary call plus two binary calls per disjoint selected-task/belief evidence pair. Counts calls, not individual rule-clause match attempts. Available only in scheduler_snapshots mode.",
     "derived_sentence_count": "Total entries in raw derivation tuples before deduplication and queue pruning, including repeated derivations.",
-    "unique_derived_sentence_count": "Distinct generated complete (term, STV, evidence) sentences, excluding initial sentences and prior generated sentences. Variables are normalized per sentence up to renaming. Includes conclusions later pruned."
+    "unique_derived_sentence_count": "Distinct generated complete (term, STV, evidence) sentences, excluding initial sentences and prior generated sentences. Variables are normalized per sentence up to renaming. Includes conclusions later pruned.",
+    "final_state_sha256": "Hash of complete ordered task and belief buffers with variable sharing preserved across the whole state. A nonbinding Prolog copy is numbered before printing; runtime variable names are not used as identities.",
+    "selected_trace_sha256": "Hash of ordered selected tasks with variable names normalized within each sentence."
   },
   "unavailable_in_first_increment": [
     "ecan_update_count",
@@ -40,5 +42,5 @@
     "derived_sentence_count",
     "unique_derived_sentence_count"
   ],
-  "instrumentation": "Run-local copy of the reviewed library with exactly one added trace expression; all original code remains unchanged. Refuses unreviewed library hashes in measured mode. Config instrumentation=none imports original source directly."
+  "instrumentation": "Run-local copy of the reviewed library with one added nonbinding canonical-copy and trace expression. state_snapshot.prolog copies and numbers variables for stable serialization, preserving original variable bindings. No formulas or scheduler logic change. Refuses unknown library hashes in observed mode; none imports original source."
 }

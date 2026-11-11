@@ -11,7 +11,8 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from run_baseline import ANSI, OBSERVER_ANCHOR, OBSERVER_REPLACEMENT, digest, execute, instrument_library, normalize, parse_output, sexpr
+from run_baseline import ANSI, OBSERVER_ANCHOR, OBSERVER_REPLACEMENT, build_case, digest, execute, instrument_library, normalize, parse_output, sexpr
+from run_matrix import run_matrix
 
 
 PETTA = Path(os.environ.get("PETTA_PATH", ROOT.parents[2] / "PeTTa")).resolve()
@@ -155,8 +156,74 @@ class PeTTaIntegrationTests(unittest.TestCase):
         for total, field in (("rule_attempt_count", "rule_attempt_count"), ("derived_sentence_count", "derived_sentence_count"), ("unique_derived_sentence_count", "new_unique_derived_sentence_count")):
             self.assertEqual(self.run_record[total], sum(int(s[field]) for s in steps))
 
+    def test_distractors_generate_work_without_changing_audited_answers(self):
+        baseline = None
+        previous_steps = 0
+        for case in ("smokes_seed", "smokes_rules_only", "smokes_noise_6", "smokes_noise_24", "smokes_noise_96"):
+            config = {**CONFIG, "case_id": case, "max_steps": 500, "task_queue_size": 512, "belief_queue_size": 1024, "instrumentation": "none"}
+            output, run = execute(PETTA, config, self.tmp.name, "audit_" + case)
+            self.assertEqual(run["status"], "completed", run)
+            self.assertEqual(run["stop_reason"], "task_queue_empty")
+            signature = [{k: r[k] for k in ("query_id", "answer_found", "answer_strength", "answer_confidence", "answer_evidence_ids")} for r in rows(output / "query_results.csv")]
+            if baseline is None:
+                baseline = signature
+            self.assertEqual(signature, baseline)
+            self.assertGreater(run["selected_task_count"], previous_steps)
+            previous_steps = run["selected_task_count"]
+            for result in signature:
+                if result["answer_evidence_ids"]:
+                    self.assertTrue(all(i <= 10 for i in json.loads(result["answer_evidence_ids"])))
+
+    def test_distractor_observer_equivalence_with_order_and_capacity_controls(self):
+        for case, seed, budget in (("smokes_noise_24", 17, 100), ("smokes_noise_96", 41, 10)):
+            for capacity, tasks, beliefs in (("default", 10, 100), ("roomy", 512, 1024)):
+                config = {**CONFIG, "case_id": case, "order_seed": seed, "max_steps": budget, "task_queue_size": tasks, "belief_queue_size": beliefs}
+                suffix = case + capacity
+                _, measured = execute(PETTA, config, self.tmp.name, "noise_observed_" + suffix)
+                _, original = execute(PETTA, {**config, "instrumentation": "none"}, self.tmp.name, "noise_original_" + suffix)
+                self.assertEqual(measured["status"], "completed", measured)
+                self.assertEqual(original["status"], "completed", original)
+                for key in ("final_state_sha256", "selected_trace_sha256"):
+                    self.assertEqual(measured[key], original[key])
+
+    def test_snapshot_copy_preserves_variable_sharing_without_binding_input(self):
+        goal = "'Baseline.Canonical'([X,X,Y],R),var(X),var(Y),R=[A,A,B],A\\==B,halt"
+        result = subprocess.run(["swipl", "-q", "-s", str(ROOT / "state_snapshot.prolog"), "-g", goal], capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_matrix_collects_paired_runs(self):
+        config = {"case_ids": ["smokes_seed"], "max_steps": [5], "capacities": [{"id": "default", "task_queue_size": 10, "belief_queue_size": 100}], "order_seeds": [17], "timed_repetitions": 2, "warmup": False, "timeout_seconds": 60}
+        directory, summary = run_matrix(PETTA, config, self.tmp.name, "small_matrix")
+        self.assertEqual(summary["status"], "completed", summary["failures"])
+        self.assertEqual(len(summary["cells"]), 1)
+        self.assertEqual(summary["cells"][0]["timed_completed"], 2)
+        self.assertEqual(len(summary["cells"][0]["run_ids"]), 3)
+        self.assertTrue((directory / "summary.json").is_file())
+
 
 class FailureTests(unittest.TestCase):
+    def test_nested_distractors_preserve_original_sentences_and_ids(self):
+        source, _ = build_case("smokes_seed")
+        original = sexpr(source[source.index("(= (kb)"):])[2]
+        previous = []
+        for count in (6, 24, 96):
+            text, info = build_case(f"smokes_noise_{count}")
+            entries = sexpr(text[text.index("(= (kb)"):])[2]
+            self.assertEqual(entries[:10], original)
+            self.assertEqual(info["initial_sentence_count"], 12 + count)
+            self.assertEqual(len({r[2][0] for r in entries}), len(entries))
+            self.assertEqual(entries[12:12 + len(previous)], previous)
+            previous = entries[12:]
+
+    def test_order_controls_keep_shared_relative_order(self):
+        orders = []
+        for case in ("smokes_seed", "smokes_noise_6", "smokes_noise_96"):
+            text, _ = build_case(case, 17)
+            entries = sexpr(text[text.index("(= (kb)"):])[2]
+            orders.append([r[2][0] for r in entries if r[2][0] <= 10])
+            self.assertEqual(text, build_case(case, 17)[0])
+        self.assertEqual(orders[0], orders[1])
+        self.assertEqual(orders[0], orders[2])
     def test_unknown_library_version_is_not_instrumented(self):
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "library.metta"

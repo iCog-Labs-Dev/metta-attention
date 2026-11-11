@@ -23,7 +23,7 @@ RUN_FIELDS = [
     "status", "error", "returncode", "stop_reason", "selected_task_count",
     "final_task_count", "final_belief_count", "pln_elapsed_ms", "ecan_elapsed_ms",
     "total_elapsed_ms", "rule_attempt_count", "unique_derived_sentence_count",
-    "derived_sentence_count", "instrumentation", "ecan_update_count", "focus_size",
+    "derived_sentence_count", "instrumentation", "final_state_sha256", "selected_trace_sha256", "ecan_update_count", "focus_size",
 ]
 QUERY_FIELDS = [
     "run_id", "query_id", "answer_found", "first_answer_step", "answer_strength",
@@ -41,15 +41,17 @@ STEP_FIELDS = [
     "derived_sentence_count", "new_unique_derived_sentence_count",
 ]
 OBSERVER_ANCHOR = "(let $temp (trace! (SELECTED $steps (Sentence $x $Ev1)) 42)"
-OBSERVER_REPLACEMENT = "(let $temp (trace! (SELECTED $steps (Sentence $x $Ev1)) (trace! (PLN_BASELINE_STEP $steps $Tasks $Beliefs $derivations) 42))"
+OBSERVER_REPLACEMENT = "(let $temp (trace! (SELECTED $steps (Sentence $x $Ev1)) (let ($tasks_snapshot $beliefs_snapshot $derived_snapshot) (Baseline.Canonical ($Tasks $Beliefs $derivations)) (trace! (PLN_BASELINE_STEP $steps $tasks_snapshot $beliefs_snapshot $derived_snapshot) 42)))"
 
 
 def sexpr(text):
     tokens = []
     pos = 0
-    while text[pos:].strip():
+    while pos < len(text):
         match = TOKEN.match(text, pos)
         if not match:
+            if not text[pos:].strip():
+                break
             raise ValueError("Invalid expression")
         tokens.append(match.group(1))
         pos = match.end()
@@ -232,16 +234,42 @@ def digest(path):
         return result.hexdigest()
 
 
+def build_case(case_id, order_seed=None):
+    definitions = json.loads((ROOT / "cases/distractors.json").read_text())
+    if case_id not in definitions["facts_by_case"]:
+        raise ValueError("Unknown Smokes case")
+    if order_seed is not None and type(order_seed) is not int:
+        raise ValueError("order_seed must be an integer or null")
+    seed = (ROOT / "cases/smokes_seed.metta").read_text()
+    start = seed.index("(= (kb)")
+    priors, definition = seed[:start], sexpr(seed[start:])
+    sentences = definition[2]
+    count = definitions["facts_by_case"][case_id]
+    rule_count = 0
+    if case_id != "smokes_seed":
+        sentences += [sexpr(rule) for rule in definitions["rules"]]
+        rule_count = len(definitions["rules"])
+        people = definitions["people"]
+        for index in range(count):
+            sentences.append(sexpr(definitions["fact_template"].format(person=people[index % len(people)], topic=index // len(people) + 1, evidence_id=10000 + index)))
+    if order_seed is not None:
+        sentences.sort(key=lambda entry: hashlib.sha256(f"{order_seed}:{entry[2][0]}".encode()).hexdigest())
+    text = priors + "(= (kb) " + render(sentences) + ")\n"
+    return text, {"original_sentences": 10, "distractor_facts": count, "distractor_rules": rule_count, "initial_sentence_count": len(sentences), "order_seed": order_seed}
+
+
 def execute(petta, config, output_root, run_id=None):
     petta = Path(petta).resolve()
     if not (petta / "run.sh").is_file() or not (petta / "lib/lib_pln.metta").is_file():
         raise ValueError("PeTTa checkout must contain run.sh and lib/lib_pln.metta")
     config = dict(config)
+    repeat = config.setdefault("repeat", 1)
+    if type(repeat) is not int or repeat < 1:
+        raise ValueError("repeat must be a positive integer")
     mode = config.setdefault("instrumentation", "none")
     if mode not in ("none", "scheduler_snapshots"):
         raise ValueError("instrumentation must be none or scheduler_snapshots")
-    if config.get("case_id") != "smokes_seed":
-        raise ValueError("Only the smokes_seed case is supported in this increment")
+    case_source, case_info = build_case(config.get("case_id"), config.get("order_seed"))
     for field, minimum in (("max_steps", 0), ("task_queue_size", 2), ("belief_queue_size", 2)):
         if type(config.get(field)) is not int or config[field] < minimum:
             raise ValueError(f"{field} must be an integer >= {minimum}")
@@ -261,32 +289,37 @@ def execute(petta, config, output_root, run_id=None):
     output.parent.mkdir(parents=True, exist_ok=True)
     output.mkdir()
     driver = output / "driver.metta"
+    case_path = output / "case.metta"
+    case_path.write_text(case_source)
     library = petta / "lib/lib_pln.metta"
     if mode == "scheduler_snapshots":
         expected = json.loads((ROOT / "cases/provenance.json").read_text())["pln_library_sha256_at_import"]
         observed = instrument_library(library, expected)
         library = output / "observed_lib_pln.metta"
         library.write_text(observed)
-    imports = "".join(f"!(import! &self {json.dumps(str(path.with_suffix('')))})\n" for path in (library, ROOT / "baseline.metta", ROOT / "cases/smokes_seed.metta"))
+    imports = f"!(callPredicate (Predicate (use_module {json.dumps(str(ROOT / 'state_snapshot.prolog'))})))\n"
+    imports += "!(import_prolog_function Baseline.Canonical)\n"
+    imports += "".join(f"!(import! &self {json.dumps(str(path.with_suffix('')))})\n" for path in (library, ROOT / "baseline.metta", case_path))
     query_terms = " ".join(f"({q['id']} {q['term']})" for q in questions)
     driver.write_text(imports + f"!(Baseline.Run (kb) {config['max_steps']} {config['task_queue_size']} {config['belief_queue_size']} ({query_terms}))\n")
     source_files = [petta / "run.sh", petta / "lib/lib_pln.metta", *sorted((petta / "src").rglob("*.pl")), *sorted((petta / "lib").glob("*.pl"))]
     mork = petta / "mork_ffi/target/release/libmork_ffi.so"
     if mork.is_file():
         source_files.append(mork)
-    local_files = [ROOT / "baseline.metta", ROOT / "run_baseline.py", ROOT / "cases/smokes_seed.metta", ROOT / "cases/questions.json", ROOT / "cases/provenance.json", ROOT / "schemas/metrics.json"]
+    local_files = [ROOT / "baseline.metta", ROOT / "state_snapshot.prolog", ROOT / "run_baseline.py", ROOT / "cases/smokes_seed.metta", ROOT / "cases/questions.json", ROOT / "cases/distractors.json", ROOT / "cases/provenance.json", ROOT / "schemas/metrics.json"]
     settings = {
-        "schema_version": 2, "run_id": run_id, "condition": "pln_only", "config": config,
+        "schema_version": 3, "run_id": run_id, "condition": "pln_only", "config": config,
         "created_utc": datetime.now(timezone.utc).isoformat(), "petta_path": str(petta),
         "python": sys.version, "platform": platform.platform(), "questions": questions,
         "source_sha256": {str(p.relative_to(petta)): digest(p) for p in source_files},
         "benchmark_sha256": {str(p.relative_to(ROOT)): digest(p) for p in local_files},
         "swipl": subprocess.run(["swipl", "--version"], capture_output=True, text=True, check=True).stdout.strip(),
         "trace_mode": mode, "observer_sha256": digest(library) if mode == "scheduler_snapshots" else None,
+        "case": case_info, "case_sha256": digest(case_path),
         "command": ["bash", str(petta / "run.sh"), str(driver)],
     }
     (output / "settings.json").write_text(json.dumps(settings, indent=2) + "\n")
-    row = dict(run_id=run_id, condition="pln_only", case_id=config["case_id"], max_steps=config["max_steps"], repeat=1, state_mode="fresh", ecan_elapsed_ms=0, status="error")
+    row = dict(run_id=run_id, condition="pln_only", case_id=config["case_id"], max_steps=config["max_steps"], repeat=repeat, state_mode="fresh", ecan_elapsed_ms=0, status="error")
     row["instrumentation"] = mode
     queries, trace, step_rows = [], [], []
     started = time.perf_counter()
@@ -310,6 +343,8 @@ def execute(petta, config, output_root, run_id=None):
             raise ValueError("PeTTa reported an error; see stderr.txt")
         selected, answers, state, elapsed, snapshots = parse_output((output / "stdout.txt").read_text(), questions, config["max_steps"], mode == "scheduler_snapshots")
         row.update(status="completed", pln_elapsed_ms=elapsed, selected_task_count=len(selected), final_task_count=len(state[0]), final_belief_count=len(state[1]), stop_reason="task_queue_empty" if not state[0] else "step_limit")
+        row["final_state_sha256"] = hashlib.sha256(json.dumps(normalize(state)).encode()).hexdigest()
+        row["selected_trace_sha256"] = hashlib.sha256(json.dumps(selected).encode()).hexdigest()
         first_steps = {}
         if mode == "scheduler_snapshots":
             if snapshots:

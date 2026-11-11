@@ -11,7 +11,9 @@
           (($tasks $beliefs) (PLN.Derive $kb $kb $steps $tasklimit $belieflimit))
           ($finished (current-time))
           ($timing (trace! (PLN_BASELINE_TIME (* 1000.0 (- $finished $started))) 0))
-          ($state (trace! (PLN_BASELINE_STATE $tasks $beliefs) 0))
+          ($state
+             (let ($tasks_out $beliefs_out) (Baseline.Canonical ($tasks $beliefs))
+                (trace! (PLN_BASELINE_STATE $tasks_out $beliefs_out) 0)))
           ($answers
              (collapse
                 (let ($id $term) (superpose $questions)
