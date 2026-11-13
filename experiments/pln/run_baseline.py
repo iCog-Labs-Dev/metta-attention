@@ -288,7 +288,6 @@ def execute(petta, config, output_root, run_id=None):
     output = Path(output_root).resolve() / run_id
     output.parent.mkdir(parents=True, exist_ok=True)
     output.mkdir()
-    driver = output / "driver.metta"
     case_path = output / "case.metta"
     case_path.write_text(case_source)
     library = petta / "lib/lib_pln.metta"
@@ -297,16 +296,18 @@ def execute(petta, config, output_root, run_id=None):
         observed = instrument_library(library, expected)
         library = output / "observed_lib_pln.metta"
         library.write_text(observed)
-    imports = f"!(callPredicate (Predicate (use_module {json.dumps(str(ROOT / 'state_snapshot.prolog'))})))\n"
-    imports += "!(import_prolog_function Baseline.Canonical)\n"
-    imports += "".join(f"!(import! &self {json.dumps(str(path.with_suffix('')))})\n" for path in (library, ROOT / "baseline.metta", case_path))
-    query_terms = " ".join(f"({q['id']} {q['term']})" for q in questions)
-    driver.write_text(imports + f"!(Baseline.Run (kb) {config['max_steps']} {config['task_queue_size']} {config['belief_queue_size']} ({query_terms}))\n")
+    query_terms = "(" + " ".join(f"({q['id']} {q['term']})" for q in questions) + ")"
+    command = [
+        "bash", str(petta / "run.sh"), str(ROOT / "experiment.metta"),
+        str(library), str(case_path), str(config["max_steps"]),
+        str(config["task_queue_size"]), str(config["belief_queue_size"]),
+        query_terms, str(ROOT / "state_snapshot.prolog"),
+    ]
     source_files = [petta / "run.sh", petta / "lib/lib_pln.metta", *sorted((petta / "src").rglob("*.pl")), *sorted((petta / "lib").glob("*.pl"))]
     mork = petta / "mork_ffi/target/release/libmork_ffi.so"
     if mork.is_file():
         source_files.append(mork)
-    local_files = [ROOT / "baseline.metta", ROOT / "state_snapshot.prolog", ROOT / "run_baseline.py", ROOT / "cases/smokes_seed.metta", ROOT / "cases/questions.json", ROOT / "cases/distractors.json", ROOT / "cases/provenance.json", ROOT / "schemas/metrics.json"]
+    local_files = [ROOT / "experiment.metta", ROOT / "baseline.metta", ROOT / "state_snapshot.prolog", ROOT / "run_baseline.py", ROOT / "cases/smokes_seed.metta", ROOT / "cases/questions.json", ROOT / "cases/distractors.json", ROOT / "cases/provenance.json", ROOT / "schemas/metrics.json"]
     settings = {
         "schema_version": 3, "run_id": run_id, "condition": "pln_only", "config": config,
         "created_utc": datetime.now(timezone.utc).isoformat(), "petta_path": str(petta),
@@ -316,7 +317,7 @@ def execute(petta, config, output_root, run_id=None):
         "swipl": subprocess.run(["swipl", "--version"], capture_output=True, text=True, check=True).stdout.strip(),
         "trace_mode": mode, "observer_sha256": digest(library) if mode == "scheduler_snapshots" else None,
         "case": case_info, "case_sha256": digest(case_path),
-        "command": ["bash", str(petta / "run.sh"), str(driver)],
+        "entrypoint": "experiment.metta", "command": command,
     }
     (output / "settings.json").write_text(json.dumps(settings, indent=2) + "\n")
     row = dict(run_id=run_id, condition="pln_only", case_id=config["case_id"], max_steps=config["max_steps"], repeat=repeat, state_mode="fresh", ecan_elapsed_ms=0, status="error")

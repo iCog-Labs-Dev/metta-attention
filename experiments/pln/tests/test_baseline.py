@@ -7,12 +7,14 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from run_baseline import ANSI, OBSERVER_ANCHOR, OBSERVER_REPLACEMENT, build_case, digest, execute, instrument_library, normalize, parse_output, sexpr
 from run_matrix import run_matrix
+from compact_output import CompactOutput, TABLES
 
 
 PETTA = Path(os.environ.get("PETTA_PATH", ROOT.parents[2] / "PeTTa")).resolve()
@@ -43,6 +45,45 @@ class PeTTaIntegrationTests(unittest.TestCase):
         self.assertTrue(math.isclose(float(result["answer_strength"]), 0.5199204545454544, abs_tol=1e-12))
         self.assertTrue(math.isclose(float(result["answer_confidence"]), 0.8290782204129108, abs_tol=1e-12))
         self.assertEqual(set(json.loads(result["answer_evidence_ids"])), {1, 2, 4, 9, 10})
+
+    def test_permanent_entrypoint_receives_data_arguments(self):
+        settings = json.loads((self.output / "settings.json").read_text())
+        self.assertEqual(Path(settings["command"][2]), ROOT / "experiment.metta")
+        self.assertEqual(settings["entrypoint"], "experiment.metta")
+        self.assertIn("experiment.metta", settings["benchmark_sha256"])
+        self.assertFalse((self.output / "driver.metta").exists())
+        self.assertEqual(Path(settings["command"][4]), self.output / "case.metta")
+        self.assertEqual(settings["command"][5:8], ["100", "10", "100"])
+
+    def test_static_entrypoint_matches_legacy_generated_driver(self):
+        variants = (
+            ("smokes_seed", 0, 10, 100, None, "none"),
+            ("smokes_seed", 5, 10, 100, None, "scheduler_snapshots"),
+            ("smokes_seed", 100, 10, 100, None, "scheduler_snapshots"),
+            ("smokes_noise_24", 100, 10, 100, 17, "scheduler_snapshots"),
+            ("smokes_noise_96", 10, 512, 1024, 41, "scheduler_snapshots"),
+            ("smokes_noise_96", 500, 512, 1024, 17, "none"),
+        )
+        for index, (case, budget, tasks, beliefs, seed, mode) in enumerate(variants):
+            config = {**CONFIG, "case_id": case, "max_steps": budget, "task_queue_size": tasks, "belief_queue_size": beliefs, "order_seed": seed, "instrumentation": mode}
+            output, run = execute(PETTA, config, self.tmp.name, f"static_{index}")
+            self.assertEqual(run["status"], "completed", run)
+            library = output / "observed_lib_pln.metta" if mode == "scheduler_snapshots" else PETTA / "lib/lib_pln.metta"
+            driver = Path(self.tmp.name) / f"legacy_driver_{index}.metta"
+            text = f'!(callPredicate (Predicate (use_module {json.dumps(str(ROOT / "state_snapshot.prolog"))})))\n'
+            text += "!(import_prolog_function Baseline.Canonical)\n"
+            for path in (library, ROOT / "baseline.metta", output / "case.metta"):
+                text += f'!(import! &self {json.dumps(str(path.with_suffix("")))})\n'
+            questions = " ".join(f'({q["id"]} {q["term"]})' for q in QUESTIONS)
+            text += f'!(Baseline.Run (kb) {budget} {tasks} {beliefs} ({questions}))\n'
+            driver.write_text(text)
+            legacy = subprocess.run(["bash", str(PETTA / "run.sh"), str(driver)], cwd=PETTA, capture_output=True, text=True, timeout=60)
+            self.assertEqual(legacy.returncode, 0, legacy.stderr)
+            self.assertNotIn("ERROR:", legacy.stderr)
+            measured = mode == "scheduler_snapshots"
+            old = parse_output(legacy.stdout, QUESTIONS, budget, measured)
+            new = parse_output((output / "stdout.txt").read_text(), QUESTIONS, budget, measured)
+            self.assertEqual(normalize([old[0], old[1], old[2], old[4]]), normalize([new[0], new[1], new[2], new[4]]))
 
     def test_all_questions_match_unmodified_query(self):
         script = Path(self.tmp.name) / "oracle.metta"
@@ -199,9 +240,92 @@ class PeTTaIntegrationTests(unittest.TestCase):
         self.assertEqual(summary["cells"][0]["timed_completed"], 2)
         self.assertEqual(len(summary["cells"][0]["run_ids"]), 3)
         self.assertTrue((directory / "summary.json").is_file())
+        self.assertFalse((directory / "runs").exists())
+        self.assertFalse((directory / "_work").exists())
+        self.assertEqual(len(rows(directory / "runs.csv")), 3)
+        self.assertEqual(len(rows(directory / "query_results.csv")), 15)
+        self.assertEqual(len(json.loads((directory / "settings.json").read_text())["trials"]), 3)
+        self.assertEqual(summary["storage"]["format"], "csv-v2")
+        self.assertEqual({p.name for p in directory.iterdir()}, {*TABLES, "settings.json", "matrix.json", "summary.json"})
+
+    def test_collection_preserves_all_measurements_and_settings(self):
+        target = Path(self.tmp.name) / "compact_check"
+        compact = CompactOutput(target)
+        compact.add_run(self.output)
+        other, _ = execute(PETTA, {**CONFIG, "max_steps": 5, "instrumentation": "none"}, self.tmp.name, "compact_other")
+        expected = {name: rows(self.output / name) + rows(other / name) for name in TABLES}
+        original_settings = [json.loads((p / "settings.json").read_text()) for p in (self.output, other)]
+        compact.add_run(other, remove_source=True)
+        self.assertFalse(other.exists())
+        totals = compact.verify()
+        self.assertEqual(CompactOutput.open_existing(target).verify(), totals)
+        self.assertEqual(totals["runs.csv"], 2)
+        for name in TABLES:
+            self.assertEqual(rows(target / name), expected[name])
+        saved = json.loads((target / "settings.json").read_text())
+        self.assertEqual([{**saved["shared"], **trial} for trial in saved["trials"]], original_settings)
+        self.assertEqual({p.name for p in target.iterdir()}, {*TABLES, "settings.json"})
+
+    def test_csv_verification_failure_rolls_back_and_keeps_original_files(self):
+        compact = CompactOutput(Path(self.tmp.name) / "verification_failure")
+        before = {p.name: p.read_bytes() for p in self.output.iterdir()}
+        collected_before = {p.name: p.read_bytes() for p in compact.directory.iterdir()}
+        with patch.object(compact, "_verify_append", side_effect=ValueError("simulated verification failure")):
+            with self.assertRaises(ValueError):
+                compact.add_run(self.output, remove_source=True)
+        self.assertTrue(self.output.exists())
+        self.assertEqual(before, {p.name: p.read_bytes() for p in self.output.iterdir()})
+        self.assertEqual(collected_before, {p.name: p.read_bytes() for p in compact.directory.iterdir()})
+        self.assertEqual(compact.verify(), {name: 0 for name in TABLES})
+
+    def test_settings_save_failure_rolls_back_and_keeps_original_files(self):
+        compact = CompactOutput(Path(self.tmp.name) / "settings_failure")
+        before = {p.name: p.read_bytes() for p in self.output.iterdir()}
+        saved = (compact.directory / "settings.json").read_bytes()
+        with patch.object(compact, "_write_settings", side_effect=OSError("simulated disk failure")):
+            with self.assertRaises(OSError):
+                compact.add_run(self.output, remove_source=True)
+        self.assertEqual(before, {p.name: p.read_bytes() for p in self.output.iterdir()})
+        self.assertEqual((compact.directory / "settings.json").read_bytes(), saved)
+        self.assertEqual(compact.verify(), {name: 0 for name in TABLES})
+
+    def test_verification_detects_changed_csv_values(self):
+        compact = CompactOutput(Path(self.tmp.name) / "altered_csv")
+        compact.add_run(self.output)
+        path = compact.directory / "query_results.csv"
+        values = rows(path)
+        values[0]["answer_strength"] = "0.123"
+        with path.open("w", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=TABLES[path.name])
+            writer.writeheader()
+            writer.writerows(values)
+        with self.assertRaisesRegex(ValueError, "checksum mismatch"):
+            compact.verify()
 
 
 class FailureTests(unittest.TestCase):
+    def test_compaction_preserves_failed_run_logs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fake = Path(tmp) / "fake_petta"
+            (fake / "lib").mkdir(parents=True)
+            (fake / "lib/lib_pln.metta").write_text("")
+            (fake / "run.sh").write_text("echo failure-details >&2\nexit 7\n")
+            source, run = execute(fake, {**CONFIG, "instrumentation": "none"}, Path(tmp) / "source", "failed")
+            self.assertEqual(run["status"], "error")
+            compact = CompactOutput(Path(tmp) / "compact")
+            compact.add_run(source, remove_source=True)
+            compact.verify()
+            self.assertEqual(rows(compact.directory / "runs.csv")[0]["status"], "error")
+            self.assertEqual(rows(compact.directory / "query_results.csv"), [])
+            failure = json.loads((compact.directory / "errors.jsonl").read_text())
+            self.assertEqual(failure["run_id"], "failed")
+            self.assertIn("failure-details", failure["stderr"])
+            self.assertFalse(source.exists())
+            self.assertFalse((compact.directory / "details.zip").exists())
+            with (compact.directory / "errors.jsonl").open("a") as handle:
+                handle.write(json.dumps(failure) + "\n")
+            with self.assertRaisesRegex(ValueError, "Duplicate failure log"):
+                compact.verify()
     def test_nested_distractors_preserve_original_sentences_and_ids(self):
         source, _ = build_case("smokes_seed")
         original = sexpr(source[source.index("(= (kb)"):])[2]
