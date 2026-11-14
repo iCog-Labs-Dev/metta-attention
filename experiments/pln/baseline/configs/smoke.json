@@ -1,0 +1,8 @@
+{
+  "case_id": "smokes_seed",
+  "instrumentation": "scheduler_snapshots",
+  "max_steps": 100,
+  "task_queue_size": 10,
+  "belief_queue_size": 100,
+  "timeout_seconds": 60
+}

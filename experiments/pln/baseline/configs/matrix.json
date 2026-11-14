@@ -1,0 +1,13 @@
+{
+  "case_ids": ["smokes_seed", "smokes_rules_only", "smokes_noise_6", "smokes_noise_24", "smokes_noise_96"],
+  "max_steps": [10, 100, 500],
+  "capacities": [
+    {"id": "default", "task_queue_size": 10, "belief_queue_size": 100},
+    {"id": "roomy", "task_queue_size": 512, "belief_queue_size": 1024}
+  ],
+  "order_seeds": [17, 41],
+  "timed_repetitions": 3,
+  "warmup": true,
+  "timeout_seconds": 60,
+  "rationale": "Pilot runs exhausted the original and augmented queues within 320 selections with roomy buffers. Budgets 10 and 100 test constrained reasoning; 500 is a generous reference. Case sizes were selected before any ECAN evaluation. Hash-key ordering preserves the relative order of existing facts as distractors are added. One observed run and three unmodified timed runs per cell distinguish measurement overhead."
+}
