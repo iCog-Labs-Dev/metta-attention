@@ -12,12 +12,12 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from run_baseline import ANSI, OBSERVER_ANCHOR, OBSERVER_REPLACEMENT, build_case, digest, execute, instrument_library, normalize, parse_output, sexpr
+from run_baseline import ANSI, OBSERVER_ANCHOR, OBSERVER_REPLACEMENT, REPO_ROOT, build_case, digest, execute, instrument_library, normalize, parse_output, sexpr
 from run_matrix import run_matrix
 from compact_output import CompactOutput, TABLES
 
 
-PETTA = Path(os.environ.get("PETTA_PATH", ROOT.parents[2] / "PeTTa")).resolve()
+PETTA = Path(os.environ.get("PETTA_PATH", REPO_ROOT.parent / "PeTTa")).resolve()
 CONFIG = json.loads((ROOT / "configs/smoke.json").read_text())
 QUESTIONS = json.loads((ROOT / "cases/questions.json").read_text())
 

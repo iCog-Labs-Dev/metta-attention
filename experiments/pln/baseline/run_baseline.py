@@ -16,6 +16,7 @@ from uuid import uuid4
 
 
 ROOT = Path(__file__).resolve().parent
+REPO_ROOT = ROOT.parents[2]
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 TOKEN = re.compile(r'\s*(\(|\)|"(?:[^"\\]|\\.)*"|[^\s()]+)')
 RUN_FIELDS = [
@@ -385,9 +386,9 @@ def execute(petta, config, output_root, run_id=None):
 
 def main():
     parser = argparse.ArgumentParser(description="Run the PeTTa-bundled PLN Smokes baseline")
-    parser.add_argument("--petta", type=Path, default=ROOT.parents[2] / "PeTTa")
+    parser.add_argument("--petta", type=Path, default=REPO_ROOT.parent / "PeTTa")
     parser.add_argument("--config", type=Path, default=ROOT / "configs/smoke.json")
-    parser.add_argument("--output-root", type=Path, default=ROOT.parent / "output/pln")
+    parser.add_argument("--output-root", type=Path, default=REPO_ROOT / "experiments/output/pln/baseline")
     parser.add_argument("--run-id")
     args = parser.parse_args()
     try:

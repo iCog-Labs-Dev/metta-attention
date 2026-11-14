@@ -9,7 +9,7 @@ import sys
 from uuid import uuid4
 
 from compact_output import CompactOutput
-from run_baseline import ROOT, digest, execute
+from run_baseline import REPO_ROOT, ROOT, digest, execute
 
 
 def answers(records):
@@ -81,9 +81,9 @@ def run_matrix(petta, config, output_root, batch_id=None):
 
 def main():
     parser = argparse.ArgumentParser(description="Run the frozen PLN-only baseline matrix")
-    parser.add_argument("--petta", type=Path, default=ROOT.parents[2] / "PeTTa")
+    parser.add_argument("--petta", type=Path, default=REPO_ROOT.parent / "PeTTa")
     parser.add_argument("--config", type=Path, default=ROOT / "configs/matrix.json")
-    parser.add_argument("--output-root", type=Path, default=ROOT.parent / "output/pln")
+    parser.add_argument("--output-root", type=Path, default=REPO_ROOT / "experiments/output/pln/baseline")
     args = parser.parse_args()
     directory, summary = run_matrix(args.petta, json.loads(args.config.read_text()), args.output_root)
     print(f"{summary['status']}: {directory}")
