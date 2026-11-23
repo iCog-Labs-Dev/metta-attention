@@ -1,0 +1,10 @@
+{
+  "people": ["Anna", "Bob", "Edward", "Frank", "Gary", "Helen"],
+  "facts_by_case": {"smokes_seed": 0, "smokes_rules_only": 0, "smokes_noise_6": 6, "smokes_noise_24": 24, "smokes_noise_96": 96},
+  "rules": [
+    "(Sentence ((Implication (Evaluation Hobby (Product $person $topic)) (Evaluation Practices (Product $person $topic))) (stv 0.8 0.9)) (1001))",
+    "(Sentence ((Implication (Evaluation Practices (Product $person $topic)) (Evaluation Enjoys (Product $person $topic))) (stv 0.7 0.9)) (1002))"
+  ],
+  "fact_template": "(Sentence ((Evaluation Hobby (Product {person} Activity{topic})) (stv 1.0 0.9)) ({evidence_id}))",
+  "rationale": "One, four, or sixteen facts for each of the six existing people; fourfold growth separates workload levels. The same two rules are present in every augmented case, including a rules-only control. Case levels are fixed independently of future ECAN results."
+}

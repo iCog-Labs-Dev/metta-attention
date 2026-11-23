@@ -1,0 +1,9 @@
+{
+  "source_repository": "https://github.com/trueagi-io/PeTTa",
+  "source_path": "examples/pln_tuffy.metta",
+  "source_sha256": "39a1daf8d2bc97bfdc996ad5ff7125eb286d6031d4eab11561388c6859c63ad2",
+  "fixture_sha256": "4315fe1481b7b17c52db071b2bafd73873f6f333da3a35f16e3cdb800e39c48d",
+  "transformation": "Removed library import and final test invocation; preserved all priors, sentences, STVs, evidence IDs and order. Normalized trailing whitespace.",
+  "license": "MIT; see LICENSE.PETTA",
+  "pln_library_sha256_at_import": "6b980321bbe9b49e5b12e2fcee0479ab1d5c7550c2104a67b0722a5b473da4ee"
+}
